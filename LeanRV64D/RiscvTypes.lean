@@ -5154,7 +5154,7 @@ def assembly_forwards (arg_ : ast) : SailM String := do
             (String.append (sep_forwards ())
               (String.append (vreg_name_forwards vs2)
                 (String.append (sep_forwards ())
-                  (String.append (← (hex_bits_5_forwards simm))
+                  (String.append (← (hex_bits_signed_5_forwards simm))
                     (String.append (maybe_vmask_backwards vm) "")))))))))
   | .NISTYPE (funct6, vm, vs2, simm, vd) =>
     (pure (String.append (nistype_mnemonic_forwards funct6)
@@ -5163,7 +5163,7 @@ def assembly_forwards (arg_ : ast) : SailM String := do
             (String.append (sep_forwards ())
               (String.append (vreg_name_forwards vs2)
                 (String.append (sep_forwards ())
-                  (String.append (← (hex_bits_5_forwards simm))
+                  (String.append (← (hex_bits_signed_5_forwards simm))
                     (String.append (maybe_vmask_backwards vm) "")))))))))
   | .NITYPE (funct6, vm, vs2, simm, vd) =>
     (pure (String.append (nitype_mnemonic_forwards funct6)
@@ -5172,7 +5172,7 @@ def assembly_forwards (arg_ : ast) : SailM String := do
             (String.append (sep_forwards ())
               (String.append (vreg_name_forwards vs2)
                 (String.append (sep_forwards ())
-                  (String.append (← (hex_bits_5_forwards simm))
+                  (String.append (← (hex_bits_signed_5_forwards simm))
                     (String.append (maybe_vmask_backwards vm) "")))))))))
   | .VISG (funct6, vm, vs2, simm, vd) =>
     (pure (String.append (visg_mnemonic_forwards funct6)
@@ -5181,7 +5181,7 @@ def assembly_forwards (arg_ : ast) : SailM String := do
             (String.append (sep_forwards ())
               (String.append (vreg_name_forwards vs2)
                 (String.append (sep_forwards ())
-                  (String.append (← (hex_bits_5_forwards simm))
+                  (String.append (← (hex_bits_signed_5_forwards simm))
                     (String.append (maybe_vmask_backwards vm) "")))))))))
   | .MASKTYPEI (vs2, simm, vd) =>
     (pure (String.append "vmerge.vim"
@@ -5190,13 +5190,14 @@ def assembly_forwards (arg_ : ast) : SailM String := do
             (String.append (sep_forwards ())
               (String.append (vreg_name_forwards vs2)
                 (String.append (sep_forwards ())
-                  (String.append (← (hex_bits_5_forwards simm))
+                  (String.append (← (hex_bits_signed_5_forwards simm))
                     (String.append (sep_forwards ()) (String.append "v0" ""))))))))))
   | .MOVETYPEI (vd, simm) =>
     (pure (String.append "vmv.v.i"
         (String.append (spc_forwards ())
           (String.append (vreg_name_forwards vd)
-            (String.append (sep_forwards ()) (String.append (← (hex_bits_5_forwards simm)) ""))))))
+            (String.append (sep_forwards ())
+              (String.append (← (hex_bits_signed_5_forwards simm)) ""))))))
   | .VMVRTYPE (vs2, simm, vd) =>
     (pure (String.append "vmv"
         (String.append (← (simm_string_forwards simm))
@@ -5742,7 +5743,7 @@ def assembly_forwards (arg_ : ast) : SailM String := do
             (String.append (sep_forwards ())
               (String.append (vreg_name_forwards vs2)
                 (String.append (sep_forwards ())
-                  (String.append (← (hex_bits_5_forwards simm))
+                  (String.append (← (hex_bits_signed_5_forwards simm))
                     (String.append (sep_forwards ()) (String.append "v0" ""))))))))))
   | .VIMCTYPE (funct6, vs2, simm, vd) =>
     (pure (String.append (vimctype_mnemonic_forwards funct6)
@@ -5750,7 +5751,8 @@ def assembly_forwards (arg_ : ast) : SailM String := do
           (String.append (vreg_name_forwards vd)
             (String.append (sep_forwards ())
               (String.append (vreg_name_forwards vs2)
-                (String.append (sep_forwards ()) (String.append (← (hex_bits_5_forwards simm)) ""))))))))
+                (String.append (sep_forwards ())
+                  (String.append (← (hex_bits_signed_5_forwards simm)) ""))))))))
   | .VIMSTYPE (funct6, vs2, simm, vd) =>
     (pure (String.append (vimstype_mnemonic_forwards funct6)
         (String.append (spc_forwards ())
@@ -5758,7 +5760,7 @@ def assembly_forwards (arg_ : ast) : SailM String := do
             (String.append (sep_forwards ())
               (String.append (vreg_name_forwards vs2)
                 (String.append (sep_forwards ())
-                  (String.append (← (hex_bits_5_forwards simm))
+                  (String.append (← (hex_bits_signed_5_forwards simm))
                     (String.append (sep_forwards ()) (String.append "v0" ""))))))))))
   | .VICMPTYPE (funct6, vm, vs2, simm, vd) =>
     (pure (String.append (vicmptype_mnemonic_forwards funct6)
@@ -5767,7 +5769,7 @@ def assembly_forwards (arg_ : ast) : SailM String := do
             (String.append (sep_forwards ())
               (String.append (vreg_name_forwards vs2)
                 (String.append (sep_forwards ())
-                  (String.append (← (hex_bits_5_forwards simm))
+                  (String.append (← (hex_bits_signed_5_forwards simm))
                     (String.append (maybe_vmask_backwards vm) "")))))))))
   | .FVVMTYPE (funct6, vm, vs2, vs1, vd) =>
     (pure (String.append (fvvmtype_mnemonic_forwards funct6)
@@ -5828,6 +5830,8 @@ def assembly_forwards (arg_ : ast) : SailM String := do
             (String.append (opt_spc_forwards ())
               (String.append (← (reg_name_forwards rs1))
                 (String.append (opt_spc_forwards ()) (String.append ")" ""))))))))
+  | .WRS WRS_STO => (pure "wrs.sto")
+  | .WRS WRS_NTO => (pure "wrs.nto")
   | .VANDN_VV (vm, vs1, vs2, vd) =>
     (pure (String.append "vandn.vv"
         (String.append (spc_forwards ())
@@ -6091,10 +6095,6 @@ def assembly_forwards (arg_ : ast) : SailM String := do
   | .C_ILLEGAL s =>
     (pure (String.append "c.illegal"
         (String.append (spc_forwards ()) (String.append (← (hex_bits_16_forwards s)) ""))))
-  | _ =>
-    (do
-      assert false "Pattern match failure at unknown location"
-      throw Error.Exit)
 
 def print_insn (insn : ast) : SailM String := do
   (assembly_forwards insn)
