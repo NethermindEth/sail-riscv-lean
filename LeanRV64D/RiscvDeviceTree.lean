@@ -1,4 +1,5 @@
 import LeanRV64D.RiscvXlen
+import LeanRV64D.RiscvExtensions
 import LeanRV64D.RiscvPlatform
 
 set_option maxHeartbeats 1_000_000_000
@@ -169,6 +170,18 @@ open ExceptionType
 open Architecture
 open AccessType
 
+def mmu_type (_ : Unit) : SailM String := do
+  assert (xlen == 64) "riscv_device_tree.sail:14.21-14.22"
+  bif (hartSupports Ext_Sv57)
+  then (pure "sv57")
+  else
+    (bif (hartSupports Ext_Sv48)
+    then (pure "sv48")
+    else
+      (bif (hartSupports Ext_Sv39)
+      then (pure "sv39")
+      else (pure "none")))
+
 def generate_dts (_ : Unit) : SailM String := do
   let clock_freq : Int := 1000000000
   let ram_base_hi ← do (pure (BitVec.toNat (shiftr (← readReg plat_ram_base) 32)))
@@ -225,7 +238,7 @@ def generate_dts (_ : Unit) : SailM String := do
                                                 (HAppend.hAppend "\";
 "
                                                   (HAppend.hAppend "      mmu-type = \"riscv,"
-                                                    (HAppend.hAppend "sv39"
+                                                    (HAppend.hAppend (← (mmu_type ()))
                                                       (HAppend.hAppend "\";
 "
                                                         (HAppend.hAppend "      clock-frequency = <"
