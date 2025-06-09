@@ -165,6 +165,7 @@ open PmpAddrMatchType
 open PTW_Error
 open PTE_Check
 open InterruptType
+open ISA_Format
 open HartState
 open FetchResult
 open Ext_PhysAddr_Check
@@ -2687,13 +2688,13 @@ def maybe_lmul_flag_backwards (arg_ : (BitVec 3)) : SailM String := do
                               assert false "Pattern match failure at unknown location"
                               throw Error.Exit)))))))
 
-/-- Type quantifiers: k_ex369781# : Bool -/
+/-- Type quantifiers: k_ex369841# : Bool -/
 def maybe_not_u_forwards (arg_ : Bool) : String :=
   match arg_ with
   | false => "u"
   | true => ""
 
-/-- Type quantifiers: k_ex369782# : Bool -/
+/-- Type quantifiers: k_ex369842# : Bool -/
 def maybe_u_forwards (arg_ : Bool) : String :=
   match arg_ with
   | true => "u"

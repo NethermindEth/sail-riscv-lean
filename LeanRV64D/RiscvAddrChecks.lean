@@ -156,6 +156,7 @@ open PmpAddrMatchType
 open PTW_Error
 open PTE_Check
 open InterruptType
+open ISA_Format
 open HartState
 open FetchResult
 open Ext_PhysAddr_Check
@@ -191,7 +192,7 @@ def ext_data_get_addr (base : regidx) (offset : (BitVec (2 ^ 3 * 8))) (acc : (Ac
 def ext_handle_data_check_error (err : Unit) : Unit :=
   ()
 
-/-- Type quantifiers: k_ex371934# : Bool, k_ex371933# : Bool, k_ex371932# : Bool, k_ex371931# : Bool, size
+/-- Type quantifiers: k_ex371994# : Bool, k_ex371993# : Bool, k_ex371992# : Bool, k_ex371991# : Bool, size
   : Nat, 0 < size ∧ size ≤ max_mem_access -/
 def ext_check_phys_mem_read (access_type : (AccessType Unit)) (paddr : physaddr) (size : Nat) (acquire : Bool) (release : Bool) (reserved : Bool) (read_meta : Bool) : Ext_PhysAddr_Check :=
   (Ext_PhysAddr_OK ())

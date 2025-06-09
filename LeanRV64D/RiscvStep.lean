@@ -172,6 +172,7 @@ open PmpAddrMatchType
 open PTW_Error
 open PTE_Check
 open InterruptType
+open ISA_Format
 open HartState
 open FetchResult
 open Ext_PhysAddr_Check
@@ -184,7 +185,7 @@ open ExceptionType
 open Architecture
 open AccessType
 
-/-- Type quantifiers: k_ex434052# : Bool, step_no : Int -/
+/-- Type quantifiers: k_ex434112# : Bool, step_no : Int -/
 def run_hart_waiting (step_no : Int) (wr : WaitReason) (instbits : (BitVec 32)) (exit_wait : Bool) : SailM Step := do
   bif (← (shouldWakeForInterrupt ()))
   then
@@ -333,7 +334,7 @@ def wait_is_nop (wr : WaitReason) : Bool :=
   | WAIT_WRS_STO => false
   | WAIT_WRS_NTO => false
 
-/-- Type quantifiers: k_ex434089# : Bool, step_no : Nat, 0 ≤ step_no -/
+/-- Type quantifiers: k_ex434149# : Bool, step_no : Nat, 0 ≤ step_no -/
 def try_step (step_no : Nat) (exit_wait : Bool) : SailM Bool := do
   let _ : Unit := (ext_pre_step_hook ())
   writeReg minstret_increment (← (should_inc_minstret (← readReg cur_privilege)))

@@ -162,6 +162,7 @@ open PmpAddrMatchType
 open PTW_Error
 open PTE_Check
 open InterruptType
+open ISA_Format
 open HartState
 open FetchResult
 open Ext_PhysAddr_Check
@@ -226,7 +227,7 @@ def misaligned_order (n : Int) : (Int × Int × Int) :=
   then ((n -i 1), 0, (-1))
   else (0, (n -i 1), 1)
 
-/-- Type quantifiers: k_ex375264# : Bool, k_ex375263# : Bool, k_ex375262# : Bool, width : Nat, is_mem_width(width) -/
+/-- Type quantifiers: k_ex375324# : Bool, k_ex375323# : Bool, k_ex375322# : Bool, width : Nat, is_mem_width(width) -/
 def vmem_write_addr (vaddr : virtaddr) (width : Nat) (data : (BitVec (8 * width))) (acc : (AccessType Unit)) (aq : Bool) (rl : Bool) (res : Bool) : SailM (Result Bool ExecutionResult) := SailME.run do
   let (n, bytes) ← do (split_misaligned vaddr width)
   let (first, last, step) := (misaligned_order n)
@@ -282,7 +283,7 @@ def check_misaligned (vaddr : virtaddr) (width : word_width) : Bool :=
   then false
   else (not (is_aligned_vaddr vaddr (size_bytes_forwards width)))
 
-/-- Type quantifiers: k_ex375314# : Bool, k_ex375313# : Bool, k_ex375312# : Bool, width : Nat, is_mem_width(width) -/
+/-- Type quantifiers: k_ex375374# : Bool, k_ex375373# : Bool, k_ex375372# : Bool, width : Nat, is_mem_width(width) -/
 def vmem_read (rs : regidx) (offset : (BitVec (2 ^ 3 * 8))) (width : Nat) (acc : (AccessType Unit)) (aq : Bool) (rl : Bool) (res : Bool) : SailM (Result (BitVec (8 * width)) ExecutionResult) := SailME.run do
   let vaddr ← (( do
     match (← (ext_data_get_addr rs offset acc width)) with
@@ -347,7 +348,7 @@ def vmem_read (rs : regidx) (offset : (BitVec (2 ^ 3 * 8))) (width : Nat) (acc :
     ((BitVec (8 * n * bytes)) × Bool × Nat) )
   (pure (Ok data))
 
-/-- Type quantifiers: k_ex375349# : Bool, k_ex375348# : Bool, k_ex375347# : Bool, width : Nat, is_mem_width(width) -/
+/-- Type quantifiers: k_ex375409# : Bool, k_ex375408# : Bool, k_ex375407# : Bool, width : Nat, is_mem_width(width) -/
 def vmem_write (rs_addr : regidx) (offset : (BitVec (2 ^ 3 * 8))) (width : Nat) (data : (BitVec (8 * width))) (acc : (AccessType Unit)) (aq : Bool) (rl : Bool) (res : Bool) : SailM (Result Bool ExecutionResult) := SailME.run do
   let vaddr ← (( do
     match (← (ext_data_get_addr rs_addr offset acc width)) with

@@ -162,6 +162,7 @@ open PmpAddrMatchType
 open PTW_Error
 open PTE_Check
 open InterruptType
+open ISA_Format
 open HartState
 open FetchResult
 open Ext_PhysAddr_Check
@@ -174,7 +175,7 @@ open ExceptionType
 open Architecture
 open AccessType
 
-/-- Type quantifiers: k_ex371928# : Bool -/
+/-- Type quantifiers: k_ex371988# : Bool -/
 def ext_check_CSR (csrno : (BitVec 12)) (p : Privilege) (isWrite : Bool) : Bool :=
   true
 
