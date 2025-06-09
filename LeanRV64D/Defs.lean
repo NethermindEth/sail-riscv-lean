@@ -747,7 +747,7 @@ inductive ast where
   | VISG (_ : (visgfunct6 × (BitVec 1) × vregidx × (BitVec 5) × vregidx))
   | MASKTYPEI (_ : (vregidx × (BitVec 5) × vregidx))
   | MOVETYPEI (_ : (vregidx × (BitVec 5)))
-  | VMVRTYPE (_ : (vregidx × (BitVec 5) × vregidx))
+  | VMVRTYPE (_ : (vregidx × Int × vregidx))
   | MVVTYPE (_ : (mvvfunct6 × (BitVec 1) × vregidx × vregidx × vregidx))
   | MVVMATYPE (_ : (mvvmafunct6 × (BitVec 1) × vregidx × vregidx × vregidx))
   | WVVTYPE (_ : (wvvfunct6 × (BitVec 1) × vregidx × vregidx × vregidx))

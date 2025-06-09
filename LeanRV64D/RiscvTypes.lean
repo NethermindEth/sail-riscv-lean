@@ -2687,13 +2687,13 @@ def maybe_lmul_flag_backwards (arg_ : (BitVec 3)) : SailM String := do
                               assert false "Pattern match failure at unknown location"
                               throw Error.Exit)))))))
 
-/-- Type quantifiers: k_ex369625# : Bool -/
+/-- Type quantifiers: k_ex369781# : Bool -/
 def maybe_not_u_forwards (arg_ : Bool) : String :=
   match arg_ with
   | false => "u"
   | true => ""
 
-/-- Type quantifiers: k_ex369626# : Bool -/
+/-- Type quantifiers: k_ex369782# : Bool -/
 def maybe_u_forwards (arg_ : Bool) : String :=
   match arg_ with
   | true => "u"
@@ -2807,6 +2807,14 @@ def nitype_mnemonic_forwards (arg_ : nifunct6) : String :=
   | NI_VNCLIPU => "vnclipu.wi"
   | NI_VNCLIP => "vnclip.wi"
 
+/-- Type quantifiers: arg_ : Nat, arg_ ∈ {1, 2, 4, 8} -/
+def nreg_string_forwards (arg_ : Nat) : String :=
+  match arg_ with
+  | 1 => "1"
+  | 2 => "2"
+  | 4 => "4"
+  | _ => "8"
+
 def nvstype_mnemonic_forwards (arg_ : nvsfunct6) : String :=
   match arg_ with
   | NVS_VNSRL => "vnsrl.wv"
@@ -2905,27 +2913,6 @@ def shiftiwop_mnemonic_forwards (arg_ : sopw) : String :=
   | SLLIW => "slliw"
   | SRLIW => "srliw"
   | SRAIW => "sraiw"
-
-def simm_string_forwards (arg_ : (BitVec 5)) : SailM String := do
-  let b__0 := arg_
-  bif (b__0 == (0b00000 : (BitVec 5)))
-  then (pure "1")
-  else
-    (do
-      bif (b__0 == (0b00001 : (BitVec 5)))
-      then (pure "2")
-      else
-        (do
-          bif (b__0 == (0b00011 : (BitVec 5)))
-          then (pure "4")
-          else
-            (do
-              bif (b__0 == (0b00111 : (BitVec 5)))
-              then (pure "8")
-              else
-                (do
-                  assert false "Pattern match failure at unknown location"
-                  throw Error.Exit))))
 
 def size_mnemonic_forwards (arg_ : word_width) : String :=
   match arg_ with
@@ -5198,9 +5185,9 @@ def assembly_forwards (arg_ : ast) : SailM String := do
           (String.append (vreg_name_forwards vd)
             (String.append (sep_forwards ())
               (String.append (← (hex_bits_signed_5_forwards simm)) ""))))))
-  | .VMVRTYPE (vs2, simm, vd) =>
+  | .VMVRTYPE (vs2, nreg, vd) =>
     (pure (String.append "vmv"
-        (String.append (← (simm_string_forwards simm))
+        (String.append (nreg_string_forwards nreg)
           (String.append "r.v"
             (String.append (spc_forwards ())
               (String.append (vreg_name_forwards vd)

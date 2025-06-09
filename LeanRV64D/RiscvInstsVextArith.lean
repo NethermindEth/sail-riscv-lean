@@ -1335,18 +1335,36 @@ def visg_mnemonic_backwards_matches (arg_ : String) : Bool :=
   | "vrgather.vi" => true
   | _ => false
 
-def simm_string_backwards (arg_ : String) : SailM (BitVec 5) := do
-  match arg_ with
-  | "1" => (pure (0b00000 : (BitVec 5)))
-  | "2" => (pure (0b00001 : (BitVec 5)))
-  | "4" => (pure (0b00011 : (BitVec 5)))
-  | "8" => (pure (0b00111 : (BitVec 5)))
-  | _ =>
+def encdec_nreg_forwards (arg_ : (BitVec 5)) : SailM Int := do
+  let b__0 := arg_
+  bif (b__0 == (0b00000 : (BitVec 5)))
+  then (pure 1)
+  else
     (do
-      assert false "Pattern match failure at unknown location"
-      throw Error.Exit)
+      bif (b__0 == (0b00001 : (BitVec 5)))
+      then (pure 2)
+      else
+        (do
+          bif (b__0 == (0b00011 : (BitVec 5)))
+          then (pure 4)
+          else
+            (do
+              bif (b__0 == (0b00111 : (BitVec 5)))
+              then (pure 8)
+              else
+                (do
+                  assert false "Pattern match failure at unknown location"
+                  throw Error.Exit))))
 
-def simm_string_forwards_matches (arg_ : (BitVec 5)) : Bool :=
+/-- Type quantifiers: arg_ : Nat, arg_ ∈ {1, 2, 4, 8} -/
+def encdec_nreg_backwards (arg_ : Nat) : (BitVec 5) :=
+  match arg_ with
+  | 1 => (0b00000 : (BitVec 5))
+  | 2 => (0b00001 : (BitVec 5))
+  | 4 => (0b00011 : (BitVec 5))
+  | _ => (0b00111 : (BitVec 5))
+
+def encdec_nreg_forwards_matches (arg_ : (BitVec 5)) : Bool :=
   let b__0 := arg_
   bif (b__0 == (0b00000 : (BitVec 5)))
   then true
@@ -1361,7 +1379,36 @@ def simm_string_forwards_matches (arg_ : (BitVec 5)) : Bool :=
         then true
         else false)))
 
-def simm_string_backwards_matches (arg_ : String) : Bool :=
+/-- Type quantifiers: arg_ : Nat, arg_ ∈ {1, 2, 4, 8} -/
+def encdec_nreg_backwards_matches (arg_ : Nat) : Bool :=
+  match arg_ with
+  | 1 => true
+  | 2 => true
+  | 4 => true
+  | 8 => true
+  | _ => false
+
+def nreg_string_backwards (arg_ : String) : SailM Int := do
+  match arg_ with
+  | "1" => (pure 1)
+  | "2" => (pure 2)
+  | "4" => (pure 4)
+  | "8" => (pure 8)
+  | _ =>
+    (do
+      assert false "Pattern match failure at unknown location"
+      throw Error.Exit)
+
+/-- Type quantifiers: arg_ : Nat, arg_ ∈ {1, 2, 4, 8} -/
+def nreg_string_forwards_matches (arg_ : Nat) : Bool :=
+  match arg_ with
+  | 1 => true
+  | 2 => true
+  | 4 => true
+  | 8 => true
+  | _ => false
+
+def nreg_string_backwards_matches (arg_ : String) : Bool :=
   match arg_ with
   | "1" => true
   | "2" => true
