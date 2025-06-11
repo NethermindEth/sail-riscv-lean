@@ -290,7 +290,7 @@ def pmpWriteCfgReg (n : Nat) (v : (BitVec (2 ^ 3 * 8))) : SailM Unit := do
           (Sail.BitVec.extractLsb v ((8 *i i) +i 7) (8 *i i))))
   (pure loop_vars)
 
-/-- Type quantifiers: k_ex371923# : Bool, k_ex371922# : Bool -/
+/-- Type quantifiers: k_ex372799# : Bool, k_ex372798# : Bool -/
 def pmpWriteAddr (locked : Bool) (tor_locked : Bool) (reg : (BitVec (2 ^ 3 * 8))) (v : (BitVec (2 ^ 3 * 8))) : (BitVec (2 ^ 3 * 8)) :=
   bif (locked || tor_locked)
   then reg

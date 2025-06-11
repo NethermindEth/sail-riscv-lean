@@ -1,5 +1,6 @@
 import LeanRV64D.Prelude
 import LeanRV64D.RiscvStep
+import LeanRV64D.RiscvModel
 
 set_option maxHeartbeats 1_000_000_000
 set_option maxRecDepth 1_000_000
@@ -177,7 +178,7 @@ def sail_main (_ : Unit) : SailM Unit := do
   writeReg PC (get_entry_point ())
   (pure (print_bits "PC = " (← readReg PC)))
   sailTryCatch ((do
-      (init_model ())
+      (init_model "")
       (cycle_count ())
       (loop ()))) (fun the_exception => 
     match the_exception with
