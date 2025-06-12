@@ -2686,13 +2686,13 @@ def maybe_lmul_flag_backwards (arg_ : (BitVec 3)) : SailM String := do
                               assert false "Pattern match failure at unknown location"
                               throw Error.Exit)))))))
 
-/-- Type quantifiers: k_ex370755# : Bool -/
+/-- Type quantifiers: k_ex370567# : Bool -/
 def maybe_not_u_forwards (arg_ : Bool) : String :=
   match arg_ with
   | false => "u"
   | true => ""
 
-/-- Type quantifiers: k_ex370756# : Bool -/
+/-- Type quantifiers: k_ex370568# : Bool -/
 def maybe_u_forwards (arg_ : Bool) : String :=
   match arg_ with
   | true => "u"
@@ -3425,30 +3425,28 @@ def assembly_forwards (arg_ : ast) : SailM String := do
             (String.append (sep_forwards ())
               (String.append (← (reg_name_forwards rs1))
                 (String.append (sep_forwards ()) (String.append (← (reg_name_forwards rs2)) ""))))))))
-  | .LOAD (imm, rs1, rd, is_unsigned, width, aq, rl) =>
+  | .LOAD (imm, rs1, rd, is_unsigned, width) =>
     (pure (String.append "l"
         (String.append (size_mnemonic_forwards width)
           (String.append (maybe_u_forwards is_unsigned)
-            (String.append (maybe_aqrl_forwards (aq, rl))
-              (String.append (spc_forwards ())
-                (String.append (← (reg_name_forwards rd))
-                  (String.append (sep_forwards ())
-                    (String.append (← (hex_bits_signed_12_forwards imm))
-                      (String.append "("
-                        (String.append (← (reg_name_forwards rs1)) (String.append ")" ""))))))))))))
-  | .STORE (imm, rs2, rs1, width, aq, rl) =>
-    (pure (String.append "s"
-        (String.append (size_mnemonic_forwards width)
-          (String.append (maybe_aqrl_forwards (aq, rl))
             (String.append (spc_forwards ())
-              (String.append (← (reg_name_forwards rs2))
+              (String.append (← (reg_name_forwards rd))
                 (String.append (sep_forwards ())
                   (String.append (← (hex_bits_signed_12_forwards imm))
-                    (String.append (opt_spc_forwards ())
-                      (String.append "("
-                        (String.append (opt_spc_forwards ())
-                          (String.append (← (reg_name_forwards rs1))
-                            (String.append (opt_spc_forwards ()) (String.append ")" ""))))))))))))))
+                    (String.append "("
+                      (String.append (← (reg_name_forwards rs1)) (String.append ")" "")))))))))))
+  | .STORE (imm, rs2, rs1, width) =>
+    (pure (String.append "s"
+        (String.append (size_mnemonic_forwards width)
+          (String.append (spc_forwards ())
+            (String.append (← (reg_name_forwards rs2))
+              (String.append (sep_forwards ())
+                (String.append (← (hex_bits_signed_12_forwards imm))
+                  (String.append (opt_spc_forwards ())
+                    (String.append "("
+                      (String.append (opt_spc_forwards ())
+                        (String.append (← (reg_name_forwards rs1))
+                          (String.append (opt_spc_forwards ()) (String.append ")" "")))))))))))))
   | .ADDIW (imm, rs1, rd) =>
     (do
       bif (xlen == 64)

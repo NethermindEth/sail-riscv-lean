@@ -313,3 +313,29 @@ def amo_mnemonic_backwards_matches (arg_ : String) : Bool :=
   | "amomaxu" => true
   | _ => false
 
+def maybe_aqrl_backwards (arg_ : String) : SailM (Bool × Bool) := do
+  match arg_ with
+  | ".aqrl" => (pure (true, true))
+  | ".aq" => (pure (true, false))
+  | ".rl" => (pure (false, true))
+  | "" => (pure (false, false))
+  | _ =>
+    (do
+      assert false "Pattern match failure at unknown location"
+      throw Error.Exit)
+
+def maybe_aqrl_forwards_matches (arg_ : (Bool × Bool)) : Bool :=
+  match arg_ with
+  | (true, true) => true
+  | (true, false) => true
+  | (false, true) => true
+  | (false, false) => true
+
+def maybe_aqrl_backwards_matches (arg_ : String) : Bool :=
+  match arg_ with
+  | ".aqrl" => true
+  | ".aq" => true
+  | ".rl" => true
+  | "" => true
+  | _ => false
+
