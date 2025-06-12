@@ -5,7 +5,3 @@ moreLeanArgs = ["--tstack=400000"]
 [[lean_lib]]
 name = "LeanRV64D"
 leanOptions.weak.linter.style.nameCheck = false
-
-[[lean_exe]]
-name = "run"
-root = "LeanRV64D"
