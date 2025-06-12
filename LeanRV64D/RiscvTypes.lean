@@ -186,10 +186,6 @@ def xlen_min_signed := (0 -i (2 ^i (xlen -i 1)))
 
 def pagesize_bits := 12
 
-def regidx_offset (typ_0 : regidx) (o : (BitVec 5)) : regidx :=
-  let .Regidx r : regidx := typ_0
-  (Regidx (r + o))
-
 def regidx_bits (app_0 : regidx) : (BitVec 5) :=
   let .Regidx b := app_0
   b
@@ -238,7 +234,7 @@ def architecture_backwards (arg_ : (BitVec 2)) : SailM Architecture := do
         (do
           bif (b__0 == (0b11 : (BitVec 2)))
           then (pure RV128)
-          else (internal_error "riscv_types.sail" 54 "architecture(0b00) is invalid")))
+          else (internal_error "riscv_types.sail" 55 "architecture(0b00) is invalid")))
 
 def architecture_forwards_matches (arg_ : Architecture) : Bool :=
   match arg_ with
@@ -296,7 +292,7 @@ def privLevel_bits_backwards (arg_ : (BitVec 2)) : SailM Privilege := do
           bif (b__0 == (0b11 : (BitVec 2)))
           then (pure Machine)
           else
-            (internal_error "riscv_types.sail" 66
+            (internal_error "riscv_types.sail" 67
               (HAppend.hAppend "Invalid privilege level: " (BitVec.toFormatted (0b10 : (BitVec 2)))))))
 
 def privLevel_bits_forwards_matches (arg_ : Privilege) : Bool :=
@@ -2194,13 +2190,15 @@ def bit_maybe_w_forwards (arg_ : (BitVec 1)) : String :=
   else ""
 
 def fence_bits_forwards (arg_ : (BitVec 4)) : String :=
-  match arg_ with
-  | v__0 =>
-    (let i : (BitVec 1) := (Sail.BitVec.extractLsb v__0 3 3)
-    let w : (BitVec 1) := (Sail.BitVec.extractLsb v__0 0 0)
-    let r : (BitVec 1) := (Sail.BitVec.extractLsb v__0 1 1)
-    let o : (BitVec 1) := (Sail.BitVec.extractLsb v__0 2 2)
-    let i : (BitVec 1) := (Sail.BitVec.extractLsb v__0 3 3)
+  let b__0 := arg_
+  bif (b__0 == (0x0 : (BitVec 4)))
+  then "0"
+  else
+    (let i : (BitVec 1) := (Sail.BitVec.extractLsb b__0 3 3)
+    let w : (BitVec 1) := (Sail.BitVec.extractLsb b__0 0 0)
+    let r : (BitVec 1) := (Sail.BitVec.extractLsb b__0 1 1)
+    let o : (BitVec 1) := (Sail.BitVec.extractLsb b__0 2 2)
+    let i : (BitVec 1) := (Sail.BitVec.extractLsb b__0 3 3)
     (String.append (bit_maybe_i_forwards i)
       (String.append (bit_maybe_o_forwards o)
         (String.append (bit_maybe_r_forwards r) (String.append (bit_maybe_w_forwards w) "")))))
@@ -2688,13 +2686,13 @@ def maybe_lmul_flag_backwards (arg_ : (BitVec 3)) : SailM String := do
                               assert false "Pattern match failure at unknown location"
                               throw Error.Exit)))))))
 
-/-- Type quantifiers: k_ex370717# : Bool -/
+/-- Type quantifiers: k_ex370755# : Bool -/
 def maybe_not_u_forwards (arg_ : Bool) : String :=
   match arg_ with
   | false => "u"
   | true => ""
 
-/-- Type quantifiers: k_ex370718# : Bool -/
+/-- Type quantifiers: k_ex370756# : Bool -/
 def maybe_u_forwards (arg_ : Bool) : String :=
   match arg_ with
   | true => "u"
@@ -4457,7 +4455,7 @@ def assembly_forwards (arg_ : ast) : SailM String := do
             (String.append (sep_forwards ())
               (String.append (← (reg_name_forwards rs1))
                 (String.append (sep_forwards ()) (String.append (← (reg_name_forwards rs2)) ""))))))))
-  | .C_LBU (uimm, rdc, rs1c) =>
+  | .C_LBU (uimm, rdc, rsc1) =>
     (pure (String.append "c.lbu"
         (String.append (spc_forwards ())
           (String.append (creg_name_forwards rdc)
@@ -4466,9 +4464,9 @@ def assembly_forwards (arg_ : ast) : SailM String := do
                 (String.append (opt_spc_forwards ())
                   (String.append "("
                     (String.append (opt_spc_forwards ())
-                      (String.append (creg_name_forwards rs1c)
+                      (String.append (creg_name_forwards rsc1)
                         (String.append (opt_spc_forwards ()) (String.append ")" ""))))))))))))
-  | .C_LHU (uimm, rdc, rs1c) =>
+  | .C_LHU (uimm, rdc, rsc1) =>
     (pure (String.append "c.lhu"
         (String.append (spc_forwards ())
           (String.append (creg_name_forwards rdc)
@@ -4477,9 +4475,9 @@ def assembly_forwards (arg_ : ast) : SailM String := do
                 (String.append (opt_spc_forwards ())
                   (String.append "("
                     (String.append (opt_spc_forwards ())
-                      (String.append (creg_name_forwards rs1c)
+                      (String.append (creg_name_forwards rsc1)
                         (String.append (opt_spc_forwards ()) (String.append ")" ""))))))))))))
-  | .C_LH (uimm, rdc, rs1c) =>
+  | .C_LH (uimm, rdc, rsc1) =>
     (pure (String.append "c.lh"
         (String.append (spc_forwards ())
           (String.append (creg_name_forwards rdc)
@@ -4488,29 +4486,29 @@ def assembly_forwards (arg_ : ast) : SailM String := do
                 (String.append (opt_spc_forwards ())
                   (String.append "("
                     (String.append (opt_spc_forwards ())
-                      (String.append (creg_name_forwards rs1c)
+                      (String.append (creg_name_forwards rsc1)
                         (String.append (opt_spc_forwards ()) (String.append ")" ""))))))))))))
-  | .C_SB (uimm, rs1c, rs2c) =>
+  | .C_SB (uimm, rsc1, rsc2) =>
     (pure (String.append "c.sb"
         (String.append (spc_forwards ())
-          (String.append (creg_name_forwards rs2c)
+          (String.append (creg_name_forwards rsc2)
             (String.append (sep_forwards ())
               (String.append (← (hex_bits_2_forwards uimm))
                 (String.append (opt_spc_forwards ())
                   (String.append "("
                     (String.append (opt_spc_forwards ())
-                      (String.append (creg_name_forwards rs1c)
+                      (String.append (creg_name_forwards rsc1)
                         (String.append (opt_spc_forwards ()) (String.append ")" ""))))))))))))
-  | .C_SH (uimm, rs1c, rs2c) =>
+  | .C_SH (uimm, rsc1, rsc2) =>
     (pure (String.append "c.sh"
         (String.append (spc_forwards ())
-          (String.append (creg_name_forwards rs2c)
+          (String.append (creg_name_forwards rsc2)
             (String.append (sep_forwards ())
               (String.append (← (hex_bits_2_forwards uimm))
                 (String.append (opt_spc_forwards ())
                   (String.append "("
                     (String.append (opt_spc_forwards ())
-                      (String.append (creg_name_forwards rs1c)
+                      (String.append (creg_name_forwards rsc1)
                         (String.append (opt_spc_forwards ()) (String.append ")" ""))))))))))))
   | .C_ZEXT_B rsdc =>
     (pure (String.append "c.zext.b"
@@ -4530,11 +4528,11 @@ def assembly_forwards (arg_ : ast) : SailM String := do
   | .C_NOT rsdc =>
     (pure (String.append "c.not"
         (String.append (spc_forwards ()) (String.append (creg_name_forwards rsdc) ""))))
-  | .C_MUL (rsdc, rs2c) =>
+  | .C_MUL (rsdc, rsc2) =>
     (pure (String.append "c.mul"
         (String.append (spc_forwards ())
           (String.append (creg_name_forwards rsdc)
-            (String.append (sep_forwards ()) (String.append (creg_name_forwards rs2c) ""))))))
+            (String.append (sep_forwards ()) (String.append (creg_name_forwards rsc2) ""))))))
   | .F_BIN_RM_TYPE_H (rs2, rs1, rm, rd, op) =>
     (pure (String.append (f_bin_rm_type_mnemonic_H_forwards op)
         (String.append (spc_forwards ())
@@ -5617,7 +5615,7 @@ def assembly_forwards (arg_ : ast) : SailM String := do
               (String.append (vreg_name_forwards vs2)
                 (String.append (sep_forwards ()) (String.append (vreg_name_forwards vs1) ""))))))))
   | .VCPOP_M (vm, vs2, rd) =>
-    (pure (String.append "vpopc.m"
+    (pure (String.append "vcpop.m"
         (String.append (spc_forwards ())
           (String.append (← (reg_name_forwards rd))
             (String.append (sep_forwards ())

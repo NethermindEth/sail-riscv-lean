@@ -18,6 +18,10 @@ inductive option (k_a : Type) where
 
 abbrev bits k_n := (BitVec k_n)
 
+inductive regidx where
+  | Regidx (_ : (BitVec 5))
+  deriving Inhabited, BEq, Repr
+
 abbrev xlenbits := (BitVec (2 ^ 3 * 8))
 
 inductive virtaddr where
@@ -110,10 +114,6 @@ abbrev word := (BitVec 32)
 abbrev instbits := (BitVec 32)
 
 abbrev pagesize_bits : Int := 12
-
-inductive regidx where
-  | Regidx (_ : (BitVec 5))
-  deriving Inhabited, BEq, Repr
 
 inductive cregidx where
   | Cregidx (_ : (BitVec 3))
