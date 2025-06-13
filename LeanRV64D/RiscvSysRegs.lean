@@ -610,25 +610,29 @@ def legalize_misa (m : (BitVec (2 ^ 3 * 8))) (v : (BitVec (2 ^ 3 * 8))) : SailM 
           (_update_Misa_S
             (_update_Misa_M
               (_update_Misa_I
-                (_update_Misa_F
-                  (_update_Misa_D
-                    (_update_Misa_C
-                      (_update_Misa_B
-                        (_update_Misa_A m
-                          (bif (hartSupports Ext_A)
-                          then (_get_Misa_A v)
+                (_update_Misa_H
+                  (_update_Misa_F
+                    (_update_Misa_D
+                      (_update_Misa_C
+                        (_update_Misa_B
+                          (_update_Misa_A m
+                            (bif (hartSupports Ext_A)
+                            then (_get_Misa_A v)
+                            else (0b0 : (BitVec 1))))
+                          (bif (hartSupports Ext_B)
+                          then (_get_Misa_B v)
                           else (0b0 : (BitVec 1))))
-                        (bif (hartSupports Ext_B)
-                        then (_get_Misa_B v)
+                        (bif (hartSupports Ext_C)
+                        then (_get_Misa_C v)
                         else (0b0 : (BitVec 1))))
-                      (bif (hartSupports Ext_C)
-                      then (_get_Misa_C v)
+                      (bif ((hartSupports Ext_D) && ((_get_Misa_F v) == (0b1 : (BitVec 1))))
+                      then (_get_Misa_D v)
                       else (0b0 : (BitVec 1))))
-                    (bif ((hartSupports Ext_D) && ((_get_Misa_F v) == (0b1 : (BitVec 1))))
-                    then (_get_Misa_D v)
+                    (bif (hartSupports Ext_F)
+                    then (_get_Misa_F v)
                     else (0b0 : (BitVec 1))))
-                  (bif (hartSupports Ext_F)
-                  then (_get_Misa_F v)
+                  (bif (hartSupports Ext_H)
+                  then (_get_Misa_H v)
                   else (0b0 : (BitVec 1)))) (0b1 : (BitVec 1)))
               (bif (hartSupports Ext_M)
               then (_get_Misa_M v)
@@ -669,6 +673,7 @@ def currentlyEnabled_measure (ext : extension) : Int :=
   | Ext_M => 1
   | Ext_S => 1
   | Ext_V => 1
+  | Ext_H => 4
   | Ext_Smcntrpmf => 3
   | Ext_Zabha => 3
   | Ext_Zcb => 3
@@ -682,8 +687,12 @@ def currentlyEnabled_measure (ext : extension) : Int :=
   | Ext_Zhinxmin => 4
   | _ => 2
 
+
+mutual
 def currentlyEnabled (merge_var : extension) : SailM Bool := do
   match merge_var with
+  | Ext_Zkt => (pure (hartSupports Ext_Zkt))
+  | Ext_Zvkt => (pure (hartSupports Ext_Zvkt))
   | Ext_Sstc => (pure (hartSupports Ext_Sstc))
   | Ext_U =>
     (pure ((hartSupports Ext_U) && (((_get_Misa_U (← readReg misa)) == (0b1 : (BitVec 1))) && (← (currentlyEnabled
@@ -728,6 +737,9 @@ def currentlyEnabled (merge_var : extension) : SailM Bool := do
     (pure ((hartSupports Ext_M) && ((_get_Misa_M (← readReg misa)) == (0b1 : (BitVec 1)))))
   | Ext_Zmmul => (pure ((hartSupports Ext_Zmmul) || (← (currentlyEnabled Ext_M))))
   | Ext_Zicsr => (pure (hartSupports Ext_Zicsr))
+  | Ext_H =>
+    (pure ((hartSupports Ext_H) && (((_get_Misa_H (← readReg misa)) == (0b1 : (BitVec 1))) && (← (virtual_memory_supported
+              ())))))
   | Ext_Zfh => (pure ((hartSupports Ext_Zfh) && (← (currentlyEnabled Ext_F))))
   | Ext_Zfhmin =>
     (pure (((hartSupports Ext_Zfhmin) && (← (currentlyEnabled Ext_F))) || (← (currentlyEnabled
@@ -777,10 +789,11 @@ def currentlyEnabled (merge_var : extension) : SailM Bool := do
   | Ext_Zimop => (pure (hartSupports Ext_Zimop))
   | Ext_Zcmop => (pure ((hartSupports Ext_Zcmop) && (← (currentlyEnabled Ext_Zca))))
 termination_by let ext := merge_var; ((currentlyEnabled_measure ext)).toNat
-
 def virtual_memory_supported (_ : Unit) : SailM Bool := do
   (pure ((← (currentlyEnabled Ext_Sv32)) || ((← (currentlyEnabled Ext_Sv39)) || ((← (currentlyEnabled
               Ext_Sv48)) || (← (currentlyEnabled Ext_Sv57))))))
+termination_by let _ := (); (3).toNat
+end
 
 def lowest_supported_privLevel (_ : Unit) : SailM Privilege := do
   bif (← (currentlyEnabled Ext_U))

@@ -2686,13 +2686,13 @@ def maybe_lmul_flag_backwards (arg_ : (BitVec 3)) : SailM String := do
                               assert false "Pattern match failure at unknown location"
                               throw Error.Exit)))))))
 
-/-- Type quantifiers: k_ex370615# : Bool -/
+/-- Type quantifiers: k_ex370689# : Bool -/
 def maybe_not_u_forwards (arg_ : Bool) : String :=
   match arg_ with
   | false => "u"
   | true => ""
 
-/-- Type quantifiers: k_ex370616# : Bool -/
+/-- Type quantifiers: k_ex370690# : Bool -/
 def maybe_u_forwards (arg_ : Bool) : String :=
   match arg_ with
   | true => "u"

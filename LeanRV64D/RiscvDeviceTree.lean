@@ -201,99 +201,103 @@ def num_of_ISA_Format (arg_ : ISA_Format) : Int :=
   | Canonical_Lowercase => 0
   | DeviceTree_ISA_Extensions => 1
 
-def ext_wrap (ext : extension) (fmt : ISA_Format) : String :=
+def ext_wrap (ext : extension) (fmt : ISA_Format) : SailM String := do
   bif (not (hartSupports ext))
-  then ""
+  then (pure "")
   else
-    (let s := (extensionName_forwards ext)
-    match fmt with
-    | Canonical_Lowercase =>
-      (bif ((String.length s) == 1)
-      then s
-      else (HAppend.hAppend "_" s))
-    | DeviceTree_ISA_Extensions => (HAppend.hAppend ", \"" (HAppend.hAppend s "\"")))
+    (do
+      let s ← do (extensionName_forwards ext)
+      match fmt with
+      | Canonical_Lowercase =>
+        (bif ((String.length s) == 1)
+        then (pure s)
+        else (pure (HAppend.hAppend "_" s)))
+      | DeviceTree_ISA_Extensions => (pure (HAppend.hAppend ", \"" (HAppend.hAppend s "\""))))
 
-def generate_isa_string (fmt : ISA_Format) : String :=
+def generate_isa_string (fmt : ISA_Format) : SailM String := do
   let prefix : String :=
     match fmt with
     | Canonical_Lowercase => (HAppend.hAppend "rv" (HAppend.hAppend (Int.repr xlen) "i"))
     | DeviceTree_ISA_Extensions => "\"i\""
-  let singles :=
-    (HAppend.hAppend ""
-      (HAppend.hAppend (ext_wrap Ext_M fmt)
-        (HAppend.hAppend (ext_wrap Ext_A fmt)
-          (HAppend.hAppend (ext_wrap Ext_F fmt)
-            (HAppend.hAppend (ext_wrap Ext_D fmt)
-              (HAppend.hAppend (ext_wrap Ext_C fmt)
-                (HAppend.hAppend (ext_wrap Ext_B fmt) (ext_wrap Ext_V fmt))))))))
-  let zi_exts :=
-    (HAppend.hAppend ""
-      (HAppend.hAppend (ext_wrap Ext_Zicbom fmt)
-        (HAppend.hAppend (ext_wrap Ext_Zicboz fmt)
-          (HAppend.hAppend (ext_wrap Ext_Zicntr fmt)
-            (HAppend.hAppend (ext_wrap Ext_Zicond fmt)
-              (HAppend.hAppend (ext_wrap Ext_Zicsr fmt)
-                (HAppend.hAppend (ext_wrap Ext_Zifencei fmt)
-                  (HAppend.hAppend (ext_wrap Ext_Zihpm fmt)
-                    (HAppend.hAppend (ext_wrap Ext_Zimop fmt) (ext_wrap Ext_Zmmul fmt))))))))))
-  let za_exts :=
-    (HAppend.hAppend ""
-      (HAppend.hAppend (ext_wrap Ext_Zaamo fmt)
-        (HAppend.hAppend (ext_wrap Ext_Zabha fmt)
-          (HAppend.hAppend (ext_wrap Ext_Zalrsc fmt) (ext_wrap Ext_Zawrs fmt)))))
-  let zf_exts :=
-    (HAppend.hAppend ""
-      (HAppend.hAppend (ext_wrap Ext_Zfa fmt)
-        (HAppend.hAppend (ext_wrap Ext_Zfh fmt)
-          (HAppend.hAppend (ext_wrap Ext_Zfhmin fmt)
-            (HAppend.hAppend (ext_wrap Ext_Zfinx fmt)
-              (HAppend.hAppend (ext_wrap Ext_Zdinx fmt)
-                (HAppend.hAppend (ext_wrap Ext_Zhinx fmt) (ext_wrap Ext_Zhinxmin fmt))))))))
-  let zc_exts :=
-    (HAppend.hAppend ""
-      (HAppend.hAppend (ext_wrap Ext_Zca fmt)
-        (HAppend.hAppend (ext_wrap Ext_Zcb fmt)
-          (HAppend.hAppend (ext_wrap Ext_Zcd fmt)
-            (HAppend.hAppend (ext_wrap Ext_Zcf fmt) (ext_wrap Ext_Zcmop fmt))))))
-  let zb_exts :=
-    (HAppend.hAppend ""
-      (HAppend.hAppend (ext_wrap Ext_Zba fmt)
-        (HAppend.hAppend (ext_wrap Ext_Zbb fmt)
-          (HAppend.hAppend (ext_wrap Ext_Zbc fmt)
-            (HAppend.hAppend (ext_wrap Ext_Zbkb fmt)
-              (HAppend.hAppend (ext_wrap Ext_Zbkc fmt)
-                (HAppend.hAppend (ext_wrap Ext_Zbkx fmt) (ext_wrap Ext_Zbs fmt))))))))
-  let zk_exts :=
-    (HAppend.hAppend ""
-      (HAppend.hAppend (ext_wrap Ext_Zknd fmt)
-        (HAppend.hAppend (ext_wrap Ext_Zkne fmt)
-          (HAppend.hAppend (ext_wrap Ext_Zknh fmt)
-            (HAppend.hAppend (ext_wrap Ext_Zkr fmt)
-              (HAppend.hAppend (ext_wrap Ext_Zksed fmt) (ext_wrap Ext_Zksh fmt)))))))
-  let zv_exts :=
-    (HAppend.hAppend ""
-      (HAppend.hAppend (ext_wrap Ext_Zvbb fmt)
-        (HAppend.hAppend (ext_wrap Ext_Zvbc fmt)
-          (HAppend.hAppend (ext_wrap Ext_Zvkb fmt)
-            (HAppend.hAppend (ext_wrap Ext_Zvkg fmt)
-              (HAppend.hAppend (ext_wrap Ext_Zvkned fmt)
-                (HAppend.hAppend (ext_wrap Ext_Zvknha fmt)
-                  (HAppend.hAppend (ext_wrap Ext_Zvknhb fmt) (ext_wrap Ext_Zvksh fmt)))))))))
-  let s_exts :=
-    (HAppend.hAppend ""
-      (HAppend.hAppend (ext_wrap Ext_Sscofpmf fmt)
-        (HAppend.hAppend (ext_wrap Ext_Sstc fmt)
-          (HAppend.hAppend (ext_wrap Ext_Svinval fmt)
-            (HAppend.hAppend (ext_wrap Ext_Svnapot fmt) (ext_wrap Ext_Svpbmt fmt))))))
-  let m_exts := (HAppend.hAppend "" (ext_wrap Ext_Smcntrpmf fmt))
-  (HAppend.hAppend prefix
-    (HAppend.hAppend singles
-      (HAppend.hAppend zi_exts
-        (HAppend.hAppend za_exts
-          (HAppend.hAppend zf_exts
-            (HAppend.hAppend zc_exts
-              (HAppend.hAppend zb_exts
-                (HAppend.hAppend zk_exts (HAppend.hAppend zv_exts (HAppend.hAppend s_exts m_exts))))))))))
+  let singles ← do
+    (pure (HAppend.hAppend ""
+        (HAppend.hAppend (← (ext_wrap Ext_M fmt))
+          (HAppend.hAppend (← (ext_wrap Ext_A fmt))
+            (HAppend.hAppend (← (ext_wrap Ext_F fmt))
+              (HAppend.hAppend (← (ext_wrap Ext_D fmt))
+                (HAppend.hAppend (← (ext_wrap Ext_C fmt))
+                  (HAppend.hAppend (← (ext_wrap Ext_B fmt))
+                    (HAppend.hAppend (← (ext_wrap Ext_V fmt)) (← (ext_wrap Ext_H fmt)))))))))))
+  let zi_exts ← do
+    (pure (HAppend.hAppend ""
+        (HAppend.hAppend (← (ext_wrap Ext_Zicbom fmt))
+          (HAppend.hAppend (← (ext_wrap Ext_Zicboz fmt))
+            (HAppend.hAppend (← (ext_wrap Ext_Zicntr fmt))
+              (HAppend.hAppend (← (ext_wrap Ext_Zicond fmt))
+                (HAppend.hAppend (← (ext_wrap Ext_Zicsr fmt))
+                  (HAppend.hAppend (← (ext_wrap Ext_Zifencei fmt))
+                    (HAppend.hAppend (← (ext_wrap Ext_Zihpm fmt))
+                      (HAppend.hAppend (← (ext_wrap Ext_Zimop fmt)) (← (ext_wrap Ext_Zmmul fmt))))))))))))
+  let za_exts ← do
+    (pure (HAppend.hAppend ""
+        (HAppend.hAppend (← (ext_wrap Ext_Zaamo fmt))
+          (HAppend.hAppend (← (ext_wrap Ext_Zabha fmt))
+            (HAppend.hAppend (← (ext_wrap Ext_Zalrsc fmt)) (← (ext_wrap Ext_Zawrs fmt)))))))
+  let zf_exts ← do
+    (pure (HAppend.hAppend ""
+        (HAppend.hAppend (← (ext_wrap Ext_Zfa fmt))
+          (HAppend.hAppend (← (ext_wrap Ext_Zfh fmt))
+            (HAppend.hAppend (← (ext_wrap Ext_Zfhmin fmt))
+              (HAppend.hAppend (← (ext_wrap Ext_Zfinx fmt))
+                (HAppend.hAppend (← (ext_wrap Ext_Zdinx fmt))
+                  (HAppend.hAppend (← (ext_wrap Ext_Zhinx fmt)) (← (ext_wrap Ext_Zhinxmin fmt))))))))))
+  let zc_exts ← do
+    (pure (HAppend.hAppend ""
+        (HAppend.hAppend (← (ext_wrap Ext_Zca fmt))
+          (HAppend.hAppend (← (ext_wrap Ext_Zcb fmt))
+            (HAppend.hAppend (← (ext_wrap Ext_Zcd fmt))
+              (HAppend.hAppend (← (ext_wrap Ext_Zcf fmt)) (← (ext_wrap Ext_Zcmop fmt))))))))
+  let zb_exts ← do
+    (pure (HAppend.hAppend ""
+        (HAppend.hAppend (← (ext_wrap Ext_Zba fmt))
+          (HAppend.hAppend (← (ext_wrap Ext_Zbb fmt))
+            (HAppend.hAppend (← (ext_wrap Ext_Zbc fmt))
+              (HAppend.hAppend (← (ext_wrap Ext_Zbkb fmt))
+                (HAppend.hAppend (← (ext_wrap Ext_Zbkc fmt))
+                  (HAppend.hAppend (← (ext_wrap Ext_Zbkx fmt)) (← (ext_wrap Ext_Zbs fmt))))))))))
+  let zk_exts ← do
+    (pure (HAppend.hAppend ""
+        (HAppend.hAppend (← (ext_wrap Ext_Zknd fmt))
+          (HAppend.hAppend (← (ext_wrap Ext_Zkne fmt))
+            (HAppend.hAppend (← (ext_wrap Ext_Zknh fmt))
+              (HAppend.hAppend (← (ext_wrap Ext_Zkr fmt))
+                (HAppend.hAppend (← (ext_wrap Ext_Zksed fmt))
+                  (HAppend.hAppend (← (ext_wrap Ext_Zksh fmt)) (← (ext_wrap Ext_Zkt fmt))))))))))
+  let zv_exts ← do
+    (pure (HAppend.hAppend ""
+        (HAppend.hAppend (← (ext_wrap Ext_Zvbb fmt))
+          (HAppend.hAppend (← (ext_wrap Ext_Zvbc fmt))
+            (HAppend.hAppend (← (ext_wrap Ext_Zvkb fmt))
+              (HAppend.hAppend (← (ext_wrap Ext_Zvkg fmt))
+                (HAppend.hAppend (← (ext_wrap Ext_Zvkned fmt))
+                  (HAppend.hAppend (← (ext_wrap Ext_Zvknha fmt))
+                    (HAppend.hAppend (← (ext_wrap Ext_Zvknhb fmt))
+                      (HAppend.hAppend (← (ext_wrap Ext_Zvksh fmt)) (← (ext_wrap Ext_Zvkt fmt))))))))))))
+  let s_exts ← do
+    (pure (HAppend.hAppend ""
+        (HAppend.hAppend (← (ext_wrap Ext_Sscofpmf fmt))
+          (HAppend.hAppend (← (ext_wrap Ext_Sstc fmt))
+            (HAppend.hAppend (← (ext_wrap Ext_Svinval fmt))
+              (HAppend.hAppend (← (ext_wrap Ext_Svnapot fmt)) (← (ext_wrap Ext_Svpbmt fmt))))))))
+  let m_exts ← do (pure (HAppend.hAppend "" (← (ext_wrap Ext_Smcntrpmf fmt))))
+  (pure (HAppend.hAppend prefix
+      (HAppend.hAppend singles
+        (HAppend.hAppend zi_exts
+          (HAppend.hAppend za_exts
+            (HAppend.hAppend zf_exts
+              (HAppend.hAppend zc_exts
+                (HAppend.hAppend zb_exts
+                  (HAppend.hAppend zk_exts (HAppend.hAppend zv_exts (HAppend.hAppend s_exts m_exts)))))))))))
 
 def generate_dts (_ : Unit) : SailM String := do
   let clock_freq : Int := 1000000000
@@ -349,13 +353,13 @@ def generate_dts (_ : Unit) : SailM String := do
 "
                                               (HAppend.hAppend "      riscv,isa = \""
                                                 (HAppend.hAppend
-                                                  (generate_isa_string Canonical_Lowercase)
+                                                  (← (generate_isa_string Canonical_Lowercase))
                                                   (HAppend.hAppend "\";
 "
                                                     (HAppend.hAppend "      riscv,isa-extensions = "
                                                       (HAppend.hAppend
-                                                        (generate_isa_string
-                                                          DeviceTree_ISA_Extensions)
+                                                        (← (generate_isa_string
+                                                            DeviceTree_ISA_Extensions))
                                                         (HAppend.hAppend ";
 "
                                                           (HAppend.hAppend
