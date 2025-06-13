@@ -584,6 +584,31 @@ def reg_name_backwards_matches (arg_ : String) : SailM Bool := do
         (match head_exp_ with
         | _ => (pure false)))
 
+def sp_reg_name_backwards (arg_ : String) : SailM Unit := do
+  match arg_ with
+  | "sp" => (pure ())
+  | "x2" => (pure ())
+  | _ =>
+    (do
+      assert false "Pattern match failure at unknown location"
+      throw Error.Exit)
+
+def sp_reg_name_forwards_matches (arg_ : Unit) : Bool :=
+  match arg_ with
+  | () =>
+    (bif (get_config_use_abi_names ())
+    then true
+    else
+      (bif (not (get_config_use_abi_names ()))
+      then true
+      else false))
+
+def sp_reg_name_backwards_matches (arg_ : String) : Bool :=
+  match arg_ with
+  | "sp" => true
+  | "x2" => true
+  | _ => false
+
 def creg_name_raw_backwards (arg_ : String) : SailM (BitVec 3) := do
   match arg_ with
   | "s0" => (pure (0b000 : (BitVec 3)))
