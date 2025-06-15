@@ -3770,7 +3770,9 @@ def assembly_forwards (arg_ : ast) : SailM String := do
             (String.append (spc_forwards ())
               (String.append (← (sp_reg_name_forwards ()))
                 (String.append (sep_forwards ())
-                  (String.append (← (hex_bits_signed_6_forwards imm)) ""))))))
+                  (String.append
+                    (← (hex_bits_signed_10_forwards ((imm : (BitVec 6)) ++ (0x0 : (BitVec 4)))))
+                    ""))))))
       else
         (do
           assert false "Pattern match failure at unknown location"
@@ -3874,13 +3876,15 @@ def assembly_forwards (arg_ : ast) : SailM String := do
         (String.append (spc_forwards ())
           (String.append (← (creg_name_forwards rs))
             (String.append (sep_forwards ())
-              (String.append (← (hex_bits_signed_8_forwards imm)) ""))))))
+              (String.append
+                (← (hex_bits_signed_9_forwards ((imm : (BitVec 8)) ++ (0b0 : (BitVec 1))))) ""))))))
   | .C_BNEZ (imm, rs) =>
     (pure (String.append "c.bnez"
         (String.append (spc_forwards ())
           (String.append (← (creg_name_forwards rs))
             (String.append (sep_forwards ())
-              (String.append (← (hex_bits_signed_8_forwards imm)) ""))))))
+              (String.append
+                (← (hex_bits_signed_9_forwards ((imm : (BitVec 8)) ++ (0b0 : (BitVec 1))))) ""))))))
   | .C_SLLI (shamt, rsd) =>
     (do
       bif ((shamt != (0b000000 : (BitVec 6))) && (bne rsd zreg))
@@ -3902,7 +3906,8 @@ def assembly_forwards (arg_ : ast) : SailM String := do
             (String.append (spc_forwards ())
               (String.append (← (reg_name_forwards rd))
                 (String.append (sep_forwards ())
-                  (String.append (← (hex_bits_6_forwards uimm))
+                  (String.append
+                    (← (hex_bits_8_forwards ((uimm : (BitVec 6)) ++ (0b00 : (BitVec 2)))))
                     (String.append "("
                       (String.append (← (sp_reg_name_forwards ())) (String.append ")" "")))))))))
       else
@@ -3917,7 +3922,8 @@ def assembly_forwards (arg_ : ast) : SailM String := do
             (String.append (spc_forwards ())
               (String.append (← (reg_name_forwards rd))
                 (String.append (sep_forwards ())
-                  (String.append (← (hex_bits_6_forwards uimm))
+                  (String.append
+                    (← (hex_bits_9_forwards ((uimm : (BitVec 6)) ++ (0b000 : (BitVec 3)))))
                     (String.append "("
                       (String.append (← (sp_reg_name_forwards ())) (String.append ")" "")))))))))
       else
@@ -3929,7 +3935,8 @@ def assembly_forwards (arg_ : ast) : SailM String := do
         (String.append (spc_forwards ())
           (String.append (← (reg_name_forwards rs2))
             (String.append (sep_forwards ())
-              (String.append (← (hex_bits_6_forwards uimm))
+              (String.append
+                (← (hex_bits_8_forwards ((uimm : (BitVec 6)) ++ (0b00 : (BitVec 2)))))
                 (String.append "("
                   (String.append (← (sp_reg_name_forwards ())) (String.append ")" "")))))))))
   | .C_SDSP (uimm, rs2) =>
@@ -3940,7 +3947,8 @@ def assembly_forwards (arg_ : ast) : SailM String := do
             (String.append (spc_forwards ())
               (String.append (← (reg_name_forwards rs2))
                 (String.append (sep_forwards ())
-                  (String.append (← (hex_bits_6_forwards uimm))
+                  (String.append
+                    (← (hex_bits_9_forwards ((uimm : (BitVec 6)) ++ (0b000 : (BitVec 3)))))
                     (String.append "("
                       (String.append (← (sp_reg_name_forwards ())) (String.append ")" "")))))))))
       else
@@ -4277,7 +4285,8 @@ def assembly_forwards (arg_ : ast) : SailM String := do
             (String.append (spc_forwards ())
               (String.append (← (freg_name_forwards rs2))
                 (String.append (sep_forwards ())
-                  (String.append (← (hex_bits_6_forwards uimm))
+                  (String.append
+                    (← (hex_bits_8_forwards ((uimm : (BitVec 6)) ++ (0b00 : (BitVec 2)))))
                     (String.append "("
                       (String.append (← (sp_reg_name_forwards ())) (String.append ")" "")))))))))
       else
@@ -4392,7 +4401,8 @@ def assembly_forwards (arg_ : ast) : SailM String := do
             (String.append (spc_forwards ())
               (String.append (← (freg_name_forwards rd))
                 (String.append (sep_forwards ())
-                  (String.append (← (hex_bits_6_forwards uimm))
+                  (String.append
+                    (← (hex_bits_9_forwards ((uimm : (BitVec 6)) ++ (0b000 : (BitVec 3)))))
                     (String.append "("
                       (String.append (← (sp_reg_name_forwards ())) (String.append ")" "")))))))))
       else
@@ -4407,7 +4417,8 @@ def assembly_forwards (arg_ : ast) : SailM String := do
             (String.append (spc_forwards ())
               (String.append (← (freg_name_forwards rs2))
                 (String.append (sep_forwards ())
-                  (String.append (← (hex_bits_6_forwards uimm))
+                  (String.append
+                    (← (hex_bits_9_forwards ((uimm : (BitVec 6)) ++ (0b000 : (BitVec 3)))))
                     (String.append "("
                       (String.append (← (sp_reg_name_forwards ())) (String.append ")" "")))))))))
       else

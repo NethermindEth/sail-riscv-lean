@@ -509,3 +509,6 @@ def generate_dts (_ : Unit) : SailM String := do
                                                                                                                                                                   "};
 "))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
 
+def generate_canonical_isa_string (_ : Unit) : String :=
+  (generate_isa_string Canonical_Lowercase)
+
