@@ -609,69 +609,20 @@ def sp_reg_name_backwards_matches (arg_ : String) : Bool :=
   | "x2" => true
   | _ => false
 
-def creg_name_raw_backwards (arg_ : String) : SailM (BitVec 3) := do
-  match arg_ with
-  | "s0" => (pure (0b000 : (BitVec 3)))
-  | "s1" => (pure (0b001 : (BitVec 3)))
-  | "a0" => (pure (0b010 : (BitVec 3)))
-  | "a1" => (pure (0b011 : (BitVec 3)))
-  | "a2" => (pure (0b100 : (BitVec 3)))
-  | "a3" => (pure (0b101 : (BitVec 3)))
-  | "a4" => (pure (0b110 : (BitVec 3)))
-  | "a5" => (pure (0b111 : (BitVec 3)))
-  | _ =>
-    (do
-      assert false "Pattern match failure at unknown location"
-      throw Error.Exit)
-
-def creg_name_raw_forwards_matches (arg_ : (BitVec 3)) : Bool :=
-  let b__0 := arg_
-  bif (b__0 == (0b000 : (BitVec 3)))
-  then true
-  else
-    (bif (b__0 == (0b001 : (BitVec 3)))
-    then true
-    else
-      (bif (b__0 == (0b010 : (BitVec 3)))
-      then true
-      else
-        (bif (b__0 == (0b011 : (BitVec 3)))
-        then true
-        else
-          (bif (b__0 == (0b100 : (BitVec 3)))
-          then true
-          else
-            (bif (b__0 == (0b101 : (BitVec 3)))
-            then true
-            else
-              (bif (b__0 == (0b110 : (BitVec 3)))
-              then true
-              else
-                (bif (b__0 == (0b111 : (BitVec 3)))
-                then true
-                else false)))))))
-
-def creg_name_raw_backwards_matches (arg_ : String) : Bool :=
-  match arg_ with
-  | "s0" => true
-  | "s1" => true
-  | "a0" => true
-  | "a1" => true
-  | "a2" => true
-  | "a3" => true
-  | "a4" => true
-  | "a5" => true
-  | _ => false
-
 def creg_name_backwards (arg_ : String) : SailM cregidx := do
   let head_exp_ := arg_
   match (← do
     let mapping0_ := head_exp_
-    bif (creg_name_raw_backwards_matches mapping0_)
+    bif (← (reg_name_backwards_matches mapping0_))
     then
       (do
-        match (← (creg_name_raw_backwards mapping0_)) with
-        | i => (pure (some (Cregidx i))))
+        match (← (reg_name_backwards mapping0_)) with
+        | .Regidx v__0 =>
+          (bif ((Sail.BitVec.extractLsb v__0 4 3) == (0b01 : (BitVec 2)))
+          then
+            (let i : (BitVec 3) := (Sail.BitVec.extractLsb v__0 2 0)
+            (pure (some (Cregidx i))))
+          else (pure none)))
     else (pure none)) with
   | .some result => (pure result)
   | _ =>
@@ -687,11 +638,14 @@ def creg_name_backwards_matches (arg_ : String) : SailM Bool := do
   let head_exp_ := arg_
   match (← do
     let mapping0_ := head_exp_
-    bif (creg_name_raw_backwards_matches mapping0_)
+    bif (← (reg_name_backwards_matches mapping0_))
     then
       (do
-        match (← (creg_name_raw_backwards mapping0_)) with
-        | i => (pure (some true)))
+        match (← (reg_name_backwards mapping0_)) with
+        | .Regidx v__2 =>
+          (bif ((Sail.BitVec.extractLsb v__2 4 3) == (0b01 : (BitVec 2)))
+          then (pure (some true))
+          else (pure none)))
     else (pure none)) with
   | .some result => (pure result)
   | none =>

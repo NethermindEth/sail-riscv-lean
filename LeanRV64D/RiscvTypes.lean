@@ -1964,33 +1964,427 @@ def cbop_mnemonic_forwards (arg_ : cbop_zicbom) : String :=
   | CBO_FLUSH => "cbo.flush"
   | CBO_INVAL => "cbo.inval"
 
-def creg_name_raw_forwards (arg_ : (BitVec 3)) : String :=
+def freg_abi_name_raw_forwards (arg_ : (BitVec 5)) : String :=
   let b__0 := arg_
-  bif (b__0 == (0b000 : (BitVec 3)))
-  then "s0"
+  bif (b__0 == (0b00000 : (BitVec 5)))
+  then "ft0"
   else
-    (bif (b__0 == (0b001 : (BitVec 3)))
-    then "s1"
+    (bif (b__0 == (0b00001 : (BitVec 5)))
+    then "ft1"
     else
-      (bif (b__0 == (0b010 : (BitVec 3)))
-      then "a0"
+      (bif (b__0 == (0b00010 : (BitVec 5)))
+      then "ft2"
       else
-        (bif (b__0 == (0b011 : (BitVec 3)))
-        then "a1"
+        (bif (b__0 == (0b00011 : (BitVec 5)))
+        then "ft3"
         else
-          (bif (b__0 == (0b100 : (BitVec 3)))
-          then "a2"
+          (bif (b__0 == (0b00100 : (BitVec 5)))
+          then "ft4"
           else
-            (bif (b__0 == (0b101 : (BitVec 3)))
-            then "a3"
+            (bif (b__0 == (0b00101 : (BitVec 5)))
+            then "ft5"
             else
-              (bif (b__0 == (0b110 : (BitVec 3)))
-              then "a4"
-              else "a5"))))))
+              (bif (b__0 == (0b00110 : (BitVec 5)))
+              then "ft6"
+              else
+                (bif (b__0 == (0b00111 : (BitVec 5)))
+                then "ft7"
+                else
+                  (bif (b__0 == (0b01000 : (BitVec 5)))
+                  then "fs0"
+                  else
+                    (bif (b__0 == (0b01001 : (BitVec 5)))
+                    then "fs1"
+                    else
+                      (bif (b__0 == (0b01010 : (BitVec 5)))
+                      then "fa0"
+                      else
+                        (bif (b__0 == (0b01011 : (BitVec 5)))
+                        then "fa1"
+                        else
+                          (bif (b__0 == (0b01100 : (BitVec 5)))
+                          then "fa2"
+                          else
+                            (bif (b__0 == (0b01101 : (BitVec 5)))
+                            then "fa3"
+                            else
+                              (bif (b__0 == (0b01110 : (BitVec 5)))
+                              then "fa4"
+                              else
+                                (bif (b__0 == (0b01111 : (BitVec 5)))
+                                then "fa5"
+                                else
+                                  (bif (b__0 == (0b10000 : (BitVec 5)))
+                                  then "fa6"
+                                  else
+                                    (bif (b__0 == (0b10001 : (BitVec 5)))
+                                    then "fa7"
+                                    else
+                                      (bif (b__0 == (0b10010 : (BitVec 5)))
+                                      then "fs2"
+                                      else
+                                        (bif (b__0 == (0b10011 : (BitVec 5)))
+                                        then "fs3"
+                                        else
+                                          (bif (b__0 == (0b10100 : (BitVec 5)))
+                                          then "fs4"
+                                          else
+                                            (bif (b__0 == (0b10101 : (BitVec 5)))
+                                            then "fs5"
+                                            else
+                                              (bif (b__0 == (0b10110 : (BitVec 5)))
+                                              then "fs6"
+                                              else
+                                                (bif (b__0 == (0b10111 : (BitVec 5)))
+                                                then "fs7"
+                                                else
+                                                  (bif (b__0 == (0b11000 : (BitVec 5)))
+                                                  then "fs8"
+                                                  else
+                                                    (bif (b__0 == (0b11001 : (BitVec 5)))
+                                                    then "fs9"
+                                                    else
+                                                      (bif (b__0 == (0b11010 : (BitVec 5)))
+                                                      then "fs10"
+                                                      else
+                                                        (bif (b__0 == (0b11011 : (BitVec 5)))
+                                                        then "fs11"
+                                                        else
+                                                          (bif (b__0 == (0b11100 : (BitVec 5)))
+                                                          then "ft8"
+                                                          else
+                                                            (bif (b__0 == (0b11101 : (BitVec 5)))
+                                                            then "ft9"
+                                                            else
+                                                              (bif (b__0 == (0b11110 : (BitVec 5)))
+                                                              then "ft10"
+                                                              else "ft11"))))))))))))))))))))))))))))))
 
-def creg_name_forwards (arg_ : cregidx) : String :=
+def freg_arch_name_raw_forwards (arg_ : (BitVec 5)) : String :=
+  let b__0 := arg_
+  bif (b__0 == (0b00000 : (BitVec 5)))
+  then "f0"
+  else
+    (bif (b__0 == (0b00001 : (BitVec 5)))
+    then "f1"
+    else
+      (bif (b__0 == (0b00010 : (BitVec 5)))
+      then "f2"
+      else
+        (bif (b__0 == (0b00011 : (BitVec 5)))
+        then "f3"
+        else
+          (bif (b__0 == (0b00100 : (BitVec 5)))
+          then "f4"
+          else
+            (bif (b__0 == (0b00101 : (BitVec 5)))
+            then "f5"
+            else
+              (bif (b__0 == (0b00110 : (BitVec 5)))
+              then "f6"
+              else
+                (bif (b__0 == (0b00111 : (BitVec 5)))
+                then "f7"
+                else
+                  (bif (b__0 == (0b01000 : (BitVec 5)))
+                  then "f8"
+                  else
+                    (bif (b__0 == (0b01001 : (BitVec 5)))
+                    then "f9"
+                    else
+                      (bif (b__0 == (0b01010 : (BitVec 5)))
+                      then "f10"
+                      else
+                        (bif (b__0 == (0b01011 : (BitVec 5)))
+                        then "f11"
+                        else
+                          (bif (b__0 == (0b01100 : (BitVec 5)))
+                          then "f12"
+                          else
+                            (bif (b__0 == (0b01101 : (BitVec 5)))
+                            then "f13"
+                            else
+                              (bif (b__0 == (0b01110 : (BitVec 5)))
+                              then "f14"
+                              else
+                                (bif (b__0 == (0b01111 : (BitVec 5)))
+                                then "f15"
+                                else
+                                  (bif (b__0 == (0b10000 : (BitVec 5)))
+                                  then "f16"
+                                  else
+                                    (bif (b__0 == (0b10001 : (BitVec 5)))
+                                    then "f17"
+                                    else
+                                      (bif (b__0 == (0b10010 : (BitVec 5)))
+                                      then "f18"
+                                      else
+                                        (bif (b__0 == (0b10011 : (BitVec 5)))
+                                        then "f19"
+                                        else
+                                          (bif (b__0 == (0b10100 : (BitVec 5)))
+                                          then "f20"
+                                          else
+                                            (bif (b__0 == (0b10101 : (BitVec 5)))
+                                            then "f21"
+                                            else
+                                              (bif (b__0 == (0b10110 : (BitVec 5)))
+                                              then "f22"
+                                              else
+                                                (bif (b__0 == (0b10111 : (BitVec 5)))
+                                                then "f23"
+                                                else
+                                                  (bif (b__0 == (0b11000 : (BitVec 5)))
+                                                  then "f24"
+                                                  else
+                                                    (bif (b__0 == (0b11001 : (BitVec 5)))
+                                                    then "f25"
+                                                    else
+                                                      (bif (b__0 == (0b11010 : (BitVec 5)))
+                                                      then "f26"
+                                                      else
+                                                        (bif (b__0 == (0b11011 : (BitVec 5)))
+                                                        then "f27"
+                                                        else
+                                                          (bif (b__0 == (0b11100 : (BitVec 5)))
+                                                          then "f28"
+                                                          else
+                                                            (bif (b__0 == (0b11101 : (BitVec 5)))
+                                                            then "f29"
+                                                            else
+                                                              (bif (b__0 == (0b11110 : (BitVec 5)))
+                                                              then "f30"
+                                                              else "f31"))))))))))))))))))))))))))))))
+
+def freg_name_forwards (arg_ : fregidx) : SailM String := do
   match arg_ with
-  | .Cregidx i => (creg_name_raw_forwards i)
+  | .Fregidx i =>
+    (do
+      bif (get_config_use_abi_names ())
+      then (pure (freg_abi_name_raw_forwards i))
+      else
+        (do
+          bif (not (get_config_use_abi_names ()))
+          then (pure (freg_arch_name_raw_forwards i))
+          else
+            (do
+              assert false "Pattern match failure at unknown location"
+              throw Error.Exit)))
+
+def cfreg_name_forwards (arg_ : cregidx) : SailM String := do
+  match arg_ with
+  | .Cregidx i => (freg_name_forwards (Fregidx ((0b01 : (BitVec 2)) ++ (i : (BitVec 3)))))
+
+def reg_abi_name_raw_forwards (arg_ : (BitVec 5)) : String :=
+  let b__0 := arg_
+  bif (b__0 == (0b00000 : (BitVec 5)))
+  then "zero"
+  else
+    (bif (b__0 == (0b00001 : (BitVec 5)))
+    then "ra"
+    else
+      (bif (b__0 == (0b00010 : (BitVec 5)))
+      then "sp"
+      else
+        (bif (b__0 == (0b00011 : (BitVec 5)))
+        then "gp"
+        else
+          (bif (b__0 == (0b00100 : (BitVec 5)))
+          then "tp"
+          else
+            (bif (b__0 == (0b00101 : (BitVec 5)))
+            then "t0"
+            else
+              (bif (b__0 == (0b00110 : (BitVec 5)))
+              then "t1"
+              else
+                (bif (b__0 == (0b00111 : (BitVec 5)))
+                then "t2"
+                else
+                  (bif (b__0 == (0b01000 : (BitVec 5)))
+                  then "fp"
+                  else
+                    (bif (b__0 == (0b01001 : (BitVec 5)))
+                    then "s1"
+                    else
+                      (bif (b__0 == (0b01010 : (BitVec 5)))
+                      then "a0"
+                      else
+                        (bif (b__0 == (0b01011 : (BitVec 5)))
+                        then "a1"
+                        else
+                          (bif (b__0 == (0b01100 : (BitVec 5)))
+                          then "a2"
+                          else
+                            (bif (b__0 == (0b01101 : (BitVec 5)))
+                            then "a3"
+                            else
+                              (bif (b__0 == (0b01110 : (BitVec 5)))
+                              then "a4"
+                              else
+                                (bif (b__0 == (0b01111 : (BitVec 5)))
+                                then "a5"
+                                else
+                                  (bif (b__0 == (0b10000 : (BitVec 5)))
+                                  then "a6"
+                                  else
+                                    (bif (b__0 == (0b10001 : (BitVec 5)))
+                                    then "a7"
+                                    else
+                                      (bif (b__0 == (0b10010 : (BitVec 5)))
+                                      then "s2"
+                                      else
+                                        (bif (b__0 == (0b10011 : (BitVec 5)))
+                                        then "s3"
+                                        else
+                                          (bif (b__0 == (0b10100 : (BitVec 5)))
+                                          then "s4"
+                                          else
+                                            (bif (b__0 == (0b10101 : (BitVec 5)))
+                                            then "s5"
+                                            else
+                                              (bif (b__0 == (0b10110 : (BitVec 5)))
+                                              then "s6"
+                                              else
+                                                (bif (b__0 == (0b10111 : (BitVec 5)))
+                                                then "s7"
+                                                else
+                                                  (bif (b__0 == (0b11000 : (BitVec 5)))
+                                                  then "s8"
+                                                  else
+                                                    (bif (b__0 == (0b11001 : (BitVec 5)))
+                                                    then "s9"
+                                                    else
+                                                      (bif (b__0 == (0b11010 : (BitVec 5)))
+                                                      then "s10"
+                                                      else
+                                                        (bif (b__0 == (0b11011 : (BitVec 5)))
+                                                        then "s11"
+                                                        else
+                                                          (bif (b__0 == (0b11100 : (BitVec 5)))
+                                                          then "t3"
+                                                          else
+                                                            (bif (b__0 == (0b11101 : (BitVec 5)))
+                                                            then "t4"
+                                                            else
+                                                              (bif (b__0 == (0b11110 : (BitVec 5)))
+                                                              then "t5"
+                                                              else "t6"))))))))))))))))))))))))))))))
+
+def reg_arch_name_raw_forwards (arg_ : (BitVec 5)) : String :=
+  let b__0 := arg_
+  bif (b__0 == (0b00000 : (BitVec 5)))
+  then "x0"
+  else
+    (bif (b__0 == (0b00001 : (BitVec 5)))
+    then "x1"
+    else
+      (bif (b__0 == (0b00010 : (BitVec 5)))
+      then "x2"
+      else
+        (bif (b__0 == (0b00011 : (BitVec 5)))
+        then "x3"
+        else
+          (bif (b__0 == (0b00100 : (BitVec 5)))
+          then "x4"
+          else
+            (bif (b__0 == (0b00101 : (BitVec 5)))
+            then "x5"
+            else
+              (bif (b__0 == (0b00110 : (BitVec 5)))
+              then "x6"
+              else
+                (bif (b__0 == (0b00111 : (BitVec 5)))
+                then "x7"
+                else
+                  (bif (b__0 == (0b01000 : (BitVec 5)))
+                  then "x8"
+                  else
+                    (bif (b__0 == (0b01001 : (BitVec 5)))
+                    then "x9"
+                    else
+                      (bif (b__0 == (0b01010 : (BitVec 5)))
+                      then "x10"
+                      else
+                        (bif (b__0 == (0b01011 : (BitVec 5)))
+                        then "x11"
+                        else
+                          (bif (b__0 == (0b01100 : (BitVec 5)))
+                          then "x12"
+                          else
+                            (bif (b__0 == (0b01101 : (BitVec 5)))
+                            then "x13"
+                            else
+                              (bif (b__0 == (0b01110 : (BitVec 5)))
+                              then "x14"
+                              else
+                                (bif (b__0 == (0b01111 : (BitVec 5)))
+                                then "x15"
+                                else
+                                  (bif (b__0 == (0b10000 : (BitVec 5)))
+                                  then "x16"
+                                  else
+                                    (bif (b__0 == (0b10001 : (BitVec 5)))
+                                    then "x17"
+                                    else
+                                      (bif (b__0 == (0b10010 : (BitVec 5)))
+                                      then "x18"
+                                      else
+                                        (bif (b__0 == (0b10011 : (BitVec 5)))
+                                        then "x19"
+                                        else
+                                          (bif (b__0 == (0b10100 : (BitVec 5)))
+                                          then "x20"
+                                          else
+                                            (bif (b__0 == (0b10101 : (BitVec 5)))
+                                            then "x21"
+                                            else
+                                              (bif (b__0 == (0b10110 : (BitVec 5)))
+                                              then "x22"
+                                              else
+                                                (bif (b__0 == (0b10111 : (BitVec 5)))
+                                                then "x23"
+                                                else
+                                                  (bif (b__0 == (0b11000 : (BitVec 5)))
+                                                  then "x24"
+                                                  else
+                                                    (bif (b__0 == (0b11001 : (BitVec 5)))
+                                                    then "x25"
+                                                    else
+                                                      (bif (b__0 == (0b11010 : (BitVec 5)))
+                                                      then "x26"
+                                                      else
+                                                        (bif (b__0 == (0b11011 : (BitVec 5)))
+                                                        then "x27"
+                                                        else
+                                                          (bif (b__0 == (0b11100 : (BitVec 5)))
+                                                          then "x28"
+                                                          else
+                                                            (bif (b__0 == (0b11101 : (BitVec 5)))
+                                                            then "x29"
+                                                            else
+                                                              (bif (b__0 == (0b11110 : (BitVec 5)))
+                                                              then "x30"
+                                                              else "x31"))))))))))))))))))))))))))))))
+
+def reg_name_forwards (arg_ : regidx) : SailM String := do
+  match arg_ with
+  | .Regidx i =>
+    (do
+      bif (get_config_use_abi_names ())
+      then (pure (reg_abi_name_raw_forwards i))
+      else
+        (do
+          bif (not (get_config_use_abi_names ()))
+          then (pure (reg_arch_name_raw_forwards i))
+          else
+            (do
+              assert false "Pattern match failure at unknown location"
+              throw Error.Exit)))
+
+def creg_name_forwards (arg_ : cregidx) : SailM String := do
+  match arg_ with
+  | .Cregidx i => (reg_name_forwards (Regidx ((0b01 : (BitVec 2)) ++ (i : (BitVec 3)))))
 
 def csr_mnemonic_forwards (arg_ : csrop) : String :=
   match arg_ with
@@ -2203,322 +2597,15 @@ def fence_bits_forwards (arg_ : (BitVec 4)) : String :=
       (String.append (bit_maybe_o_forwards o)
         (String.append (bit_maybe_r_forwards r) (String.append (bit_maybe_w_forwards w) "")))))
 
-def freg_name_raw_forwards (arg_ : (BitVec 5)) : String :=
-  let b__0 := arg_
-  bif (b__0 == (0b00000 : (BitVec 5)))
-  then "ft0"
-  else
-    (bif (b__0 == (0b00001 : (BitVec 5)))
-    then "ft1"
-    else
-      (bif (b__0 == (0b00010 : (BitVec 5)))
-      then "ft2"
-      else
-        (bif (b__0 == (0b00011 : (BitVec 5)))
-        then "ft3"
-        else
-          (bif (b__0 == (0b00100 : (BitVec 5)))
-          then "ft4"
-          else
-            (bif (b__0 == (0b00101 : (BitVec 5)))
-            then "ft5"
-            else
-              (bif (b__0 == (0b00110 : (BitVec 5)))
-              then "ft6"
-              else
-                (bif (b__0 == (0b00111 : (BitVec 5)))
-                then "ft7"
-                else
-                  (bif (b__0 == (0b01000 : (BitVec 5)))
-                  then "fs0"
-                  else
-                    (bif (b__0 == (0b01001 : (BitVec 5)))
-                    then "fs1"
-                    else
-                      (bif (b__0 == (0b01010 : (BitVec 5)))
-                      then "fa0"
-                      else
-                        (bif (b__0 == (0b01011 : (BitVec 5)))
-                        then "fa1"
-                        else
-                          (bif (b__0 == (0b01100 : (BitVec 5)))
-                          then "fa2"
-                          else
-                            (bif (b__0 == (0b01101 : (BitVec 5)))
-                            then "fa3"
-                            else
-                              (bif (b__0 == (0b01110 : (BitVec 5)))
-                              then "fa4"
-                              else
-                                (bif (b__0 == (0b01111 : (BitVec 5)))
-                                then "fa5"
-                                else
-                                  (bif (b__0 == (0b10000 : (BitVec 5)))
-                                  then "fa6"
-                                  else
-                                    (bif (b__0 == (0b10001 : (BitVec 5)))
-                                    then "fa7"
-                                    else
-                                      (bif (b__0 == (0b10010 : (BitVec 5)))
-                                      then "fs2"
-                                      else
-                                        (bif (b__0 == (0b10011 : (BitVec 5)))
-                                        then "fs3"
-                                        else
-                                          (bif (b__0 == (0b10100 : (BitVec 5)))
-                                          then "fs4"
-                                          else
-                                            (bif (b__0 == (0b10101 : (BitVec 5)))
-                                            then "fs5"
-                                            else
-                                              (bif (b__0 == (0b10110 : (BitVec 5)))
-                                              then "fs6"
-                                              else
-                                                (bif (b__0 == (0b10111 : (BitVec 5)))
-                                                then "fs7"
-                                                else
-                                                  (bif (b__0 == (0b11000 : (BitVec 5)))
-                                                  then "fs8"
-                                                  else
-                                                    (bif (b__0 == (0b11001 : (BitVec 5)))
-                                                    then "fs9"
-                                                    else
-                                                      (bif (b__0 == (0b11010 : (BitVec 5)))
-                                                      then "fs10"
-                                                      else
-                                                        (bif (b__0 == (0b11011 : (BitVec 5)))
-                                                        then "fs11"
-                                                        else
-                                                          (bif (b__0 == (0b11100 : (BitVec 5)))
-                                                          then "ft8"
-                                                          else
-                                                            (bif (b__0 == (0b11101 : (BitVec 5)))
-                                                            then "ft9"
-                                                            else
-                                                              (bif (b__0 == (0b11110 : (BitVec 5)))
-                                                              then "ft10"
-                                                              else "ft11"))))))))))))))))))))))))))))))
-
-def freg_name_forwards (arg_ : fregidx) : String :=
-  match arg_ with
-  | .Fregidx i => (freg_name_raw_forwards i)
-
 def fregidx_to_regidx (app_0 : fregidx) : regidx :=
   let .Fregidx b := app_0
   (Regidx (trunc (m := 5) b))
-
-def reg_abi_name_raw_forwards (arg_ : (BitVec 5)) : String :=
-  let b__0 := arg_
-  bif (b__0 == (0b00000 : (BitVec 5)))
-  then "zero"
-  else
-    (bif (b__0 == (0b00001 : (BitVec 5)))
-    then "ra"
-    else
-      (bif (b__0 == (0b00010 : (BitVec 5)))
-      then "sp"
-      else
-        (bif (b__0 == (0b00011 : (BitVec 5)))
-        then "gp"
-        else
-          (bif (b__0 == (0b00100 : (BitVec 5)))
-          then "tp"
-          else
-            (bif (b__0 == (0b00101 : (BitVec 5)))
-            then "t0"
-            else
-              (bif (b__0 == (0b00110 : (BitVec 5)))
-              then "t1"
-              else
-                (bif (b__0 == (0b00111 : (BitVec 5)))
-                then "t2"
-                else
-                  (bif (b__0 == (0b01000 : (BitVec 5)))
-                  then "fp"
-                  else
-                    (bif (b__0 == (0b01001 : (BitVec 5)))
-                    then "s1"
-                    else
-                      (bif (b__0 == (0b01010 : (BitVec 5)))
-                      then "a0"
-                      else
-                        (bif (b__0 == (0b01011 : (BitVec 5)))
-                        then "a1"
-                        else
-                          (bif (b__0 == (0b01100 : (BitVec 5)))
-                          then "a2"
-                          else
-                            (bif (b__0 == (0b01101 : (BitVec 5)))
-                            then "a3"
-                            else
-                              (bif (b__0 == (0b01110 : (BitVec 5)))
-                              then "a4"
-                              else
-                                (bif (b__0 == (0b01111 : (BitVec 5)))
-                                then "a5"
-                                else
-                                  (bif (b__0 == (0b10000 : (BitVec 5)))
-                                  then "a6"
-                                  else
-                                    (bif (b__0 == (0b10001 : (BitVec 5)))
-                                    then "a7"
-                                    else
-                                      (bif (b__0 == (0b10010 : (BitVec 5)))
-                                      then "s2"
-                                      else
-                                        (bif (b__0 == (0b10011 : (BitVec 5)))
-                                        then "s3"
-                                        else
-                                          (bif (b__0 == (0b10100 : (BitVec 5)))
-                                          then "s4"
-                                          else
-                                            (bif (b__0 == (0b10101 : (BitVec 5)))
-                                            then "s5"
-                                            else
-                                              (bif (b__0 == (0b10110 : (BitVec 5)))
-                                              then "s6"
-                                              else
-                                                (bif (b__0 == (0b10111 : (BitVec 5)))
-                                                then "s7"
-                                                else
-                                                  (bif (b__0 == (0b11000 : (BitVec 5)))
-                                                  then "s8"
-                                                  else
-                                                    (bif (b__0 == (0b11001 : (BitVec 5)))
-                                                    then "s9"
-                                                    else
-                                                      (bif (b__0 == (0b11010 : (BitVec 5)))
-                                                      then "s10"
-                                                      else
-                                                        (bif (b__0 == (0b11011 : (BitVec 5)))
-                                                        then "s11"
-                                                        else
-                                                          (bif (b__0 == (0b11100 : (BitVec 5)))
-                                                          then "t3"
-                                                          else
-                                                            (bif (b__0 == (0b11101 : (BitVec 5)))
-                                                            then "t4"
-                                                            else
-                                                              (bif (b__0 == (0b11110 : (BitVec 5)))
-                                                              then "t5"
-                                                              else "t6"))))))))))))))))))))))))))))))
-
-def reg_arch_name_raw_forwards (arg_ : (BitVec 5)) : String :=
-  let b__0 := arg_
-  bif (b__0 == (0b00000 : (BitVec 5)))
-  then "x0"
-  else
-    (bif (b__0 == (0b00001 : (BitVec 5)))
-    then "x1"
-    else
-      (bif (b__0 == (0b00010 : (BitVec 5)))
-      then "x2"
-      else
-        (bif (b__0 == (0b00011 : (BitVec 5)))
-        then "x3"
-        else
-          (bif (b__0 == (0b00100 : (BitVec 5)))
-          then "x4"
-          else
-            (bif (b__0 == (0b00101 : (BitVec 5)))
-            then "x5"
-            else
-              (bif (b__0 == (0b00110 : (BitVec 5)))
-              then "x6"
-              else
-                (bif (b__0 == (0b00111 : (BitVec 5)))
-                then "x7"
-                else
-                  (bif (b__0 == (0b01000 : (BitVec 5)))
-                  then "x8"
-                  else
-                    (bif (b__0 == (0b01001 : (BitVec 5)))
-                    then "x9"
-                    else
-                      (bif (b__0 == (0b01010 : (BitVec 5)))
-                      then "x10"
-                      else
-                        (bif (b__0 == (0b01011 : (BitVec 5)))
-                        then "x11"
-                        else
-                          (bif (b__0 == (0b01100 : (BitVec 5)))
-                          then "x12"
-                          else
-                            (bif (b__0 == (0b01101 : (BitVec 5)))
-                            then "x13"
-                            else
-                              (bif (b__0 == (0b01110 : (BitVec 5)))
-                              then "x14"
-                              else
-                                (bif (b__0 == (0b01111 : (BitVec 5)))
-                                then "x15"
-                                else
-                                  (bif (b__0 == (0b10000 : (BitVec 5)))
-                                  then "x16"
-                                  else
-                                    (bif (b__0 == (0b10001 : (BitVec 5)))
-                                    then "x17"
-                                    else
-                                      (bif (b__0 == (0b10010 : (BitVec 5)))
-                                      then "x18"
-                                      else
-                                        (bif (b__0 == (0b10011 : (BitVec 5)))
-                                        then "x19"
-                                        else
-                                          (bif (b__0 == (0b10100 : (BitVec 5)))
-                                          then "x20"
-                                          else
-                                            (bif (b__0 == (0b10101 : (BitVec 5)))
-                                            then "x21"
-                                            else
-                                              (bif (b__0 == (0b10110 : (BitVec 5)))
-                                              then "x22"
-                                              else
-                                                (bif (b__0 == (0b10111 : (BitVec 5)))
-                                                then "x23"
-                                                else
-                                                  (bif (b__0 == (0b11000 : (BitVec 5)))
-                                                  then "x24"
-                                                  else
-                                                    (bif (b__0 == (0b11001 : (BitVec 5)))
-                                                    then "x25"
-                                                    else
-                                                      (bif (b__0 == (0b11010 : (BitVec 5)))
-                                                      then "x26"
-                                                      else
-                                                        (bif (b__0 == (0b11011 : (BitVec 5)))
-                                                        then "x27"
-                                                        else
-                                                          (bif (b__0 == (0b11100 : (BitVec 5)))
-                                                          then "x28"
-                                                          else
-                                                            (bif (b__0 == (0b11101 : (BitVec 5)))
-                                                            then "x29"
-                                                            else
-                                                              (bif (b__0 == (0b11110 : (BitVec 5)))
-                                                              then "x30"
-                                                              else "x31"))))))))))))))))))))))))))))))
-
-def reg_name_forwards (arg_ : regidx) : SailM String := do
-  match arg_ with
-  | .Regidx i =>
-    (do
-      bif (get_config_use_abi_names ())
-      then (pure (reg_abi_name_raw_forwards i))
-      else
-        (do
-          bif (not (get_config_use_abi_names ()))
-          then (pure (reg_arch_name_raw_forwards i))
-          else
-            (do
-              assert false "Pattern match failure at unknown location"
-              throw Error.Exit)))
 
 def freg_or_reg_name_forwards (arg_ : fregidx) : SailM String := do
   let f := arg_
   bif (hartSupports Ext_Zfinx)
   then (reg_name_forwards (fregidx_to_regidx f))
-  else (pure (freg_name_forwards f))
+  else (freg_name_forwards f)
 
 def frm_mnemonic_forwards (arg_ : rounding_mode) : String :=
   match arg_ with
@@ -2686,13 +2773,13 @@ def maybe_lmul_flag_backwards (arg_ : (BitVec 3)) : SailM String := do
                               assert false "Pattern match failure at unknown location"
                               throw Error.Exit)))))))
 
-/-- Type quantifiers: k_ex370689# : Bool -/
+/-- Type quantifiers: k_ex371160# : Bool -/
 def maybe_not_u_forwards (arg_ : Bool) : String :=
   match arg_ with
   | false => "u"
   | true => ""
 
-/-- Type quantifiers: k_ex370690# : Bool -/
+/-- Type quantifiers: k_ex371161# : Bool -/
 def maybe_u_forwards (arg_ : Bool) : String :=
   match arg_ with
   | true => "u"
@@ -3563,10 +3650,13 @@ def assembly_forwards (arg_ : ast) : SailM String := do
       then
         (pure (String.append "c.addi4spn"
             (String.append (spc_forwards ())
-              (String.append (creg_name_forwards rdc)
+              (String.append (← (creg_name_forwards rdc))
                 (String.append (sep_forwards ())
-                  (String.append
-                    (← (hex_bits_10_forwards ((nzimm : (BitVec 8)) ++ (0b00 : (BitVec 2))))) ""))))))
+                  (String.append (← (sp_reg_name_forwards ()))
+                    (String.append (sep_forwards ())
+                      (String.append
+                        (← (hex_bits_10_forwards ((nzimm : (BitVec 8)) ++ (0b00 : (BitVec 2)))))
+                        ""))))))))
       else
         (do
           assert false "Pattern match failure at unknown location"
@@ -3574,23 +3664,24 @@ def assembly_forwards (arg_ : ast) : SailM String := do
   | .C_LW (uimm, rsc, rdc) =>
     (pure (String.append "c.lw"
         (String.append (spc_forwards ())
-          (String.append (creg_name_forwards rdc)
+          (String.append (← (creg_name_forwards rdc))
             (String.append (sep_forwards ())
               (String.append
                 (← (hex_bits_7_forwards ((uimm : (BitVec 5)) ++ (0b00 : (BitVec 2)))))
-                (String.append "(" (String.append (creg_name_forwards rsc) (String.append ")" "")))))))))
+                (String.append "("
+                  (String.append (← (creg_name_forwards rsc)) (String.append ")" "")))))))))
   | .C_LD (uimm, rsc, rdc) =>
     (do
       bif (xlen == 64)
       then
         (pure (String.append "c.ld"
             (String.append (spc_forwards ())
-              (String.append (creg_name_forwards rdc)
+              (String.append (← (creg_name_forwards rdc))
                 (String.append (sep_forwards ())
                   (String.append
                     (← (hex_bits_8_forwards ((uimm : (BitVec 5)) ++ (0b000 : (BitVec 3)))))
                     (String.append "("
-                      (String.append (creg_name_forwards rsc) (String.append ")" "")))))))))
+                      (String.append (← (creg_name_forwards rsc)) (String.append ")" "")))))))))
       else
         (do
           assert false "Pattern match failure at unknown location"
@@ -3598,23 +3689,24 @@ def assembly_forwards (arg_ : ast) : SailM String := do
   | .C_SW (uimm, rsc1, rsc2) =>
     (pure (String.append "c.sw"
         (String.append (spc_forwards ())
-          (String.append (creg_name_forwards rsc2)
+          (String.append (← (creg_name_forwards rsc2))
             (String.append (sep_forwards ())
               (String.append
                 (← (hex_bits_7_forwards ((uimm : (BitVec 5)) ++ (0b00 : (BitVec 2)))))
-                (String.append "(" (String.append (creg_name_forwards rsc1) (String.append ")" "")))))))))
+                (String.append "("
+                  (String.append (← (creg_name_forwards rsc1)) (String.append ")" "")))))))))
   | .C_SD (uimm, rsc1, rsc2) =>
     (do
       bif (xlen == 64)
       then
         (pure (String.append "c.sd"
             (String.append (spc_forwards ())
-              (String.append (creg_name_forwards rsc2)
+              (String.append (← (creg_name_forwards rsc2))
                 (String.append (sep_forwards ())
                   (String.append
                     (← (hex_bits_8_forwards ((uimm : (BitVec 5)) ++ (0b000 : (BitVec 3)))))
                     (String.append "("
-                      (String.append (creg_name_forwards rsc1) (String.append ")" "")))))))))
+                      (String.append (← (creg_name_forwards rsc1)) (String.append ")" "")))))))))
       else
         (do
           assert false "Pattern match failure at unknown location"
@@ -3676,7 +3768,9 @@ def assembly_forwards (arg_ : ast) : SailM String := do
       then
         (pure (String.append "c.addi16sp"
             (String.append (spc_forwards ())
-              (String.append (← (hex_bits_signed_6_forwards imm)) ""))))
+              (String.append (← (sp_reg_name_forwards ()))
+                (String.append (sep_forwards ())
+                  (String.append (← (hex_bits_signed_6_forwards imm)) ""))))))
       else
         (do
           assert false "Pattern match failure at unknown location"
@@ -3700,7 +3794,7 @@ def assembly_forwards (arg_ : ast) : SailM String := do
       then
         (pure (String.append "c.srli"
             (String.append (spc_forwards ())
-              (String.append (creg_name_forwards rsd)
+              (String.append (← (creg_name_forwards rsd))
                 (String.append (sep_forwards ())
                   (String.append (← (hex_bits_6_forwards shamt)) ""))))))
       else
@@ -3713,7 +3807,7 @@ def assembly_forwards (arg_ : ast) : SailM String := do
       then
         (pure (String.append "c.srai"
             (String.append (spc_forwards ())
-              (String.append (creg_name_forwards rsd)
+              (String.append (← (creg_name_forwards rsd))
                 (String.append (sep_forwards ())
                   (String.append (← (hex_bits_6_forwards shamt)) ""))))))
       else
@@ -3723,37 +3817,37 @@ def assembly_forwards (arg_ : ast) : SailM String := do
   | .C_ANDI (imm, rsd) =>
     (pure (String.append "c.andi"
         (String.append (spc_forwards ())
-          (String.append (creg_name_forwards rsd)
+          (String.append (← (creg_name_forwards rsd))
             (String.append (sep_forwards ())
               (String.append (← (hex_bits_signed_6_forwards imm)) ""))))))
   | .C_SUB (rsd, rs2) =>
     (pure (String.append "c.sub"
         (String.append (spc_forwards ())
-          (String.append (creg_name_forwards rsd)
-            (String.append (sep_forwards ()) (String.append (creg_name_forwards rs2) ""))))))
+          (String.append (← (creg_name_forwards rsd))
+            (String.append (sep_forwards ()) (String.append (← (creg_name_forwards rs2)) ""))))))
   | .C_XOR (rsd, rs2) =>
     (pure (String.append "c.xor"
         (String.append (spc_forwards ())
-          (String.append (creg_name_forwards rsd)
-            (String.append (sep_forwards ()) (String.append (creg_name_forwards rs2) ""))))))
+          (String.append (← (creg_name_forwards rsd))
+            (String.append (sep_forwards ()) (String.append (← (creg_name_forwards rs2)) ""))))))
   | .C_OR (rsd, rs2) =>
     (pure (String.append "c.or"
         (String.append (spc_forwards ())
-          (String.append (creg_name_forwards rsd)
-            (String.append (sep_forwards ()) (String.append (creg_name_forwards rs2) ""))))))
+          (String.append (← (creg_name_forwards rsd))
+            (String.append (sep_forwards ()) (String.append (← (creg_name_forwards rs2)) ""))))))
   | .C_AND (rsd, rs2) =>
     (pure (String.append "c.and"
         (String.append (spc_forwards ())
-          (String.append (creg_name_forwards rsd)
-            (String.append (sep_forwards ()) (String.append (creg_name_forwards rs2) ""))))))
+          (String.append (← (creg_name_forwards rsd))
+            (String.append (sep_forwards ()) (String.append (← (creg_name_forwards rs2)) ""))))))
   | .C_SUBW (rsd, rs2) =>
     (do
       bif (xlen == 64)
       then
         (pure (String.append "c.subw"
             (String.append (spc_forwards ())
-              (String.append (creg_name_forwards rsd)
-                (String.append (sep_forwards ()) (String.append (creg_name_forwards rs2) ""))))))
+              (String.append (← (creg_name_forwards rsd))
+                (String.append (sep_forwards ()) (String.append (← (creg_name_forwards rs2)) ""))))))
       else
         (do
           assert false "Pattern match failure at unknown location"
@@ -3764,8 +3858,8 @@ def assembly_forwards (arg_ : ast) : SailM String := do
       then
         (pure (String.append "c.addw"
             (String.append (spc_forwards ())
-              (String.append (creg_name_forwards rsd)
-                (String.append (sep_forwards ()) (String.append (creg_name_forwards rs2) ""))))))
+              (String.append (← (creg_name_forwards rsd))
+                (String.append (sep_forwards ()) (String.append (← (creg_name_forwards rs2)) ""))))))
       else
         (do
           assert false "Pattern match failure at unknown location"
@@ -3778,13 +3872,13 @@ def assembly_forwards (arg_ : ast) : SailM String := do
   | .C_BEQZ (imm, rs) =>
     (pure (String.append "c.beqz"
         (String.append (spc_forwards ())
-          (String.append (creg_name_forwards rs)
+          (String.append (← (creg_name_forwards rs))
             (String.append (sep_forwards ())
               (String.append (← (hex_bits_signed_8_forwards imm)) ""))))))
   | .C_BNEZ (imm, rs) =>
     (pure (String.append "c.bnez"
         (String.append (spc_forwards ())
-          (String.append (creg_name_forwards rs)
+          (String.append (← (creg_name_forwards rs))
             (String.append (sep_forwards ())
               (String.append (← (hex_bits_signed_8_forwards imm)) ""))))))
   | .C_SLLI (shamt, rsd) =>
@@ -4034,9 +4128,9 @@ def assembly_forwards (arg_ : ast) : SailM String := do
           assert false "Pattern match failure at unknown location"
           throw Error.Exit))
   | .C_SRLI_HINT rsd =>
-    (pure (String.append "c.srli.hint." (String.append (creg_name_forwards rsd) "")))
+    (pure (String.append "c.srli.hint." (String.append (← (creg_name_forwards rsd)) "")))
   | .C_SRAI_HINT rsd =>
-    (pure (String.append "c.srai.hint." (String.append (creg_name_forwards rsd) "")))
+    (pure (String.append "c.srai.hint." (String.append (← (creg_name_forwards rsd)) "")))
   | .FENCE_RESERVED (fm, pred, succ, rs, rd) =>
     (do
       bif (((fm != (0x0 : (BitVec 4))) && (fm != (0x8 : (BitVec 4)))) || ((bne rs zreg) || (bne rd
@@ -4084,7 +4178,7 @@ def assembly_forwards (arg_ : ast) : SailM String := do
     (pure (String.append "fs"
         (String.append (size_mnemonic_forwards width)
           (String.append (spc_forwards ())
-            (String.append (freg_name_forwards rs2)
+            (String.append (← (freg_name_forwards rs2))
               (String.append (sep_forwards ())
                 (String.append (← (hex_bits_signed_12_forwards imm))
                   (String.append (opt_spc_forwards ())
@@ -4154,11 +4248,11 @@ def assembly_forwards (arg_ : ast) : SailM String := do
     (pure (String.append (f_un_type_mnemonic_x_S_forwards op)
         (String.append (spc_forwards ())
           (String.append (← (reg_name_forwards rd))
-            (String.append (sep_forwards ()) (String.append (freg_name_forwards rs1) ""))))))
+            (String.append (sep_forwards ()) (String.append (← (freg_name_forwards rs1)) ""))))))
   | .F_UN_TYPE_F_S (rs1, rd, op) =>
     (pure (String.append (f_un_type_mnemonic_f_S_forwards op)
         (String.append (spc_forwards ())
-          (String.append (freg_name_forwards rd)
+          (String.append (← (freg_name_forwards rd))
             (String.append (sep_forwards ()) (String.append (← (reg_name_forwards rs1)) ""))))))
   | .C_FLWSP (imm, rd) =>
     (do
@@ -4166,7 +4260,7 @@ def assembly_forwards (arg_ : ast) : SailM String := do
       then
         (pure (String.append "c.flwsp"
             (String.append (spc_forwards ())
-              (String.append (freg_name_forwards rd)
+              (String.append (← (freg_name_forwards rd))
                 (String.append (sep_forwards ())
                   (String.append (← (hex_bits_6_forwards imm))
                     (String.append "("
@@ -4181,7 +4275,7 @@ def assembly_forwards (arg_ : ast) : SailM String := do
       then
         (pure (String.append "c.fswsp"
             (String.append (spc_forwards ())
-              (String.append (freg_name_forwards rs2)
+              (String.append (← (freg_name_forwards rs2))
                 (String.append (sep_forwards ())
                   (String.append (← (hex_bits_6_forwards uimm))
                     (String.append "("
@@ -4196,12 +4290,12 @@ def assembly_forwards (arg_ : ast) : SailM String := do
       then
         (pure (String.append "c.flw"
             (String.append (spc_forwards ())
-              (String.append (creg_name_forwards rdc)
+              (String.append (← (cfreg_name_forwards rdc))
                 (String.append (sep_forwards ())
                   (String.append
                     (← (hex_bits_7_forwards ((uimm : (BitVec 5)) ++ (0b00 : (BitVec 2)))))
                     (String.append "("
-                      (String.append (creg_name_forwards rsc) (String.append ")" "")))))))))
+                      (String.append (← (creg_name_forwards rsc)) (String.append ")" "")))))))))
       else
         (do
           assert false "Pattern match failure at unknown location"
@@ -4212,12 +4306,12 @@ def assembly_forwards (arg_ : ast) : SailM String := do
       then
         (pure (String.append "c.fsw"
             (String.append (spc_forwards ())
-              (String.append (creg_name_forwards rsc2)
+              (String.append (← (cfreg_name_forwards rsc2))
                 (String.append (sep_forwards ())
                   (String.append
                     (← (hex_bits_7_forwards ((uimm : (BitVec 5)) ++ (0b00 : (BitVec 2)))))
                     (String.append "("
-                      (String.append (creg_name_forwards rsc1) (String.append ")" "")))))))))
+                      (String.append (← (creg_name_forwards rsc1)) (String.append ")" "")))))))))
       else
         (do
           assert false "Pattern match failure at unknown location"
@@ -4284,11 +4378,11 @@ def assembly_forwards (arg_ : ast) : SailM String := do
     (pure (String.append (f_un_x_type_mnemonic_D_forwards op)
         (String.append (spc_forwards ())
           (String.append (← (reg_name_forwards rd))
-            (String.append (sep_forwards ()) (String.append (freg_name_forwards rs1) ""))))))
+            (String.append (sep_forwards ()) (String.append (← (freg_name_forwards rs1)) ""))))))
   | .F_UN_F_TYPE_D (rs1, rd, op) =>
     (pure (String.append (f_un_f_type_mnemonic_D_forwards op)
         (String.append (spc_forwards ())
-          (String.append (freg_name_forwards rd)
+          (String.append (← (freg_name_forwards rd))
             (String.append (sep_forwards ()) (String.append (← (reg_name_forwards rs1)) ""))))))
   | .C_FLDSP (uimm, rd) =>
     (do
@@ -4296,7 +4390,7 @@ def assembly_forwards (arg_ : ast) : SailM String := do
       then
         (pure (String.append "c.fldsp"
             (String.append (spc_forwards ())
-              (String.append (freg_name_forwards rd)
+              (String.append (← (freg_name_forwards rd))
                 (String.append (sep_forwards ())
                   (String.append (← (hex_bits_6_forwards uimm))
                     (String.append "("
@@ -4311,7 +4405,7 @@ def assembly_forwards (arg_ : ast) : SailM String := do
       then
         (pure (String.append "c.fsdsp"
             (String.append (spc_forwards ())
-              (String.append (freg_name_forwards rs2)
+              (String.append (← (freg_name_forwards rs2))
                 (String.append (sep_forwards ())
                   (String.append (← (hex_bits_6_forwards uimm))
                     (String.append "("
@@ -4326,12 +4420,12 @@ def assembly_forwards (arg_ : ast) : SailM String := do
       then
         (pure (String.append "c.fld"
             (String.append (spc_forwards ())
-              (String.append (creg_name_forwards rdc)
+              (String.append (← (cfreg_name_forwards rdc))
                 (String.append (sep_forwards ())
                   (String.append
                     (← (hex_bits_8_forwards ((uimm : (BitVec 5)) ++ (0b000 : (BitVec 3)))))
                     (String.append "("
-                      (String.append (creg_name_forwards rsc) (String.append ")" "")))))))))
+                      (String.append (← (creg_name_forwards rsc)) (String.append ")" "")))))))))
       else
         (do
           assert false "Pattern match failure at unknown location"
@@ -4342,12 +4436,12 @@ def assembly_forwards (arg_ : ast) : SailM String := do
       then
         (pure (String.append "c.fsd"
             (String.append (spc_forwards ())
-              (String.append (creg_name_forwards rsc2)
+              (String.append (← (cfreg_name_forwards rsc2))
                 (String.append (sep_forwards ())
                   (String.append
                     (← (hex_bits_8_forwards ((uimm : (BitVec 5)) ++ (0b000 : (BitVec 3)))))
                     (String.append "("
-                      (String.append (creg_name_forwards rsc1) (String.append ")" "")))))))))
+                      (String.append (← (creg_name_forwards rsc1)) (String.append ")" "")))))))))
       else
         (do
           assert false "Pattern match failure at unknown location"
@@ -4495,81 +4589,81 @@ def assembly_forwards (arg_ : ast) : SailM String := do
   | .C_LBU (uimm, rdc, rsc1) =>
     (pure (String.append "c.lbu"
         (String.append (spc_forwards ())
-          (String.append (creg_name_forwards rdc)
+          (String.append (← (creg_name_forwards rdc))
             (String.append (sep_forwards ())
               (String.append (← (hex_bits_2_forwards uimm))
                 (String.append (opt_spc_forwards ())
                   (String.append "("
                     (String.append (opt_spc_forwards ())
-                      (String.append (creg_name_forwards rsc1)
+                      (String.append (← (creg_name_forwards rsc1))
                         (String.append (opt_spc_forwards ()) (String.append ")" ""))))))))))))
   | .C_LHU (uimm, rdc, rsc1) =>
     (pure (String.append "c.lhu"
         (String.append (spc_forwards ())
-          (String.append (creg_name_forwards rdc)
+          (String.append (← (creg_name_forwards rdc))
             (String.append (sep_forwards ())
               (String.append (← (hex_bits_2_forwards uimm))
                 (String.append (opt_spc_forwards ())
                   (String.append "("
                     (String.append (opt_spc_forwards ())
-                      (String.append (creg_name_forwards rsc1)
+                      (String.append (← (creg_name_forwards rsc1))
                         (String.append (opt_spc_forwards ()) (String.append ")" ""))))))))))))
   | .C_LH (uimm, rdc, rsc1) =>
     (pure (String.append "c.lh"
         (String.append (spc_forwards ())
-          (String.append (creg_name_forwards rdc)
+          (String.append (← (creg_name_forwards rdc))
             (String.append (sep_forwards ())
               (String.append (← (hex_bits_2_forwards uimm))
                 (String.append (opt_spc_forwards ())
                   (String.append "("
                     (String.append (opt_spc_forwards ())
-                      (String.append (creg_name_forwards rsc1)
+                      (String.append (← (creg_name_forwards rsc1))
                         (String.append (opt_spc_forwards ()) (String.append ")" ""))))))))))))
   | .C_SB (uimm, rsc1, rsc2) =>
     (pure (String.append "c.sb"
         (String.append (spc_forwards ())
-          (String.append (creg_name_forwards rsc2)
+          (String.append (← (creg_name_forwards rsc2))
             (String.append (sep_forwards ())
               (String.append (← (hex_bits_2_forwards uimm))
                 (String.append (opt_spc_forwards ())
                   (String.append "("
                     (String.append (opt_spc_forwards ())
-                      (String.append (creg_name_forwards rsc1)
+                      (String.append (← (creg_name_forwards rsc1))
                         (String.append (opt_spc_forwards ()) (String.append ")" ""))))))))))))
   | .C_SH (uimm, rsc1, rsc2) =>
     (pure (String.append "c.sh"
         (String.append (spc_forwards ())
-          (String.append (creg_name_forwards rsc2)
+          (String.append (← (creg_name_forwards rsc2))
             (String.append (sep_forwards ())
               (String.append (← (hex_bits_2_forwards uimm))
                 (String.append (opt_spc_forwards ())
                   (String.append "("
                     (String.append (opt_spc_forwards ())
-                      (String.append (creg_name_forwards rsc1)
+                      (String.append (← (creg_name_forwards rsc1))
                         (String.append (opt_spc_forwards ()) (String.append ")" ""))))))))))))
   | .C_ZEXT_B rsdc =>
     (pure (String.append "c.zext.b"
-        (String.append (spc_forwards ()) (String.append (creg_name_forwards rsdc) ""))))
+        (String.append (spc_forwards ()) (String.append (← (creg_name_forwards rsdc)) ""))))
   | .C_SEXT_B rsdc =>
     (pure (String.append "c.sext.b"
-        (String.append (spc_forwards ()) (String.append (creg_name_forwards rsdc) ""))))
+        (String.append (spc_forwards ()) (String.append (← (creg_name_forwards rsdc)) ""))))
   | .C_ZEXT_H rsdc =>
     (pure (String.append "c.zext.h"
-        (String.append (spc_forwards ()) (String.append (creg_name_forwards rsdc) ""))))
+        (String.append (spc_forwards ()) (String.append (← (creg_name_forwards rsdc)) ""))))
   | .C_SEXT_H rsdc =>
     (pure (String.append "c.sext.h"
-        (String.append (spc_forwards ()) (String.append (creg_name_forwards rsdc) ""))))
+        (String.append (spc_forwards ()) (String.append (← (creg_name_forwards rsdc)) ""))))
   | .C_ZEXT_W rsdc =>
     (pure (String.append "c.zext.w"
-        (String.append (spc_forwards ()) (String.append (creg_name_forwards rsdc) ""))))
+        (String.append (spc_forwards ()) (String.append (← (creg_name_forwards rsdc)) ""))))
   | .C_NOT rsdc =>
     (pure (String.append "c.not"
-        (String.append (spc_forwards ()) (String.append (creg_name_forwards rsdc) ""))))
+        (String.append (spc_forwards ()) (String.append (← (creg_name_forwards rsdc)) ""))))
   | .C_MUL (rsdc, rsc2) =>
     (pure (String.append "c.mul"
         (String.append (spc_forwards ())
-          (String.append (creg_name_forwards rsdc)
-            (String.append (sep_forwards ()) (String.append (creg_name_forwards rsc2) ""))))))
+          (String.append (← (creg_name_forwards rsdc))
+            (String.append (sep_forwards ()) (String.append (← (creg_name_forwards rsc2)) ""))))))
   | .F_BIN_RM_TYPE_H (rs2, rs1, rm, rd, op) =>
     (pure (String.append (f_bin_rm_type_mnemonic_H_forwards op)
         (String.append (spc_forwards ())
@@ -4631,124 +4725,124 @@ def assembly_forwards (arg_ : ast) : SailM String := do
   | .F_UN_F_TYPE_H (rs1, rd, op) =>
     (pure (String.append (f_un_f_type_mnemonic_H_forwards op)
         (String.append (spc_forwards ())
-          (String.append (freg_name_forwards rd)
+          (String.append (← (freg_name_forwards rd))
             (String.append (sep_forwards ()) (String.append (← (reg_name_forwards rs1)) ""))))))
   | .F_UN_X_TYPE_H (rs1, rd, op) =>
     (pure (String.append (f_un_x_type_mnemonic_H_forwards op)
         (String.append (spc_forwards ())
           (String.append (← (reg_name_forwards rd))
-            (String.append (sep_forwards ()) (String.append (freg_name_forwards rs1) ""))))))
+            (String.append (sep_forwards ()) (String.append (← (freg_name_forwards rs1)) ""))))))
   | .FLI_H (constantidx, rd) =>
     (pure (String.append "fli.h"
         (String.append (spc_forwards ())
-          (String.append (freg_name_forwards rd)
+          (String.append (← (freg_name_forwards rd))
             (String.append (sep_forwards ())
               (String.append (← (hex_bits_5_forwards constantidx)) ""))))))
   | .FLI_S (constantidx, rd) =>
     (pure (String.append "fli.s"
         (String.append (spc_forwards ())
-          (String.append (freg_name_forwards rd)
+          (String.append (← (freg_name_forwards rd))
             (String.append (sep_forwards ())
               (String.append (← (hex_bits_5_forwards constantidx)) ""))))))
   | .FLI_D (constantidx, rd) =>
     (pure (String.append "fli.d"
         (String.append (spc_forwards ())
-          (String.append (freg_name_forwards rd)
+          (String.append (← (freg_name_forwards rd))
             (String.append (sep_forwards ())
               (String.append (← (hex_bits_5_forwards constantidx)) ""))))))
   | .FMINM_H (rs2, rs1, rd) =>
     (pure (String.append "fminm.h"
         (String.append (spc_forwards ())
-          (String.append (freg_name_forwards rd)
+          (String.append (← (freg_name_forwards rd))
             (String.append (sep_forwards ())
-              (String.append (freg_name_forwards rs1)
-                (String.append (sep_forwards ()) (String.append (freg_name_forwards rs2) ""))))))))
+              (String.append (← (freg_name_forwards rs1))
+                (String.append (sep_forwards ()) (String.append (← (freg_name_forwards rs2)) ""))))))))
   | .FMAXM_H (rs2, rs1, rd) =>
     (pure (String.append "fmaxm.h"
         (String.append (spc_forwards ())
-          (String.append (freg_name_forwards rd)
+          (String.append (← (freg_name_forwards rd))
             (String.append (sep_forwards ())
-              (String.append (freg_name_forwards rs1)
-                (String.append (sep_forwards ()) (String.append (freg_name_forwards rs2) ""))))))))
+              (String.append (← (freg_name_forwards rs1))
+                (String.append (sep_forwards ()) (String.append (← (freg_name_forwards rs2)) ""))))))))
   | .FMINM_S (rs2, rs1, rd) =>
     (pure (String.append "fminm.s"
         (String.append (spc_forwards ())
-          (String.append (freg_name_forwards rd)
+          (String.append (← (freg_name_forwards rd))
             (String.append (sep_forwards ())
-              (String.append (freg_name_forwards rs1)
-                (String.append (sep_forwards ()) (String.append (freg_name_forwards rs2) ""))))))))
+              (String.append (← (freg_name_forwards rs1))
+                (String.append (sep_forwards ()) (String.append (← (freg_name_forwards rs2)) ""))))))))
   | .FMAXM_S (rs2, rs1, rd) =>
     (pure (String.append "fmaxm.s"
         (String.append (spc_forwards ())
-          (String.append (freg_name_forwards rd)
+          (String.append (← (freg_name_forwards rd))
             (String.append (sep_forwards ())
-              (String.append (freg_name_forwards rs1)
-                (String.append (sep_forwards ()) (String.append (freg_name_forwards rs2) ""))))))))
+              (String.append (← (freg_name_forwards rs1))
+                (String.append (sep_forwards ()) (String.append (← (freg_name_forwards rs2)) ""))))))))
   | .FMINM_D (rs2, rs1, rd) =>
     (pure (String.append "fminm.d"
         (String.append (spc_forwards ())
-          (String.append (freg_name_forwards rd)
+          (String.append (← (freg_name_forwards rd))
             (String.append (sep_forwards ())
-              (String.append (freg_name_forwards rs1)
-                (String.append (sep_forwards ()) (String.append (freg_name_forwards rs2) ""))))))))
+              (String.append (← (freg_name_forwards rs1))
+                (String.append (sep_forwards ()) (String.append (← (freg_name_forwards rs2)) ""))))))))
   | .FMAXM_D (rs2, rs1, rd) =>
     (pure (String.append "fmaxm.d"
         (String.append (spc_forwards ())
-          (String.append (freg_name_forwards rd)
+          (String.append (← (freg_name_forwards rd))
             (String.append (sep_forwards ())
-              (String.append (freg_name_forwards rs1)
-                (String.append (sep_forwards ()) (String.append (freg_name_forwards rs2) ""))))))))
+              (String.append (← (freg_name_forwards rs1))
+                (String.append (sep_forwards ()) (String.append (← (freg_name_forwards rs2)) ""))))))))
   | .FROUND_H (rs1, rm, rd) =>
     (pure (String.append "fround.h"
         (String.append (spc_forwards ())
-          (String.append (freg_name_forwards rd)
+          (String.append (← (freg_name_forwards rd))
             (String.append (sep_forwards ())
-              (String.append (freg_name_forwards rs1)
+              (String.append (← (freg_name_forwards rs1))
                 (String.append (sep_forwards ()) (String.append (frm_mnemonic_forwards rm) ""))))))))
   | .FROUNDNX_H (rs1, rm, rd) =>
     (pure (String.append "froundnx.h"
         (String.append (spc_forwards ())
-          (String.append (freg_name_forwards rd)
+          (String.append (← (freg_name_forwards rd))
             (String.append (sep_forwards ())
-              (String.append (freg_name_forwards rs1)
+              (String.append (← (freg_name_forwards rs1))
                 (String.append (sep_forwards ()) (String.append (frm_mnemonic_forwards rm) ""))))))))
   | .FROUND_S (rs1, rm, rd) =>
     (pure (String.append "fround.s"
         (String.append (spc_forwards ())
-          (String.append (freg_name_forwards rd)
+          (String.append (← (freg_name_forwards rd))
             (String.append (sep_forwards ())
-              (String.append (freg_name_forwards rs1)
+              (String.append (← (freg_name_forwards rs1))
                 (String.append (sep_forwards ()) (String.append (frm_mnemonic_forwards rm) ""))))))))
   | .FROUNDNX_S (rs1, rm, rd) =>
     (pure (String.append "froundnx.s"
         (String.append (spc_forwards ())
-          (String.append (freg_name_forwards rd)
+          (String.append (← (freg_name_forwards rd))
             (String.append (sep_forwards ())
-              (String.append (freg_name_forwards rs1)
+              (String.append (← (freg_name_forwards rs1))
                 (String.append (sep_forwards ()) (String.append (frm_mnemonic_forwards rm) ""))))))))
   | .FROUND_D (rs1, rm, rd) =>
     (pure (String.append "fround.d"
         (String.append (spc_forwards ())
-          (String.append (freg_name_forwards rd)
+          (String.append (← (freg_name_forwards rd))
             (String.append (sep_forwards ())
-              (String.append (freg_name_forwards rs1)
+              (String.append (← (freg_name_forwards rs1))
                 (String.append (sep_forwards ()) (String.append (frm_mnemonic_forwards rm) ""))))))))
   | .FROUNDNX_D (rs1, rm, rd) =>
     (pure (String.append "froundnx.d"
         (String.append (spc_forwards ())
-          (String.append (freg_name_forwards rd)
+          (String.append (← (freg_name_forwards rd))
             (String.append (sep_forwards ())
-              (String.append (freg_name_forwards rs1)
+              (String.append (← (freg_name_forwards rs1))
                 (String.append (sep_forwards ()) (String.append (frm_mnemonic_forwards rm) ""))))))))
   | .FMVH_X_D (rs1, rd) =>
     (pure (String.append "fmvh.x.d"
         (String.append (spc_forwards ())
           (String.append (← (reg_name_forwards rd))
-            (String.append (sep_forwards ()) (String.append (freg_name_forwards rs1) ""))))))
+            (String.append (sep_forwards ()) (String.append (← (freg_name_forwards rs1)) ""))))))
   | .FMVP_D_X (rs2, rs1, rd) =>
     (pure (String.append "fmvp.d.x"
         (String.append (spc_forwards ())
-          (String.append (freg_name_forwards rd)
+          (String.append (← (freg_name_forwards rd))
             (String.append (sep_forwards ())
               (String.append (← (reg_name_forwards rs1))
                 (String.append (sep_forwards ()) (String.append (← (reg_name_forwards rs2)) ""))))))))
@@ -4757,49 +4851,49 @@ def assembly_forwards (arg_ : ast) : SailM String := do
         (String.append (spc_forwards ())
           (String.append (← (reg_name_forwards rd))
             (String.append (sep_forwards ())
-              (String.append (freg_name_forwards rs1)
-                (String.append (sep_forwards ()) (String.append (freg_name_forwards rs2) ""))))))))
+              (String.append (← (freg_name_forwards rs1))
+                (String.append (sep_forwards ()) (String.append (← (freg_name_forwards rs2)) ""))))))))
   | .FLTQ_H (rs2, rs1, rd) =>
     (pure (String.append "fltq.h"
         (String.append (spc_forwards ())
           (String.append (← (reg_name_forwards rd))
             (String.append (sep_forwards ())
-              (String.append (freg_name_forwards rs1)
-                (String.append (sep_forwards ()) (String.append (freg_name_forwards rs2) ""))))))))
+              (String.append (← (freg_name_forwards rs1))
+                (String.append (sep_forwards ()) (String.append (← (freg_name_forwards rs2)) ""))))))))
   | .FLEQ_S (rs2, rs1, rd) =>
     (pure (String.append "fleq.s"
         (String.append (spc_forwards ())
           (String.append (← (reg_name_forwards rd))
             (String.append (sep_forwards ())
-              (String.append (freg_name_forwards rs1)
-                (String.append (sep_forwards ()) (String.append (freg_name_forwards rs2) ""))))))))
+              (String.append (← (freg_name_forwards rs1))
+                (String.append (sep_forwards ()) (String.append (← (freg_name_forwards rs2)) ""))))))))
   | .FLTQ_S (rs2, rs1, rd) =>
     (pure (String.append "fltq.s"
         (String.append (spc_forwards ())
           (String.append (← (reg_name_forwards rd))
             (String.append (sep_forwards ())
-              (String.append (freg_name_forwards rs1)
-                (String.append (sep_forwards ()) (String.append (freg_name_forwards rs2) ""))))))))
+              (String.append (← (freg_name_forwards rs1))
+                (String.append (sep_forwards ()) (String.append (← (freg_name_forwards rs2)) ""))))))))
   | .FLEQ_D (rs2, rs1, rd) =>
     (pure (String.append "fleq.d"
         (String.append (spc_forwards ())
           (String.append (← (reg_name_forwards rd))
             (String.append (sep_forwards ())
-              (String.append (freg_name_forwards rs1)
-                (String.append (sep_forwards ()) (String.append (freg_name_forwards rs2) ""))))))))
+              (String.append (← (freg_name_forwards rs1))
+                (String.append (sep_forwards ()) (String.append (← (freg_name_forwards rs2)) ""))))))))
   | .FLTQ_D (rs2, rs1, rd) =>
     (pure (String.append "fltq.d"
         (String.append (spc_forwards ())
           (String.append (← (reg_name_forwards rd))
             (String.append (sep_forwards ())
-              (String.append (freg_name_forwards rs1)
-                (String.append (sep_forwards ()) (String.append (freg_name_forwards rs2) ""))))))))
+              (String.append (← (freg_name_forwards rs1))
+                (String.append (sep_forwards ()) (String.append (← (freg_name_forwards rs2)) ""))))))))
   | .FCVTMOD_W_D (rs1, rd) =>
     (pure (String.append "fcvtmod.w.d"
         (String.append (spc_forwards ())
           (String.append (← (reg_name_forwards rd))
             (String.append (sep_forwards ())
-              (String.append (freg_name_forwards rs1)
+              (String.append (← (freg_name_forwards rs1))
                 (String.append (sep_forwards ()) (String.append "rtz" ""))))))))
   | .SHA256SIG0 (rs1, rd) =>
     (pure (String.append "sha256sig0"
@@ -5425,7 +5519,7 @@ def assembly_forwards (arg_ : ast) : SailM String := do
   | .VFMVFS (vs2, rd) =>
     (pure (String.append "vfmv.f.s"
         (String.append (spc_forwards ())
-          (String.append (freg_name_forwards rd)
+          (String.append (← (freg_name_forwards rd))
             (String.append (sep_forwards ()) (String.append (vreg_name_forwards vs2) ""))))))
   | .FVFTYPE (funct6, vm, vs2, rs1, vd) =>
     (pure (String.append (fvftype_mnemonic_forwards funct6)
@@ -5434,14 +5528,14 @@ def assembly_forwards (arg_ : ast) : SailM String := do
             (String.append (sep_forwards ())
               (String.append (vreg_name_forwards vs2)
                 (String.append (sep_forwards ())
-                  (String.append (freg_name_forwards rs1)
+                  (String.append (← (freg_name_forwards rs1))
                     (String.append (maybe_vmask_backwards vm) "")))))))))
   | .FVFMATYPE (funct6, vm, vs2, rs1, vd) =>
     (pure (String.append (fvfmatype_mnemonic_forwards funct6)
         (String.append (spc_forwards ())
           (String.append (vreg_name_forwards vd)
             (String.append (sep_forwards ())
-              (String.append (freg_name_forwards rs1)
+              (String.append (← (freg_name_forwards rs1))
                 (String.append (sep_forwards ())
                   (String.append (vreg_name_forwards vs2)
                     (String.append (maybe_vmask_backwards vm) "")))))))))
@@ -5452,14 +5546,14 @@ def assembly_forwards (arg_ : ast) : SailM String := do
             (String.append (sep_forwards ())
               (String.append (vreg_name_forwards vs2)
                 (String.append (sep_forwards ())
-                  (String.append (freg_name_forwards rs1)
+                  (String.append (← (freg_name_forwards rs1))
                     (String.append (maybe_vmask_backwards vm) "")))))))))
   | .FWVFMATYPE (funct6, vm, rs1, vs2, vd) =>
     (pure (String.append (fwvfmatype_mnemonic_forwards funct6)
         (String.append (spc_forwards ())
           (String.append (vreg_name_forwards vd)
             (String.append (sep_forwards ())
-              (String.append (freg_name_forwards rs1)
+              (String.append (← (freg_name_forwards rs1))
                 (String.append (sep_forwards ())
                   (String.append (vreg_name_forwards vs2)
                     (String.append (maybe_vmask_backwards vm) "")))))))))
@@ -5470,7 +5564,7 @@ def assembly_forwards (arg_ : ast) : SailM String := do
             (String.append (sep_forwards ())
               (String.append (vreg_name_forwards vs2)
                 (String.append (sep_forwards ())
-                  (String.append (freg_name_forwards rs1)
+                  (String.append (← (freg_name_forwards rs1))
                     (String.append (maybe_vmask_backwards vm) "")))))))))
   | .VFMERGE (vs2, rs1, vd) =>
     (pure (String.append "vfmerge.vfm"
@@ -5479,18 +5573,18 @@ def assembly_forwards (arg_ : ast) : SailM String := do
             (String.append (sep_forwards ())
               (String.append (vreg_name_forwards vs2)
                 (String.append (sep_forwards ())
-                  (String.append (freg_name_forwards rs1)
+                  (String.append (← (freg_name_forwards rs1))
                     (String.append (sep_forwards ()) (String.append "v0" ""))))))))))
   | .VFMV (rs1, vd) =>
     (pure (String.append "vfmv.v.f"
         (String.append (spc_forwards ())
           (String.append (vreg_name_forwards vd)
-            (String.append (sep_forwards ()) (String.append (freg_name_forwards rs1) ""))))))
+            (String.append (sep_forwards ()) (String.append (← (freg_name_forwards rs1)) ""))))))
   | .VFMVSF (rs1, vd) =>
     (pure (String.append "vfmv.s.f"
         (String.append (spc_forwards ())
           (String.append (vreg_name_forwards vd)
-            (String.append (sep_forwards ()) (String.append (freg_name_forwards rs1) ""))))))
+            (String.append (sep_forwards ()) (String.append (← (freg_name_forwards rs1)) ""))))))
   | .VLSEGTYPE (nf, vm, rs1, width, vd) =>
     (pure (String.append "vl"
         (String.append (nfields_string_forwards nf)
@@ -5810,7 +5904,7 @@ def assembly_forwards (arg_ : ast) : SailM String := do
             (String.append (sep_forwards ())
               (String.append (vreg_name_forwards vs2)
                 (String.append (sep_forwards ())
-                  (String.append (freg_name_forwards rs1)
+                  (String.append (← (freg_name_forwards rs1))
                     (String.append (maybe_vmask_backwards vm) "")))))))))
   | .RIVVTYPE (funct6, vm, vs2, vs1, vd) =>
     (pure (String.append (rivvtype_mnemonic_forwards funct6)

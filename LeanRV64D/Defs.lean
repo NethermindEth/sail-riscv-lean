@@ -172,6 +172,10 @@ inductive bop where | BEQ | BNE | BLT | BGE | BLTU | BGEU
 inductive cbop_zicbom where | CBO_CLEAN | CBO_FLUSH | CBO_INVAL
   deriving BEq, Inhabited, Repr
 
+inductive fregidx where
+  | Fregidx (_ : (BitVec 5))
+  deriving Inhabited, BEq, Repr
+
 inductive csrop where | CSRRW | CSRRS | CSRRC
   deriving BEq, Inhabited, Repr
 
@@ -252,10 +256,6 @@ inductive f_un_x_op_D where | FCLASS_D | FMV_X_D
 
 inductive f_un_x_op_H where | FCLASS_H | FMV_X_H
   deriving BEq, Inhabited, Repr
-
-inductive fregidx where
-  | Fregidx (_ : (BitVec 5))
-  deriving Inhabited, BEq, Repr
 
 inductive rounding_mode where | RM_RNE | RM_RTZ | RM_RDN | RM_RUP | RM_RMM | RM_DYN
   deriving BEq, Inhabited, Repr
