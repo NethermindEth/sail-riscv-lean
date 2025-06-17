@@ -255,8 +255,8 @@ def zvk_ff1 (X : (BitVec 32)) (Y : (BitVec 32)) (Z : (BitVec 32)) : (BitVec 32) 
 def zvk_ff2 (X : (BitVec 32)) (Y : (BitVec 32)) (Z : (BitVec 32)) : (BitVec 32) :=
   ((X &&& Y) ||| ((X &&& Z) ||| (Y &&& Z)))
 
-/-- Type quantifiers: J : Int -/
-def zvk_ff_j (X : (BitVec 32)) (Y : (BitVec 32)) (Z : (BitVec 32)) (J : Int) : (BitVec 32) :=
+/-- Type quantifiers: J : Nat, 0 ≤ J -/
+def zvk_ff_j (X : (BitVec 32)) (Y : (BitVec 32)) (Z : (BitVec 32)) (J : Nat) : (BitVec 32) :=
   bif (J ≤b 15)
   then (zvk_ff1 X Y Z)
   else (zvk_ff2 X Y Z)
@@ -267,20 +267,20 @@ def zvk_gg1 (X : (BitVec 32)) (Y : (BitVec 32)) (Z : (BitVec 32)) : (BitVec 32) 
 def zvk_gg2 (X : (BitVec 32)) (Y : (BitVec 32)) (Z : (BitVec 32)) : (BitVec 32) :=
   ((X &&& Y) ||| ((Complement.complement X) &&& Z))
 
-/-- Type quantifiers: J : Int -/
-def zvk_gg_j (X : (BitVec 32)) (Y : (BitVec 32)) (Z : (BitVec 32)) (J : Int) : (BitVec 32) :=
+/-- Type quantifiers: J : Nat, 0 ≤ J -/
+def zvk_gg_j (X : (BitVec 32)) (Y : (BitVec 32)) (Z : (BitVec 32)) (J : Nat) : (BitVec 32) :=
   bif (J ≤b 15)
   then (zvk_gg1 X Y Z)
   else (zvk_gg2 X Y Z)
 
-/-- Type quantifiers: J : Int -/
-def zvk_t_j (J : Int) : (BitVec 32) :=
+/-- Type quantifiers: J : Nat, 0 ≤ J -/
+def zvk_t_j (J : Nat) : (BitVec 32) :=
   bif (J ≤b 15)
   then (0x79CC4519 : (BitVec 32))
   else (0x7A879D8A : (BitVec 32))
 
-/-- Type quantifiers: j : Int -/
-def zvk_sm3_round (A_H : (Vector (BitVec 32) 8)) (w : (BitVec 32)) (x : (BitVec 32)) (j : Int) : (Vector (BitVec 32) 8) :=
+/-- Type quantifiers: j : Nat, 0 ≤ j -/
+def zvk_sm3_round (A_H : (Vector (BitVec 32) 8)) (w : (BitVec 32)) (x : (BitVec 32)) (j : Nat) : (Vector (BitVec 32) 8) :=
   let t_j := (rotatel (zvk_t_j j) (Int.emod j 32))
   let ss1 :=
     (rotatel (((rotatel (GetElem?.getElem! A_H 0) 12) + (GetElem?.getElem! A_H 4)) + t_j) 7)
