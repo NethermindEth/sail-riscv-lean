@@ -178,12 +178,6 @@ open ExceptionType
 open Architecture
 open AccessType
 
-def xlen_max_unsigned := ((2 ^i xlen) -i 1)
-
-def xlen_max_signed := ((2 ^i (xlen -i 1)) -i 1)
-
-def xlen_min_signed := (0 -i (2 ^i (xlen -i 1)))
-
 def pagesize_bits := 12
 
 def regidx_bits (app_0 : regidx) : (BitVec 5) :=
@@ -234,7 +228,7 @@ def architecture_backwards (arg_ : (BitVec 2)) : SailM Architecture := do
         (do
           bif (b__0 == (0b11 : (BitVec 2)))
           then (pure RV128)
-          else (internal_error "riscv_types.sail" 55 "architecture(0b00) is invalid")))
+          else (internal_error "riscv_types.sail" 52 "architecture(0b00) is invalid")))
 
 def architecture_forwards_matches (arg_ : Architecture) : Bool :=
   match arg_ with
@@ -292,7 +286,7 @@ def privLevel_bits_backwards (arg_ : (BitVec 2)) : SailM Privilege := do
           bif (b__0 == (0b11 : (BitVec 2)))
           then (pure Machine)
           else
-            (internal_error "riscv_types.sail" 67
+            (internal_error "riscv_types.sail" 64
               (HAppend.hAppend "Invalid privilege level: " (BitVec.toFormatted (0b10 : (BitVec 2)))))))
 
 def privLevel_bits_forwards_matches (arg_ : Privilege) : Bool :=
