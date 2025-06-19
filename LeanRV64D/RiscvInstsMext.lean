@@ -281,24 +281,3 @@ def mul_mnemonic_backwards_matches (arg_ : String) : Bool :=
   | "mulhu" => true
   | _ => false
 
-def maybe_not_u_backwards (arg_ : String) : SailM Bool := do
-  match arg_ with
-  | "u" => (pure false)
-  | "" => (pure true)
-  | _ =>
-    (do
-      assert false "Pattern match failure at unknown location"
-      throw Error.Exit)
-
-/-- Type quantifiers: k_ex377054# : Bool -/
-def maybe_not_u_forwards_matches (arg_ : Bool) : Bool :=
-  match arg_ with
-  | false => true
-  | true => true
-
-def maybe_not_u_backwards_matches (arg_ : String) : Bool :=
-  match arg_ with
-  | "u" => true
-  | "" => true
-  | _ => false
-
