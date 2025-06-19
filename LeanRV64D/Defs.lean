@@ -82,8 +82,6 @@ structure RISCV_strong_access where
 
 abbrev RVFI_DII_Instruction_Packet := (BitVec 64)
 
-abbrev RVFI_DII_Execution_Packet_V1 := (BitVec 704)
-
 abbrev RVFI_DII_Execution_Packet_InstMetaData := (BitVec 192)
 
 abbrev RVFI_DII_Execution_Packet_PC := (BitVec 128)
@@ -91,6 +89,8 @@ abbrev RVFI_DII_Execution_Packet_PC := (BitVec 128)
 abbrev RVFI_DII_Execution_Packet_Ext_Integer := (BitVec 320)
 
 abbrev RVFI_DII_Execution_Packet_Ext_MemAccess := (BitVec 704)
+
+abbrev RVFI_DII_Execution_Packet_V1 := (BitVec 704)
 
 abbrev RVFI_DII_Execution_PacketV2 := (BitVec 512)
 

@@ -570,337 +570,51 @@ def print_instr_packet (bs : (BitVec 64)) : Unit :=
   let _ : Unit := (print_bits "command " (_get_RVFI_DII_Instruction_Packet_rvfi_cmd p))
   (print_bits "instruction " (_get_RVFI_DII_Instruction_Packet_rvfi_insn p))
 
-def undefined_RVFI_DII_Execution_Packet_V1 (_ : Unit) : SailM (BitVec 704) := do
-  (undefined_bitvector 704)
-
-def Mk_RVFI_DII_Execution_Packet_V1 (v : (BitVec 704)) : (BitVec 704) :=
-  v
-
-def _get_RVFI_DII_Execution_Packet_V1_rvfi_halt (v : (BitVec 704)) : (BitVec 8) :=
-  (Sail.BitVec.extractLsb v 695 688)
-
-def _update_RVFI_DII_Execution_Packet_V1_rvfi_halt (v : (BitVec 704)) (x : (BitVec 8)) : (BitVec 704) :=
-  (Sail.BitVec.updateSubrange v 695 688 x)
-
-def _update_RVFI_DII_Execution_Packet_InstMetaData_rvfi_halt (v : (BitVec 192)) (x : (BitVec 8)) : (BitVec 192) :=
-  (Sail.BitVec.updateSubrange v 143 136 x)
-
-def _set_RVFI_DII_Execution_Packet_V1_rvfi_halt (r_ref : (RegisterRef (BitVec 704))) (v : (BitVec 8)) : SailM Unit := do
-  let r ← do (reg_deref r_ref)
-  writeRegRef r_ref (_update_RVFI_DII_Execution_Packet_V1_rvfi_halt r v)
-
-def _get_RVFI_DII_Execution_Packet_InstMetaData_rvfi_halt (v : (BitVec 192)) : (BitVec 8) :=
-  (Sail.BitVec.extractLsb v 143 136)
-
-def _set_RVFI_DII_Execution_Packet_InstMetaData_rvfi_halt (r_ref : (RegisterRef (BitVec 192))) (v : (BitVec 8)) : SailM Unit := do
-  let r ← do (reg_deref r_ref)
-  writeRegRef r_ref (_update_RVFI_DII_Execution_Packet_InstMetaData_rvfi_halt r v)
-
-def _get_RVFI_DII_Execution_Packet_V1_rvfi_intr (v : (BitVec 704)) : (BitVec 8) :=
-  (Sail.BitVec.extractLsb v 703 696)
-
-def _update_RVFI_DII_Execution_Packet_V1_rvfi_intr (v : (BitVec 704)) (x : (BitVec 8)) : (BitVec 704) :=
-  (Sail.BitVec.updateSubrange v 703 696 x)
-
-def _update_RVFI_DII_Execution_Packet_InstMetaData_rvfi_intr (v : (BitVec 192)) (x : (BitVec 8)) : (BitVec 192) :=
-  (Sail.BitVec.updateSubrange v 151 144 x)
-
-def _set_RVFI_DII_Execution_Packet_V1_rvfi_intr (r_ref : (RegisterRef (BitVec 704))) (v : (BitVec 8)) : SailM Unit := do
-  let r ← do (reg_deref r_ref)
-  writeRegRef r_ref (_update_RVFI_DII_Execution_Packet_V1_rvfi_intr r v)
-
-def _get_RVFI_DII_Execution_Packet_InstMetaData_rvfi_intr (v : (BitVec 192)) : (BitVec 8) :=
-  (Sail.BitVec.extractLsb v 151 144)
-
-def _set_RVFI_DII_Execution_Packet_InstMetaData_rvfi_intr (r_ref : (RegisterRef (BitVec 192))) (v : (BitVec 8)) : SailM Unit := do
-  let r ← do (reg_deref r_ref)
-  writeRegRef r_ref (_update_RVFI_DII_Execution_Packet_InstMetaData_rvfi_intr r v)
-
-def _get_RVFI_DII_Execution_Packet_V1_rvfi_mem_addr (v : (BitVec 704)) : (BitVec 64) :=
-  (Sail.BitVec.extractLsb v 511 448)
-
-def _update_RVFI_DII_Execution_Packet_V1_rvfi_mem_addr (v : (BitVec 704)) (x : (BitVec 64)) : (BitVec 704) :=
-  (Sail.BitVec.updateSubrange v 511 448 x)
-
-def _update_RVFI_DII_Execution_Packet_Ext_MemAccess_rvfi_mem_addr (v : (BitVec 704)) (x : (BitVec 64)) : (BitVec 704) :=
-  (Sail.BitVec.updateSubrange v 703 640 x)
-
-def _set_RVFI_DII_Execution_Packet_V1_rvfi_mem_addr (r_ref : (RegisterRef (BitVec 704))) (v : (BitVec 64)) : SailM Unit := do
-  let r ← do (reg_deref r_ref)
-  writeRegRef r_ref (_update_RVFI_DII_Execution_Packet_V1_rvfi_mem_addr r v)
-
-def _get_RVFI_DII_Execution_Packet_Ext_MemAccess_rvfi_mem_addr (v : (BitVec 704)) : (BitVec 64) :=
-  (Sail.BitVec.extractLsb v 703 640)
-
-def _set_RVFI_DII_Execution_Packet_Ext_MemAccess_rvfi_mem_addr (r_ref : (RegisterRef (BitVec 704))) (v : (BitVec 64)) : SailM Unit := do
-  let r ← do (reg_deref r_ref)
-  writeRegRef r_ref (_update_RVFI_DII_Execution_Packet_Ext_MemAccess_rvfi_mem_addr r v)
-
-def _get_RVFI_DII_Execution_Packet_V1_rvfi_mem_rdata (v : (BitVec 704)) : (BitVec 64) :=
-  (Sail.BitVec.extractLsb v 575 512)
-
-def _update_RVFI_DII_Execution_Packet_V1_rvfi_mem_rdata (v : (BitVec 704)) (x : (BitVec 64)) : (BitVec 704) :=
-  (Sail.BitVec.updateSubrange v 575 512 x)
-
-def _update_RVFI_DII_Execution_Packet_Ext_MemAccess_rvfi_mem_rdata (v : (BitVec 704)) (x : (BitVec 256)) : (BitVec 704) :=
-  (Sail.BitVec.updateSubrange v 319 64 x)
-
-def _set_RVFI_DII_Execution_Packet_V1_rvfi_mem_rdata (r_ref : (RegisterRef (BitVec 704))) (v : (BitVec 64)) : SailM Unit := do
-  let r ← do (reg_deref r_ref)
-  writeRegRef r_ref (_update_RVFI_DII_Execution_Packet_V1_rvfi_mem_rdata r v)
-
-def _get_RVFI_DII_Execution_Packet_Ext_MemAccess_rvfi_mem_rdata (v : (BitVec 704)) : (BitVec 256) :=
-  (Sail.BitVec.extractLsb v 319 64)
-
-def _set_RVFI_DII_Execution_Packet_Ext_MemAccess_rvfi_mem_rdata (r_ref : (RegisterRef (BitVec 704))) (v : (BitVec 256)) : SailM Unit := do
-  let r ← do (reg_deref r_ref)
-  writeRegRef r_ref (_update_RVFI_DII_Execution_Packet_Ext_MemAccess_rvfi_mem_rdata r v)
-
-def _get_RVFI_DII_Execution_Packet_V1_rvfi_mem_rmask (v : (BitVec 704)) : (BitVec 8) :=
-  (Sail.BitVec.extractLsb v 647 640)
-
-def _update_RVFI_DII_Execution_Packet_V1_rvfi_mem_rmask (v : (BitVec 704)) (x : (BitVec 8)) : (BitVec 704) :=
-  (Sail.BitVec.updateSubrange v 647 640 x)
-
-def _update_RVFI_DII_Execution_Packet_Ext_MemAccess_rvfi_mem_rmask (v : (BitVec 704)) (x : (BitVec 32)) : (BitVec 704) :=
-  (Sail.BitVec.updateSubrange v 607 576 x)
-
-def _set_RVFI_DII_Execution_Packet_V1_rvfi_mem_rmask (r_ref : (RegisterRef (BitVec 704))) (v : (BitVec 8)) : SailM Unit := do
-  let r ← do (reg_deref r_ref)
-  writeRegRef r_ref (_update_RVFI_DII_Execution_Packet_V1_rvfi_mem_rmask r v)
-
-def _get_RVFI_DII_Execution_Packet_Ext_MemAccess_rvfi_mem_rmask (v : (BitVec 704)) : (BitVec 32) :=
-  (Sail.BitVec.extractLsb v 607 576)
-
-def _set_RVFI_DII_Execution_Packet_Ext_MemAccess_rvfi_mem_rmask (r_ref : (RegisterRef (BitVec 704))) (v : (BitVec 32)) : SailM Unit := do
-  let r ← do (reg_deref r_ref)
-  writeRegRef r_ref (_update_RVFI_DII_Execution_Packet_Ext_MemAccess_rvfi_mem_rmask r v)
-
-def _get_RVFI_DII_Execution_Packet_V1_rvfi_mem_wdata (v : (BitVec 704)) : (BitVec 64) :=
-  (Sail.BitVec.extractLsb v 639 576)
-
-def _update_RVFI_DII_Execution_Packet_V1_rvfi_mem_wdata (v : (BitVec 704)) (x : (BitVec 64)) : (BitVec 704) :=
-  (Sail.BitVec.updateSubrange v 639 576 x)
-
-def _update_RVFI_DII_Execution_Packet_Ext_MemAccess_rvfi_mem_wdata (v : (BitVec 704)) (x : (BitVec 256)) : (BitVec 704) :=
-  (Sail.BitVec.updateSubrange v 575 320 x)
-
-def _set_RVFI_DII_Execution_Packet_V1_rvfi_mem_wdata (r_ref : (RegisterRef (BitVec 704))) (v : (BitVec 64)) : SailM Unit := do
-  let r ← do (reg_deref r_ref)
-  writeRegRef r_ref (_update_RVFI_DII_Execution_Packet_V1_rvfi_mem_wdata r v)
-
-def _get_RVFI_DII_Execution_Packet_Ext_MemAccess_rvfi_mem_wdata (v : (BitVec 704)) : (BitVec 256) :=
-  (Sail.BitVec.extractLsb v 575 320)
-
-def _set_RVFI_DII_Execution_Packet_Ext_MemAccess_rvfi_mem_wdata (r_ref : (RegisterRef (BitVec 704))) (v : (BitVec 256)) : SailM Unit := do
-  let r ← do (reg_deref r_ref)
-  writeRegRef r_ref (_update_RVFI_DII_Execution_Packet_Ext_MemAccess_rvfi_mem_wdata r v)
-
-def _get_RVFI_DII_Execution_Packet_V1_rvfi_mem_wmask (v : (BitVec 704)) : (BitVec 8) :=
-  (Sail.BitVec.extractLsb v 655 648)
-
-def _update_RVFI_DII_Execution_Packet_V1_rvfi_mem_wmask (v : (BitVec 704)) (x : (BitVec 8)) : (BitVec 704) :=
-  (Sail.BitVec.updateSubrange v 655 648 x)
-
-def _update_RVFI_DII_Execution_Packet_Ext_MemAccess_rvfi_mem_wmask (v : (BitVec 704)) (x : (BitVec 32)) : (BitVec 704) :=
-  (Sail.BitVec.updateSubrange v 639 608 x)
-
-def _set_RVFI_DII_Execution_Packet_V1_rvfi_mem_wmask (r_ref : (RegisterRef (BitVec 704))) (v : (BitVec 8)) : SailM Unit := do
-  let r ← do (reg_deref r_ref)
-  writeRegRef r_ref (_update_RVFI_DII_Execution_Packet_V1_rvfi_mem_wmask r v)
-
-def _get_RVFI_DII_Execution_Packet_Ext_MemAccess_rvfi_mem_wmask (v : (BitVec 704)) : (BitVec 32) :=
-  (Sail.BitVec.extractLsb v 639 608)
-
-def _set_RVFI_DII_Execution_Packet_Ext_MemAccess_rvfi_mem_wmask (r_ref : (RegisterRef (BitVec 704))) (v : (BitVec 32)) : SailM Unit := do
-  let r ← do (reg_deref r_ref)
-  writeRegRef r_ref (_update_RVFI_DII_Execution_Packet_Ext_MemAccess_rvfi_mem_wmask r v)
-
-def _get_RVFI_DII_Execution_Packet_V1_rvfi_order (v : (BitVec 704)) : (BitVec 64) :=
-  (Sail.BitVec.extractLsb v 63 0)
-
-def _update_RVFI_DII_Execution_Packet_V1_rvfi_order (v : (BitVec 704)) (x : (BitVec 64)) : (BitVec 704) :=
-  (Sail.BitVec.updateSubrange v 63 0 x)
-
-def _update_RVFI_DII_Execution_Packet_InstMetaData_rvfi_order (v : (BitVec 192)) (x : (BitVec 64)) : (BitVec 192) :=
-  (Sail.BitVec.updateSubrange v 63 0 x)
-
-def _set_RVFI_DII_Execution_Packet_V1_rvfi_order (r_ref : (RegisterRef (BitVec 704))) (v : (BitVec 64)) : SailM Unit := do
-  let r ← do (reg_deref r_ref)
-  writeRegRef r_ref (_update_RVFI_DII_Execution_Packet_V1_rvfi_order r v)
-
-def _get_RVFI_DII_Execution_Packet_InstMetaData_rvfi_order (v : (BitVec 192)) : (BitVec 64) :=
-  (Sail.BitVec.extractLsb v 63 0)
-
-def _set_RVFI_DII_Execution_Packet_InstMetaData_rvfi_order (r_ref : (RegisterRef (BitVec 192))) (v : (BitVec 64)) : SailM Unit := do
-  let r ← do (reg_deref r_ref)
-  writeRegRef r_ref (_update_RVFI_DII_Execution_Packet_InstMetaData_rvfi_order r v)
-
-def _get_RVFI_DII_Execution_Packet_V1_rvfi_pc_rdata (v : (BitVec 704)) : (BitVec 64) :=
-  (Sail.BitVec.extractLsb v 127 64)
-
-def _update_RVFI_DII_Execution_Packet_V1_rvfi_pc_rdata (v : (BitVec 704)) (x : (BitVec 64)) : (BitVec 704) :=
-  (Sail.BitVec.updateSubrange v 127 64 x)
-
-def _update_RVFI_DII_Execution_Packet_PC_rvfi_pc_rdata (v : (BitVec 128)) (x : (BitVec 64)) : (BitVec 128) :=
-  (Sail.BitVec.updateSubrange v 63 0 x)
-
-def _set_RVFI_DII_Execution_Packet_V1_rvfi_pc_rdata (r_ref : (RegisterRef (BitVec 704))) (v : (BitVec 64)) : SailM Unit := do
-  let r ← do (reg_deref r_ref)
-  writeRegRef r_ref (_update_RVFI_DII_Execution_Packet_V1_rvfi_pc_rdata r v)
-
-def _get_RVFI_DII_Execution_Packet_PC_rvfi_pc_rdata (v : (BitVec 128)) : (BitVec 64) :=
-  (Sail.BitVec.extractLsb v 63 0)
-
-def _set_RVFI_DII_Execution_Packet_PC_rvfi_pc_rdata (r_ref : (RegisterRef (BitVec 128))) (v : (BitVec 64)) : SailM Unit := do
-  let r ← do (reg_deref r_ref)
-  writeRegRef r_ref (_update_RVFI_DII_Execution_Packet_PC_rvfi_pc_rdata r v)
-
-def _get_RVFI_DII_Execution_Packet_V1_rvfi_pc_wdata (v : (BitVec 704)) : (BitVec 64) :=
-  (Sail.BitVec.extractLsb v 191 128)
-
-def _update_RVFI_DII_Execution_Packet_V1_rvfi_pc_wdata (v : (BitVec 704)) (x : (BitVec 64)) : (BitVec 704) :=
-  (Sail.BitVec.updateSubrange v 191 128 x)
-
-def _update_RVFI_DII_Execution_Packet_PC_rvfi_pc_wdata (v : (BitVec 128)) (x : (BitVec 64)) : (BitVec 128) :=
-  (Sail.BitVec.updateSubrange v 127 64 x)
-
-def _set_RVFI_DII_Execution_Packet_V1_rvfi_pc_wdata (r_ref : (RegisterRef (BitVec 704))) (v : (BitVec 64)) : SailM Unit := do
-  let r ← do (reg_deref r_ref)
-  writeRegRef r_ref (_update_RVFI_DII_Execution_Packet_V1_rvfi_pc_wdata r v)
-
-def _get_RVFI_DII_Execution_Packet_PC_rvfi_pc_wdata (v : (BitVec 128)) : (BitVec 64) :=
-  (Sail.BitVec.extractLsb v 127 64)
-
-def _set_RVFI_DII_Execution_Packet_PC_rvfi_pc_wdata (r_ref : (RegisterRef (BitVec 128))) (v : (BitVec 64)) : SailM Unit := do
-  let r ← do (reg_deref r_ref)
-  writeRegRef r_ref (_update_RVFI_DII_Execution_Packet_PC_rvfi_pc_wdata r v)
-
-def _get_RVFI_DII_Execution_Packet_V1_rvfi_rd_addr (v : (BitVec 704)) : (BitVec 8) :=
-  (Sail.BitVec.extractLsb v 679 672)
-
-def _update_RVFI_DII_Execution_Packet_V1_rvfi_rd_addr (v : (BitVec 704)) (x : (BitVec 8)) : (BitVec 704) :=
-  (Sail.BitVec.updateSubrange v 679 672 x)
-
-def _update_RVFI_DII_Execution_Packet_Ext_Integer_rvfi_rd_addr (v : (BitVec 320)) (x : (BitVec 8)) : (BitVec 320) :=
-  (Sail.BitVec.updateSubrange v 263 256 x)
-
-def _set_RVFI_DII_Execution_Packet_V1_rvfi_rd_addr (r_ref : (RegisterRef (BitVec 704))) (v : (BitVec 8)) : SailM Unit := do
-  let r ← do (reg_deref r_ref)
-  writeRegRef r_ref (_update_RVFI_DII_Execution_Packet_V1_rvfi_rd_addr r v)
-
-def _get_RVFI_DII_Execution_Packet_Ext_Integer_rvfi_rd_addr (v : (BitVec 320)) : (BitVec 8) :=
-  (Sail.BitVec.extractLsb v 263 256)
-
-def _set_RVFI_DII_Execution_Packet_Ext_Integer_rvfi_rd_addr (r_ref : (RegisterRef (BitVec 320))) (v : (BitVec 8)) : SailM Unit := do
-  let r ← do (reg_deref r_ref)
-  writeRegRef r_ref (_update_RVFI_DII_Execution_Packet_Ext_Integer_rvfi_rd_addr r v)
-
-def _get_RVFI_DII_Execution_Packet_V1_rvfi_rd_wdata (v : (BitVec 704)) : (BitVec 64) :=
-  (Sail.BitVec.extractLsb v 447 384)
-
-def _update_RVFI_DII_Execution_Packet_V1_rvfi_rd_wdata (v : (BitVec 704)) (x : (BitVec 64)) : (BitVec 704) :=
-  (Sail.BitVec.updateSubrange v 447 384 x)
-
-def _update_RVFI_DII_Execution_Packet_Ext_Integer_rvfi_rd_wdata (v : (BitVec 320)) (x : (BitVec 64)) : (BitVec 320) :=
-  (Sail.BitVec.updateSubrange v 127 64 x)
-
-def _set_RVFI_DII_Execution_Packet_V1_rvfi_rd_wdata (r_ref : (RegisterRef (BitVec 704))) (v : (BitVec 64)) : SailM Unit := do
-  let r ← do (reg_deref r_ref)
-  writeRegRef r_ref (_update_RVFI_DII_Execution_Packet_V1_rvfi_rd_wdata r v)
-
-def _get_RVFI_DII_Execution_Packet_Ext_Integer_rvfi_rd_wdata (v : (BitVec 320)) : (BitVec 64) :=
-  (Sail.BitVec.extractLsb v 127 64)
-
-def _set_RVFI_DII_Execution_Packet_Ext_Integer_rvfi_rd_wdata (r_ref : (RegisterRef (BitVec 320))) (v : (BitVec 64)) : SailM Unit := do
-  let r ← do (reg_deref r_ref)
-  writeRegRef r_ref (_update_RVFI_DII_Execution_Packet_Ext_Integer_rvfi_rd_wdata r v)
-
-def _get_RVFI_DII_Execution_Packet_V1_rvfi_rs1_addr (v : (BitVec 704)) : (BitVec 8) :=
-  (Sail.BitVec.extractLsb v 663 656)
-
-def _update_RVFI_DII_Execution_Packet_V1_rvfi_rs1_addr (v : (BitVec 704)) (x : (BitVec 8)) : (BitVec 704) :=
-  (Sail.BitVec.updateSubrange v 663 656 x)
-
-def _update_RVFI_DII_Execution_Packet_Ext_Integer_rvfi_rs1_addr (v : (BitVec 320)) (x : (BitVec 8)) : (BitVec 320) :=
-  (Sail.BitVec.updateSubrange v 271 264 x)
-
-def _set_RVFI_DII_Execution_Packet_V1_rvfi_rs1_addr (r_ref : (RegisterRef (BitVec 704))) (v : (BitVec 8)) : SailM Unit := do
-  let r ← do (reg_deref r_ref)
-  writeRegRef r_ref (_update_RVFI_DII_Execution_Packet_V1_rvfi_rs1_addr r v)
-
-def _get_RVFI_DII_Execution_Packet_Ext_Integer_rvfi_rs1_addr (v : (BitVec 320)) : (BitVec 8) :=
-  (Sail.BitVec.extractLsb v 271 264)
-
-def _set_RVFI_DII_Execution_Packet_Ext_Integer_rvfi_rs1_addr (r_ref : (RegisterRef (BitVec 320))) (v : (BitVec 8)) : SailM Unit := do
-  let r ← do (reg_deref r_ref)
-  writeRegRef r_ref (_update_RVFI_DII_Execution_Packet_Ext_Integer_rvfi_rs1_addr r v)
-
-def _get_RVFI_DII_Execution_Packet_V1_rvfi_rs1_data (v : (BitVec 704)) : (BitVec 64) :=
-  (Sail.BitVec.extractLsb v 319 256)
-
-def _update_RVFI_DII_Execution_Packet_V1_rvfi_rs1_data (v : (BitVec 704)) (x : (BitVec 64)) : (BitVec 704) :=
-  (Sail.BitVec.updateSubrange v 319 256 x)
-
-def _set_RVFI_DII_Execution_Packet_V1_rvfi_rs1_data (r_ref : (RegisterRef (BitVec 704))) (v : (BitVec 64)) : SailM Unit := do
-  let r ← do (reg_deref r_ref)
-  writeRegRef r_ref (_update_RVFI_DII_Execution_Packet_V1_rvfi_rs1_data r v)
-
-def _get_RVFI_DII_Execution_Packet_V1_rvfi_rs2_addr (v : (BitVec 704)) : (BitVec 8) :=
-  (Sail.BitVec.extractLsb v 671 664)
-
-def _update_RVFI_DII_Execution_Packet_V1_rvfi_rs2_addr (v : (BitVec 704)) (x : (BitVec 8)) : (BitVec 704) :=
-  (Sail.BitVec.updateSubrange v 671 664 x)
-
-def _update_RVFI_DII_Execution_Packet_Ext_Integer_rvfi_rs2_addr (v : (BitVec 320)) (x : (BitVec 8)) : (BitVec 320) :=
-  (Sail.BitVec.updateSubrange v 279 272 x)
-
-def _set_RVFI_DII_Execution_Packet_V1_rvfi_rs2_addr (r_ref : (RegisterRef (BitVec 704))) (v : (BitVec 8)) : SailM Unit := do
-  let r ← do (reg_deref r_ref)
-  writeRegRef r_ref (_update_RVFI_DII_Execution_Packet_V1_rvfi_rs2_addr r v)
-
-def _get_RVFI_DII_Execution_Packet_Ext_Integer_rvfi_rs2_addr (v : (BitVec 320)) : (BitVec 8) :=
-  (Sail.BitVec.extractLsb v 279 272)
-
-def _set_RVFI_DII_Execution_Packet_Ext_Integer_rvfi_rs2_addr (r_ref : (RegisterRef (BitVec 320))) (v : (BitVec 8)) : SailM Unit := do
-  let r ← do (reg_deref r_ref)
-  writeRegRef r_ref (_update_RVFI_DII_Execution_Packet_Ext_Integer_rvfi_rs2_addr r v)
-
-def _get_RVFI_DII_Execution_Packet_V1_rvfi_rs2_data (v : (BitVec 704)) : (BitVec 64) :=
-  (Sail.BitVec.extractLsb v 383 320)
-
-def _update_RVFI_DII_Execution_Packet_V1_rvfi_rs2_data (v : (BitVec 704)) (x : (BitVec 64)) : (BitVec 704) :=
-  (Sail.BitVec.updateSubrange v 383 320 x)
-
-def _set_RVFI_DII_Execution_Packet_V1_rvfi_rs2_data (r_ref : (RegisterRef (BitVec 704))) (v : (BitVec 64)) : SailM Unit := do
-  let r ← do (reg_deref r_ref)
-  writeRegRef r_ref (_update_RVFI_DII_Execution_Packet_V1_rvfi_rs2_data r v)
-
-def _get_RVFI_DII_Execution_Packet_V1_rvfi_trap (v : (BitVec 704)) : (BitVec 8) :=
-  (Sail.BitVec.extractLsb v 687 680)
-
-def _update_RVFI_DII_Execution_Packet_V1_rvfi_trap (v : (BitVec 704)) (x : (BitVec 8)) : (BitVec 704) :=
-  (Sail.BitVec.updateSubrange v 687 680 x)
-
-def _update_RVFI_DII_Execution_Packet_InstMetaData_rvfi_trap (v : (BitVec 192)) (x : (BitVec 8)) : (BitVec 192) :=
-  (Sail.BitVec.updateSubrange v 135 128 x)
-
-def _set_RVFI_DII_Execution_Packet_V1_rvfi_trap (r_ref : (RegisterRef (BitVec 704))) (v : (BitVec 8)) : SailM Unit := do
-  let r ← do (reg_deref r_ref)
-  writeRegRef r_ref (_update_RVFI_DII_Execution_Packet_V1_rvfi_trap r v)
-
-def _get_RVFI_DII_Execution_Packet_InstMetaData_rvfi_trap (v : (BitVec 192)) : (BitVec 8) :=
-  (Sail.BitVec.extractLsb v 135 128)
-
-def _set_RVFI_DII_Execution_Packet_InstMetaData_rvfi_trap (r_ref : (RegisterRef (BitVec 192))) (v : (BitVec 8)) : SailM Unit := do
-  let r ← do (reg_deref r_ref)
-  writeRegRef r_ref (_update_RVFI_DII_Execution_Packet_InstMetaData_rvfi_trap r v)
-
 def undefined_RVFI_DII_Execution_Packet_InstMetaData (_ : Unit) : SailM (BitVec 192) := do
   (undefined_bitvector 192)
 
 def Mk_RVFI_DII_Execution_Packet_InstMetaData (v : (BitVec 192)) : (BitVec 192) :=
   v
+
+def _get_RVFI_DII_Execution_Packet_InstMetaData_rvfi_halt (v : (BitVec 192)) : (BitVec 8) :=
+  (Sail.BitVec.extractLsb v 143 136)
+
+def _update_RVFI_DII_Execution_Packet_InstMetaData_rvfi_halt (v : (BitVec 192)) (x : (BitVec 8)) : (BitVec 192) :=
+  (Sail.BitVec.updateSubrange v 143 136 x)
+
+def _update_RVFI_DII_Execution_Packet_V1_rvfi_halt (v : (BitVec 704)) (x : (BitVec 8)) : (BitVec 704) :=
+  (Sail.BitVec.updateSubrange v 695 688 x)
+
+def _set_RVFI_DII_Execution_Packet_InstMetaData_rvfi_halt (r_ref : (RegisterRef (BitVec 192))) (v : (BitVec 8)) : SailM Unit := do
+  let r ← do (reg_deref r_ref)
+  writeRegRef r_ref (_update_RVFI_DII_Execution_Packet_InstMetaData_rvfi_halt r v)
+
+def _get_RVFI_DII_Execution_Packet_V1_rvfi_halt (v : (BitVec 704)) : (BitVec 8) :=
+  (Sail.BitVec.extractLsb v 695 688)
+
+def _set_RVFI_DII_Execution_Packet_V1_rvfi_halt (r_ref : (RegisterRef (BitVec 704))) (v : (BitVec 8)) : SailM Unit := do
+  let r ← do (reg_deref r_ref)
+  writeRegRef r_ref (_update_RVFI_DII_Execution_Packet_V1_rvfi_halt r v)
+
+def _get_RVFI_DII_Execution_Packet_InstMetaData_rvfi_intr (v : (BitVec 192)) : (BitVec 8) :=
+  (Sail.BitVec.extractLsb v 151 144)
+
+def _update_RVFI_DII_Execution_Packet_InstMetaData_rvfi_intr (v : (BitVec 192)) (x : (BitVec 8)) : (BitVec 192) :=
+  (Sail.BitVec.updateSubrange v 151 144 x)
+
+def _update_RVFI_DII_Execution_Packet_V1_rvfi_intr (v : (BitVec 704)) (x : (BitVec 8)) : (BitVec 704) :=
+  (Sail.BitVec.updateSubrange v 703 696 x)
+
+def _set_RVFI_DII_Execution_Packet_InstMetaData_rvfi_intr (r_ref : (RegisterRef (BitVec 192))) (v : (BitVec 8)) : SailM Unit := do
+  let r ← do (reg_deref r_ref)
+  writeRegRef r_ref (_update_RVFI_DII_Execution_Packet_InstMetaData_rvfi_intr r v)
+
+def _get_RVFI_DII_Execution_Packet_V1_rvfi_intr (v : (BitVec 704)) : (BitVec 8) :=
+  (Sail.BitVec.extractLsb v 703 696)
+
+def _set_RVFI_DII_Execution_Packet_V1_rvfi_intr (r_ref : (RegisterRef (BitVec 704))) (v : (BitVec 8)) : SailM Unit := do
+  let r ← do (reg_deref r_ref)
+  writeRegRef r_ref (_update_RVFI_DII_Execution_Packet_V1_rvfi_intr r v)
 
 def _get_RVFI_DII_Execution_Packet_InstMetaData_rvfi_ixl (v : (BitVec 192)) : (BitVec 8) :=
   (Sail.BitVec.extractLsb v 167 160)
@@ -922,6 +636,46 @@ def _set_RVFI_DII_Execution_Packet_InstMetaData_rvfi_mode (r_ref : (RegisterRef 
   let r ← do (reg_deref r_ref)
   writeRegRef r_ref (_update_RVFI_DII_Execution_Packet_InstMetaData_rvfi_mode r v)
 
+def _get_RVFI_DII_Execution_Packet_InstMetaData_rvfi_order (v : (BitVec 192)) : (BitVec 64) :=
+  (Sail.BitVec.extractLsb v 63 0)
+
+def _update_RVFI_DII_Execution_Packet_InstMetaData_rvfi_order (v : (BitVec 192)) (x : (BitVec 64)) : (BitVec 192) :=
+  (Sail.BitVec.updateSubrange v 63 0 x)
+
+def _update_RVFI_DII_Execution_Packet_V1_rvfi_order (v : (BitVec 704)) (x : (BitVec 64)) : (BitVec 704) :=
+  (Sail.BitVec.updateSubrange v 63 0 x)
+
+def _set_RVFI_DII_Execution_Packet_InstMetaData_rvfi_order (r_ref : (RegisterRef (BitVec 192))) (v : (BitVec 64)) : SailM Unit := do
+  let r ← do (reg_deref r_ref)
+  writeRegRef r_ref (_update_RVFI_DII_Execution_Packet_InstMetaData_rvfi_order r v)
+
+def _get_RVFI_DII_Execution_Packet_V1_rvfi_order (v : (BitVec 704)) : (BitVec 64) :=
+  (Sail.BitVec.extractLsb v 63 0)
+
+def _set_RVFI_DII_Execution_Packet_V1_rvfi_order (r_ref : (RegisterRef (BitVec 704))) (v : (BitVec 64)) : SailM Unit := do
+  let r ← do (reg_deref r_ref)
+  writeRegRef r_ref (_update_RVFI_DII_Execution_Packet_V1_rvfi_order r v)
+
+def _get_RVFI_DII_Execution_Packet_InstMetaData_rvfi_trap (v : (BitVec 192)) : (BitVec 8) :=
+  (Sail.BitVec.extractLsb v 135 128)
+
+def _update_RVFI_DII_Execution_Packet_InstMetaData_rvfi_trap (v : (BitVec 192)) (x : (BitVec 8)) : (BitVec 192) :=
+  (Sail.BitVec.updateSubrange v 135 128 x)
+
+def _update_RVFI_DII_Execution_Packet_V1_rvfi_trap (v : (BitVec 704)) (x : (BitVec 8)) : (BitVec 704) :=
+  (Sail.BitVec.updateSubrange v 687 680 x)
+
+def _set_RVFI_DII_Execution_Packet_InstMetaData_rvfi_trap (r_ref : (RegisterRef (BitVec 192))) (v : (BitVec 8)) : SailM Unit := do
+  let r ← do (reg_deref r_ref)
+  writeRegRef r_ref (_update_RVFI_DII_Execution_Packet_InstMetaData_rvfi_trap r v)
+
+def _get_RVFI_DII_Execution_Packet_V1_rvfi_trap (v : (BitVec 704)) : (BitVec 8) :=
+  (Sail.BitVec.extractLsb v 687 680)
+
+def _set_RVFI_DII_Execution_Packet_V1_rvfi_trap (r_ref : (RegisterRef (BitVec 704))) (v : (BitVec 8)) : SailM Unit := do
+  let r ← do (reg_deref r_ref)
+  writeRegRef r_ref (_update_RVFI_DII_Execution_Packet_V1_rvfi_trap r v)
+
 def _get_RVFI_DII_Execution_Packet_InstMetaData_rvfi_valid (v : (BitVec 192)) : (BitVec 8) :=
   (Sail.BitVec.extractLsb v 175 168)
 
@@ -937,6 +691,46 @@ def undefined_RVFI_DII_Execution_Packet_PC (_ : Unit) : SailM (BitVec 128) := do
 
 def Mk_RVFI_DII_Execution_Packet_PC (v : (BitVec 128)) : (BitVec 128) :=
   v
+
+def _get_RVFI_DII_Execution_Packet_PC_rvfi_pc_rdata (v : (BitVec 128)) : (BitVec 64) :=
+  (Sail.BitVec.extractLsb v 63 0)
+
+def _update_RVFI_DII_Execution_Packet_PC_rvfi_pc_rdata (v : (BitVec 128)) (x : (BitVec 64)) : (BitVec 128) :=
+  (Sail.BitVec.updateSubrange v 63 0 x)
+
+def _update_RVFI_DII_Execution_Packet_V1_rvfi_pc_rdata (v : (BitVec 704)) (x : (BitVec 64)) : (BitVec 704) :=
+  (Sail.BitVec.updateSubrange v 127 64 x)
+
+def _set_RVFI_DII_Execution_Packet_PC_rvfi_pc_rdata (r_ref : (RegisterRef (BitVec 128))) (v : (BitVec 64)) : SailM Unit := do
+  let r ← do (reg_deref r_ref)
+  writeRegRef r_ref (_update_RVFI_DII_Execution_Packet_PC_rvfi_pc_rdata r v)
+
+def _get_RVFI_DII_Execution_Packet_V1_rvfi_pc_rdata (v : (BitVec 704)) : (BitVec 64) :=
+  (Sail.BitVec.extractLsb v 127 64)
+
+def _set_RVFI_DII_Execution_Packet_V1_rvfi_pc_rdata (r_ref : (RegisterRef (BitVec 704))) (v : (BitVec 64)) : SailM Unit := do
+  let r ← do (reg_deref r_ref)
+  writeRegRef r_ref (_update_RVFI_DII_Execution_Packet_V1_rvfi_pc_rdata r v)
+
+def _get_RVFI_DII_Execution_Packet_PC_rvfi_pc_wdata (v : (BitVec 128)) : (BitVec 64) :=
+  (Sail.BitVec.extractLsb v 127 64)
+
+def _update_RVFI_DII_Execution_Packet_PC_rvfi_pc_wdata (v : (BitVec 128)) (x : (BitVec 64)) : (BitVec 128) :=
+  (Sail.BitVec.updateSubrange v 127 64 x)
+
+def _update_RVFI_DII_Execution_Packet_V1_rvfi_pc_wdata (v : (BitVec 704)) (x : (BitVec 64)) : (BitVec 704) :=
+  (Sail.BitVec.updateSubrange v 191 128 x)
+
+def _set_RVFI_DII_Execution_Packet_PC_rvfi_pc_wdata (r_ref : (RegisterRef (BitVec 128))) (v : (BitVec 64)) : SailM Unit := do
+  let r ← do (reg_deref r_ref)
+  writeRegRef r_ref (_update_RVFI_DII_Execution_Packet_PC_rvfi_pc_wdata r v)
+
+def _get_RVFI_DII_Execution_Packet_V1_rvfi_pc_wdata (v : (BitVec 704)) : (BitVec 64) :=
+  (Sail.BitVec.extractLsb v 191 128)
+
+def _set_RVFI_DII_Execution_Packet_V1_rvfi_pc_wdata (r_ref : (RegisterRef (BitVec 704))) (v : (BitVec 64)) : SailM Unit := do
+  let r ← do (reg_deref r_ref)
+  writeRegRef r_ref (_update_RVFI_DII_Execution_Packet_V1_rvfi_pc_wdata r v)
 
 def undefined_RVFI_DII_Execution_Packet_Ext_Integer (_ : Unit) : SailM (BitVec 320) := do
   (undefined_bitvector 320)
@@ -974,6 +768,66 @@ def _set_RVFI_DII_Execution_Packet_Ext_MemAccess_magic (r_ref : (RegisterRef (Bi
   let r ← do (reg_deref r_ref)
   writeRegRef r_ref (_update_RVFI_DII_Execution_Packet_Ext_MemAccess_magic r v)
 
+def _get_RVFI_DII_Execution_Packet_Ext_Integer_rvfi_rd_addr (v : (BitVec 320)) : (BitVec 8) :=
+  (Sail.BitVec.extractLsb v 263 256)
+
+def _update_RVFI_DII_Execution_Packet_Ext_Integer_rvfi_rd_addr (v : (BitVec 320)) (x : (BitVec 8)) : (BitVec 320) :=
+  (Sail.BitVec.updateSubrange v 263 256 x)
+
+def _update_RVFI_DII_Execution_Packet_V1_rvfi_rd_addr (v : (BitVec 704)) (x : (BitVec 8)) : (BitVec 704) :=
+  (Sail.BitVec.updateSubrange v 679 672 x)
+
+def _set_RVFI_DII_Execution_Packet_Ext_Integer_rvfi_rd_addr (r_ref : (RegisterRef (BitVec 320))) (v : (BitVec 8)) : SailM Unit := do
+  let r ← do (reg_deref r_ref)
+  writeRegRef r_ref (_update_RVFI_DII_Execution_Packet_Ext_Integer_rvfi_rd_addr r v)
+
+def _get_RVFI_DII_Execution_Packet_V1_rvfi_rd_addr (v : (BitVec 704)) : (BitVec 8) :=
+  (Sail.BitVec.extractLsb v 679 672)
+
+def _set_RVFI_DII_Execution_Packet_V1_rvfi_rd_addr (r_ref : (RegisterRef (BitVec 704))) (v : (BitVec 8)) : SailM Unit := do
+  let r ← do (reg_deref r_ref)
+  writeRegRef r_ref (_update_RVFI_DII_Execution_Packet_V1_rvfi_rd_addr r v)
+
+def _get_RVFI_DII_Execution_Packet_Ext_Integer_rvfi_rd_wdata (v : (BitVec 320)) : (BitVec 64) :=
+  (Sail.BitVec.extractLsb v 127 64)
+
+def _update_RVFI_DII_Execution_Packet_Ext_Integer_rvfi_rd_wdata (v : (BitVec 320)) (x : (BitVec 64)) : (BitVec 320) :=
+  (Sail.BitVec.updateSubrange v 127 64 x)
+
+def _update_RVFI_DII_Execution_Packet_V1_rvfi_rd_wdata (v : (BitVec 704)) (x : (BitVec 64)) : (BitVec 704) :=
+  (Sail.BitVec.updateSubrange v 447 384 x)
+
+def _set_RVFI_DII_Execution_Packet_Ext_Integer_rvfi_rd_wdata (r_ref : (RegisterRef (BitVec 320))) (v : (BitVec 64)) : SailM Unit := do
+  let r ← do (reg_deref r_ref)
+  writeRegRef r_ref (_update_RVFI_DII_Execution_Packet_Ext_Integer_rvfi_rd_wdata r v)
+
+def _get_RVFI_DII_Execution_Packet_V1_rvfi_rd_wdata (v : (BitVec 704)) : (BitVec 64) :=
+  (Sail.BitVec.extractLsb v 447 384)
+
+def _set_RVFI_DII_Execution_Packet_V1_rvfi_rd_wdata (r_ref : (RegisterRef (BitVec 704))) (v : (BitVec 64)) : SailM Unit := do
+  let r ← do (reg_deref r_ref)
+  writeRegRef r_ref (_update_RVFI_DII_Execution_Packet_V1_rvfi_rd_wdata r v)
+
+def _get_RVFI_DII_Execution_Packet_Ext_Integer_rvfi_rs1_addr (v : (BitVec 320)) : (BitVec 8) :=
+  (Sail.BitVec.extractLsb v 271 264)
+
+def _update_RVFI_DII_Execution_Packet_Ext_Integer_rvfi_rs1_addr (v : (BitVec 320)) (x : (BitVec 8)) : (BitVec 320) :=
+  (Sail.BitVec.updateSubrange v 271 264 x)
+
+def _update_RVFI_DII_Execution_Packet_V1_rvfi_rs1_addr (v : (BitVec 704)) (x : (BitVec 8)) : (BitVec 704) :=
+  (Sail.BitVec.updateSubrange v 663 656 x)
+
+def _set_RVFI_DII_Execution_Packet_Ext_Integer_rvfi_rs1_addr (r_ref : (RegisterRef (BitVec 320))) (v : (BitVec 8)) : SailM Unit := do
+  let r ← do (reg_deref r_ref)
+  writeRegRef r_ref (_update_RVFI_DII_Execution_Packet_Ext_Integer_rvfi_rs1_addr r v)
+
+def _get_RVFI_DII_Execution_Packet_V1_rvfi_rs1_addr (v : (BitVec 704)) : (BitVec 8) :=
+  (Sail.BitVec.extractLsb v 663 656)
+
+def _set_RVFI_DII_Execution_Packet_V1_rvfi_rs1_addr (r_ref : (RegisterRef (BitVec 704))) (v : (BitVec 8)) : SailM Unit := do
+  let r ← do (reg_deref r_ref)
+  writeRegRef r_ref (_update_RVFI_DII_Execution_Packet_V1_rvfi_rs1_addr r v)
+
 def _get_RVFI_DII_Execution_Packet_Ext_Integer_rvfi_rs1_rdata (v : (BitVec 320)) : (BitVec 64) :=
   (Sail.BitVec.extractLsb v 191 128)
 
@@ -983,6 +837,26 @@ def _update_RVFI_DII_Execution_Packet_Ext_Integer_rvfi_rs1_rdata (v : (BitVec 32
 def _set_RVFI_DII_Execution_Packet_Ext_Integer_rvfi_rs1_rdata (r_ref : (RegisterRef (BitVec 320))) (v : (BitVec 64)) : SailM Unit := do
   let r ← do (reg_deref r_ref)
   writeRegRef r_ref (_update_RVFI_DII_Execution_Packet_Ext_Integer_rvfi_rs1_rdata r v)
+
+def _get_RVFI_DII_Execution_Packet_Ext_Integer_rvfi_rs2_addr (v : (BitVec 320)) : (BitVec 8) :=
+  (Sail.BitVec.extractLsb v 279 272)
+
+def _update_RVFI_DII_Execution_Packet_Ext_Integer_rvfi_rs2_addr (v : (BitVec 320)) (x : (BitVec 8)) : (BitVec 320) :=
+  (Sail.BitVec.updateSubrange v 279 272 x)
+
+def _update_RVFI_DII_Execution_Packet_V1_rvfi_rs2_addr (v : (BitVec 704)) (x : (BitVec 8)) : (BitVec 704) :=
+  (Sail.BitVec.updateSubrange v 671 664 x)
+
+def _set_RVFI_DII_Execution_Packet_Ext_Integer_rvfi_rs2_addr (r_ref : (RegisterRef (BitVec 320))) (v : (BitVec 8)) : SailM Unit := do
+  let r ← do (reg_deref r_ref)
+  writeRegRef r_ref (_update_RVFI_DII_Execution_Packet_Ext_Integer_rvfi_rs2_addr r v)
+
+def _get_RVFI_DII_Execution_Packet_V1_rvfi_rs2_addr (v : (BitVec 704)) : (BitVec 8) :=
+  (Sail.BitVec.extractLsb v 671 664)
+
+def _set_RVFI_DII_Execution_Packet_V1_rvfi_rs2_addr (r_ref : (RegisterRef (BitVec 704))) (v : (BitVec 8)) : SailM Unit := do
+  let r ← do (reg_deref r_ref)
+  writeRegRef r_ref (_update_RVFI_DII_Execution_Packet_V1_rvfi_rs2_addr r v)
 
 def _get_RVFI_DII_Execution_Packet_Ext_Integer_rvfi_rs2_rdata (v : (BitVec 320)) : (BitVec 64) :=
   (Sail.BitVec.extractLsb v 255 192)
@@ -1000,121 +874,105 @@ def undefined_RVFI_DII_Execution_Packet_Ext_MemAccess (_ : Unit) : SailM (BitVec
 def Mk_RVFI_DII_Execution_Packet_Ext_MemAccess (v : (BitVec 704)) : (BitVec 704) :=
   v
 
-def undefined_RVFI_DII_Execution_PacketV2 (_ : Unit) : SailM (BitVec 512) := do
-  (undefined_bitvector 512)
+def _get_RVFI_DII_Execution_Packet_Ext_MemAccess_rvfi_mem_addr (v : (BitVec 704)) : (BitVec 64) :=
+  (Sail.BitVec.extractLsb v 703 640)
 
-def Mk_RVFI_DII_Execution_PacketV2 (v : (BitVec 512)) : (BitVec 512) :=
-  v
+def _update_RVFI_DII_Execution_Packet_Ext_MemAccess_rvfi_mem_addr (v : (BitVec 704)) (x : (BitVec 64)) : (BitVec 704) :=
+  (Sail.BitVec.updateSubrange v 703 640 x)
 
-def _get_RVFI_DII_Execution_PacketV2_basic_data (v : (BitVec 512)) : (BitVec 192) :=
-  (Sail.BitVec.extractLsb v 319 128)
+def _update_RVFI_DII_Execution_Packet_V1_rvfi_mem_addr (v : (BitVec 704)) (x : (BitVec 64)) : (BitVec 704) :=
+  (Sail.BitVec.updateSubrange v 511 448 x)
 
-def _update_RVFI_DII_Execution_PacketV2_basic_data (v : (BitVec 512)) (x : (BitVec 192)) : (BitVec 512) :=
-  (Sail.BitVec.updateSubrange v 319 128 x)
-
-def _set_RVFI_DII_Execution_PacketV2_basic_data (r_ref : (RegisterRef (BitVec 512))) (v : (BitVec 192)) : SailM Unit := do
+def _set_RVFI_DII_Execution_Packet_Ext_MemAccess_rvfi_mem_addr (r_ref : (RegisterRef (BitVec 704))) (v : (BitVec 64)) : SailM Unit := do
   let r ← do (reg_deref r_ref)
-  writeRegRef r_ref (_update_RVFI_DII_Execution_PacketV2_basic_data r v)
+  writeRegRef r_ref (_update_RVFI_DII_Execution_Packet_Ext_MemAccess_rvfi_mem_addr r v)
 
-def _get_RVFI_DII_Execution_PacketV2_cheri_data_available (v : (BitVec 512)) : (BitVec 1) :=
-  (Sail.BitVec.extractLsb v 452 452)
+def _get_RVFI_DII_Execution_Packet_V1_rvfi_mem_addr (v : (BitVec 704)) : (BitVec 64) :=
+  (Sail.BitVec.extractLsb v 511 448)
 
-def _update_RVFI_DII_Execution_PacketV2_cheri_data_available (v : (BitVec 512)) (x : (BitVec 1)) : (BitVec 512) :=
-  (Sail.BitVec.updateSubrange v 452 452 x)
-
-def _set_RVFI_DII_Execution_PacketV2_cheri_data_available (r_ref : (RegisterRef (BitVec 512))) (v : (BitVec 1)) : SailM Unit := do
+def _set_RVFI_DII_Execution_Packet_V1_rvfi_mem_addr (r_ref : (RegisterRef (BitVec 704))) (v : (BitVec 64)) : SailM Unit := do
   let r ← do (reg_deref r_ref)
-  writeRegRef r_ref (_update_RVFI_DII_Execution_PacketV2_cheri_data_available r v)
+  writeRegRef r_ref (_update_RVFI_DII_Execution_Packet_V1_rvfi_mem_addr r v)
 
-def _get_RVFI_DII_Execution_PacketV2_cheri_scr_read_write_data_available (v : (BitVec 512)) : (BitVec 1) :=
-  (Sail.BitVec.extractLsb v 453 453)
+def _get_RVFI_DII_Execution_Packet_Ext_MemAccess_rvfi_mem_rdata (v : (BitVec 704)) : (BitVec 256) :=
+  (Sail.BitVec.extractLsb v 319 64)
 
-def _update_RVFI_DII_Execution_PacketV2_cheri_scr_read_write_data_available (v : (BitVec 512)) (x : (BitVec 1)) : (BitVec 512) :=
-  (Sail.BitVec.updateSubrange v 453 453 x)
+def _update_RVFI_DII_Execution_Packet_Ext_MemAccess_rvfi_mem_rdata (v : (BitVec 704)) (x : (BitVec 256)) : (BitVec 704) :=
+  (Sail.BitVec.updateSubrange v 319 64 x)
 
-def _set_RVFI_DII_Execution_PacketV2_cheri_scr_read_write_data_available (r_ref : (RegisterRef (BitVec 512))) (v : (BitVec 1)) : SailM Unit := do
+def _update_RVFI_DII_Execution_Packet_V1_rvfi_mem_rdata (v : (BitVec 704)) (x : (BitVec 64)) : (BitVec 704) :=
+  (Sail.BitVec.updateSubrange v 575 512 x)
+
+def _set_RVFI_DII_Execution_Packet_Ext_MemAccess_rvfi_mem_rdata (r_ref : (RegisterRef (BitVec 704))) (v : (BitVec 256)) : SailM Unit := do
   let r ← do (reg_deref r_ref)
-  writeRegRef r_ref (_update_RVFI_DII_Execution_PacketV2_cheri_scr_read_write_data_available r v)
+  writeRegRef r_ref (_update_RVFI_DII_Execution_Packet_Ext_MemAccess_rvfi_mem_rdata r v)
 
-def _get_RVFI_DII_Execution_PacketV2_csr_read_write_data_available (v : (BitVec 512)) : (BitVec 1) :=
-  (Sail.BitVec.extractLsb v 451 451)
+def _get_RVFI_DII_Execution_Packet_V1_rvfi_mem_rdata (v : (BitVec 704)) : (BitVec 64) :=
+  (Sail.BitVec.extractLsb v 575 512)
 
-def _update_RVFI_DII_Execution_PacketV2_csr_read_write_data_available (v : (BitVec 512)) (x : (BitVec 1)) : (BitVec 512) :=
-  (Sail.BitVec.updateSubrange v 451 451 x)
-
-def _set_RVFI_DII_Execution_PacketV2_csr_read_write_data_available (r_ref : (RegisterRef (BitVec 512))) (v : (BitVec 1)) : SailM Unit := do
+def _set_RVFI_DII_Execution_Packet_V1_rvfi_mem_rdata (r_ref : (RegisterRef (BitVec 704))) (v : (BitVec 64)) : SailM Unit := do
   let r ← do (reg_deref r_ref)
-  writeRegRef r_ref (_update_RVFI_DII_Execution_PacketV2_csr_read_write_data_available r v)
+  writeRegRef r_ref (_update_RVFI_DII_Execution_Packet_V1_rvfi_mem_rdata r v)
 
-def _get_RVFI_DII_Execution_PacketV2_floating_point_data_available (v : (BitVec 512)) : (BitVec 1) :=
-  (Sail.BitVec.extractLsb v 450 450)
+def _get_RVFI_DII_Execution_Packet_Ext_MemAccess_rvfi_mem_rmask (v : (BitVec 704)) : (BitVec 32) :=
+  (Sail.BitVec.extractLsb v 607 576)
 
-def _update_RVFI_DII_Execution_PacketV2_floating_point_data_available (v : (BitVec 512)) (x : (BitVec 1)) : (BitVec 512) :=
-  (Sail.BitVec.updateSubrange v 450 450 x)
+def _update_RVFI_DII_Execution_Packet_Ext_MemAccess_rvfi_mem_rmask (v : (BitVec 704)) (x : (BitVec 32)) : (BitVec 704) :=
+  (Sail.BitVec.updateSubrange v 607 576 x)
 
-def _set_RVFI_DII_Execution_PacketV2_floating_point_data_available (r_ref : (RegisterRef (BitVec 512))) (v : (BitVec 1)) : SailM Unit := do
+def _update_RVFI_DII_Execution_Packet_V1_rvfi_mem_rmask (v : (BitVec 704)) (x : (BitVec 8)) : (BitVec 704) :=
+  (Sail.BitVec.updateSubrange v 647 640 x)
+
+def _set_RVFI_DII_Execution_Packet_Ext_MemAccess_rvfi_mem_rmask (r_ref : (RegisterRef (BitVec 704))) (v : (BitVec 32)) : SailM Unit := do
   let r ← do (reg_deref r_ref)
-  writeRegRef r_ref (_update_RVFI_DII_Execution_PacketV2_floating_point_data_available r v)
+  writeRegRef r_ref (_update_RVFI_DII_Execution_Packet_Ext_MemAccess_rvfi_mem_rmask r v)
 
-def _get_RVFI_DII_Execution_PacketV2_integer_data_available (v : (BitVec 512)) : (BitVec 1) :=
-  (Sail.BitVec.extractLsb v 448 448)
+def _get_RVFI_DII_Execution_Packet_V1_rvfi_mem_rmask (v : (BitVec 704)) : (BitVec 8) :=
+  (Sail.BitVec.extractLsb v 647 640)
 
-def _update_RVFI_DII_Execution_PacketV2_integer_data_available (v : (BitVec 512)) (x : (BitVec 1)) : (BitVec 512) :=
-  (Sail.BitVec.updateSubrange v 448 448 x)
-
-def _set_RVFI_DII_Execution_PacketV2_integer_data_available (r_ref : (RegisterRef (BitVec 512))) (v : (BitVec 1)) : SailM Unit := do
+def _set_RVFI_DII_Execution_Packet_V1_rvfi_mem_rmask (r_ref : (RegisterRef (BitVec 704))) (v : (BitVec 8)) : SailM Unit := do
   let r ← do (reg_deref r_ref)
-  writeRegRef r_ref (_update_RVFI_DII_Execution_PacketV2_integer_data_available r v)
+  writeRegRef r_ref (_update_RVFI_DII_Execution_Packet_V1_rvfi_mem_rmask r v)
 
-def _get_RVFI_DII_Execution_PacketV2_memory_access_data_available (v : (BitVec 512)) : (BitVec 1) :=
-  (Sail.BitVec.extractLsb v 449 449)
+def _get_RVFI_DII_Execution_Packet_Ext_MemAccess_rvfi_mem_wdata (v : (BitVec 704)) : (BitVec 256) :=
+  (Sail.BitVec.extractLsb v 575 320)
 
-def _update_RVFI_DII_Execution_PacketV2_memory_access_data_available (v : (BitVec 512)) (x : (BitVec 1)) : (BitVec 512) :=
-  (Sail.BitVec.updateSubrange v 449 449 x)
+def _update_RVFI_DII_Execution_Packet_Ext_MemAccess_rvfi_mem_wdata (v : (BitVec 704)) (x : (BitVec 256)) : (BitVec 704) :=
+  (Sail.BitVec.updateSubrange v 575 320 x)
 
-def _set_RVFI_DII_Execution_PacketV2_memory_access_data_available (r_ref : (RegisterRef (BitVec 512))) (v : (BitVec 1)) : SailM Unit := do
+def _update_RVFI_DII_Execution_Packet_V1_rvfi_mem_wdata (v : (BitVec 704)) (x : (BitVec 64)) : (BitVec 704) :=
+  (Sail.BitVec.updateSubrange v 639 576 x)
+
+def _set_RVFI_DII_Execution_Packet_Ext_MemAccess_rvfi_mem_wdata (r_ref : (RegisterRef (BitVec 704))) (v : (BitVec 256)) : SailM Unit := do
   let r ← do (reg_deref r_ref)
-  writeRegRef r_ref (_update_RVFI_DII_Execution_PacketV2_memory_access_data_available r v)
+  writeRegRef r_ref (_update_RVFI_DII_Execution_Packet_Ext_MemAccess_rvfi_mem_wdata r v)
 
-def _get_RVFI_DII_Execution_PacketV2_pc_data (v : (BitVec 512)) : (BitVec 128) :=
-  (Sail.BitVec.extractLsb v 447 320)
+def _get_RVFI_DII_Execution_Packet_V1_rvfi_mem_wdata (v : (BitVec 704)) : (BitVec 64) :=
+  (Sail.BitVec.extractLsb v 639 576)
 
-def _update_RVFI_DII_Execution_PacketV2_pc_data (v : (BitVec 512)) (x : (BitVec 128)) : (BitVec 512) :=
-  (Sail.BitVec.updateSubrange v 447 320 x)
-
-def _set_RVFI_DII_Execution_PacketV2_pc_data (r_ref : (RegisterRef (BitVec 512))) (v : (BitVec 128)) : SailM Unit := do
+def _set_RVFI_DII_Execution_Packet_V1_rvfi_mem_wdata (r_ref : (RegisterRef (BitVec 704))) (v : (BitVec 64)) : SailM Unit := do
   let r ← do (reg_deref r_ref)
-  writeRegRef r_ref (_update_RVFI_DII_Execution_PacketV2_pc_data r v)
+  writeRegRef r_ref (_update_RVFI_DII_Execution_Packet_V1_rvfi_mem_wdata r v)
 
-def _get_RVFI_DII_Execution_PacketV2_trace_size (v : (BitVec 512)) : (BitVec 64) :=
-  (Sail.BitVec.extractLsb v 127 64)
+def _get_RVFI_DII_Execution_Packet_Ext_MemAccess_rvfi_mem_wmask (v : (BitVec 704)) : (BitVec 32) :=
+  (Sail.BitVec.extractLsb v 639 608)
 
-def _update_RVFI_DII_Execution_PacketV2_trace_size (v : (BitVec 512)) (x : (BitVec 64)) : (BitVec 512) :=
-  (Sail.BitVec.updateSubrange v 127 64 x)
+def _update_RVFI_DII_Execution_Packet_Ext_MemAccess_rvfi_mem_wmask (v : (BitVec 704)) (x : (BitVec 32)) : (BitVec 704) :=
+  (Sail.BitVec.updateSubrange v 639 608 x)
 
-def _set_RVFI_DII_Execution_PacketV2_trace_size (r_ref : (RegisterRef (BitVec 512))) (v : (BitVec 64)) : SailM Unit := do
+def _update_RVFI_DII_Execution_Packet_V1_rvfi_mem_wmask (v : (BitVec 704)) (x : (BitVec 8)) : (BitVec 704) :=
+  (Sail.BitVec.updateSubrange v 655 648 x)
+
+def _set_RVFI_DII_Execution_Packet_Ext_MemAccess_rvfi_mem_wmask (r_ref : (RegisterRef (BitVec 704))) (v : (BitVec 32)) : SailM Unit := do
   let r ← do (reg_deref r_ref)
-  writeRegRef r_ref (_update_RVFI_DII_Execution_PacketV2_trace_size r v)
+  writeRegRef r_ref (_update_RVFI_DII_Execution_Packet_Ext_MemAccess_rvfi_mem_wmask r v)
 
-def _get_RVFI_DII_Execution_PacketV2_trap_data_available (v : (BitVec 512)) : (BitVec 1) :=
-  (Sail.BitVec.extractLsb v 454 454)
+def _get_RVFI_DII_Execution_Packet_V1_rvfi_mem_wmask (v : (BitVec 704)) : (BitVec 8) :=
+  (Sail.BitVec.extractLsb v 655 648)
 
-def _update_RVFI_DII_Execution_PacketV2_trap_data_available (v : (BitVec 512)) (x : (BitVec 1)) : (BitVec 512) :=
-  (Sail.BitVec.updateSubrange v 454 454 x)
-
-def _set_RVFI_DII_Execution_PacketV2_trap_data_available (r_ref : (RegisterRef (BitVec 512))) (v : (BitVec 1)) : SailM Unit := do
+def _set_RVFI_DII_Execution_Packet_V1_rvfi_mem_wmask (r_ref : (RegisterRef (BitVec 704))) (v : (BitVec 8)) : SailM Unit := do
   let r ← do (reg_deref r_ref)
-  writeRegRef r_ref (_update_RVFI_DII_Execution_PacketV2_trap_data_available r v)
-
-def _get_RVFI_DII_Execution_PacketV2_unused_data_available_fields (v : (BitVec 512)) : (BitVec 57) :=
-  (Sail.BitVec.extractLsb v 511 455)
-
-def _update_RVFI_DII_Execution_PacketV2_unused_data_available_fields (v : (BitVec 512)) (x : (BitVec 57)) : (BitVec 512) :=
-  (Sail.BitVec.updateSubrange v 511 455 x)
-
-def _set_RVFI_DII_Execution_PacketV2_unused_data_available_fields (r_ref : (RegisterRef (BitVec 512))) (v : (BitVec 57)) : SailM Unit := do
-  let r ← do (reg_deref r_ref)
-  writeRegRef r_ref (_update_RVFI_DII_Execution_PacketV2_unused_data_available_fields r v)
+  writeRegRef r_ref (_update_RVFI_DII_Execution_Packet_V1_rvfi_mem_wmask r v)
 
 def rvfi_zero_exec_packet (_ : Unit) : SailM Unit := do
   writeReg rvfi_inst_data (Mk_RVFI_DII_Execution_Packet_InstMetaData (zeros (n := 192)))
@@ -1131,102 +989,6 @@ def rvfi_zero_exec_packet (_ : Unit) : SailM Unit := do
 def rvfi_halt_exec_packet (_ : Unit) : SailM Unit := do
   writeReg rvfi_inst_data (Sail.BitVec.updateSubrange (← readReg rvfi_inst_data) 143 136
     (0x01 : (BitVec 8)))
-
-def rvfi_get_v2_support_packet (_ : Unit) : (BitVec 704) :=
-  let rvfi_exec := (Mk_RVFI_DII_Execution_Packet_V1 (zeros (n := 704)))
-  (_update_RVFI_DII_Execution_Packet_V1_rvfi_halt rvfi_exec (0x03 : (BitVec 8)))
-
-def rvfi_get_exec_packet_v1 (_ : Unit) : SailM (BitVec 704) := do
-  let v1_packet := (Mk_RVFI_DII_Execution_Packet_V1 (zeros (n := 704)))
-  let v1_packet ← do
-    (pure (_update_RVFI_DII_Execution_Packet_V1_rvfi_intr v1_packet
-        (_get_RVFI_DII_Execution_Packet_InstMetaData_rvfi_intr (← readReg rvfi_inst_data))))
-  let v1_packet ← do
-    (pure (_update_RVFI_DII_Execution_Packet_V1_rvfi_halt v1_packet
-        (_get_RVFI_DII_Execution_Packet_InstMetaData_rvfi_halt (← readReg rvfi_inst_data))))
-  let v1_packet ← do
-    (pure (_update_RVFI_DII_Execution_Packet_V1_rvfi_trap v1_packet
-        (_get_RVFI_DII_Execution_Packet_InstMetaData_rvfi_trap (← readReg rvfi_inst_data))))
-  let v1_packet ← do
-    (pure (_update_RVFI_DII_Execution_Packet_V1_rvfi_insn v1_packet
-        (_get_RVFI_DII_Execution_Packet_InstMetaData_rvfi_insn (← readReg rvfi_inst_data))))
-  let v1_packet ← do
-    (pure (_update_RVFI_DII_Execution_Packet_V1_rvfi_order v1_packet
-        (_get_RVFI_DII_Execution_Packet_InstMetaData_rvfi_order (← readReg rvfi_inst_data))))
-  let v1_packet ← do
-    (pure (_update_RVFI_DII_Execution_Packet_V1_rvfi_pc_wdata v1_packet
-        (_get_RVFI_DII_Execution_Packet_PC_rvfi_pc_wdata (← readReg rvfi_pc_data))))
-  let v1_packet ← do
-    (pure (_update_RVFI_DII_Execution_Packet_V1_rvfi_pc_rdata v1_packet
-        (_get_RVFI_DII_Execution_Packet_PC_rvfi_pc_rdata (← readReg rvfi_pc_data))))
-  let v1_packet ← do
-    (pure (_update_RVFI_DII_Execution_Packet_V1_rvfi_rd_addr v1_packet
-        (_get_RVFI_DII_Execution_Packet_Ext_Integer_rvfi_rd_addr (← readReg rvfi_int_data))))
-  let v1_packet ← do
-    (pure (_update_RVFI_DII_Execution_Packet_V1_rvfi_rs2_addr v1_packet
-        (_get_RVFI_DII_Execution_Packet_Ext_Integer_rvfi_rs2_addr (← readReg rvfi_int_data))))
-  let v1_packet ← do
-    (pure (_update_RVFI_DII_Execution_Packet_V1_rvfi_rs1_addr v1_packet
-        (_get_RVFI_DII_Execution_Packet_Ext_Integer_rvfi_rs1_addr (← readReg rvfi_int_data))))
-  let v1_packet ← do
-    (pure (_update_RVFI_DII_Execution_Packet_V1_rvfi_rd_wdata v1_packet
-        (_get_RVFI_DII_Execution_Packet_Ext_Integer_rvfi_rd_wdata (← readReg rvfi_int_data))))
-  let v1_packet ← do
-    (pure (_update_RVFI_DII_Execution_Packet_V1_rvfi_rs2_data v1_packet
-        (_get_RVFI_DII_Execution_Packet_Ext_Integer_rvfi_rs2_rdata (← readReg rvfi_int_data))))
-  let v1_packet ← do
-    (pure (_update_RVFI_DII_Execution_Packet_V1_rvfi_rs1_data v1_packet
-        (_get_RVFI_DII_Execution_Packet_Ext_Integer_rvfi_rs1_rdata (← readReg rvfi_int_data))))
-  let v1_packet ← do
-    (pure (_update_RVFI_DII_Execution_Packet_V1_rvfi_mem_wmask v1_packet
-        (Sail.BitVec.truncate
-          (_get_RVFI_DII_Execution_Packet_Ext_MemAccess_rvfi_mem_wmask (← readReg rvfi_mem_data))
-          8)))
-  let v1_packet ← do
-    (pure (_update_RVFI_DII_Execution_Packet_V1_rvfi_mem_rmask v1_packet
-        (Sail.BitVec.truncate
-          (_get_RVFI_DII_Execution_Packet_Ext_MemAccess_rvfi_mem_rmask (← readReg rvfi_mem_data))
-          8)))
-  let v1_packet ← do
-    (pure (_update_RVFI_DII_Execution_Packet_V1_rvfi_mem_wdata v1_packet
-        (Sail.BitVec.truncate
-          (_get_RVFI_DII_Execution_Packet_Ext_MemAccess_rvfi_mem_wdata (← readReg rvfi_mem_data))
-          64)))
-  let v1_packet ← do
-    (pure (_update_RVFI_DII_Execution_Packet_V1_rvfi_mem_rdata v1_packet
-        (Sail.BitVec.truncate
-          (_get_RVFI_DII_Execution_Packet_Ext_MemAccess_rvfi_mem_rdata (← readReg rvfi_mem_data))
-          64)))
-  (pure (_update_RVFI_DII_Execution_Packet_V1_rvfi_mem_addr v1_packet
-      (_get_RVFI_DII_Execution_Packet_Ext_MemAccess_rvfi_mem_addr (← readReg rvfi_mem_data))))
-
-def rvfi_get_v2_trace_size (_ : Unit) : SailM (BitVec 64) := do
-  let trace_size : (BitVec 64) := (to_bits (l := 64) 512)
-  let trace_size ← do
-    bif (← readReg rvfi_int_data_present)
-    then (pure (BitVec.addInt trace_size 320))
-    else (pure trace_size)
-  let trace_size ← do
-    bif (← readReg rvfi_mem_data_present)
-    then (pure (BitVec.addInt trace_size 704))
-    else (pure trace_size)
-  (pure (shiftr trace_size 3))
-
-def rvfi_get_exec_packet_v2 (_ : Unit) : SailM (BitVec 512) := do
-  let packet := (Mk_RVFI_DII_Execution_PacketV2 (zeros (n := 512)))
-  let packet :=
-    (_update_RVFI_DII_Execution_PacketV2_magic packet (0x32762D6563617274 : (BitVec 64)))
-  let packet ← do
-    (pure (_update_RVFI_DII_Execution_PacketV2_basic_data packet (← readReg rvfi_inst_data)))
-  let packet ← do
-    (pure (_update_RVFI_DII_Execution_PacketV2_pc_data packet (← readReg rvfi_pc_data)))
-  let packet ← do
-    (pure (_update_RVFI_DII_Execution_PacketV2_integer_data_available packet
-        (bool_to_bits (← readReg rvfi_int_data_present))))
-  let packet ← do
-    (pure (_update_RVFI_DII_Execution_PacketV2_memory_access_data_available packet
-        (bool_to_bits (← readReg rvfi_mem_data_present))))
-  (pure (_update_RVFI_DII_Execution_PacketV2_trace_size packet (← (rvfi_get_v2_trace_size ()))))
 
 def rvfi_get_int_data (_ : Unit) : SailM (BitVec 320) := do
   assert (← readReg rvfi_int_data_present) "reading uninitialized data"
@@ -1290,7 +1052,7 @@ def rvfi_write (paddr : (BitVec (2 ^ 3 * 8))) (width : Nat) (value : (BitVec (8 
         (Sail.BitVec.zeroExtend value 256))
       writeReg rvfi_mem_data (Sail.BitVec.updateSubrange (← readReg rvfi_mem_data) 639 608
         (rvfi_encode_width_mask width)))
-  else (internal_error "rvfi_dii.sail" 337 "Expected at most 16 bytes here!")
+  else (internal_error "rvfi_dii.sail" 232 "Expected at most 16 bytes here!")
 
 /-- Type quantifiers: width : Nat, width > 0 -/
 def rvfi_read (paddr : (BitVec (2 ^ 3 * 8))) (width : Nat) (value : (BitVec (8 * width))) : SailM Unit := do
@@ -1304,7 +1066,7 @@ def rvfi_read (paddr : (BitVec (2 ^ 3 * 8))) (width : Nat) (value : (BitVec (8 *
         (Sail.BitVec.zeroExtend value 256))
       writeReg rvfi_mem_data (Sail.BitVec.updateSubrange (← readReg rvfi_mem_data) 607 576
         (rvfi_encode_width_mask width)))
-  else (internal_error "rvfi_dii.sail" 350 "Expected at most 16 bytes here!")
+  else (internal_error "rvfi_dii.sail" 245 "Expected at most 16 bytes here!")
 
 def rvfi_mem_exception (paddr : (BitVec (2 ^ 3 * 8))) : SailM Unit := do
   writeReg rvfi_mem_data (Sail.BitVec.updateSubrange (← readReg rvfi_mem_data) 703 640
