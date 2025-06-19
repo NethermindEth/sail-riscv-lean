@@ -25,10 +25,10 @@ error: LeanRV64D/PreludeMemMetadata.lean:181:56: unexpected token 'meta'; expect
 error: LeanRV64D/PreludeMemMetadata.lean:181:60: unexpected token ':'; expected 'abbrev', 'axiom', 'builtin_initialize', 'class', 'def', 'example', 'inductive', 'initialize', 'instance', 'opaque', 'structure' or 'theorem'
 error: Lean exited with code 1
 ✔ [23/98] Built LeanRV64D.PreludeMemAddrtype
-✔ [24/98] Built LeanRV64D.RiscvExtRegs
-✔ [25/98] Built LeanRV64D.Arith
-✔ [26/98] Built LeanRV64D.RiscvFlen
-✔ [27/98] Built LeanRV64D.RiscvVlen
+✔ [24/98] Built LeanRV64D.Arith
+✔ [25/98] Built LeanRV64D.RiscvExtRegs
+✔ [26/98] Built LeanRV64D.RiscvVlen
+✔ [27/98] Built LeanRV64D.RiscvFlen
 ✔ [28/98] Built LeanRV64D.RiscvTypesExt
 ✔ [29/98] Built LeanRV64D.RiscvXlen
 ✔ [30/98] Built LeanRV64D.RiscvErrors
@@ -49,8 +49,8 @@ error: Lean exited with code 1
 ✔ [46/98] Built LeanRV64D.RiscvFregType
 ✔ [47/98] Built LeanRV64D.RvfiDii
 ✔ [48/98] Built LeanRV64D.RiscvExtensions
-✔ [49/98] Built LeanRV64D.RiscvRegType
-✔ [50/98] Built LeanRV64D.RiscvTypesKext
+✔ [49/98] Built LeanRV64D.RiscvTypesKext
+✔ [50/98] Built LeanRV64D.RiscvRegType
 ✔ [51/98] Built LeanRV64D.RiscvSoftfloatInterface
 ✔ [52/98] Built LeanRV64D.RiscvValidateConfig
 ✔ [53/98] Built LeanRV64D.RiscvTypes
@@ -60,9 +60,9 @@ error: Lean exited with code 1
 ✔ [57/98] Built LeanRV64D.RiscvVmemPte
 ✔ [58/98] Built LeanRV64D.RiscvZihpm
 ✔ [59/98] Built LeanRV64D.RiscvPmpRegs
-✔ [60/98] Built LeanRV64D.RiscvSysExceptions
-✔ [61/98] Built LeanRV64D.RiscvSmcntrpmf
-✔ [62/98] Built LeanRV64D.RiscvInstsZaamo
+✔ [60/98] Built LeanRV64D.RiscvSmcntrpmf
+✔ [61/98] Built LeanRV64D.RiscvInstsZaamo
+✔ [62/98] Built LeanRV64D.RiscvSysExceptions
 ✔ [63/98] Built LeanRV64D.RiscvPmpControl
 ✔ [64/98] Built LeanRV64D.RiscvSscofpmf
 ✔ [65/98] Built LeanRV64D.RiscvCallbacks
