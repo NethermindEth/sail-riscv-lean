@@ -16,8 +16,8 @@ warning: LeanRV64D/Sail/Sail.lean:80:72: `BitVec.getMsb'` has been deprecated: u
 ✔ [16/98] Built LeanRV64D.RiscvInstsVextMask
 ✔ [17/98] Built LeanRV64D.RiscvInstsMext
 ✔ [18/98] Built LeanRV64D.RiscvInstRetire
-✔ [19/98] Built LeanRV64D.RiscvInstsVextVm
-✔ [20/98] Built LeanRV64D.ReadWriteV1
+✔ [19/98] Built LeanRV64D.ReadWriteV1
+✔ [20/98] Built LeanRV64D.RiscvInstsVextVm
 ✖ [21/98] Building LeanRV64D.PreludeMemMetadata
 trace: .> LEAN_PATH=/home/runner/work/sail-riscv-lean/sail-riscv-lean/sail-riscv/build/model/Lean_RV64D/.lake/build/lib/lean /home/runner/.elan/toolchains/leanprover--lean4-pr-releases---pr-release-8577/bin/lean --tstack=400000 -Dweak.linter.style.nameCheck=false /home/runner/work/sail-riscv-lean/sail-riscv-lean/sail-riscv/build/model/Lean_RV64D/LeanRV64D/PreludeMemMetadata.lean -R /home/runner/work/sail-riscv-lean/sail-riscv-lean/sail-riscv/build/model/Lean_RV64D -o /home/runner/work/sail-riscv-lean/sail-riscv-lean/sail-riscv/build/model/Lean_RV64D/.lake/build/lib/lean/LeanRV64D/PreludeMemMetadata.olean -i /home/runner/work/sail-riscv-lean/sail-riscv-lean/sail-riscv/build/model/Lean_RV64D/.lake/build/lib/lean/LeanRV64D/PreludeMemMetadata.ilean -c /home/runner/work/sail-riscv-lean/sail-riscv-lean/sail-riscv/build/model/Lean_RV64D/.lake/build/ir/LeanRV64D/PreludeMemMetadata.c --json
 error: LeanRV64D/PreludeMemMetadata.lean:181:56: unexpected token 'meta'; expected '_' or identifier
@@ -27,8 +27,8 @@ error: Lean exited with code 1
 ✔ [23/98] Built LeanRV64D.PreludeMemAddrtype
 ✔ [24/98] Built LeanRV64D.RiscvExtRegs
 ✔ [25/98] Built LeanRV64D.Arith
-✔ [26/98] Built LeanRV64D.RiscvVlen
-✔ [27/98] Built LeanRV64D.RiscvFlen
+✔ [26/98] Built LeanRV64D.RiscvFlen
+✔ [27/98] Built LeanRV64D.RiscvVlen
 ✔ [28/98] Built LeanRV64D.RiscvTypesExt
 ✔ [29/98] Built LeanRV64D.RiscvXlen
 ✔ [30/98] Built LeanRV64D.RiscvErrors
@@ -49,8 +49,8 @@ error: Lean exited with code 1
 ✔ [46/98] Built LeanRV64D.RiscvFregType
 ✔ [47/98] Built LeanRV64D.RiscvExtensions
 ✔ [48/98] Built LeanRV64D.RvfiDii
-✔ [49/98] Built LeanRV64D.RiscvTypesKext
-✔ [50/98] Built LeanRV64D.RiscvRegType
+✔ [49/98] Built LeanRV64D.RiscvRegType
+✔ [50/98] Built LeanRV64D.RiscvTypesKext
 ✔ [51/98] Built LeanRV64D.RiscvSoftfloatInterface
 ✔ [52/98] Built LeanRV64D.RiscvValidateConfig
 ✔ [53/98] Built LeanRV64D.RiscvTypes
@@ -79,8 +79,8 @@ error: Lean exited with code 1
 ✔ [76/98] Built LeanRV64D.RiscvInstsVextUtils
 ✔ [77/98] Built LeanRV64D.RiscvPlatform
 ✔ [86/98] Built LeanRV64D.RiscvInstsFext
-✔ [87/98] Built LeanRV64D.RiscvInstsZfh
-✔ [88/98] Built LeanRV64D.RiscvInstsDext
+✔ [87/98] Built LeanRV64D.RiscvInstsDext
+✔ [88/98] Built LeanRV64D.RiscvInstsZfh
 ✔ [89/98] Built LeanRV64D.RiscvInstsZfa
 ✔ [90/98] Built LeanRV64D.RiscvInstsZicsr
 ✔ [91/98] Built LeanRV64D.RiscvInstsVextFpUtils
