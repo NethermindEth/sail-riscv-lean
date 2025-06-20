@@ -4,8 +4,8 @@
 warning: LeanRV64D/Sail/Sail.lean:80:72: `BitVec.getMsb'` has been deprecated: use `BitVec.getMsb` instead
 ✔ [5/98] Built LeanRV64D.Defs
 ✔ [6/98] Built LeanRV64D.FakeReal
-✔ [7/98] Built LeanRV64D.RiscvExtras
-✔ [8/98] Built LeanRV64D.Specialization
+✔ [7/98] Built LeanRV64D.Specialization
+✔ [8/98] Built LeanRV64D.RiscvExtras
 ✔ [9/98] Built LeanRV64D.RiscvStepExt
 ✔ [10/98] Built LeanRV64D.Flow
 ✔ [11/98] Built LeanRV64D.Common
@@ -49,9 +49,9 @@ error: Lean exited with code 1
 ✔ [46/98] Built LeanRV64D.RiscvFregType
 ✔ [47/98] Built LeanRV64D.RiscvZkrControl
 ✔ [48/98] Built LeanRV64D.RvfiDii
-✔ [49/98] Built LeanRV64D.RiscvTypesKext
-✔ [50/98] Built LeanRV64D.RiscvExtensions
-✔ [51/98] Built LeanRV64D.RiscvSoftfloatInterface
+✔ [49/98] Built LeanRV64D.RiscvExtensions
+✔ [50/98] Built LeanRV64D.RiscvSoftfloatInterface
+✔ [51/98] Built LeanRV64D.RiscvTypesKext
 ✔ [52/98] Built LeanRV64D.RiscvValidateConfig
 ✔ [53/98] Built LeanRV64D.RiscvTypes
 ✔ [54/98] Built LeanRV64D.RiscvVmemTlb
@@ -63,8 +63,8 @@ error: Lean exited with code 1
 ✔ [60/98] Built LeanRV64D.RiscvSysExceptions
 ✔ [61/98] Built LeanRV64D.RiscvSmcntrpmf
 ✔ [62/98] Built LeanRV64D.RiscvInstsZaamo
-✔ [63/98] Built LeanRV64D.RiscvPmpControl
-✔ [64/98] Built LeanRV64D.RiscvSscofpmf
+✔ [63/98] Built LeanRV64D.RiscvSscofpmf
+✔ [64/98] Built LeanRV64D.RiscvPmpControl
 ✔ [65/98] Built LeanRV64D.RiscvCallbacks
 ✔ [66/98] Built LeanRV64D.RiscvPcAccess
 ✔ [67/98] Built LeanRV64D.RiscvInstsVextVset
@@ -76,8 +76,8 @@ error: Lean exited with code 1
 ✔ [73/98] Built LeanRV64D.RiscvZvkUtils
 ✔ [74/98] Built LeanRV64D.RiscvInstsZicboz
 ✔ [75/98] Built LeanRV64D.RiscvFdextRegs
-✔ [76/98] Built LeanRV64D.RiscvPlatform
-✔ [80/98] Built LeanRV64D.RiscvInstsVextUtils
+✔ [76/98] Built LeanRV64D.RiscvInstsVextUtils
+✔ [77/98] Built LeanRV64D.RiscvPlatform
 ✔ [86/98] Built LeanRV64D.RiscvInstsFext
 ✔ [87/98] Built LeanRV64D.RiscvInstsZfh
 ✔ [88/98] Built LeanRV64D.RiscvInstsDext
