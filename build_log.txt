@@ -49,10 +49,10 @@ error: Lean exited with code 1
 ✔ [46/98] Built LeanRV64D.RiscvFregType
 ✔ [47/98] Built LeanRV64D.RiscvZkrControl
 ✔ [48/98] Built LeanRV64D.RvfiDii
-✔ [49/98] Built LeanRV64D.RiscvExtensions
-✔ [50/98] Built LeanRV64D.RiscvTypesKext
-✔ [51/98] Built LeanRV64D.RiscvValidateConfig
-✔ [52/98] Built LeanRV64D.RiscvSoftfloatInterface
+✔ [49/98] Built LeanRV64D.RiscvTypesKext
+✔ [50/98] Built LeanRV64D.RiscvExtensions
+✔ [51/98] Built LeanRV64D.RiscvSoftfloatInterface
+✔ [52/98] Built LeanRV64D.RiscvValidateConfig
 ✔ [53/98] Built LeanRV64D.RiscvTypes
 ✔ [54/98] Built LeanRV64D.RiscvVmemTlb
 ✔ [55/98] Built LeanRV64D.RiscvInstsBase
@@ -76,8 +76,8 @@ error: Lean exited with code 1
 ✔ [73/98] Built LeanRV64D.RiscvZvkUtils
 ✔ [74/98] Built LeanRV64D.RiscvInstsZicboz
 ✔ [75/98] Built LeanRV64D.RiscvFdextRegs
-✔ [76/98] Built LeanRV64D.RiscvInstsVextUtils
-✔ [77/98] Built LeanRV64D.RiscvPlatform
+✔ [76/98] Built LeanRV64D.RiscvPlatform
+✔ [80/98] Built LeanRV64D.RiscvInstsVextUtils
 ✔ [86/98] Built LeanRV64D.RiscvInstsFext
 ✔ [87/98] Built LeanRV64D.RiscvInstsZfh
 ✔ [88/98] Built LeanRV64D.RiscvInstsDext
