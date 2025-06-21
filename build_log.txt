@@ -37,10 +37,10 @@ error: Lean exited with code 1
 ✔ [33/98] Built LeanRV64D.RiscvInstsZvknhab
 ✔ [34/98] Built LeanRV64D.RiscvStepCommon
 ✔ [35/98] Built LeanRV64D.RiscvStepExt
-✔ [36/98] Built LeanRV64D.RiscvVmemPtw
-✔ [37/98] Built LeanRV64D.RiscvInstsZalrsc
-✔ [38/98] Built LeanRV64D.RiscvInstsVextArith
-✔ [39/98] Built LeanRV64D.Vector
+✔ [36/98] Built LeanRV64D.Vector
+✔ [37/98] Built LeanRV64D.RiscvVmemPtw
+✔ [38/98] Built LeanRV64D.RiscvInstsZalrsc
+✔ [39/98] Built LeanRV64D.RiscvInstsVextArith
 ✔ [40/98] Built LeanRV64D.Prelude
 ✔ [42/98] Built LeanRV64D.HexBits
 ✔ [43/98] Built LeanRV64D.HexBitsSigned
@@ -50,9 +50,9 @@ error: Lean exited with code 1
 ✔ [47/98] Built LeanRV64D.RiscvZkrControl
 ✔ [48/98] Built LeanRV64D.RvfiDii
 ✔ [49/98] Built LeanRV64D.RiscvExtensions
-✔ [50/98] Built LeanRV64D.RiscvTypesKext
-✔ [51/98] Built LeanRV64D.RiscvSoftfloatInterface
-✔ [52/98] Built LeanRV64D.RiscvValidateConfig
+✔ [50/98] Built LeanRV64D.RiscvValidateConfig
+✔ [51/98] Built LeanRV64D.RiscvTypesKext
+✔ [52/98] Built LeanRV64D.RiscvSoftfloatInterface
 ✔ [53/98] Built LeanRV64D.RiscvTypes
 ✔ [54/98] Built LeanRV64D.RiscvVmemTlb
 ✔ [55/98] Built LeanRV64D.RiscvInstsBase
