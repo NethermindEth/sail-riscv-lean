@@ -42,10 +42,10 @@ error: Lean exited with code 1
 ✔ [38/98] Built LeanRV64D.RiscvInstsVextArith
 ✔ [39/98] Built LeanRV64D.Vector
 ✔ [40/98] Built LeanRV64D.Prelude
-✔ [42/98] Built LeanRV64D.HexBits
-✔ [43/98] Built LeanRV64D.HexBitsSigned
-✔ [44/98] Built LeanRV64D.RiscvRegType
-✔ [45/98] Built LeanRV64D.Arithmetic
+✔ [41/98] Built LeanRV64D.Arithmetic
+✔ [43/98] Built LeanRV64D.HexBits
+✔ [44/98] Built LeanRV64D.HexBitsSigned
+✔ [45/98] Built LeanRV64D.RiscvRegType
 ✔ [46/98] Built LeanRV64D.RiscvFregType
 ✔ [47/98] Built LeanRV64D.RiscvZkrControl
 ✔ [48/98] Built LeanRV64D.RvfiDii
