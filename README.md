@@ -100,18 +100,12 @@ This work was funded by a grant provided by the [Ethereum Foundation](https://et
 
 # Statistics
 
-Lines: 132,886  
+Lines: 132,887  
 Definitions: 3,982  
 Inductive definitions: 164  
 Abbreviations: 144  
 
 ## Warnings and Errors
 
-Errors found: 3  
-Warnings found: 1  
-
-### Error Classes
-
-- 1x unexpected token 'meta'; expected '_' or identifier
-- 1x unexpected token ':'; expected 'abbrev', 'axiom', 'builtin_initialize', 'class', 'def', 'example', 'inductive', 'initialize', 'instance', 'opaque', 'structure' or 'theorem'
-- 1x Lean exited with code 1
+Errors found: 0  
+Warnings found: 0  

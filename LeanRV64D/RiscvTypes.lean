@@ -6166,7 +6166,8 @@ def assembly_forwards (arg_ : ast) : SailM String := do
         (String.append (spc_forwards ())
           (String.append (vreg_name_forwards vd)
             (String.append (sep_forwards ())
-              (String.append (vreg_name_forwards vs2) (String.append (vreg_name_forwards vs1) "")))))))
+              (String.append (vreg_name_forwards vs2)
+                (String.append (sep_forwards ()) (String.append (vreg_name_forwards vs1) ""))))))))
   | .ZVKSHA2TYPE (funct6, vs2, vs1, vd) =>
     (pure (String.append (vsha2c_mnemonic_forwards funct6)
         (String.append (spc_forwards ())
