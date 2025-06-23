@@ -4,8 +4,8 @@
 warning: LeanRV64D/Sail/Sail.lean:80:72: `BitVec.getMsb'` has been deprecated: use `BitVec.getMsb` instead
 ✔ [5/98] Built LeanRV64D.Defs
 ✔ [6/98] Built LeanRV64D.FakeReal
-✔ [7/98] Built LeanRV64D.Specialization
-✔ [8/98] Built LeanRV64D.RiscvExtras
+✔ [7/98] Built LeanRV64D.RiscvExtras
+✔ [8/98] Built LeanRV64D.Specialization
 ✔ [9/98] Built LeanRV64D.RiscvStepExt
 ✔ [10/98] Built LeanRV64D.Flow
 ✔ [11/98] Built LeanRV64D.Common
@@ -50,9 +50,9 @@ error: Lean exited with code 1
 ✔ [47/98] Built LeanRV64D.RiscvZkrControl
 ✔ [48/98] Built LeanRV64D.RvfiDii
 ✔ [49/98] Built LeanRV64D.RiscvExtensions
-✔ [50/98] Built LeanRV64D.RiscvValidateConfig
-✔ [51/98] Built LeanRV64D.RiscvTypesKext
-✔ [52/98] Built LeanRV64D.RiscvSoftfloatInterface
+✔ [50/98] Built LeanRV64D.RiscvTypesKext
+✔ [51/98] Built LeanRV64D.RiscvSoftfloatInterface
+✔ [52/98] Built LeanRV64D.RiscvValidateConfig
 ✔ [53/98] Built LeanRV64D.RiscvTypes
 ✔ [54/98] Built LeanRV64D.RiscvVmemTlb
 ✔ [55/98] Built LeanRV64D.RiscvInstsBase
