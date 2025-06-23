@@ -17,7 +17,8 @@ noncomputable section
 
 namespace LeanRV64D.Functions
 
-open zvkfunct6
+open zvk_vsm4r_funct6
+open zvk_vsha2_funct6
 open zvk_vaesem_funct6
 open zvk_vaesef_funct6
 open zvk_vaesdm_funct6
@@ -227,7 +228,7 @@ def misaligned_order (n : Int) : (Int × Int × Int) :=
   then ((n -i 1), 0, (-1))
   else (0, (n -i 1), 1)
 
-/-- Type quantifiers: k_ex376080# : Bool, k_ex376079# : Bool, k_ex376078# : Bool, width : Nat, is_mem_width(width) -/
+/-- Type quantifiers: k_ex380146# : Bool, k_ex380145# : Bool, k_ex380144# : Bool, width : Nat, is_mem_width(width) -/
 def vmem_write_addr (vaddr : virtaddr) (width : Nat) (data : (BitVec (8 * width))) (acc : (AccessType Unit)) (aq : Bool) (rl : Bool) (res : Bool) : SailM (Result Bool ExecutionResult) := SailME.run do
   let (n, bytes) ← do (split_misaligned vaddr width)
   let (first, last, step) := (misaligned_order n)
@@ -283,7 +284,7 @@ def check_misaligned (vaddr : virtaddr) (width : word_width) : Bool :=
   then false
   else (not (is_aligned_vaddr vaddr (size_bytes_forwards width)))
 
-/-- Type quantifiers: k_ex376130# : Bool, k_ex376129# : Bool, k_ex376128# : Bool, width : Nat, is_mem_width(width) -/
+/-- Type quantifiers: k_ex380196# : Bool, k_ex380195# : Bool, k_ex380194# : Bool, width : Nat, is_mem_width(width) -/
 def vmem_read (rs : regidx) (offset : (BitVec (2 ^ 3 * 8))) (width : Nat) (acc : (AccessType Unit)) (aq : Bool) (rl : Bool) (res : Bool) : SailM (Result (BitVec (8 * width)) ExecutionResult) := SailME.run do
   let vaddr ← (( do
     match (← (ext_data_get_addr rs offset acc width)) with
@@ -348,7 +349,7 @@ def vmem_read (rs : regidx) (offset : (BitVec (2 ^ 3 * 8))) (width : Nat) (acc :
     ((BitVec (8 * n * bytes)) × Bool × Nat) )
   (pure (Ok data))
 
-/-- Type quantifiers: k_ex376165# : Bool, k_ex376164# : Bool, k_ex376163# : Bool, width : Nat, is_mem_width(width) -/
+/-- Type quantifiers: k_ex380231# : Bool, k_ex380230# : Bool, k_ex380229# : Bool, width : Nat, is_mem_width(width) -/
 def vmem_write (rs_addr : regidx) (offset : (BitVec (2 ^ 3 * 8))) (width : Nat) (data : (BitVec (8 * width))) (acc : (AccessType Unit)) (aq : Bool) (rl : Bool) (res : Bool) : SailM (Result Bool ExecutionResult) := SailME.run do
   let vaddr ← (( do
     match (← (ext_data_get_addr rs_addr offset acc width)) with

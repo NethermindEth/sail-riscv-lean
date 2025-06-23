@@ -94,7 +94,7 @@ abbrev RVFI_DII_Execution_Packet_V1 := (BitVec 704)
 
 abbrev RVFI_DII_Execution_PacketV2 := (BitVec 512)
 
-inductive extension where | Ext_M | Ext_A | Ext_F | Ext_D | Ext_B | Ext_V | Ext_S | Ext_U | Ext_H | Ext_Zicbom | Ext_Zicboz | Ext_Zicntr | Ext_Zicond | Ext_Zicsr | Ext_Zifencei | Ext_Zihpm | Ext_Zimop | Ext_Zmmul | Ext_Zaamo | Ext_Zabha | Ext_Zalrsc | Ext_Zawrs | Ext_Zfa | Ext_Zfh | Ext_Zfhmin | Ext_Zfinx | Ext_Zdinx | Ext_Zca | Ext_Zcb | Ext_Zcd | Ext_Zcf | Ext_Zcmop | Ext_C | Ext_Zba | Ext_Zbb | Ext_Zbc | Ext_Zbkb | Ext_Zbkc | Ext_Zbkx | Ext_Zbs | Ext_Zknd | Ext_Zkne | Ext_Zknh | Ext_Zkr | Ext_Zksed | Ext_Zksh | Ext_Zkt | Ext_Zhinx | Ext_Zhinxmin | Ext_Zvbb | Ext_Zvbc | Ext_Zvkb | Ext_Zvkg | Ext_Zvkned | Ext_Zvknha | Ext_Zvknhb | Ext_Zvksh | Ext_Zvkt | Ext_Sscofpmf | Ext_Sstc | Ext_Svinval | Ext_Svnapot | Ext_Svpbmt | Ext_Svbare | Ext_Sv32 | Ext_Sv39 | Ext_Sv48 | Ext_Sv57 | Ext_Smcntrpmf
+inductive extension where | Ext_M | Ext_A | Ext_F | Ext_D | Ext_B | Ext_V | Ext_S | Ext_U | Ext_H | Ext_Zicbom | Ext_Zicboz | Ext_Zicntr | Ext_Zicond | Ext_Zicsr | Ext_Zifencei | Ext_Zihpm | Ext_Zimop | Ext_Zmmul | Ext_Zaamo | Ext_Zabha | Ext_Zalrsc | Ext_Zawrs | Ext_Zfa | Ext_Zfh | Ext_Zfhmin | Ext_Zfinx | Ext_Zdinx | Ext_Zca | Ext_Zcb | Ext_Zcd | Ext_Zcf | Ext_Zcmop | Ext_C | Ext_Zba | Ext_Zbb | Ext_Zbc | Ext_Zbkb | Ext_Zbkc | Ext_Zbkx | Ext_Zbs | Ext_Zknd | Ext_Zkne | Ext_Zknh | Ext_Zkr | Ext_Zksed | Ext_Zksh | Ext_Zkt | Ext_Zhinx | Ext_Zhinxmin | Ext_Zvbb | Ext_Zvbc | Ext_Zvkb | Ext_Zvkg | Ext_Zvkned | Ext_Zvknha | Ext_Zvknhb | Ext_Zvksed | Ext_Zvksh | Ext_Zvkt | Ext_Sscofpmf | Ext_Sstc | Ext_Svinval | Ext_Svnapot | Ext_Svpbmt | Ext_Svbare | Ext_Sv32 | Ext_Sv39 | Ext_Sv48 | Ext_Sv57 | Ext_Smcntrpmf
   deriving BEq, Inhabited, Repr
 
 abbrev exc_code := (BitVec 8)
@@ -426,7 +426,10 @@ inductive vregidx where
   | Vregidx (_ : (BitVec 5))
   deriving Inhabited, BEq, Repr
 
-inductive zvkfunct6 where | ZVK_VSHA2CH | ZVK_VSHA2CL
+inductive zvk_vsha2_funct6 where | ZVK_VSHA2CH_VV | ZVK_VSHA2CL_VV
+  deriving BEq, Inhabited, Repr
+
+inductive zvk_vsm4r_funct6 where | ZVK_VSM4R_VV | ZVK_VSM4R_VS
   deriving BEq, Inhabited, Repr
 
 inductive vvcmpfunct6 where | VVCMP_VMSEQ | VVCMP_VMSNE | VVCMP_VMSLTU | VVCMP_VMSLT | VVCMP_VMSLEU | VVCMP_VMSLE
@@ -852,7 +855,9 @@ inductive ast where
   | VAESKF2_VI (_ : (vregidx × (BitVec 5) × vregidx))
   | VAESZ_VS (_ : (vregidx × vregidx))
   | VSHA2MS_VV (_ : (vregidx × vregidx × vregidx))
-  | ZVKSHA2TYPE (_ : (zvkfunct6 × vregidx × vregidx × vregidx))
+  | ZVKSHA2TYPE (_ : (zvk_vsha2_funct6 × vregidx × vregidx × vregidx))
+  | VSM4K_VI (_ : (vregidx × (BitVec 5) × vregidx))
+  | ZVKSM4RTYPE (_ : (zvk_vsm4r_funct6 × vregidx × vregidx))
   | VSM3ME_VV (_ : (vregidx × vregidx × vregidx))
   | VSM3C_VI (_ : (vregidx × (BitVec 5) × vregidx))
   | ZIMOP_MOP_R (_ : ((BitVec 5) × regidx × regidx))

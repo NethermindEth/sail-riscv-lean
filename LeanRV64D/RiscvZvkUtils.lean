@@ -2,6 +2,7 @@ import LeanRV64D.Prelude
 import LeanRV64D.RiscvVlen
 import LeanRV64D.RiscvSysRegs
 import LeanRV64D.RiscvVextRegs
+import LeanRV64D.RiscvTypesKext
 
 set_option maxHeartbeats 1_000_000_000
 set_option maxRecDepth 1_000_000
@@ -14,7 +15,8 @@ noncomputable section
 
 namespace LeanRV64D.Functions
 
-open zvkfunct6
+open zvk_vsm4r_funct6
+open zvk_vsha2_funct6
 open zvk_vaesem_funct6
 open zvk_vaesef_funct6
 open zvk_vaesdm_funct6
@@ -188,19 +190,19 @@ def zvk_check_encdec (EGW : Int) (EGS : Int) : SailM Bool := do
         (pure (((Int.emod (BitVec.toNat (← readReg vstart)) EGS) == 0) && (← do
               (pure (((2 ^i (← (get_lmul_pow ()))) *i VLEN) ≥b EGW))))))))
 
-def undefined_zvkfunct6 (_ : Unit) : SailM zvkfunct6 := do
-  (internal_pick [ZVK_VSHA2CH, ZVK_VSHA2CL])
+def undefined_zvk_vsha2_funct6 (_ : Unit) : SailM zvk_vsha2_funct6 := do
+  (internal_pick [ZVK_VSHA2CH_VV, ZVK_VSHA2CL_VV])
 
 /-- Type quantifiers: arg_ : Nat, 0 ≤ arg_ ∧ arg_ ≤ 1 -/
-def zvkfunct6_of_num (arg_ : Nat) : zvkfunct6 :=
+def zvk_vsha2_funct6_of_num (arg_ : Nat) : zvk_vsha2_funct6 :=
   match arg_ with
-  | 0 => ZVK_VSHA2CH
-  | _ => ZVK_VSHA2CL
+  | 0 => ZVK_VSHA2CH_VV
+  | _ => ZVK_VSHA2CL_VV
 
-def num_of_zvkfunct6 (arg_ : zvkfunct6) : Int :=
+def num_of_zvk_vsha2_funct6 (arg_ : zvk_vsha2_funct6) : Int :=
   match arg_ with
-  | ZVK_VSHA2CH => 0
-  | ZVK_VSHA2CL => 1
+  | ZVK_VSHA2CH_VV => 0
+  | ZVK_VSHA2CL_VV => 1
 
 def zvknhab_check_encdec (vs2 : vregidx) (vs1 : vregidx) (vd : vregidx) : SailM Bool := do
   let SEW ← do (get_sew ())
@@ -239,6 +241,39 @@ def zvk_ch (x : (BitVec k_n)) (y : (BitVec k_n)) (z : (BitVec k_n)) : (BitVec k_
 /-- Type quantifiers: k_n : Nat, k_n ≥ 0 -/
 def zvk_maj (x : (BitVec k_n)) (y : (BitVec k_n)) (z : (BitVec k_n)) : (BitVec k_n) :=
   ((x &&& y) ^^^ ((x &&& z) ^^^ (y &&& z)))
+
+def undefined_zvk_vsm4r_funct6 (_ : Unit) : SailM zvk_vsm4r_funct6 := do
+  (internal_pick [ZVK_VSM4R_VV, ZVK_VSM4R_VS])
+
+/-- Type quantifiers: arg_ : Nat, 0 ≤ arg_ ∧ arg_ ≤ 1 -/
+def zvk_vsm4r_funct6_of_num (arg_ : Nat) : zvk_vsm4r_funct6 :=
+  match arg_ with
+  | 0 => ZVK_VSM4R_VV
+  | _ => ZVK_VSM4R_VS
+
+def num_of_zvk_vsm4r_funct6 (arg_ : zvk_vsm4r_funct6) : Int :=
+  match arg_ with
+  | ZVK_VSM4R_VV => 0
+  | ZVK_VSM4R_VS => 1
+
+def zvk_round_key (X : (BitVec 32)) (S : (BitVec 32)) : (BitVec 32) :=
+  (X ^^^ (S ^^^ ((rotatel S 13) ^^^ (rotatel S 23))))
+
+def zvk_sm4_round (X : (BitVec 32)) (S : (BitVec 32)) : (BitVec 32) :=
+  (X ^^^ (S ^^^ ((rotatel S 2) ^^^ ((rotatel S 10) ^^^ ((rotatel S 18) ^^^ (rotatel S 24))))))
+
+def zvksed_ck : (Vector (BitVec 32) 32) :=
+  #v[(0x646B7279 : (BitVec 32)), (0x484F565D : (BitVec 32)), (0x2C333A41 : (BitVec 32)), (0x10171E25 : (BitVec 32)), (0xF4FB0209 : (BitVec 32)), (0xD8DFE6ED : (BitVec 32)), (0xBCC3CAD1 : (BitVec 32)), (0xA0A7AEB5 : (BitVec 32)), (0x848B9299 : (BitVec 32)), (0x686F767D : (BitVec 32)), (0x4C535A61 : (BitVec 32)), (0x30373E45 : (BitVec 32)), (0x141B2229 : (BitVec 32)), (0xF8FF060D : (BitVec 32)), (0xDCE3EAF1 : (BitVec 32)), (0xC0C7CED5 : (BitVec 32)), (0xA4ABB2B9 : (BitVec 32)), (0x888F969D : (BitVec 32)), (0x6C737A81 : (BitVec 32)), (0x50575E65 : (BitVec 32)), (0x343B4249 : (BitVec 32)), (0x181F262D : (BitVec 32)), (0xFC030A11 : (BitVec 32)), (0xE0E7EEF5 : (BitVec 32)), (0xC4CBD2D9 : (BitVec 32)), (0xA8AFB6BD : (BitVec 32)), (0x8C939AA1 : (BitVec 32)), (0x70777E85 : (BitVec 32)), (0x545B6269 : (BitVec 32)), (0x383F464D : (BitVec 32)), (0x1C232A31 : (BitVec 32)), (0x00070E15 : (BitVec 32))]
+
+def zvksed_box_lookup (x : (BitVec 5)) (table : (Vector (BitVec 32) 32)) : (BitVec 32) :=
+  (GetElem?.getElem! table (31 -i (BitVec.toNat x)))
+
+def zvk_sm4_sbox (x : (BitVec 5)) : (BitVec 32) :=
+  (zvksed_box_lookup x zvksed_ck)
+
+def zvk_sm4_subword (x : (BitVec 32)) : (BitVec 32) :=
+  ((sm4_sbox (Sail.BitVec.extractLsb x 31 24)) ++ ((sm4_sbox (Sail.BitVec.extractLsb x 23 16)) ++ ((sm4_sbox
+          (Sail.BitVec.extractLsb x 15 8)) ++ (sm4_sbox (Sail.BitVec.extractLsb x 7 0)))))
 
 def zvk_p0 (X : (BitVec 32)) : (BitVec 32) :=
   (X ^^^ ((rotatel X 9) ^^^ (rotatel X 17)))

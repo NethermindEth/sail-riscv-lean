@@ -176,15 +176,23 @@ open ExceptionType
 open Architecture
 open AccessType
 
-def ext_fetch_hook (f : FetchResult) : FetchResult :=
-  f
+def vsm4r_mnemonic_backwards (arg_ : String) : SailM zvk_vsm4r_funct6 := do
+  match arg_ with
+  | "vsm4r.vv" => (pure ZVK_VSM4R_VV)
+  | "vsm4r.vs" => (pure ZVK_VSM4R_VS)
+  | _ =>
+    (do
+      assert false "Pattern match failure at unknown location"
+      throw Error.Exit)
 
-def ext_pre_step_hook (_ : Unit) : Unit :=
-  ()
+def vsm4r_mnemonic_forwards_matches (arg_ : zvk_vsm4r_funct6) : Bool :=
+  match arg_ with
+  | ZVK_VSM4R_VV => true
+  | ZVK_VSM4R_VS => true
 
-def ext_post_step_hook (_ : Unit) : Unit :=
-  ()
-
-def ext_reset (_ : Unit) : Unit :=
-  ()
+def vsm4r_mnemonic_backwards_matches (arg_ : String) : Bool :=
+  match arg_ with
+  | "vsm4r.vv" => true
+  | "vsm4r.vs" => true
+  | _ => false
 

@@ -20,7 +20,8 @@ noncomputable section
 
 namespace LeanRV64D.Functions
 
-open zvkfunct6
+open zvk_vsm4r_funct6
+open zvk_vsha2_funct6
 open zvk_vaesem_funct6
 open zvk_vaesef_funct6
 open zvk_vaesdm_funct6
@@ -2767,7 +2768,7 @@ def maybe_lmul_flag_backwards (arg_ : (BitVec 3)) : SailM String := do
                               assert false "Pattern match failure at unknown location"
                               throw Error.Exit)))))))
 
-/-- Type quantifiers: k_ex370536# : Bool -/
+/-- Type quantifiers: k_ex374596# : Bool -/
 def maybe_u_forwards (arg_ : Bool) : String :=
   match arg_ with
   | true => "u"
@@ -3247,10 +3248,15 @@ def vreg_name_forwards (arg_ : vregidx) : String :=
   match arg_ with
   | .Vregidx i => (vreg_name_raw_forwards i)
 
-def vsha2c_mnemonic_forwards (arg_ : zvkfunct6) : String :=
+def vsha2_mnemonic_forwards (arg_ : zvk_vsha2_funct6) : String :=
   match arg_ with
-  | ZVK_VSHA2CH => "vsha2ch.vv"
-  | ZVK_VSHA2CL => "vsha2cl.vv"
+  | ZVK_VSHA2CH_VV => "vsha2ch.vv"
+  | ZVK_VSHA2CL_VV => "vsha2cl.vv"
+
+def vsm4r_mnemonic_forwards (arg_ : zvk_vsm4r_funct6) : String :=
+  match arg_ with
+  | ZVK_VSM4R_VV => "vsm4r.vv"
+  | ZVK_VSM4R_VS => "vsm4r.vs"
 
 def vvcmptype_mnemonic_forwards (arg_ : vvcmpfunct6) : String :=
   match arg_ with
@@ -6169,12 +6175,24 @@ def assembly_forwards (arg_ : ast) : SailM String := do
               (String.append (vreg_name_forwards vs2)
                 (String.append (sep_forwards ()) (String.append (vreg_name_forwards vs1) ""))))))))
   | .ZVKSHA2TYPE (funct6, vs2, vs1, vd) =>
-    (pure (String.append (vsha2c_mnemonic_forwards funct6)
+    (pure (String.append (vsha2_mnemonic_forwards funct6)
         (String.append (spc_forwards ())
           (String.append (vreg_name_forwards vd)
             (String.append (sep_forwards ())
               (String.append (vreg_name_forwards vs2)
                 (String.append (sep_forwards ()) (String.append (vreg_name_forwards vs1) ""))))))))
+  | .VSM4K_VI (vs2, uimm, vd) =>
+    (pure (String.append "vsm4k.vi"
+        (String.append (spc_forwards ())
+          (String.append (vreg_name_forwards vd)
+            (String.append (sep_forwards ())
+              (String.append (vreg_name_forwards vs2)
+                (String.append (sep_forwards ()) (String.append (← (hex_bits_5_forwards uimm)) ""))))))))
+  | .ZVKSM4RTYPE (funct6, vs2, vd) =>
+    (pure (String.append (vsm4r_mnemonic_forwards funct6)
+        (String.append (spc_forwards ())
+          (String.append (vreg_name_forwards vd)
+            (String.append (sep_forwards ()) (String.append (vreg_name_forwards vs2) ""))))))
   | .VSM3ME_VV (vs2, vs1, vd) =>
     (pure (String.append "vsm3me.vv"
         (String.append (spc_forwards ())
