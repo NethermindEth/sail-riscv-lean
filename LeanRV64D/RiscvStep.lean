@@ -377,7 +377,7 @@ def try_step (step_no : Nat) (exit_wait : Bool) : SailM Bool := do
   | .Step_Execute (.Ext_DataAddr_Check_Failure e, _) => (pure (ext_handle_data_check_error e))
   | .Step_Execute (.Ext_XRET_Priv_Failure (), _) => (pure (ext_fail_xret_priv ()))
   match (← readReg hart_state) with
-  | .HART_WAITING _ => (pure false)
+  | .HART_WAITING _ => (pure true)
   | .HART_ACTIVE () =>
     (do
       (tick_pc ())
@@ -398,7 +398,7 @@ def try_step (step_no : Nat) (exit_wait : Bool) : SailM Bool := do
           (zero_extend (m := 64) (← (get_arch_pc ()))))
       else (pure ())
       let _ : Unit := (ext_post_step_hook ())
-      (pure true))
+      (pure false))
 
 def loop (_ : Unit) : SailM Unit := do
   let i : Nat := 0
