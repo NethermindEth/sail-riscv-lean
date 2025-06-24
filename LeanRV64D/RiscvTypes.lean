@@ -2768,7 +2768,7 @@ def maybe_lmul_flag_backwards (arg_ : (BitVec 3)) : SailM String := do
                               assert false "Pattern match failure at unknown location"
                               throw Error.Exit)))))))
 
-/-- Type quantifiers: k_ex374596# : Bool -/
+/-- Type quantifiers: k_ex374635# : Bool -/
 def maybe_u_forwards (arg_ : Bool) : String :=
   match arg_ with
   | true => "u"
@@ -2847,6 +2847,27 @@ def mvxtype_mnemonic_forwards (arg_ : mvxfunct6) : String :=
   | MVX_VDIV => "vdiv.vx"
   | MVX_VREMU => "vremu.vx"
   | MVX_VREM => "vrem.vx"
+
+def nfields_int_string_forwards (arg_ : (BitVec 3)) : SailM String := do
+  let b__0 := arg_
+  bif (b__0 == (0b000 : (BitVec 3)))
+  then (pure "1")
+  else
+    (do
+      bif (b__0 == (0b001 : (BitVec 3)))
+      then (pure "2")
+      else
+        (do
+          bif (b__0 == (0b011 : (BitVec 3)))
+          then (pure "4")
+          else
+            (do
+              bif (b__0 == (0b111 : (BitVec 3)))
+              then (pure "8")
+              else
+                (do
+                  assert false "Pattern match failure at unknown location"
+                  throw Error.Exit))))
 
 def nfields_string_forwards (arg_ : (BitVec 3)) : String :=
   let b__0 := arg_
@@ -4264,7 +4285,8 @@ def assembly_forwards (arg_ : ast) : SailM String := do
             (String.append (spc_forwards ())
               (String.append (← (freg_name_forwards rd))
                 (String.append (sep_forwards ())
-                  (String.append (← (hex_bits_6_forwards imm))
+                  (String.append
+                    (← (hex_bits_8_forwards ((imm : (BitVec 6)) ++ (0b00 : (BitVec 2)))))
                     (String.append "("
                       (String.append (← (sp_reg_name_forwards ())) (String.append ")" "")))))))))
       else
@@ -5718,7 +5740,7 @@ def assembly_forwards (arg_ : ast) : SailM String := do
                                 (String.append (maybe_vmask_backwards vm) "")))))))))))))))
   | .VLRETYPE (nf, rs1, width, vd) =>
     (pure (String.append "vl"
-        (String.append (nfields_string_forwards nf)
+        (String.append (← (nfields_int_string_forwards nf))
           (String.append "re"
             (String.append (vlewidth_bitsnumberstr_forwards width)
               (String.append ".v"
@@ -5729,7 +5751,7 @@ def assembly_forwards (arg_ : ast) : SailM String := do
                         (String.append (← (reg_name_forwards rs1)) (String.append ")" ""))))))))))))
   | .VSRETYPE (nf, rs1, vs3) =>
     (pure (String.append "vs"
-        (String.append (nfields_string_forwards nf)
+        (String.append (← (nfields_int_string_forwards nf))
           (String.append "r.v"
             (String.append (spc_forwards ())
               (String.append (vreg_name_forwards vs3)

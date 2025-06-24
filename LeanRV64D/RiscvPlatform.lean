@@ -527,6 +527,14 @@ def clint_store (app_0 : physaddr) (width : Nat) (data : (BitVec (8 * width))) :
                               else ()
                             (pure (Err (E_SAMO_Access_Fault ()))))))))))
 
+def should_inc_mcycle (priv : Privilege) : SailM Bool := do
+  (pure (((_get_Counterin_CY (← readReg mcountinhibit)) == (0b0 : (BitVec 1))) && ((counter_priv_filter_bit
+          (← readReg mcyclecfg) priv) == (0b0 : (BitVec 1)))))
+
+def should_inc_minstret (priv : Privilege) : SailM Bool := do
+  (pure (((_get_Counterin_IR (← readReg mcountinhibit)) == (0b0 : (BitVec 1))) && ((counter_priv_filter_bit
+          (← readReg minstretcfg) priv) == (0b0 : (BitVec 1)))))
+
 def tick_clock (_ : Unit) : SailM Unit := do
   bif (← (should_inc_mcycle (← readReg cur_privilege)))
   then writeReg mcycle (BitVec.addInt (← readReg mcycle) 1)
