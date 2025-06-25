@@ -204,23 +204,23 @@ def get_config_rvfi (_ : Unit) : Bool :=
 def get_config_use_abi_names (_ : Unit) : Bool :=
   false
 
-/-- Type quantifiers: k_n : Int, m : Int, m ≥ k_n -/
+/-- Type quantifiers: k_n : Nat, k_n ≥ 0, m : Nat, m ≥ 0, m ≥ k_n -/
 def sign_extend {m : _} (v : (BitVec k_n)) : (BitVec m) :=
   (Sail.BitVec.signExtend v m)
 
-/-- Type quantifiers: k_n : Int, m : Int, m ≥ k_n -/
+/-- Type quantifiers: k_n : Nat, k_n ≥ 0, m : Nat, m ≥ 0, m ≥ k_n -/
 def zero_extend {m : _} (v : (BitVec k_n)) : (BitVec m) :=
   (Sail.BitVec.zeroExtend v m)
 
-/-- Type quantifiers: n : Nat, n ≥ 0 -/
+/-- Type quantifiers: n : Nat, n ≥ 0, n ≥ 0 -/
 def zeros {n : _} : (BitVec n) :=
   (BitVec.zero n)
 
-/-- Type quantifiers: n : Nat, n ≥ 0 -/
+/-- Type quantifiers: n : Nat, n ≥ 0, n ≥ 0 -/
 def ones {n : _} : (BitVec n) :=
   (sail_ones n)
 
-/-- Type quantifiers: m : Nat, k_n : Nat, m ≥ 0 ∧ m ≤ k_n -/
+/-- Type quantifiers: m : Nat, m ≥ 0, k_n : Nat, k_n ≥ 0, m ≥ 0 ∧ m ≤ k_n -/
 def trunc {m : _} (v : (BitVec k_n)) : (BitVec m) :=
   (Sail.BitVec.truncate v m)
 
@@ -292,11 +292,11 @@ def bool_to_bits (x : Bool) : (BitVec 1) :=
 def bits_to_bool (x : (BitVec 1)) : Bool :=
   (bool_bits_backwards x)
 
-/-- Type quantifiers: l : Nat, n : Nat, l ≥ 0 ∧ 0 ≤ n ∧ n < (2 ^ l) -/
+/-- Type quantifiers: l : Nat, l ≥ 0, n : Nat, l ≥ 0 ∧ 0 ≤ n ∧ n < (2 ^ l) -/
 def to_bits {l : _} (n : Nat) : (BitVec l) :=
   (get_slice_int l n 0)
 
-/-- Type quantifiers: n : Int, l : Nat, l ≥ 0 -/
+/-- Type quantifiers: n : Int, l : Nat, l ≥ 0, l ≥ 0 -/
 def to_bits_checked {l : _} (n : Int) : SailM (BitVec l) := do
   let bv := (get_slice_int l n 0)
   assert ((BitVec.toNat bv) == n) (HAppend.hAppend "Couldn't convert integer "
@@ -304,72 +304,72 @@ def to_bits_checked {l : _} (n : Int) : SailM (BitVec l) := do
       (HAppend.hAppend " to " (HAppend.hAppend (Int.repr l) " bits without overflow."))))
   (pure bv)
 
-/-- Type quantifiers: n : Int, l : Nat, l ≥ 0 -/
+/-- Type quantifiers: n : Int, l : Nat, l ≥ 0, l ≥ 0 -/
 def to_bits_truncate {l : _} (n : Int) : (BitVec l) :=
   (get_slice_int l n 0)
 
-/-- Type quantifiers: n : Int, l : Nat, l ≥ 0 -/
+/-- Type quantifiers: n : Int, l : Nat, l ≥ 0, l ≥ 0 -/
 def to_bits_unsafe {l : _} (n : Int) : (BitVec l) :=
   (get_slice_int l n 0)
 
-/-- Type quantifiers: k_n : Nat, k_n > 0 -/
+/-- Type quantifiers: k_n : Nat, k_n ≥ 0, k_n > 0 -/
 def zopz0zI_s (x : (BitVec k_n)) (y : (BitVec k_n)) : Bool :=
   ((BitVec.toInt x) <b (BitVec.toInt y))
 
-/-- Type quantifiers: k_n : Nat, k_n > 0 -/
+/-- Type quantifiers: k_n : Nat, k_n ≥ 0, k_n > 0 -/
 def zopz0zK_s (x : (BitVec k_n)) (y : (BitVec k_n)) : Bool :=
   ((BitVec.toInt x) >b (BitVec.toInt y))
 
-/-- Type quantifiers: k_n : Nat, k_n > 0 -/
+/-- Type quantifiers: k_n : Nat, k_n ≥ 0, k_n > 0 -/
 def zopz0zIzJ_s (x : (BitVec k_n)) (y : (BitVec k_n)) : Bool :=
   ((BitVec.toInt x) ≤b (BitVec.toInt y))
 
-/-- Type quantifiers: k_n : Nat, k_n > 0 -/
+/-- Type quantifiers: k_n : Nat, k_n ≥ 0, k_n > 0 -/
 def zopz0zKzJ_s (x : (BitVec k_n)) (y : (BitVec k_n)) : Bool :=
   ((BitVec.toInt x) ≥b (BitVec.toInt y))
 
-/-- Type quantifiers: k_n : Int -/
+/-- Type quantifiers: k_n : Nat, k_n ≥ 0 -/
 def zopz0zI_u (x : (BitVec k_n)) (y : (BitVec k_n)) : Bool :=
   ((BitVec.toNat x) <b (BitVec.toNat y))
 
-/-- Type quantifiers: k_n : Int -/
+/-- Type quantifiers: k_n : Nat, k_n ≥ 0 -/
 def zopz0zK_u (x : (BitVec k_n)) (y : (BitVec k_n)) : Bool :=
   ((BitVec.toNat x) >b (BitVec.toNat y))
 
-/-- Type quantifiers: k_n : Int -/
+/-- Type quantifiers: k_n : Nat, k_n ≥ 0 -/
 def zopz0zIzJ_u (x : (BitVec k_n)) (y : (BitVec k_n)) : Bool :=
   ((BitVec.toNat x) ≤b (BitVec.toNat y))
 
-/-- Type quantifiers: k_n : Int -/
+/-- Type quantifiers: k_n : Nat, k_n ≥ 0 -/
 def zopz0zKzJ_u (x : (BitVec k_n)) (y : (BitVec k_n)) : Bool :=
   ((BitVec.toNat x) ≥b (BitVec.toNat y))
 
-/-- Type quantifiers: shift : Nat, k_n : Nat, k_n ≥ 1 ∧ shift ≥ 0 -/
+/-- Type quantifiers: shift : Nat, k_n : Nat, k_n ≥ 0, k_n ≥ 1 ∧ shift ≥ 0 -/
 def shift_right_arith (value : (BitVec k_n)) (shift : Nat) : (BitVec k_n) :=
   (Sail.BitVec.extractLsb (sign_extend (m := ((Sail.BitVec.length value) +i shift)) value)
     (((Sail.BitVec.length value) -i 1) +i shift) shift)
 
-/-- Type quantifiers: k_m : Int, k_n : Nat, k_n ≥ 1 -/
+/-- Type quantifiers: k_m : Nat, k_m ≥ 0, k_n : Nat, k_n ≥ 0, k_n ≥ 1 -/
 def shift_bits_right_arith (value : (BitVec k_n)) (shift : (BitVec k_m)) : (BitVec k_n) :=
   (shift_right_arith value (BitVec.toNat shift))
 
-/-- Type quantifiers: k_m : Nat, shift : Nat, k_m ≥ shift ∧ shift ≥ 0 -/
+/-- Type quantifiers: k_m : Nat, k_m ≥ 0, shift : Nat, k_m ≥ shift ∧ shift ≥ 0 -/
 def rotater (value : (BitVec k_m)) (shift : Nat) : (BitVec k_m) :=
   ((shiftr value shift) ||| (shiftl value ((Sail.BitVec.length value) -i shift)))
 
-/-- Type quantifiers: k_m : Nat, shift : Nat, k_m ≥ shift ∧ shift ≥ 0 -/
+/-- Type quantifiers: k_m : Nat, k_m ≥ 0, shift : Nat, k_m ≥ shift ∧ shift ≥ 0 -/
 def rotatel (value : (BitVec k_m)) (shift : Nat) : (BitVec k_m) :=
   ((shiftl value shift) ||| (shiftr value ((Sail.BitVec.length value) -i shift)))
 
-/-- Type quantifiers: k_m : Nat, k_n : Nat, k_n ≥ 0 ∧ k_m ≥ (2 ^ k_n) -/
+/-- Type quantifiers: k_m : Nat, k_m ≥ 0, k_n : Nat, k_n ≥ 0, k_n ≥ 0 ∧ k_m ≥ (2 ^ k_n) -/
 def rotate_bits_right (value : (BitVec k_m)) (shift : (BitVec k_n)) : (BitVec k_m) :=
   (rotater value (BitVec.toNat shift))
 
-/-- Type quantifiers: k_m : Nat, k_n : Nat, k_n ≥ 0 ∧ k_m ≥ (2 ^ k_n) -/
+/-- Type quantifiers: k_m : Nat, k_m ≥ 0, k_n : Nat, k_n ≥ 0, k_n ≥ 0 ∧ k_m ≥ (2 ^ k_n) -/
 def rotate_bits_left (value : (BitVec k_m)) (shift : (BitVec k_n)) : (BitVec k_m) :=
   (rotatel value (BitVec.toNat shift))
 
-/-- Type quantifiers: k_n : Nat, k_n > 0 -/
+/-- Type quantifiers: k_n : Nat, k_n ≥ 0, k_n > 0 -/
 def reverse_bits (xs : (BitVec k_n)) : (BitVec k_n) := Id.run do
   let ys : (BitVec k_n) := (zeros (n := (Sail.BitVec.length xs)))
   let loop_i_lower := 0
@@ -391,7 +391,7 @@ def log2 (n : Nat) : Int :=
   | 32 => 5
   | _ => 6
 
-/-- Type quantifiers: k_n : Int -/
+/-- Type quantifiers: k_n : Nat, k_n ≥ 0 -/
 def hex_bits_str (x : (BitVec k_n)) : String :=
   (BitVec.toFormatted
     (zero_extend

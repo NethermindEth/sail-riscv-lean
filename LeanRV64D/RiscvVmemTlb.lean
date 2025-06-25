@@ -176,11 +176,11 @@ def tlb_vpn_bits := (57 -i 12)
 
 def tlb_ppn_bits := 44
 
-/-- Type quantifiers: pte_width : Nat, pte_width ∈ {4, 8} -/
+/-- Type quantifiers: pte_width : Nat, pte_width ≥ 0, pte_width ∈ {4, 8} -/
 def tlb_get_pte (pte_width : Nat) (ent : TLB_Entry) : (BitVec (pte_width * 8)) :=
   (Sail.BitVec.extractLsb ent.pte ((pte_width *i 8) -i 1) 0)
 
-/-- Type quantifiers: k_n : Nat, k_n ∈ {4, 8} -/
+/-- Type quantifiers: k_n : Nat, k_n ≥ 0, k_n ∈ {4, 8} -/
 def tlb_set_pte (ent : TLB_Entry) (pte : (BitVec (k_n * 8))) : TLB_Entry :=
   { ent with pte := (zero_extend (m := 64) pte) }
 

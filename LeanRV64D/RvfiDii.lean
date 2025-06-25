@@ -1041,7 +1041,7 @@ def print_rvfi_exec (_ : Unit) : SailM Unit := do
   (pure (print_bits "rvfi_order    : "
       (_get_RVFI_DII_Execution_Packet_InstMetaData_rvfi_order (← readReg rvfi_inst_data))))
 
-/-- Type quantifiers: width : Nat, 0 < width ∧ width ≤ max_mem_access -/
+/-- Type quantifiers: width : Nat, width ≥ 0, 0 < width ∧ width ≤ max_mem_access -/
 def rvfi_write (paddr : (BitVec (2 ^ 3 * 8))) (width : Nat) (value : (BitVec (8 * width))) : SailM Unit := do
   writeReg rvfi_mem_data (Sail.BitVec.updateSubrange (← readReg rvfi_mem_data) 703 640
     (zero_extend (m := 64) paddr))
@@ -1055,7 +1055,7 @@ def rvfi_write (paddr : (BitVec (2 ^ 3 * 8))) (width : Nat) (value : (BitVec (8 
         (rvfi_encode_width_mask width)))
   else (internal_error "rvfi_dii.sail" 232 "Expected at most 16 bytes here!")
 
-/-- Type quantifiers: width : Nat, width > 0 -/
+/-- Type quantifiers: width : Nat, width ≥ 0, width > 0 -/
 def rvfi_read (paddr : (BitVec (2 ^ 3 * 8))) (width : Nat) (value : (BitVec (8 * width))) : SailM Unit := do
   writeReg rvfi_mem_data (Sail.BitVec.updateSubrange (← readReg rvfi_mem_data) 703 640
     (zero_extend (m := 64) paddr))

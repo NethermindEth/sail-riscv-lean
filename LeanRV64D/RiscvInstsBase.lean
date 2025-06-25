@@ -536,7 +536,7 @@ def rtype_mnemonic_backwards_matches (arg_ : String) : Bool :=
 def valid_load_encdec (width : word_width) (is_unsigned : Bool) : Bool :=
   (((size_bytes_forwards width) <b xlen_bytes) || ((not is_unsigned) && (((size_bytes_forwards width) ≤b xlen_bytes) : Bool)))
 
-/-- Type quantifiers: k_ex381264# : Bool, k_n : Nat, 0 < k_n ∧ k_n ≤ xlen -/
+/-- Type quantifiers: k_ex381264# : Bool, k_n : Nat, k_n ≥ 0, 0 < k_n ∧ k_n ≤ xlen -/
 def extend_value (is_unsigned : Bool) (value : (BitVec k_n)) : (BitVec (2 ^ 3 * 8)) :=
   bif is_unsigned
   then (zero_extend (m := ((2 ^i 3) *i 8)) value)

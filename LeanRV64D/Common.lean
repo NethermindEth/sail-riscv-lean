@@ -176,11 +176,11 @@ open ExceptionType
 open Architecture
 open AccessType
 
-/-- Type quantifiers: k_n : Nat, k_n > 0 -/
+/-- Type quantifiers: k_n : Nat, k_n ≥ 0, k_n > 0 -/
 def sail_instr_announce (x_0 : (BitVec k_n)) : Unit :=
   ()
 
-/-- Type quantifiers: x_0 : Nat, x_0 ∈ {32, 64} -/
+/-- Type quantifiers: x_0 : Nat, x_0 ≥ 0, x_0 ∈ {32, 64} -/
 def sail_branch_announce (x_0 : Nat) (x_1 : (BitVec x_0)) : Unit :=
   ()
 
@@ -206,7 +206,7 @@ def sail_ignore_write_to (reg : (RegisterRef k_a)) : Unit :=
 def sail_pick_dependency (reg : (RegisterRef k_a)) : Unit :=
   (sail_mark_register reg "pick")
 
-/-- Type quantifiers: k_n : Nat, k_n ≥ 0 -/
+/-- Type quantifiers: k_n : Nat, k_n ≥ 0, k_n ≥ 0 -/
 def __monomorphize (bv : (BitVec k_n)) : (BitVec k_n) :=
   bv
 

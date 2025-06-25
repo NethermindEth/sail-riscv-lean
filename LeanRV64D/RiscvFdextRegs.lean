@@ -177,7 +177,7 @@ open ExceptionType
 open Architecture
 open AccessType
 
-/-- Type quantifiers: n : Nat, n ∈ {16, 32, 64, 128} -/
+/-- Type quantifiers: n : Nat, n ≥ 0, n ∈ {16, 32, 64, 128} -/
 def canonical_NaN {n : _} : (BitVec n) :=
   match n with
   | 16 => ((0b0 : (BitVec 1)) ++ ((ones (n := 5)) ++ ((0b1 : (BitVec 1)) ++ (zeros (n := 9)))))
@@ -197,11 +197,11 @@ def canonical_NaN_D (_ : Unit) : (BitVec 64) :=
 def canonical_NaN_Q (_ : Unit) : (BitVec 128) :=
   (canonical_NaN (n := 128))
 
-/-- Type quantifiers: k_n : Int, n : Int, k_n ≤ n -/
+/-- Type quantifiers: k_n : Nat, k_n ≥ 0, n : Nat, n ≥ 0, k_n ≤ n -/
 def nan_box {n : _} (x : (BitVec k_n)) : (BitVec n) :=
   ((ones (n := (n -i (Sail.BitVec.length x)))) ++ x)
 
-/-- Type quantifiers: k_n : Nat, m : Nat, m ∈ {16, 32, 64, 128} ∧ k_n ≥ m -/
+/-- Type quantifiers: k_n : Nat, k_n ≥ 0, m : Nat, m ≥ 0, m ∈ {16, 32, 64, 128} ∧ k_n ≥ m -/
 def nan_unbox {m : _} (x : (BitVec k_n)) : (BitVec m) :=
   bif ((Sail.BitVec.length x) == m)
   then x

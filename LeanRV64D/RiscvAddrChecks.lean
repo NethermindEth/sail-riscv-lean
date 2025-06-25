@@ -198,7 +198,7 @@ def ext_handle_data_check_error (err : Unit) : Unit :=
 def ext_check_phys_mem_read (access_type : (AccessType Unit)) (paddr : physaddr) (size : Nat) (acquire : Bool) (release : Bool) (reserved : Bool) (read_meta : Bool) : Ext_PhysAddr_Check :=
   (Ext_PhysAddr_OK ())
 
-/-- Type quantifiers: size : Nat, 0 < size ∧ size ≤ max_mem_access -/
+/-- Type quantifiers: size : Nat, size ≥ 0, 0 < size ∧ size ≤ max_mem_access -/
 def ext_check_phys_mem_write (write_kind : write_kind) (paddr : physaddr) (size : Nat) (data : (BitVec (8 * size))) (metadata : Unit) : Ext_PhysAddr_Check :=
   (Ext_PhysAddr_OK ())
 

@@ -176,7 +176,7 @@ open ExceptionType
 open Architecture
 open AccessType
 
-/-- Type quantifiers: k_n : Nat, k_n > 0 -/
+/-- Type quantifiers: k_n : Nat, k_n ≥ 0, k_n > 0 -/
 def hex_bits_signed_forwards (bv : (BitVec k_n)) : (Nat × String) :=
   let len := (Sail.BitVec.length bv)
   let s :=
@@ -185,11 +185,11 @@ def hex_bits_signed_forwards (bv : (BitVec k_n)) : (Nat × String) :=
     else (Int.toHex (BitVec.toNat bv))
   ((Sail.BitVec.length bv), s)
 
-/-- Type quantifiers: k_n : Nat, k_n > 0 -/
+/-- Type quantifiers: k_n : Nat, k_n ≥ 0, k_n > 0 -/
 def hex_bits_signed_forwards_matches (bv : (BitVec k_n)) : Bool :=
   true
 
-/-- Type quantifiers: tuple_0.1 : Nat, tuple_0.1 > 0 -/
+/-- Type quantifiers: tuple_0.1 : Nat, tuple_0.1 ≥ 0, tuple_0.1 > 0 -/
 def hex_bits_signed_backwards (tuple_0 : (Nat × String)) : (BitVec tuple_0.1) :=
   let (n, str) := tuple_0
   bif ((String.take str 1) == "-")
@@ -200,7 +200,7 @@ def hex_bits_signed_backwards (tuple_0 : (Nat × String)) : (BitVec tuple_0.1) :
     then parsed
     else (BitVec.zero n))
 
-/-- Type quantifiers: tuple_0.1 : Nat, tuple_0.1 > 0 -/
+/-- Type quantifiers: tuple_0.1 : Nat, tuple_0.1 ≥ 0, tuple_0.1 > 0 -/
 def hex_bits_signed_backwards_matches (tuple_0 : (Nat × String)) : Bool :=
   let (n, str) := tuple_0
   bif ((String.take str 1) == "-")

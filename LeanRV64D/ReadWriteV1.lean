@@ -243,7 +243,7 @@ def mem_write_request_is_exclusive (request : (Mem_write_request k_n k_vasize k_
     | _ => false)
   | _ => false
 
-/-- Type quantifiers: x_0 : Nat, x_0 ∈ {32, 64} -/
+/-- Type quantifiers: x_0 : Nat, x_0 ≥ 0, x_0 ∈ {32, 64} -/
 def sail_address_announce (x_0 : Nat) (x_1 : (BitVec x_0)) : Unit :=
   ()
 

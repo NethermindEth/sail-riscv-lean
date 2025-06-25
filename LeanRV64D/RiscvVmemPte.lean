@@ -191,14 +191,14 @@ def _set_PTE_Ext_PBMT (r_ref : (RegisterRef (BitVec 10))) (v : (BitVec 2)) : Sai
 
 def default_sv32_ext_pte : pte_ext_bits := (zeros (n := 10))
 
-/-- Type quantifiers: k_pte_size : Nat, k_pte_size ∈ {32, 64} -/
+/-- Type quantifiers: k_pte_size : Nat, k_pte_size ≥ 0, k_pte_size ∈ {32, 64} -/
 def ext_bits_of_PTE (pte : (BitVec k_pte_size)) : (BitVec 10) :=
   (Mk_PTE_Ext
     (bif ((Sail.BitVec.length pte) == 64)
     then (Sail.BitVec.extractLsb pte 63 54)
     else default_sv32_ext_pte))
 
-/-- Type quantifiers: k_pte_size : Nat, k_pte_size ∈ {32, 64} -/
+/-- Type quantifiers: k_pte_size : Nat, k_pte_size ≥ 0, k_pte_size ∈ {32, 64} -/
 def PPN_of_PTE (pte : (BitVec k_pte_size)) : (BitVec (bif k_pte_size = 32 then 22 else 44)) :=
   bif ((Sail.BitVec.length pte) == 32)
   then (Sail.BitVec.extractLsb pte 31 10)
@@ -250,7 +250,7 @@ def check_PTE_permission (ac : (AccessType Unit)) (priv : Privilege) (mxr : Bool
   then (pure (PTE_Check_Success ()))
   else (pure (PTE_Check_Failure ((), ())))
 
-/-- Type quantifiers: k_pte_size : Nat, k_pte_size ∈ {32, 64} -/
+/-- Type quantifiers: k_pte_size : Nat, k_pte_size ≥ 0, k_pte_size ∈ {32, 64} -/
 def update_PTE_Bits (pte : (BitVec k_pte_size)) (a : (AccessType Unit)) : (Option (BitVec k_pte_size)) :=
   let pte_flags := (Mk_PTE_Flags (Sail.BitVec.extractLsb pte 7 0))
   let update_d : Bool :=

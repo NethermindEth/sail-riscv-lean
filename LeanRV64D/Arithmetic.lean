@@ -171,7 +171,7 @@ open ExceptionType
 open Architecture
 open AccessType
 
-/-- Type quantifiers: k_m : Nat, k_m ≥ 0 ∧ (k_m % 8) = 0 -/
+/-- Type quantifiers: k_m : Nat, k_m ≥ 0, k_m ≥ 0 ∧ (k_m % 8) = 0 -/
 def brev8 (input : (BitVec k_m)) : (BitVec k_m) := Id.run do
   let output : (BitVec k_m) := (zeros (n := (Sail.BitVec.length input)))
   let loop_i_lower := 0
@@ -184,7 +184,7 @@ def brev8 (input : (BitVec k_m)) : (BitVec k_m) := Id.run do
         (reverse_bits (Sail.BitVec.extractLsb input (i +i 7) i)))
   (pure loop_vars)
 
-/-- Type quantifiers: k_n : Nat, k_n > 0 -/
+/-- Type quantifiers: k_n : Nat, k_n ≥ 0, k_n > 0 -/
 def carryless_mul (a : (BitVec k_n)) (b : (BitVec k_n)) : (BitVec (2 * k_n)) := Id.run do
   let result : (BitVec (2 * k_n)) := (zeros (n := (2 *i (Sail.BitVec.length b))))
   let loop_i_lower := 0
@@ -198,7 +198,7 @@ def carryless_mul (a : (BitVec k_n)) (b : (BitVec k_n)) : (BitVec (2 * k_n)) := 
       else result
   (pure loop_vars)
 
-/-- Type quantifiers: k_n : Nat, k_n > 0 -/
+/-- Type quantifiers: k_n : Nat, k_n ≥ 0, k_n > 0 -/
 def carryless_mulr (a : (BitVec k_n)) (b : (BitVec k_n)) : (BitVec k_n) := Id.run do
   let result : (BitVec k_n) := (zeros (n := (Sail.BitVec.length b)))
   let loop_i_lower := 0
@@ -212,7 +212,7 @@ def carryless_mulr (a : (BitVec k_n)) (b : (BitVec k_n)) : (BitVec k_n) := Id.ru
       else result
   (pure loop_vars)
 
-/-- Type quantifiers: k_n : Nat, k_n > 0 -/
+/-- Type quantifiers: k_n : Nat, k_n ≥ 0, k_n > 0 -/
 def carryless_mul_reversed (a : (BitVec k_n)) (b : (BitVec k_n)) : (BitVec k_n) :=
   let prod := (carryless_mul (reverse_bits a) (reverse_bits b))
   (reverse_bits (Sail.BitVec.extractLsb prod ((Sail.BitVec.length b) -i 1) 0))
@@ -220,7 +220,7 @@ def carryless_mul_reversed (a : (BitVec k_n)) (b : (BitVec k_n)) : (BitVec k_n) 
 def cmulr_equivalence (a : (BitVec 16)) (b : (BitVec 16)) : Bool :=
   ((carryless_mul_reversed a b) == (carryless_mulr a b))
 
-/-- Type quantifiers: k_m : Nat, k_m ≥ 0 ∧ (k_m % 8) = 0 -/
+/-- Type quantifiers: k_m : Nat, k_m ≥ 0, k_m ≥ 0 ∧ (k_m % 8) = 0 -/
 def rev8 (input : (BitVec k_m)) : (BitVec k_m) := Id.run do
   let output : (BitVec k_m) := (zeros (n := (Sail.BitVec.length input)))
   let loop_i_lower := 0
@@ -234,7 +234,7 @@ def rev8 (input : (BitVec k_m)) : (BitVec k_m) := Id.run do
           (((Sail.BitVec.length output) -i i) -i 8)))
   (pure loop_vars)
 
-/-- Type quantifiers: k_n : Nat, k_n ≥ 0 -/
+/-- Type quantifiers: k_n : Nat, k_n ≥ 0, k_n ≥ 0 -/
 def count_ones (x : (BitVec k_n)) : SailM Nat := do
   let count : Nat := 0
   let loop_i_lower := 0

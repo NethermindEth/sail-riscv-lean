@@ -176,7 +176,7 @@ open ExceptionType
 open Architecture
 open AccessType
 
-/-- Type quantifiers: k_n : Int -/
+/-- Type quantifiers: k_n : Nat, k_n ≥ 0 -/
 def concat_str_bits (str : String) (x : (BitVec k_n)) : String :=
   (HAppend.hAppend str (BitVec.toFormatted x))
 

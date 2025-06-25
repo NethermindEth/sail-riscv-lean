@@ -176,20 +176,20 @@ open ExceptionType
 open Architecture
 open AccessType
 
-/-- Type quantifiers: k_n : Nat, k_n > 0 -/
+/-- Type quantifiers: k_n : Nat, k_n ≥ 0, k_n > 0 -/
 def dec_bits_forwards (bv : (BitVec k_n)) : (Nat × String) :=
   ((Sail.BitVec.length bv), (Int.repr (BitVec.toNat bv)))
 
-/-- Type quantifiers: k_n : Nat, k_n > 0 -/
+/-- Type quantifiers: k_n : Nat, k_n ≥ 0, k_n > 0 -/
 def dec_bits_forwards_matches (bv : (BitVec k_n)) : Bool :=
   true
 
-/-- Type quantifiers: tuple_0.1 : Nat, tuple_0.1 > 0 -/
+/-- Type quantifiers: tuple_0.1 : Nat, tuple_0.1 ≥ 0, tuple_0.1 > 0 -/
 def dec_bits_backwards (tuple_0 : (Nat × String)) : (BitVec tuple_0.1) :=
   let (n, str) := tuple_0
   (parse_dec_bits n str)
 
-/-- Type quantifiers: tuple_0.1 : Nat, tuple_0.1 > 0 -/
+/-- Type quantifiers: tuple_0.1 : Nat, tuple_0.1 ≥ 0, tuple_0.1 > 0 -/
 def dec_bits_backwards_matches (tuple_0 : (Nat × String)) : Bool :=
   let (n, str) := tuple_0
   (valid_dec_bits n str)

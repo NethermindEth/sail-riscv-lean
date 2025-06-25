@@ -313,7 +313,7 @@ def fle_D (v1 : (BitVec 64)) (v2 : (BitVec 64)) (is_quiet : Bool) : (Bool × (Bi
 def haveDoubleFPU (_ : Unit) : SailM Bool := do
   (pure ((← (currentlyEnabled Ext_D)) || (← (currentlyEnabled Ext_Zdinx))))
 
-/-- Type quantifiers: n : Nat, n > 0 -/
+/-- Type quantifiers: n : Nat, n ≥ 0, n > 0 -/
 def validDoubleRegs {n : _} (regs : (Vector fregidx n)) : Bool :=
   true
 

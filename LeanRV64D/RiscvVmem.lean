@@ -183,11 +183,11 @@ open ExceptionType
 open Architecture
 open AccessType
 
-/-- Type quantifiers: pte_size : Nat, pte_size ∈ {4, 8} -/
+/-- Type quantifiers: pte_size : Nat, pte_size ≥ 0, pte_size ∈ {4, 8} -/
 def write_pte (paddr : physaddr) (pte_size : Nat) (pte : (BitVec (pte_size * 8))) : SailM (Result Bool ExceptionType) := do
   (mem_write_value_priv paddr pte_size pte Supervisor false false false)
 
-/-- Type quantifiers: pte_size : Nat, pte_size ∈ {4, 8} -/
+/-- Type quantifiers: pte_size : Nat, pte_size ≥ 0, pte_size ∈ {4, 8} -/
 def read_pte (paddr : physaddr) (pte_size : Nat) : SailM (Result (BitVec (8 * pte_size)) ExceptionType) := do
   (mem_read_priv (Read Data) Supervisor paddr pte_size false false false)
 
@@ -265,13 +265,13 @@ def pt_walk (sv_width : Nat) (vpn : (BitVec (sv_width - 12))) (ac : (AccessType 
                        global := global }, ext_ptw)))))))
 termination_by let (_, _, _, _, _, _, _, level, _, _) := (sv_width, vpn, ac, priv, mxr, do_sum, pt_base, level, global, ext_ptw); (level).toNat
 
-/-- Type quantifiers: k_n : Nat, k_n ∈ {32, 64} -/
+/-- Type quantifiers: k_n : Nat, k_n ≥ 0, k_n ∈ {32, 64} -/
 def satp_to_asid (satp_val : (BitVec k_n)) : (BitVec (bif k_n = 32 then 9 else 16)) :=
   bif ((Sail.BitVec.length satp_val) == 32)
   then (_get_Satp32_Asid (Mk_Satp32 satp_val))
   else (_get_Satp64_Asid (Mk_Satp64 satp_val))
 
-/-- Type quantifiers: k_n : Nat, k_n ∈ {32, 64} -/
+/-- Type quantifiers: k_n : Nat, k_n ≥ 0, k_n ∈ {32, 64} -/
 def satp_to_ppn (satp_val : (BitVec k_n)) : (BitVec (bif k_n = 32 then 22 else 44)) :=
   bif ((Sail.BitVec.length satp_val) == 32)
   then (_get_Satp32_PPN (Mk_Satp32 satp_val))

@@ -172,11 +172,11 @@ open ExceptionType
 open Architecture
 open AccessType
 
-/-- Type quantifiers: x_2 : Nat, 0 < x_2 ∧ x_2 ≤ max_mem_access -/
+/-- Type quantifiers: x_2 : Nat, x_2 ≥ 0, 0 < x_2 ∧ x_2 ≤ max_mem_access -/
 def mem_write_callback (x_0 : String) (x_1 : (BitVec 64)) (x_2 : Nat) (x_3 : (BitVec (8 * x_2))) : Unit :=
   ()
 
-/-- Type quantifiers: x_2 : Nat, 0 < x_2 ∧ x_2 ≤ max_mem_access -/
+/-- Type quantifiers: x_2 : Nat, x_2 ≥ 0, 0 < x_2 ∧ x_2 ≤ max_mem_access -/
 def mem_read_callback (x_0 : String) (x_1 : (BitVec 64)) (x_2 : Nat) (x_3 : (BitVec (8 * x_2))) : Unit :=
   ()
 
