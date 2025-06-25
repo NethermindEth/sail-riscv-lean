@@ -2768,7 +2768,7 @@ def maybe_lmul_flag_backwards (arg_ : (BitVec 3)) : SailM String := do
                               assert false "Pattern match failure at unknown location"
                               throw Error.Exit)))))))
 
-/-- Type quantifiers: k_ex374635# : Bool -/
+/-- Type quantifiers: k_ex374793# : Bool -/
 def maybe_u_forwards (arg_ : Bool) : String :=
   match arg_ with
   | true => "u"
@@ -6073,7 +6073,7 @@ def assembly_forwards (arg_ : ast) : SailM String := do
             (String.append (sep_forwards ())
               (String.append (vreg_name_forwards vs2)
                 (String.append (sep_forwards ())
-                  (String.append (← (hex_bits_5_forwards uimm))
+                  (String.append (← (hex_bits_6_forwards uimm))
                     (String.append (maybe_vmask_backwards vm) "")))))))))
   | .VWSLL_VV (vm, vs2, vs1, vd) =>
     (pure (String.append "vwsll.vv"

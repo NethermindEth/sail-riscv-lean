@@ -224,7 +224,7 @@ def ones {n : _} : (BitVec n) :=
 def trunc {m : _} (v : (BitVec k_n)) : (BitVec m) :=
   (Sail.BitVec.truncate v m)
 
-/-- Type quantifiers: k_ex373699# : Bool -/
+/-- Type quantifiers: k_ex373857# : Bool -/
 def bool_bit_forwards (arg_ : Bool) : (BitVec 1) :=
   match arg_ with
   | true => 1#1
@@ -239,7 +239,7 @@ def bool_bit_backwards (arg_ : (BitVec 1)) : SailM Bool := do
       assert false "Pattern match failure at unknown location"
       throw Error.Exit)
 
-/-- Type quantifiers: k_ex373700# : Bool -/
+/-- Type quantifiers: k_ex373858# : Bool -/
 def bool_bit_forwards_matches (arg_ : Bool) : Bool :=
   match arg_ with
   | true => true
@@ -251,7 +251,7 @@ def bool_bit_backwards_matches (arg_ : (BitVec 1)) : Bool :=
   | 0#1 => true
   | g__3 => false
 
-/-- Type quantifiers: k_ex373701# : Bool -/
+/-- Type quantifiers: k_ex373859# : Bool -/
 def bool_bits_forwards (arg_ : Bool) : (BitVec 1) :=
   match arg_ with
   | true => (0b1 : (BitVec 1))
@@ -263,7 +263,7 @@ def bool_bits_backwards (arg_ : (BitVec 1)) : Bool :=
   then true
   else false
 
-/-- Type quantifiers: k_ex373703# : Bool -/
+/-- Type quantifiers: k_ex373861# : Bool -/
 def bool_bits_forwards_matches (arg_ : Bool) : Bool :=
   match arg_ with
   | true => true
@@ -278,14 +278,14 @@ def bool_bits_backwards_matches (arg_ : (BitVec 1)) : Bool :=
     then true
     else false)
 
-/-- Type quantifiers: k_ex373706# : Bool -/
+/-- Type quantifiers: k_ex373864# : Bool -/
 def bool_to_bit (x : Bool) : (BitVec 1) :=
   (bool_bit_forwards x)
 
 def bit_to_bool (x : (BitVec 1)) : SailM Bool := do
   (bool_bit_backwards x)
 
-/-- Type quantifiers: k_ex373708# : Bool -/
+/-- Type quantifiers: k_ex373866# : Bool -/
 def bool_to_bits (x : Bool) : (BitVec 1) :=
   (bool_bits_forwards x)
 

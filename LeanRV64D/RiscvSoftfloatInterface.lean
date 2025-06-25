@@ -467,19 +467,19 @@ def riscv_f64Eq (v1 : (BitVec 64)) (v2 : (BitVec 64)) : SailM ((BitVec 5) × Boo
   (pure ((Sail.BitVec.extractLsb (← readReg float_fflags) 4 0), (← (bit_to_bool
         (BitVec.access (← readReg float_result) 0)))))
 
-/-- Type quantifiers: k_ex377572# : Bool -/
+/-- Type quantifiers: k_ex377730# : Bool -/
 def riscv_f16roundToInt (rm : (BitVec 3)) (v : (BitVec 16)) (exact : Bool) : SailM ((BitVec 5) × (BitVec 16)) := do
   let _ : Unit := (extern_f16roundToInt rm v exact)
   (pure ((Sail.BitVec.extractLsb (← readReg float_fflags) 4 0), (Sail.BitVec.extractLsb
       (← readReg float_result) 15 0)))
 
-/-- Type quantifiers: k_ex377576# : Bool -/
+/-- Type quantifiers: k_ex377734# : Bool -/
 def riscv_f32roundToInt (rm : (BitVec 3)) (v : (BitVec 32)) (exact : Bool) : SailM ((BitVec 5) × (BitVec 32)) := do
   let _ : Unit := (extern_f32roundToInt rm v exact)
   (pure ((Sail.BitVec.extractLsb (← readReg float_fflags) 4 0), (Sail.BitVec.extractLsb
       (← readReg float_result) 31 0)))
 
-/-- Type quantifiers: k_ex377580# : Bool -/
+/-- Type quantifiers: k_ex377738# : Bool -/
 def riscv_f64roundToInt (rm : (BitVec 3)) (v : (BitVec 64)) (exact : Bool) : SailM ((BitVec 5) × (BitVec 64)) := do
   let _ : Unit := (extern_f64roundToInt rm v exact)
   (pure ((Sail.BitVec.extractLsb (← readReg float_fflags) 4 0), (← readReg float_result)))

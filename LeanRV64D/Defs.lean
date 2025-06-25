@@ -837,7 +837,7 @@ inductive ast where
   | VROL_VX (_ : ((BitVec 1) × vregidx × regidx × vregidx))
   | VROR_VV (_ : ((BitVec 1) × vregidx × vregidx × vregidx))
   | VROR_VX (_ : ((BitVec 1) × vregidx × regidx × vregidx))
-  | VROR_VI (_ : ((BitVec 1) × vregidx × (BitVec 5) × vregidx))
+  | VROR_VI (_ : ((BitVec 1) × vregidx × (BitVec 6) × vregidx))
   | VWSLL_VV (_ : ((BitVec 1) × vregidx × vregidx × vregidx))
   | VWSLL_VX (_ : ((BitVec 1) × vregidx × regidx × vregidx))
   | VWSLL_VI (_ : ((BitVec 1) × vregidx × (BitVec 5) × vregidx))
