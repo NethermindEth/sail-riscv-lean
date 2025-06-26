@@ -235,7 +235,7 @@ def initialize_registers (_ : Unit) : SailM Unit := do
   writeReg scause (← (undefined_Mcause ()))
   writeReg stval (← (undefined_bitvector ((2 ^i 3) *i 8)))
   writeReg tselect (← (undefined_bitvector ((2 ^i 3) *i 8)))
-  writeReg vstart (← (undefined_bitvector 16))
+  writeReg vstart (← (undefined_bitvector ((2 ^i 3) *i 8)))
   writeReg vl (← (undefined_bitvector ((2 ^i 3) *i 8)))
   writeReg vtype (← (undefined_Vtype ()))
   writeReg pmpcfg_n (← (undefined_vector 64 (← (undefined_Pmpcfg_ent ()))))

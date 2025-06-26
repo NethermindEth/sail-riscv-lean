@@ -480,9 +480,7 @@ def read_CSR (b__0 : (BitVec 12)) : SailM (BitVec (2 ^ 3 * 8)) := do
                                                                                                                                                 (do
                                                                                                                                                   bif (b__0 == (0x008 : (BitVec 12)))
                                                                                                                                                   then
-                                                                                                                                                    (pure (zero_extend
-                                                                                                                                                        (m := ((2 ^i 3) *i 8))
-                                                                                                                                                        (← readReg vstart)))
+                                                                                                                                                    readReg vstart
                                                                                                                                                   else
                                                                                                                                                     (do
                                                                                                                                                       bif (b__0 == (0x009 : (BitVec 12)))
@@ -1239,9 +1237,7 @@ def write_CSR (b__0 : (BitVec 12)) (value : (BitVec (2 ^ 3 * 8))) : SailM (BitVe
                                                                                                                                                       value
                                                                                                                                                       15
                                                                                                                                                       0))
-                                                                                                                                                  (pure (zero_extend
-                                                                                                                                                      (m := ((2 ^i 3) *i 8))
-                                                                                                                                                      (← readReg vstart))))
+                                                                                                                                                  readReg vstart)
                                                                                                                                               else
                                                                                                                                                 (do
                                                                                                                                                   bif (b__0 == (0x009 : (BitVec 12)))
@@ -1655,7 +1651,7 @@ def write_CSR (b__0 : (BitVec 12)) (value : (BitVec (2 ^ 3 * 8))) : SailM (BitVe
                                                                                                                                                                                                                                                                     (BitVec.toFormatted
                                                                                                                                                                                                                                                                       b__0))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
 
-/-- Type quantifiers: k_ex376252# : Bool -/
+/-- Type quantifiers: k_ex375967# : Bool -/
 def doCSR (csr : (BitVec 12)) (rs1_val : (BitVec (2 ^ 3 * 8))) (rd : regidx) (op : csrop) (is_CSR_Write : Bool) : SailM ExecutionResult := do
   bif (not (← (check_CSR csr (← readReg cur_privilege) is_CSR_Write)))
   then (pure (Illegal_Instruction ()))

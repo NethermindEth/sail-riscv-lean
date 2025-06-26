@@ -1404,7 +1404,7 @@ abbrev RegisterType : Register → Type
   | .pmpcfg_n => (Vector (BitVec 8) 64)
   | .vtype => (BitVec (2 ^ 3 * 8))
   | .vl => (BitVec (2 ^ 3 * 8))
-  | .vstart => (BitVec 16)
+  | .vstart => (BitVec (2 ^ 3 * 8))
   | .tselect => (BitVec (2 ^ 3 * 8))
   | .stval => (BitVec (2 ^ 3 * 8))
   | .scause => (BitVec (2 ^ 3 * 8))
@@ -1488,8 +1488,6 @@ instance : Inhabited (RegisterRef RegisterType (BitVec 1)) where
   default := .Reg htif_cmd_write
 instance : Inhabited (RegisterRef RegisterType (BitVec 128)) where
   default := .Reg rvfi_pc_data
-instance : Inhabited (RegisterRef RegisterType (BitVec 16)) where
-  default := .Reg vstart
 instance : Inhabited (RegisterRef RegisterType (BitVec 192)) where
   default := .Reg rvfi_inst_data
 instance : Inhabited (RegisterRef RegisterType (BitVec 3)) where
