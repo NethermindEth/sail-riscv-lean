@@ -255,6 +255,9 @@ def _update_Satp32_bits (v : (BitVec 32)) (x : (BitVec 32)) : (BitVec 32) :=
 def _update_Satp64_bits (v : (BitVec 64)) (x : (BitVec 64)) : (BitVec 64) :=
   (Sail.BitVec.updateSubrange v (64 -i 1) 0 x)
 
+def _update_Seccfg_bits (v : (BitVec 64)) (x : (BitVec 64)) : (BitVec 64) :=
+  (Sail.BitVec.updateSubrange v (64 -i 1) 0 x)
+
 def _update_Sinterrupts_bits (v : (BitVec (2 ^ 3 * 8))) (x : (BitVec 64)) : (BitVec (2 ^ 3 * 8)) :=
   (Sail.BitVec.updateSubrange v (((2 ^i 3) *i 8) -i 1) 0 x)
 
@@ -344,6 +347,9 @@ def _get_Satp32_bits (v : (BitVec 32)) : (BitVec 32) :=
   (Sail.BitVec.extractLsb v (32 -i 1) 0)
 
 def _get_Satp64_bits (v : (BitVec 64)) : (BitVec 64) :=
+  (Sail.BitVec.extractLsb v (64 -i 1) 0)
+
+def _get_Seccfg_bits (v : (BitVec 64)) : (BitVec 64) :=
   (Sail.BitVec.extractLsb v (64 -i 1) 0)
 
 def _get_Sinterrupts_bits (v : (BitVec (2 ^ 3 * 8))) : (BitVec 64) :=
@@ -456,6 +462,10 @@ def _set_Satp32_bits (r_ref : (RegisterRef (BitVec 32))) (v : (BitVec 32)) : Sai
 def _set_Satp64_bits (r_ref : (RegisterRef (BitVec 64))) (v : (BitVec 64)) : SailM Unit := do
   let r ← do (reg_deref r_ref)
   writeRegRef r_ref (_update_Satp64_bits r v)
+
+def _set_Seccfg_bits (r_ref : (RegisterRef (BitVec 64))) (v : (BitVec 64)) : SailM Unit := do
+  let r ← do (reg_deref r_ref)
+  writeRegRef r_ref (_update_Seccfg_bits r v)
 
 def _set_Sinterrupts_bits (r_ref : (RegisterRef (BitVec (2 ^ 3 * 8)))) (v : (BitVec 64)) : SailM Unit := do
   let r ← do (reg_deref r_ref)

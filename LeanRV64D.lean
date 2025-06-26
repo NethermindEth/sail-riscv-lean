@@ -332,6 +332,7 @@ def sail_model_init (x_0 : Unit) : SailM Unit := do
     (bif ((xlen != 32) && (hartSupports Ext_U))
     then mxl
     else (zeros (n := 2)))))
+  writeReg mseccfg (← (legalize_mseccfg (Mk_Seccfg (zeros (n := 64))) (zeros (n := 64))))
   writeReg menvcfg (← (legalize_menvcfg (Mk_MEnvcfg (zeros (n := 64))) (zeros (n := 64))))
   writeReg senvcfg (← (legalize_senvcfg (Mk_SEnvcfg (zeros (n := 64)))
       (zeros (n := ((2 ^i 3) *i 8)))))

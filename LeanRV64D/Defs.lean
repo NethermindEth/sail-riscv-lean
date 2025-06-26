@@ -920,6 +920,8 @@ abbrev Misa := (BitVec (2 ^ 3 * 8))
 
 abbrev Mstatus := (BitVec 64)
 
+abbrev Seccfg := (BitVec 64)
+
 abbrev MEnvcfg := (BitVec 64)
 
 abbrev SEnvcfg := (BitVec (2 ^ 3 * 8))
@@ -1266,6 +1268,7 @@ inductive Register : Type where
   | mie
   | senvcfg
   | menvcfg
+  | mseccfg
   | mstatus
   | misa
   | cur_inst
@@ -1436,6 +1439,7 @@ abbrev RegisterType : Register → Type
   | .mie => (BitVec (2 ^ 3 * 8))
   | .senvcfg => (BitVec (2 ^ 3 * 8))
   | .menvcfg => (BitVec 64)
+  | .mseccfg => (BitVec 64)
   | .mstatus => (BitVec 64)
   | .misa => (BitVec (2 ^ 3 * 8))
   | .cur_inst => (BitVec (2 ^ 3 * 8))

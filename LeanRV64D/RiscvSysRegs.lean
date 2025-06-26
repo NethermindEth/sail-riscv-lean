@@ -1194,6 +1194,49 @@ def cur_architecture (_ : Unit) : SailM Architecture := do
 def in32BitMode (_ : Unit) : SailM Bool := do
   (pure ((← (cur_architecture ())) == RV32))
 
+def undefined_Seccfg (_ : Unit) : SailM (BitVec 64) := do
+  (undefined_bitvector 64)
+
+def Mk_Seccfg (v : (BitVec 64)) : (BitVec 64) :=
+  v
+
+def _get_Seccfg_SSEED (v : (BitVec 64)) : (BitVec 1) :=
+  (Sail.BitVec.extractLsb v 9 9)
+
+def _update_Seccfg_SSEED (v : (BitVec 64)) (x : (BitVec 1)) : (BitVec 64) :=
+  (Sail.BitVec.updateSubrange v 9 9 x)
+
+def _set_Seccfg_SSEED (r_ref : (RegisterRef (BitVec 64))) (v : (BitVec 1)) : SailM Unit := do
+  let r ← do (reg_deref r_ref)
+  writeRegRef r_ref (_update_Seccfg_SSEED r v)
+
+def _get_Seccfg_USEED (v : (BitVec 64)) : (BitVec 1) :=
+  (Sail.BitVec.extractLsb v 8 8)
+
+def _update_Seccfg_USEED (v : (BitVec 64)) (x : (BitVec 1)) : (BitVec 64) :=
+  (Sail.BitVec.updateSubrange v 8 8 x)
+
+def _set_Seccfg_USEED (r_ref : (RegisterRef (BitVec 64))) (v : (BitVec 1)) : SailM Unit := do
+  let r ← do (reg_deref r_ref)
+  writeRegRef r_ref (_update_Seccfg_USEED r v)
+
+def legalize_mseccfg (o : (BitVec 64)) (v : (BitVec 64)) : SailM (BitVec 64) := do
+  let sseed_read_only_zero ← do
+    (pure ((false : Bool) || ((not (← (currentlyEnabled Ext_S))) || (not
+            (← (currentlyEnabled Ext_Zkr))))))
+  let useed_read_only_zero ← do
+    (pure ((false : Bool) || ((not (← (currentlyEnabled Ext_U))) || (not
+            (← (currentlyEnabled Ext_Zkr))))))
+  let v := (Mk_Seccfg v)
+  (pure (_update_Seccfg_USEED
+      (_update_Seccfg_SSEED o
+        (bif sseed_read_only_zero
+        then (0b0 : (BitVec 1))
+        else (_get_Seccfg_SSEED v)))
+      (bif useed_read_only_zero
+      then (0b0 : (BitVec 1))
+      else (_get_Seccfg_USEED v))))
+
 def undefined_MEnvcfg (_ : Unit) : SailM (BitVec 64) := do
   (undefined_bitvector 64)
 
