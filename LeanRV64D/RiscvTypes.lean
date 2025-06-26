@@ -2780,7 +2780,7 @@ def maybe_lmul_flag_backwards (arg_ : (BitVec 3)) : SailM String := do
                               assert false "Pattern match failure at unknown location"
                               throw Error.Exit)))))))
 
-/-- Type quantifiers: k_ex375270# : Bool -/
+/-- Type quantifiers: k_ex368095# : Bool -/
 def maybe_u_forwards (arg_ : Bool) : String :=
   match arg_ with
   | true => "u"
@@ -3670,7 +3670,21 @@ def assembly_forwards (arg_ : ast) : SailM String := do
                     (String.append (sep_forwards ())
                       (String.append "("
                         (String.append (← (reg_name_forwards rs1)) (String.append ")" ""))))))))))))
-  | .C_NOP () => (pure "c.nop")
+  | .C_NOP b__0 =>
+    (do
+      bif (b__0 == (0b000000 : (BitVec 6)))
+      then (pure "c.nop")
+      else
+        (do
+          bif (b__0 != (zeros (n := 6)))
+          then
+            (pure (String.append "c.nop"
+                (String.append (spc_forwards ())
+                  (String.append (← (hex_bits_signed_6_forwards b__0)) ""))))
+          else
+            (do
+              assert false "Pattern match failure at unknown location"
+              throw Error.Exit)))
   | .C_ADDI4SPN (rdc, nzimm) =>
     (do
       bif (nzimm != (0x00 : (BitVec 8)))
@@ -3738,15 +3752,15 @@ def assembly_forwards (arg_ : ast) : SailM String := do
         (do
           assert false "Pattern match failure at unknown location"
           throw Error.Exit))
-  | .C_ADDI (nzi, rsd) =>
+  | .C_ADDI (imm, rsd) =>
     (do
-      bif ((nzi != (0b000000 : (BitVec 6))) && (bne rsd zreg))
+      bif (bne rsd zreg)
       then
         (pure (String.append "c.addi"
             (String.append (spc_forwards ())
               (String.append (← (reg_name_forwards rsd))
                 (String.append (sep_forwards ())
-                  (String.append (← (hex_bits_signed_6_forwards nzi)) ""))))))
+                  (String.append (← (hex_bits_signed_6_forwards imm)) ""))))))
       else
         (do
           assert false "Pattern match failure at unknown location"
@@ -3777,18 +3791,11 @@ def assembly_forwards (arg_ : ast) : SailM String := do
           assert false "Pattern match failure at unknown location"
           throw Error.Exit))
   | .C_LI (imm, rd) =>
-    (do
-      bif (bne rd zreg)
-      then
-        (pure (String.append "c.li"
-            (String.append (spc_forwards ())
-              (String.append (← (reg_name_forwards rd))
-                (String.append (sep_forwards ())
-                  (String.append (← (hex_bits_signed_6_forwards imm)) ""))))))
-      else
-        (do
-          assert false "Pattern match failure at unknown location"
-          throw Error.Exit))
+    (pure (String.append "c.li"
+        (String.append (spc_forwards ())
+          (String.append (← (reg_name_forwards rd))
+            (String.append (sep_forwards ())
+              (String.append (← (hex_bits_signed_6_forwards imm)) ""))))))
   | .C_ADDI16SP imm =>
     (do
       bif (imm != (0b000000 : (BitVec 6)))
@@ -3806,7 +3813,7 @@ def assembly_forwards (arg_ : ast) : SailM String := do
           throw Error.Exit))
   | .C_LUI (imm, rd) =>
     (do
-      bif ((bne rd zreg) && ((bne rd sp) && (imm != (0b000000 : (BitVec 6)))))
+      bif ((bne rd sp) && (imm != (0b000000 : (BitVec 6))))
       then
         (pure (String.append "c.lui"
             (String.append (spc_forwards ())
@@ -3818,31 +3825,15 @@ def assembly_forwards (arg_ : ast) : SailM String := do
           assert false "Pattern match failure at unknown location"
           throw Error.Exit))
   | .C_SRLI (shamt, rsd) =>
-    (do
-      bif (shamt != (0b000000 : (BitVec 6)))
-      then
-        (pure (String.append "c.srli"
-            (String.append (spc_forwards ())
-              (String.append (← (creg_name_forwards rsd))
-                (String.append (sep_forwards ())
-                  (String.append (← (hex_bits_6_forwards shamt)) ""))))))
-      else
-        (do
-          assert false "Pattern match failure at unknown location"
-          throw Error.Exit))
+    (pure (String.append "c.srli"
+        (String.append (spc_forwards ())
+          (String.append (← (creg_name_forwards rsd))
+            (String.append (sep_forwards ()) (String.append (← (hex_bits_6_forwards shamt)) ""))))))
   | .C_SRAI (shamt, rsd) =>
-    (do
-      bif (shamt != (0b000000 : (BitVec 6)))
-      then
-        (pure (String.append "c.srai"
-            (String.append (spc_forwards ())
-              (String.append (← (creg_name_forwards rsd))
-                (String.append (sep_forwards ())
-                  (String.append (← (hex_bits_6_forwards shamt)) ""))))))
-      else
-        (do
-          assert false "Pattern match failure at unknown location"
-          throw Error.Exit))
+    (pure (String.append "c.srai"
+        (String.append (spc_forwards ())
+          (String.append (← (creg_name_forwards rsd))
+            (String.append (sep_forwards ()) (String.append (← (hex_bits_6_forwards shamt)) ""))))))
   | .C_ANDI (imm, rsd) =>
     (pure (String.append "c.andi"
         (String.append (spc_forwards ())
@@ -3913,18 +3904,10 @@ def assembly_forwards (arg_ : ast) : SailM String := do
               (String.append
                 (← (hex_bits_signed_9_forwards ((imm : (BitVec 8)) ++ (0b0 : (BitVec 1))))) ""))))))
   | .C_SLLI (shamt, rsd) =>
-    (do
-      bif ((shamt != (0b000000 : (BitVec 6))) && (bne rsd zreg))
-      then
-        (pure (String.append "c.slli"
-            (String.append (spc_forwards ())
-              (String.append (← (reg_name_forwards rsd))
-                (String.append (sep_forwards ())
-                  (String.append (← (hex_bits_6_forwards shamt)) ""))))))
-      else
-        (do
-          assert false "Pattern match failure at unknown location"
-          throw Error.Exit))
+    (pure (String.append "c.slli"
+        (String.append (spc_forwards ())
+          (String.append (← (reg_name_forwards rsd))
+            (String.append (sep_forwards ()) (String.append (← (hex_bits_6_forwards shamt)) ""))))))
   | .C_LWSP (uimm, rd) =>
     (do
       bif (bne rd zreg)
@@ -4004,7 +3987,7 @@ def assembly_forwards (arg_ : ast) : SailM String := do
           throw Error.Exit))
   | .C_MV (rd, rs2) =>
     (do
-      bif ((bne rd zreg) && (bne rs2 zreg))
+      bif (bne rs2 zreg)
       then
         (pure (String.append "c.mv"
             (String.append (spc_forwards ())
@@ -4017,7 +4000,7 @@ def assembly_forwards (arg_ : ast) : SailM String := do
   | .C_EBREAK () => (pure "c.ebreak")
   | .C_ADD (rsd, rs2) =>
     (do
-      bif ((bne rsd zreg) && (bne rs2 zreg))
+      bif (bne rs2 zreg)
       then
         (pure (String.append "c.add"
             (String.append (spc_forwards ())
@@ -4115,57 +4098,6 @@ def assembly_forwards (arg_ : ast) : SailM String := do
             (String.append (sep_forwards ())
               (String.append (← (csr_name_map_forwards csr))
                 (String.append (sep_forwards ()) (String.append (← (reg_name_forwards rs1)) ""))))))))
-  | .C_NOP_HINT imm =>
-    (pure (String.append "c.nop.hint." (String.append (← (hex_bits_6_forwards imm)) "")))
-  | .C_ADDI_HINT rsd =>
-    (do
-      bif (bne rsd zreg)
-      then (pure (String.append "c.addi.hint." (String.append (← (reg_name_forwards rsd)) "")))
-      else
-        (do
-          assert false "Pattern match failure at unknown location"
-          throw Error.Exit))
-  | .C_LI_HINT imm =>
-    (pure (String.append "c.li.hint." (String.append (← (hex_bits_6_forwards imm)) "")))
-  | .C_LUI_HINT imm =>
-    (do
-      bif (imm != (0b000000 : (BitVec 6)))
-      then (pure (String.append "c.lui.hint." (String.append (← (hex_bits_6_forwards imm)) "")))
-      else
-        (do
-          assert false "Pattern match failure at unknown location"
-          throw Error.Exit))
-  | .C_MV_HINT rs2 =>
-    (do
-      bif (bne rs2 zreg)
-      then (pure (String.append "c.mv.hint." (String.append (← (reg_name_forwards rs2)) "")))
-      else
-        (do
-          assert false "Pattern match failure at unknown location"
-          throw Error.Exit))
-  | .C_ADD_HINT rs2 =>
-    (do
-      bif (bne rs2 zreg)
-      then (pure (String.append "c.add.hint." (String.append (← (reg_name_forwards rs2)) "")))
-      else
-        (do
-          assert false "Pattern match failure at unknown location"
-          throw Error.Exit))
-  | .C_SLLI_HINT (shamt, rsd) =>
-    (do
-      bif ((shamt == (0b000000 : (BitVec 6))) || (rsd == zreg))
-      then
-        (pure (String.append "c.slli.hint."
-            (String.append (← (reg_name_forwards rsd))
-              (String.append "." (String.append (← (hex_bits_6_forwards shamt)) "")))))
-      else
-        (do
-          assert false "Pattern match failure at unknown location"
-          throw Error.Exit))
-  | .C_SRLI_HINT rsd =>
-    (pure (String.append "c.srli.hint." (String.append (← (creg_name_forwards rsd)) "")))
-  | .C_SRAI_HINT rsd =>
-    (pure (String.append "c.srai.hint." (String.append (← (creg_name_forwards rsd)) "")))
   | .FENCE_RESERVED (fm, pred, succ, rs, rd) =>
     (do
       bif (((fm != (0x0 : (BitVec 4))) && (fm != (0x8 : (BitVec 4)))) || ((bne rs zreg) || (bne rd
@@ -6505,11 +6437,11 @@ def num_of_SATPMode (arg_ : SATPMode) : Int :=
 
 def satpMode_of_bits (a : Architecture) (m : (BitVec 4)) : (Option SATPMode) :=
   match (a, m) with
-  | (g__2, b__0) =>
+  | (g__3, b__0) =>
     (bif (b__0 == (0x0 : (BitVec 4)))
     then (some Bare)
     else
-      (match (g__2, b__0) with
+      (match (g__3, b__0) with
       | (RV32, b__0) =>
         (bif (b__0 == (0x1 : (BitVec 4)))
         then (some Sv32)
