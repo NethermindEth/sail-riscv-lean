@@ -184,10 +184,10 @@ def zvk_valid_reg_overlap (rs : vregidx) (rd : vregidx) (emul_pow : Int) : Bool 
   let rd_int := (BitVec.toNat (vregidx_bits rd))
   (((rs_int +i reg_group_size) ≤b rd_int) || ((rd_int +i reg_group_size) ≤b rs_int))
 
-/-- Type quantifiers: EGS : Int, EGW : Int -/
-def zvk_check_encdec (EGW : Int) (EGS : Int) : SailM Bool := do
-  (pure (((Int.emod (BitVec.toNat (← readReg vl)) EGS) == 0) && (← do
-        (pure (((Int.emod (BitVec.toNat (← readReg vstart)) EGS) == 0) && (← do
+/-- Type quantifiers: EGS : Nat, EGW : Nat, 0 ≤ EGW, EGS > 0 -/
+def zvk_check_encdec (EGW : Nat) (EGS : Nat) : SailM Bool := do
+  (pure (((Int.tmod (BitVec.toNat (← readReg vl)) EGS) == 0) && (← do
+        (pure (((Int.tmod (BitVec.toNat (← readReg vstart)) EGS) == 0) && (← do
               (pure (((2 ^i (← (get_lmul_pow ()))) *i VLEN) ≥b EGW))))))))
 
 def undefined_zvk_vsha2_funct6 (_ : Unit) : SailM zvk_vsha2_funct6 := do
@@ -316,7 +316,7 @@ def zvk_t_j (J : Nat) : (BitVec 32) :=
 
 /-- Type quantifiers: j : Nat, 0 ≤ j -/
 def zvk_sm3_round (A_H : (Vector (BitVec 32) 8)) (w : (BitVec 32)) (x : (BitVec 32)) (j : Nat) : (Vector (BitVec 32) 8) :=
-  let t_j := (rotatel (zvk_t_j j) (Int.emod j 32))
+  let t_j := (rotatel (zvk_t_j j) (Int.tmod j 32))
   let ss1 :=
     (rotatel (((rotatel (GetElem?.getElem! A_H 0) 12) + (GetElem?.getElem! A_H 4)) + t_j) 7)
   let ss2 := (ss1 ^^^ (rotatel (GetElem?.getElem! A_H 0) 12))

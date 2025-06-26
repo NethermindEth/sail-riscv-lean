@@ -1106,11 +1106,6 @@ def _set_Sstatus_XS (r_ref : (RegisterRef (BitVec 64))) (v : (BitVec 2)) : SailM
   let r ← do (reg_deref r_ref)
   writeRegRef r_ref (_update_Sstatus_XS r v)
 
-def effectivePrivilege (t : (AccessType Unit)) (m : (BitVec 64)) (priv : Privilege) : SailM Privilege := do
-  bif ((bne t (InstructionFetch ())) && ((_get_Mstatus_MPRV m) == (0b1 : (BitVec 1))))
-  then (privLevel_of_bits (_get_Mstatus_MPP m))
-  else (pure priv)
-
 def get_mstatus_SXL (m : (BitVec 64)) : (BitVec 2) :=
   (_get_Mstatus_SXL m)
 

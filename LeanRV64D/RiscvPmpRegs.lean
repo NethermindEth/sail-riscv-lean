@@ -222,7 +222,7 @@ def Mk_Pmpcfg_ent (v : (BitVec 8)) : (BitVec 8) :=
 
 /-- Type quantifiers: n : Nat, 0 ≤ n ∧ n ≤ 15 -/
 def pmpReadCfgReg (n : Nat) : SailM (BitVec (2 ^ 3 * 8)) := do
-  assert ((Int.emod n 2) == 0) "Unexpected pmp config reg read"
+  assert ((Int.tmod n 2) == 0) "Unexpected pmp config reg read"
   (pure ((GetElem?.getElem! (← readReg pmpcfg_n) ((n *i 4) +i 7)) ++ ((GetElem?.getElem!
           (← readReg pmpcfg_n) ((n *i 4) +i 6)) ++ ((GetElem?.getElem! (← readReg pmpcfg_n)
             ((n *i 4) +i 5)) ++ ((GetElem?.getElem! (← readReg pmpcfg_n) ((n *i 4) +i 4)) ++ ((GetElem?.getElem!
@@ -278,7 +278,7 @@ def pmpWriteCfg (n : Nat) (cfg : (BitVec 8)) (v : (BitVec 8)) : (BitVec 8) :=
 
 /-- Type quantifiers: n : Nat, 0 ≤ n ∧ n ≤ 15 -/
 def pmpWriteCfgReg (n : Nat) (v : (BitVec (2 ^ 3 * 8))) : SailM Unit := do
-  assert ((Int.emod n 2) == 0) "Unexpected pmp config reg write"
+  assert ((Int.tmod n 2) == 0) "Unexpected pmp config reg write"
   let loop_i_lower := 0
   let loop_i_upper := 7
   let mut loop_vars := ()
@@ -291,7 +291,7 @@ def pmpWriteCfgReg (n : Nat) (v : (BitVec (2 ^ 3 * 8))) : SailM Unit := do
           (Sail.BitVec.extractLsb v ((8 *i i) +i 7) (8 *i i))))
   (pure loop_vars)
 
-/-- Type quantifiers: k_ex370518# : Bool, k_ex370517# : Bool -/
+/-- Type quantifiers: k_ex375003# : Bool, k_ex375002# : Bool -/
 def pmpWriteAddr (locked : Bool) (tor_locked : Bool) (reg : (BitVec (2 ^ 3 * 8))) (v : (BitVec (2 ^ 3 * 8))) : (BitVec (2 ^ 3 * 8)) :=
   bif (locked || tor_locked)
   then reg

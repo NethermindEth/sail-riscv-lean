@@ -497,7 +497,7 @@ def process_vlseg (nf : Nat) (vm : (BitVec 1)) (vd : vregidx) (load_width_bytes 
     ExecutionResult (Vector (BitVec (nf * load_width_bytes * 8)) num_elem) )
   let m := ((nf *i load_width_bytes) *i 8)
   let (result, mask) ← (( do
-    match (← (init_masked_result num_elem ((nf *i load_width_bytes) *i 8) EMUL_pow vd_seg vm_val)) with
+    match (← (init_masked_result num_elem m EMUL_pow vd_seg vm_val)) with
     | .Ok v => (pure v)
     | .Err () => SailME.throw ((Illegal_Instruction ()) : ExecutionResult) ) : SailME
     ExecutionResult ((Vector (BitVec m) num_elem) × (BitVec num_elem)) )
@@ -927,7 +927,7 @@ def process_vlre (nf : Nat) (vd : vregidx) (load_width_bytes : Nat) (rs1 : regid
   then (pure RETIRE_SUCCESS)
   else
     (do
-      let elem_to_align : Int := (Int.emod start_element elem_per_reg)
+      let elem_to_align : Int := (Int.tmod start_element elem_per_reg)
       let cur_field : Int := (Int.tdiv start_element elem_per_reg)
       let cur_elem : Int := start_element
       let (cur_elem, cur_field) ← (( do
@@ -994,7 +994,7 @@ def process_vsre (nf : Nat) (load_width_bytes : Nat) (rs1 : regidx) (vs3 : vregi
   then (pure RETIRE_SUCCESS)
   else
     (do
-      let elem_to_align : Int := (Int.emod start_element elem_per_reg)
+      let elem_to_align : Int := (Int.tmod start_element elem_per_reg)
       let cur_field : Int := (Int.tdiv start_element elem_per_reg)
       let cur_elem : Int := start_element
       let (cur_elem, cur_field) ← (( do

@@ -231,7 +231,7 @@ def generate_isa_string (fmt : ISA_Format) : String := Id.run do
   (pure loop_vars)
 
 def generate_dts (_ : Unit) : SailM String := do
-  let clock_freq : Int := 1000000000
+  let clock_freq : Nat := 1000000000
   let ram_base_hi ← do (pure (BitVec.toNat (shiftr (← readReg plat_ram_base) 32)))
   let ram_base_lo ← do
     (pure (BitVec.toNat (Sail.BitVec.extractLsb (← readReg plat_ram_base) 31 0)))

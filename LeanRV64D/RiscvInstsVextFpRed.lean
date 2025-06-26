@@ -246,8 +246,8 @@ def encdec_rfvvfunct6_backwards_matches (arg_ : (BitVec 6)) : Bool :=
             then true
             else false)))))
 
-/-- Type quantifiers: num_elem_vs : Nat, SEW : Nat, LMUL_pow : Int, num_elem_vs > 0 ∧
-  SEW ∈ {8, 16, 32, 64} -/
+/-- Type quantifiers: LMUL_pow : Int, SEW : Nat, num_elem_vs : Nat, num_elem_vs > 0, SEW ∈
+  {8, 16, 32, 64}, (-3) ≤ LMUL_pow ∧ LMUL_pow ≤ 3 -/
 def process_rfvv_single (funct6 : rfvvfunct6) (vm : (BitVec 1)) (vs2 : vregidx) (vs1 : vregidx) (vd : vregidx) (num_elem_vs : Nat) (SEW : Nat) (LMUL_pow : Int) : SailM ExecutionResult := SailME.run do
   let rm_3b ← do (pure (_get_Fcsr_FRM (← readReg fcsr)))
   let num_elem_vd ← do (get_num_elem 0 SEW)
@@ -298,8 +298,8 @@ def process_rfvv_single (funct6 : rfvvfunct6) (vm : (BitVec 1)) (vs2 : vregidx) 
           (set_vstart (zeros (n := 16)))
           (pure RETIRE_SUCCESS)))
 
-/-- Type quantifiers: num_elem_vs : Nat, SEW : Nat, LMUL_pow : Int, num_elem_vs > 0 ∧
-  SEW ∈ {8, 16, 32, 64} -/
+/-- Type quantifiers: LMUL_pow : Int, SEW : Nat, num_elem_vs : Nat, num_elem_vs > 0, SEW ∈
+  {8, 16, 32, 64}, (-3) ≤ LMUL_pow ∧ LMUL_pow ≤ 3 -/
 def process_rfvv_widen (funct6 : rfvvfunct6) (vm : (BitVec 1)) (vs2 : vregidx) (vs1 : vregidx) (vd : vregidx) (num_elem_vs : Nat) (SEW : Nat) (LMUL_pow : Int) : SailM ExecutionResult := SailME.run do
   let rm_3b ← do (pure (_get_Fcsr_FRM (← readReg fcsr)))
   let SEW_widen := (SEW *i 2)

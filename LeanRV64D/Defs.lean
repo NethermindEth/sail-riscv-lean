@@ -28,6 +28,8 @@ inductive virtaddr where
   | Virtaddr (_ : xlenbits)
   deriving Inhabited, BEq, Repr
 
+abbrev nat1 := Int
+
 abbrev max_mem_access : Int := 4096
 
 abbrev mem_access_width := Nat
@@ -942,6 +944,10 @@ abbrev Vtype := (BitVec (2 ^ 3 * 8))
 abbrev SEW_pow := Nat
 
 abbrev LMUL_pow := Int
+
+abbrev sew_bitsize := Int
+
+
 
 inductive agtype where | UNDISTURBED | AGNOSTIC
   deriving BEq, Inhabited, Repr
