@@ -1,6 +1,7 @@
 import LeanRV64D.Prelude
 import LeanRV64D.RiscvXlen
 import LeanRV64D.RiscvCallbacks
+import LeanRV64D.RiscvVextControl
 
 set_option maxHeartbeats 1_000_000_000
 set_option maxRecDepth 1_000_000
@@ -277,6 +278,7 @@ def handle_illegal_vtype (_ : Unit) : SailM Unit := do
   writeReg vl (zeros (n := ((2 ^i 3) *i 8)))
   (csr_name_write_callback "vtype" (← readReg vtype))
   (csr_name_write_callback "vl" (← readReg vl))
+  (set_vstart (zeros (n := 16)))
 
 def vl_use_ceil : Bool := false
 

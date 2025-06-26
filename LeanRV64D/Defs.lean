@@ -939,6 +939,10 @@ abbrev Satp32 := (BitVec 32)
 
 abbrev Vtype := (BitVec (2 ^ 3 * 8))
 
+abbrev SEW_pow := Nat
+
+abbrev LMUL_pow := Int
+
 inductive agtype where | UNDISTURBED | AGNOSTIC
   deriving BEq, Inhabited, Repr
 
