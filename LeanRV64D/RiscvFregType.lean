@@ -172,13 +172,13 @@ open AccessType
 
 def zero_freg : fregtype := (zeros (n := (8 *i 8)))
 
-def FRegStr (r : (BitVec (8 * 8))) : String :=
+def FRegStr (r : (BitVec (bif true then 8 else 4 * 8))) : String :=
   (BitVec.toFormatted r)
 
-def fregval_from_freg (r : (BitVec (8 * 8))) : (BitVec (8 * 8)) :=
+def fregval_from_freg (r : (BitVec (bif true then 8 else 4 * 8))) : (BitVec (bif true then 8 else 4 * 8)) :=
   r
 
-def fregval_into_freg (v : (BitVec (8 * 8))) : (BitVec (8 * 8)) :=
+def fregval_into_freg (v : (BitVec (bif true then 8 else 4 * 8))) : (BitVec (bif true then 8 else 4 * 8)) :=
   v
 
 def undefined_f_madd_op_H (_ : Unit) : SailM f_madd_op_H := do

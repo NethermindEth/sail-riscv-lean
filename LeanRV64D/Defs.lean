@@ -22,7 +22,7 @@ inductive regidx where
   | Regidx (_ : (BitVec 5))
   deriving Inhabited, BEq, Repr
 
-abbrev xlenbits := (BitVec (2 ^ 3 * 8))
+abbrev xlenbits := (BitVec 64)
 
 inductive virtaddr where
   | Virtaddr (_ : xlenbits)
@@ -39,29 +39,29 @@ inductive exception where
   | Error_internal_error (_ : Unit)
   deriving Inhabited, BEq, Repr
 
-abbrev log2_xlen_bytes : Int := 3
+abbrev xlen : Int := 64
 
-abbrev physaddrbits_len : Int := 64
+abbrev log2_xlen : Int := (bif xlen = 32 then 5 else 6)
 
-abbrev asidlen : Int := 16
+abbrev xlen_bytes : Int := (bif xlen = 32 then 4 else 8)
 
-abbrev log2_xlen : Int := (3 + 3)
+abbrev physaddrbits_len : Int := (bif xlen = 32 then 34 else 64)
 
-abbrev xlen_bytes : Int := (2 ^ 3)
+abbrev asidlen : Int := (bif xlen = 32 then 9 else 16)
 
-abbrev xlen : Int := (2 ^ 3 * 8)
+abbrev asidbits := (BitVec (bif 64 = 32 then 9 else 16))
 
-abbrev asidbits := (BitVec 16)
+abbrev ext_d_supported : Bool := true
 
-abbrev flen_bytes : Int := 8
+abbrev flen_bytes : Int := (bif ext_d_supported then 8 else 4)
 
-abbrev flen : Int := (8 * 8)
+abbrev flen : Int := (bif true then 8 else 4 * 8)
 
-abbrev flenbits := (BitVec (8 * 8))
+abbrev flenbits := (BitVec (bif true then 8 else 4 * 8))
 
 abbrev vlenmax : Int := 65536
 
-abbrev physaddrbits := (BitVec 64)
+abbrev physaddrbits := (BitVec (bif 64 = 32 then 34 else 64))
 
 inductive physaddr where
   | Physaddr (_ : physaddrbits)
@@ -909,7 +909,7 @@ abbrev regtype := xlenbits
 
 abbrev fregtype := flenbits
 
-abbrev Misa := (BitVec (2 ^ 3 * 8))
+abbrev Misa := (BitVec 64)
 
 abbrev Mstatus := (BitVec 64)
 
@@ -917,15 +917,15 @@ abbrev Seccfg := (BitVec 64)
 
 abbrev MEnvcfg := (BitVec 64)
 
-abbrev SEnvcfg := (BitVec (2 ^ 3 * 8))
+abbrev SEnvcfg := (BitVec 64)
 
-abbrev Minterrupts := (BitVec (2 ^ 3 * 8))
+abbrev Minterrupts := (BitVec 64)
 
 abbrev Medeleg := (BitVec 64)
 
-abbrev Mtvec := (BitVec (2 ^ 3 * 8))
+abbrev Mtvec := (BitVec 64)
 
-abbrev Mcause := (BitVec (2 ^ 3 * 8))
+abbrev Mcause := (BitVec 64)
 
 abbrev Counteren := (BitVec 32)
 
@@ -933,13 +933,13 @@ abbrev Counterin := (BitVec 32)
 
 abbrev Sstatus := (BitVec 64)
 
-abbrev Sinterrupts := (BitVec (2 ^ 3 * 8))
+abbrev Sinterrupts := (BitVec 64)
 
 abbrev Satp64 := (BitVec 64)
 
 abbrev Satp32 := (BitVec 32)
 
-abbrev Vtype := (BitVec (2 ^ 3 * 8))
+abbrev Vtype := (BitVec 64)
 
 abbrev SEW_pow := Nat
 
@@ -1319,7 +1319,7 @@ open Register
 
 abbrev RegisterType : Register → Type
   | .hart_state => HartState
-  | .satp => (BitVec (2 ^ 3 * 8))
+  | .satp => (BitVec 64)
   | .tlb => (Vector (Option TLB_Entry) 64)
   | .htif_payload_writes => (BitVec 4)
   | .htif_cmd_write => (BitVec 1)
@@ -1328,47 +1328,47 @@ abbrev RegisterType : Register → Type
   | .htif_tohost => (BitVec 64)
   | .stimecmp => (BitVec 64)
   | .mtimecmp => (BitVec 64)
-  | .plat_clint_size => (BitVec 64)
-  | .plat_clint_base => (BitVec 64)
-  | .plat_rom_size => (BitVec 64)
-  | .plat_rom_base => (BitVec 64)
-  | .plat_ram_size => (BitVec 64)
-  | .plat_ram_base => (BitVec 64)
+  | .plat_clint_size => (BitVec (bif 64 = 32 then 34 else 64))
+  | .plat_clint_base => (BitVec (bif 64 = 32 then 34 else 64))
+  | .plat_rom_size => (BitVec (bif 64 = 32 then 34 else 64))
+  | .plat_rom_base => (BitVec (bif 64 = 32 then 34 else 64))
+  | .plat_ram_size => (BitVec (bif 64 = 32 then 34 else 64))
+  | .plat_ram_base => (BitVec (bif 64 = 32 then 34 else 64))
   | .minstretcfg => (BitVec 64)
   | .mcyclecfg => (BitVec 64)
   | .fcsr => (BitVec 32)
-  | .f31 => (BitVec (8 * 8))
-  | .f30 => (BitVec (8 * 8))
-  | .f29 => (BitVec (8 * 8))
-  | .f28 => (BitVec (8 * 8))
-  | .f27 => (BitVec (8 * 8))
-  | .f26 => (BitVec (8 * 8))
-  | .f25 => (BitVec (8 * 8))
-  | .f24 => (BitVec (8 * 8))
-  | .f23 => (BitVec (8 * 8))
-  | .f22 => (BitVec (8 * 8))
-  | .f21 => (BitVec (8 * 8))
-  | .f20 => (BitVec (8 * 8))
-  | .f19 => (BitVec (8 * 8))
-  | .f18 => (BitVec (8 * 8))
-  | .f17 => (BitVec (8 * 8))
-  | .f16 => (BitVec (8 * 8))
-  | .f15 => (BitVec (8 * 8))
-  | .f14 => (BitVec (8 * 8))
-  | .f13 => (BitVec (8 * 8))
-  | .f12 => (BitVec (8 * 8))
-  | .f11 => (BitVec (8 * 8))
-  | .f10 => (BitVec (8 * 8))
-  | .f9 => (BitVec (8 * 8))
-  | .f8 => (BitVec (8 * 8))
-  | .f7 => (BitVec (8 * 8))
-  | .f6 => (BitVec (8 * 8))
-  | .f5 => (BitVec (8 * 8))
-  | .f4 => (BitVec (8 * 8))
-  | .f3 => (BitVec (8 * 8))
-  | .f2 => (BitVec (8 * 8))
-  | .f1 => (BitVec (8 * 8))
-  | .f0 => (BitVec (8 * 8))
+  | .f31 => (BitVec (bif true then 8 else 4 * 8))
+  | .f30 => (BitVec (bif true then 8 else 4 * 8))
+  | .f29 => (BitVec (bif true then 8 else 4 * 8))
+  | .f28 => (BitVec (bif true then 8 else 4 * 8))
+  | .f27 => (BitVec (bif true then 8 else 4 * 8))
+  | .f26 => (BitVec (bif true then 8 else 4 * 8))
+  | .f25 => (BitVec (bif true then 8 else 4 * 8))
+  | .f24 => (BitVec (bif true then 8 else 4 * 8))
+  | .f23 => (BitVec (bif true then 8 else 4 * 8))
+  | .f22 => (BitVec (bif true then 8 else 4 * 8))
+  | .f21 => (BitVec (bif true then 8 else 4 * 8))
+  | .f20 => (BitVec (bif true then 8 else 4 * 8))
+  | .f19 => (BitVec (bif true then 8 else 4 * 8))
+  | .f18 => (BitVec (bif true then 8 else 4 * 8))
+  | .f17 => (BitVec (bif true then 8 else 4 * 8))
+  | .f16 => (BitVec (bif true then 8 else 4 * 8))
+  | .f15 => (BitVec (bif true then 8 else 4 * 8))
+  | .f14 => (BitVec (bif true then 8 else 4 * 8))
+  | .f13 => (BitVec (bif true then 8 else 4 * 8))
+  | .f12 => (BitVec (bif true then 8 else 4 * 8))
+  | .f11 => (BitVec (bif true then 8 else 4 * 8))
+  | .f10 => (BitVec (bif true then 8 else 4 * 8))
+  | .f9 => (BitVec (bif true then 8 else 4 * 8))
+  | .f8 => (BitVec (bif true then 8 else 4 * 8))
+  | .f7 => (BitVec (bif true then 8 else 4 * 8))
+  | .f6 => (BitVec (bif true then 8 else 4 * 8))
+  | .f5 => (BitVec (bif true then 8 else 4 * 8))
+  | .f4 => (BitVec (bif true then 8 else 4 * 8))
+  | .f3 => (BitVec (bif true then 8 else 4 * 8))
+  | .f2 => (BitVec (bif true then 8 else 4 * 8))
+  | .f1 => (BitVec (bif true then 8 else 4 * 8))
+  | .f0 => (BitVec (bif true then 8 else 4 * 8))
   | .float_fflags => (BitVec 64)
   | .float_result => (BitVec 64)
   | .mhpmcounter => (Vector (BitVec 64) 32)
@@ -1406,21 +1406,21 @@ abbrev RegisterType : Register → Type
   | .vr2 => (BitVec 65536)
   | .vr1 => (BitVec 65536)
   | .vr0 => (BitVec 65536)
-  | .pmpaddr_n => (Vector (BitVec (2 ^ 3 * 8)) 64)
+  | .pmpaddr_n => (Vector (BitVec 64) 64)
   | .pmpcfg_n => (Vector (BitVec 8) 64)
-  | .vtype => (BitVec (2 ^ 3 * 8))
-  | .vl => (BitVec (2 ^ 3 * 8))
-  | .vstart => (BitVec (2 ^ 3 * 8))
-  | .tselect => (BitVec (2 ^ 3 * 8))
-  | .stval => (BitVec (2 ^ 3 * 8))
-  | .scause => (BitVec (2 ^ 3 * 8))
-  | .sepc => (BitVec (2 ^ 3 * 8))
-  | .sscratch => (BitVec (2 ^ 3 * 8))
-  | .stvec => (BitVec (2 ^ 3 * 8))
-  | .mconfigptr => (BitVec (2 ^ 3 * 8))
-  | .mhartid => (BitVec (2 ^ 3 * 8))
-  | .marchid => (BitVec (2 ^ 3 * 8))
-  | .mimpid => (BitVec (2 ^ 3 * 8))
+  | .vtype => (BitVec 64)
+  | .vl => (BitVec 64)
+  | .vstart => (BitVec 64)
+  | .tselect => (BitVec 64)
+  | .stval => (BitVec 64)
+  | .scause => (BitVec 64)
+  | .sepc => (BitVec 64)
+  | .sscratch => (BitVec 64)
+  | .stvec => (BitVec 64)
+  | .mconfigptr => (BitVec 64)
+  | .mhartid => (BitVec 64)
+  | .marchid => (BitVec 64)
+  | .mimpid => (BitVec 64)
   | .mvendorid => (BitVec 32)
   | .minstret_increment => Bool
   | .minstret => (BitVec 64)
@@ -1429,55 +1429,55 @@ abbrev RegisterType : Register → Type
   | .mcountinhibit => (BitVec 32)
   | .mcounteren => (BitVec 32)
   | .scounteren => (BitVec 32)
-  | .mscratch => (BitVec (2 ^ 3 * 8))
-  | .mtval => (BitVec (2 ^ 3 * 8))
-  | .mepc => (BitVec (2 ^ 3 * 8))
-  | .mcause => (BitVec (2 ^ 3 * 8))
-  | .mtvec => (BitVec (2 ^ 3 * 8))
-  | .mideleg => (BitVec (2 ^ 3 * 8))
+  | .mscratch => (BitVec 64)
+  | .mtval => (BitVec 64)
+  | .mepc => (BitVec 64)
+  | .mcause => (BitVec 64)
+  | .mtvec => (BitVec 64)
+  | .mideleg => (BitVec 64)
   | .medeleg => (BitVec 64)
-  | .mip => (BitVec (2 ^ 3 * 8))
-  | .mie => (BitVec (2 ^ 3 * 8))
-  | .senvcfg => (BitVec (2 ^ 3 * 8))
+  | .mip => (BitVec 64)
+  | .mie => (BitVec 64)
+  | .senvcfg => (BitVec 64)
   | .menvcfg => (BitVec 64)
   | .mseccfg => (BitVec 64)
   | .mstatus => (BitVec 64)
-  | .misa => (BitVec (2 ^ 3 * 8))
-  | .cur_inst => (BitVec (2 ^ 3 * 8))
+  | .misa => (BitVec 64)
+  | .cur_inst => (BitVec 64)
   | .cur_privilege => Privilege
-  | .x31 => (BitVec (2 ^ 3 * 8))
-  | .x30 => (BitVec (2 ^ 3 * 8))
-  | .x29 => (BitVec (2 ^ 3 * 8))
-  | .x28 => (BitVec (2 ^ 3 * 8))
-  | .x27 => (BitVec (2 ^ 3 * 8))
-  | .x26 => (BitVec (2 ^ 3 * 8))
-  | .x25 => (BitVec (2 ^ 3 * 8))
-  | .x24 => (BitVec (2 ^ 3 * 8))
-  | .x23 => (BitVec (2 ^ 3 * 8))
-  | .x22 => (BitVec (2 ^ 3 * 8))
-  | .x21 => (BitVec (2 ^ 3 * 8))
-  | .x20 => (BitVec (2 ^ 3 * 8))
-  | .x19 => (BitVec (2 ^ 3 * 8))
-  | .x18 => (BitVec (2 ^ 3 * 8))
-  | .x17 => (BitVec (2 ^ 3 * 8))
-  | .x16 => (BitVec (2 ^ 3 * 8))
-  | .x15 => (BitVec (2 ^ 3 * 8))
-  | .x14 => (BitVec (2 ^ 3 * 8))
-  | .x13 => (BitVec (2 ^ 3 * 8))
-  | .x12 => (BitVec (2 ^ 3 * 8))
-  | .x11 => (BitVec (2 ^ 3 * 8))
-  | .x10 => (BitVec (2 ^ 3 * 8))
-  | .x9 => (BitVec (2 ^ 3 * 8))
-  | .x8 => (BitVec (2 ^ 3 * 8))
-  | .x7 => (BitVec (2 ^ 3 * 8))
-  | .x6 => (BitVec (2 ^ 3 * 8))
-  | .x5 => (BitVec (2 ^ 3 * 8))
-  | .x4 => (BitVec (2 ^ 3 * 8))
-  | .x3 => (BitVec (2 ^ 3 * 8))
-  | .x2 => (BitVec (2 ^ 3 * 8))
-  | .x1 => (BitVec (2 ^ 3 * 8))
-  | .nextPC => (BitVec (2 ^ 3 * 8))
-  | .PC => (BitVec (2 ^ 3 * 8))
+  | .x31 => (BitVec 64)
+  | .x30 => (BitVec 64)
+  | .x29 => (BitVec 64)
+  | .x28 => (BitVec 64)
+  | .x27 => (BitVec 64)
+  | .x26 => (BitVec 64)
+  | .x25 => (BitVec 64)
+  | .x24 => (BitVec 64)
+  | .x23 => (BitVec 64)
+  | .x22 => (BitVec 64)
+  | .x21 => (BitVec 64)
+  | .x20 => (BitVec 64)
+  | .x19 => (BitVec 64)
+  | .x18 => (BitVec 64)
+  | .x17 => (BitVec 64)
+  | .x16 => (BitVec 64)
+  | .x15 => (BitVec 64)
+  | .x14 => (BitVec 64)
+  | .x13 => (BitVec 64)
+  | .x12 => (BitVec 64)
+  | .x11 => (BitVec 64)
+  | .x10 => (BitVec 64)
+  | .x9 => (BitVec 64)
+  | .x8 => (BitVec 64)
+  | .x7 => (BitVec 64)
+  | .x6 => (BitVec 64)
+  | .x5 => (BitVec 64)
+  | .x4 => (BitVec 64)
+  | .x3 => (BitVec 64)
+  | .x2 => (BitVec 64)
+  | .x1 => (BitVec 64)
+  | .nextPC => (BitVec 64)
+  | .PC => (BitVec 64)
   | .rvfi_mem_data_present => Bool
   | .rvfi_mem_data => (BitVec 704)
   | .rvfi_int_data_present => Bool
@@ -1514,7 +1514,7 @@ instance : Inhabited (RegisterRef RegisterType Bool) where
   default := .Reg rvfi_int_data_present
 instance : Inhabited (RegisterRef RegisterType (Vector (BitVec 64) 32)) where
   default := .Reg mhpmevent
-instance : Inhabited (RegisterRef RegisterType (Vector (BitVec (2 ^ 3 * 8)) 64)) where
+instance : Inhabited (RegisterRef RegisterType (Vector (BitVec 64) 64)) where
   default := .Reg pmpaddr_n
 instance : Inhabited (RegisterRef RegisterType (Vector (BitVec 8) 64)) where
   default := .Reg pmpcfg_n
@@ -1524,7 +1524,7 @@ abbrev SailM := PreSailM RegisterType trivialChoiceSource exception
 
 instance : Arch where
   va_size := 64
-  pa := (BitVec 64)
+  pa := (BitVec (bif 64 = 32 then 34 else 64))
   abort := Unit
   translation := Unit
   trans_start := Unit

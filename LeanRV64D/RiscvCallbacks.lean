@@ -173,27 +173,27 @@ open Architecture
 open AccessType
 
 /-- Type quantifiers: x_2 : Nat, x_2 ≥ 0, 0 < x_2 ∧ x_2 ≤ max_mem_access -/
-def mem_write_callback (x_0 : String) (x_1 : (BitVec 64)) (x_2 : Nat) (x_3 : (BitVec (8 * x_2))) : Unit :=
+def mem_write_callback (x_0 : String) (x_1 : (BitVec (bif 64 = 32 then 34 else 64))) (x_2 : Nat) (x_3 : (BitVec (8 * x_2))) : Unit :=
   ()
 
 /-- Type quantifiers: x_2 : Nat, x_2 ≥ 0, 0 < x_2 ∧ x_2 ≤ max_mem_access -/
-def mem_read_callback (x_0 : String) (x_1 : (BitVec 64)) (x_2 : Nat) (x_3 : (BitVec (8 * x_2))) : Unit :=
+def mem_read_callback (x_0 : String) (x_1 : (BitVec (bif 64 = 32 then 34 else 64))) (x_2 : Nat) (x_3 : (BitVec (8 * x_2))) : Unit :=
   ()
 
 /-- Type quantifiers: x_1 : Nat, 0 ≤ x_1 ∧ x_1 < xlen -/
-def mem_exception_callback (x_0 : (BitVec 64)) (x_1 : Nat) : Unit :=
+def mem_exception_callback (x_0 : (BitVec (bif 64 = 32 then 34 else 64))) (x_1 : Nat) : Unit :=
   ()
 
-def pc_write_callback (x_0 : (BitVec (2 ^ 3 * 8))) : Unit :=
+def pc_write_callback (x_0 : (BitVec 64)) : Unit :=
   ()
 
-def xreg_full_write_callback (x_0 : String) (x_1 : regidx) (x_2 : (BitVec (2 ^ 3 * 8))) : Unit :=
+def xreg_full_write_callback (x_0 : String) (x_1 : regidx) (x_2 : (BitVec 64)) : Unit :=
   ()
 
-def csr_full_write_callback (x_0 : String) (x_1 : (BitVec 12)) (x_2 : (BitVec (2 ^ 3 * 8))) : Unit :=
+def csr_full_write_callback (x_0 : String) (x_1 : (BitVec 12)) (x_2 : (BitVec 64)) : Unit :=
   ()
 
-def csr_full_read_callback (x_0 : String) (x_1 : (BitVec 12)) (x_2 : (BitVec (2 ^ 3 * 8))) : Unit :=
+def csr_full_read_callback (x_0 : String) (x_1 : (BitVec 12)) (x_2 : (BitVec 64)) : Unit :=
   ()
 
 def trap_callback (x_0 : Unit) : Unit :=
@@ -535,19 +535,19 @@ def csr_name_map_backwards (arg_ : String) : SailM (BitVec 12) := do
       assert false "Pattern match failure at unknown location"
       throw Error.Exit)
 
-def csr_name_write_callback (name : String) (value : (BitVec (2 ^ 3 * 8))) : SailM Unit := do
+def csr_name_write_callback (name : String) (value : (BitVec 64)) : SailM Unit := do
   let csr ← do (csr_name_map_backwards name)
   (pure (csr_full_write_callback name csr value))
 
-def csr_id_write_callback (csr : (BitVec 12)) (value : (BitVec (2 ^ 3 * 8))) : SailM Unit := do
+def csr_id_write_callback (csr : (BitVec 12)) (value : (BitVec 64)) : SailM Unit := do
   let name ← do (csr_name_map_forwards csr)
   (pure (csr_full_write_callback name csr value))
 
-def csr_name_read_callback (name : String) (value : (BitVec (2 ^ 3 * 8))) : SailM Unit := do
+def csr_name_read_callback (name : String) (value : (BitVec 64)) : SailM Unit := do
   let csr ← do (csr_name_map_backwards name)
   (pure (csr_full_read_callback name csr value))
 
-def csr_id_read_callback (csr : (BitVec 12)) (value : (BitVec (2 ^ 3 * 8))) : SailM Unit := do
+def csr_id_read_callback (csr : (BitVec 12)) (value : (BitVec 64)) : SailM Unit := do
   let name ← do (csr_name_map_forwards csr)
   (pure (csr_full_read_callback name csr value))
 

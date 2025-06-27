@@ -170,14 +170,14 @@ open ExceptionType
 open Architecture
 open AccessType
 
-def zero_reg : regtype := (zeros (n := ((2 ^i 3) *i 8)))
+def zero_reg : regtype := (zeros (n := 64))
 
-def RegStr (r : (BitVec (2 ^ 3 * 8))) : String :=
+def RegStr (r : (BitVec 64)) : String :=
   (BitVec.toFormatted r)
 
-def regval_from_reg (r : (BitVec (2 ^ 3 * 8))) : (BitVec (2 ^ 3 * 8)) :=
+def regval_from_reg (r : (BitVec 64)) : (BitVec 64) :=
   r
 
-def regval_into_reg (v : (BitVec (2 ^ 3 * 8))) : (BitVec (2 ^ 3 * 8)) :=
+def regval_into_reg (v : (BitVec 64)) : (BitVec 64) :=
   v
 

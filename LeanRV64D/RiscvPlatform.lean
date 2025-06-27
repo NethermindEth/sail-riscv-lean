@@ -184,8 +184,8 @@ def plat_enable_misaligned_access : Bool := true
 
 def plat_mtval_has_illegal_inst_bits : Bool := false
 
-def plat_htif_tohost (_ : Unit) : (BitVec 64) :=
-  (zeros (n := 64))
+def htif_tohost_base (_ : Unit) : (BitVec (bif 64 = 32 then 34 else 64)) :=
+  (trunc (m := 64) (plat_htif_tohost ()))
 
 /-- Type quantifiers: width : Int, width ≤ max_mem_access -/
 def within_phys_mem (typ_0 : physaddr) (width : Int) : SailM Bool := do
@@ -228,14 +228,14 @@ def within_clint (typ_0 : physaddr) (width : Nat) : SailM Bool := do
 /-- Type quantifiers: width : Nat, 0 < width ∧ width ≤ max_mem_access -/
 def within_htif_writable (typ_0 : physaddr) (width : Nat) : Bool :=
   let .Physaddr addr : physaddr := typ_0
-  ((plat_enable_htif ()) && (((plat_htif_tohost ()) == addr) || (((BitVec.addInt
-            (plat_htif_tohost ()) 4) == addr) && (width == 4))))
+  ((plat_enable_htif ()) && (((htif_tohost_base ()) == addr) || (((BitVec.addInt
+            (htif_tohost_base ()) 4) == addr) && (width == 4))))
 
 /-- Type quantifiers: width : Nat, 0 < width ∧ width ≤ max_mem_access -/
 def within_htif_readable (typ_0 : physaddr) (width : Nat) : Bool :=
   let .Physaddr addr : physaddr := typ_0
-  ((plat_enable_htif ()) && (((plat_htif_tohost ()) == addr) || (((BitVec.addInt
-            (plat_htif_tohost ()) 4) == addr) && (width == 4))))
+  ((plat_enable_htif ()) && (((htif_tohost_base ()) == addr) || (((BitVec.addInt
+            (htif_tohost_base ()) 4) == addr) && (width == 4))))
 
 def plat_insns_per_tick : nat1 := 2
 
@@ -593,16 +593,16 @@ def htif_load (t : (AccessType Unit)) (app_1 : physaddr) (width : Nat) : SailM (
           (HAppend.hAppend (hex_bits_str paddr)
             (HAppend.hAppend "] -> " (BitVec.toFormatted (← readReg htif_tohost)))))))
   else (pure ())
-  bif ((width == 8) && (paddr == (plat_htif_tohost ())))
+  bif ((width == 8) && (paddr == (htif_tohost_base ())))
   then (pure (Ok (zero_extend (m := 64) (← readReg htif_tohost))))
   else
     (do
-      bif ((width == 4) && (paddr == (plat_htif_tohost ())))
+      bif ((width == 4) && (paddr == (htif_tohost_base ())))
       then
         (pure (Ok (zero_extend (m := 32) (Sail.BitVec.extractLsb (← readReg htif_tohost) 31 0))))
       else
         (do
-          bif ((width == 4) && (paddr == (BitVec.addInt (plat_htif_tohost ()) 4)))
+          bif ((width == 4) && (paddr == (BitVec.addInt (htif_tohost_base ()) 4)))
           then
             (pure (Ok
                 (zero_extend (m := 32) (Sail.BitVec.extractLsb (← readReg htif_tohost) 63 32))))
@@ -630,7 +630,7 @@ def htif_store (app_0 : physaddr) (width : Nat) (data : (BitVec (8 * width))) : 
       writeReg htif_tohost (zero_extend (m := 64) data))
   else
     (do
-      bif ((width == 4) && (paddr == (plat_htif_tohost ())))
+      bif ((width == 4) && (paddr == (htif_tohost_base ())))
       then
         (do
           bif (data == (Sail.BitVec.extractLsb (← readReg htif_tohost) 31 0))
@@ -639,7 +639,7 @@ def htif_store (app_0 : physaddr) (width : Nat) (data : (BitVec (8 * width))) : 
           writeReg htif_tohost (Sail.BitVec.updateSubrange (← readReg htif_tohost) 31 0 data))
       else
         (do
-          bif ((width == 4) && (paddr == (BitVec.addInt (plat_htif_tohost ()) 4)))
+          bif ((width == 4) && (paddr == (BitVec.addInt (htif_tohost_base ()) 4)))
           then
             (do
               bif ((Sail.BitVec.extractLsb data 15 0) == (Sail.BitVec.extractLsb

@@ -170,30 +170,30 @@ open ExceptionType
 open Architecture
 open AccessType
 
-def ext_fetch_check_pc (start_pc : (BitVec (2 ^ 3 * 8))) (pc : (BitVec (2 ^ 3 * 8))) : (Ext_FetchAddr_Check Unit) :=
+def ext_fetch_check_pc (start_pc : (BitVec 64)) (pc : (BitVec 64)) : (Ext_FetchAddr_Check Unit) :=
   (Ext_FetchAddr_OK (Virtaddr pc))
 
 def ext_handle_fetch_check_error (err : Unit) : Unit :=
   ()
 
-def ext_control_check_addr (pc : (BitVec (2 ^ 3 * 8))) : (Ext_ControlAddr_Check Unit) :=
+def ext_control_check_addr (pc : (BitVec 64)) : (Ext_ControlAddr_Check Unit) :=
   (Ext_ControlAddr_OK (Virtaddr pc))
 
-def ext_control_check_pc (pc : (BitVec (2 ^ 3 * 8))) : (Ext_ControlAddr_Check Unit) :=
+def ext_control_check_pc (pc : (BitVec 64)) : (Ext_ControlAddr_Check Unit) :=
   (Ext_ControlAddr_OK (Virtaddr pc))
 
 def ext_handle_control_check_error (err : Unit) : Unit :=
   ()
 
 /-- Type quantifiers: width : Nat, 1 ≤ width ∧ width ≤ 4096 -/
-def ext_data_get_addr (base : regidx) (offset : (BitVec (2 ^ 3 * 8))) (acc : (AccessType Unit)) (width : Nat) : SailM (Ext_DataAddr_Check Unit) := do
+def ext_data_get_addr (base : regidx) (offset : (BitVec 64)) (acc : (AccessType Unit)) (width : Nat) : SailM (Ext_DataAddr_Check Unit) := do
   let addr ← do (pure (Virtaddr ((← (rX_bits base)) + offset)))
   (pure (Ext_DataAddr_OK addr))
 
 def ext_handle_data_check_error (err : Unit) : Unit :=
   ()
 
-/-- Type quantifiers: k_ex375074# : Bool, k_ex375073# : Bool, k_ex375072# : Bool, k_ex375071# : Bool, size
+/-- Type quantifiers: k_ex375498# : Bool, k_ex375497# : Bool, k_ex375496# : Bool, k_ex375495# : Bool, size
   : Nat, 0 < size ∧ size ≤ max_mem_access -/
 def ext_check_phys_mem_read (access_type : (AccessType Unit)) (paddr : physaddr) (size : Nat) (acquire : Bool) (release : Bool) (reserved : Bool) (read_meta : Bool) : Ext_PhysAddr_Check :=
   (Ext_PhysAddr_OK ())

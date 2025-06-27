@@ -653,11 +653,11 @@ def creg_name_backwards_matches (arg_ : String) : SailM Bool := do
     (match head_exp_ with
     | _ => (pure false))
 
-def xreg_write_callback (reg : regidx) (value : (BitVec (2 ^ 3 * 8))) : SailM Unit := do
+def xreg_write_callback (reg : regidx) (value : (BitVec 64)) : SailM Unit := do
   let name ← do (reg_name_forwards reg)
   (pure (xreg_full_write_callback name reg value))
 
-def rX (app_0 : regno) : SailM (BitVec (2 ^ 3 * 8)) := do
+def rX (app_0 : regno) : SailM (BitVec 64) := do
   let .Regno r := app_0
   let v ← (( do
     match r with
@@ -695,7 +695,7 @@ def rX (app_0 : regno) : SailM (BitVec (2 ^ 3 * 8)) := do
     | _ => readReg x31 ) : SailM regtype )
   (pure (regval_from_reg v))
 
-def wX (typ_0 : regno) (in_v : (BitVec (2 ^ 3 * 8))) : SailM Unit := do
+def wX (typ_0 : regno) (in_v : (BitVec 64)) : SailM Unit := do
   let .Regno r : regno := typ_0
   let v := (regval_into_reg in_v)
   match r with
@@ -735,11 +735,11 @@ def wX (typ_0 : regno) (in_v : (BitVec (2 ^ 3 * 8))) : SailM Unit := do
   then (xreg_write_callback (Regidx (to_bits (l := 5) r)) in_v)
   else (pure ())
 
-def rX_bits (app_0 : regidx) : SailM (BitVec (2 ^ 3 * 8)) := do
+def rX_bits (app_0 : regidx) : SailM (BitVec 64) := do
   let .Regidx i := app_0
   (rX (Regno (BitVec.toNat i)))
 
-def wX_bits (typ_0 : regidx) (data : (BitVec (2 ^ 3 * 8))) : SailM Unit := do
+def wX_bits (typ_0 : regidx) (data : (BitVec 64)) : SailM Unit := do
   let .Regidx i : regidx := typ_0
   (wX (Regno (BitVec.toNat i)) data)
 

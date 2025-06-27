@@ -275,7 +275,7 @@ def ma_flag_backwards_matches (arg_ : (BitVec 1)) : Bool :=
 
 def handle_illegal_vtype (_ : Unit) : SailM Unit := do
   writeReg vtype ((0b1 : (BitVec 1)) ++ (zeros (n := (xlen -i 1))))
-  writeReg vl (zeros (n := ((2 ^i 3) *i 8)))
+  writeReg vl (zeros (n := 64))
   (csr_name_write_callback "vtype" (← readReg vtype))
   (csr_name_write_callback "vl" (← readReg vl))
   (set_vstart (zeros (n := 16)))
@@ -283,7 +283,7 @@ def handle_illegal_vtype (_ : Unit) : SailM Unit := do
 def vl_use_ceil : Bool := false
 
 /-- Type quantifiers: VLMAX : Int, AVL : Int -/
-def calculate_new_vl (AVL : Int) (VLMAX : Int) : (BitVec (2 ^ 3 * 8)) :=
+def calculate_new_vl (AVL : Int) (VLMAX : Int) : (BitVec 64) :=
   let new_vl :=
     bif (AVL ≤b VLMAX)
     then AVL

@@ -185,7 +185,7 @@ def regidx_offset_range (typ_0 : regidx) (o : Nat) : regidx :=
   let .Regidx r : regidx := typ_0
   (Regidx (BitVec.addInt r o))
 
-def sub_virtaddr_xlenbits (typ_0 : virtaddr) (offset : (BitVec (2 ^ 3 * 8))) : virtaddr :=
+def sub_virtaddr_xlenbits (typ_0 : virtaddr) (offset : (BitVec 64)) : virtaddr :=
   let .Virtaddr addr : virtaddr := typ_0
   (Virtaddr (addr - offset))
 

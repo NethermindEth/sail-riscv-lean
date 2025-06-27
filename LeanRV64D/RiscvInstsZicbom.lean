@@ -344,7 +344,7 @@ def process_clean_inval (rs1 : regidx) (cbop : cbop_zicbom) : SailM ExecutionRes
   let cache_block_size := (2 ^i plat_cache_block_size_exp)
   let negative_offset :=
     ((rs1_val &&& (Complement.complement
-          (zero_extend (m := ((2 ^i 3) *i 8)) (ones (n := plat_cache_block_size_exp))))) - rs1_val)
+          (zero_extend (m := 64) (ones (n := plat_cache_block_size_exp))))) - rs1_val)
   match (← (ext_data_get_addr rs1 negative_offset (Read Data) cache_block_size)) with
   | .Ext_DataAddr_Error e => (pure (Ext_DataAddr_Check_Failure e))
   | .Ext_DataAddr_OK vaddr =>

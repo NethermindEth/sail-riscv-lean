@@ -221,7 +221,7 @@ def Mk_Pmpcfg_ent (v : (BitVec 8)) : (BitVec 8) :=
   v
 
 /-- Type quantifiers: n : Nat, 0 ≤ n ∧ n ≤ 15 -/
-def pmpReadCfgReg (n : Nat) : SailM (BitVec (2 ^ 3 * 8)) := do
+def pmpReadCfgReg (n : Nat) : SailM (BitVec 64) := do
   assert ((Int.tmod n 2) == 0) "Unexpected pmp config reg read"
   (pure ((GetElem?.getElem! (← readReg pmpcfg_n) ((n *i 4) +i 7)) ++ ((GetElem?.getElem!
           (← readReg pmpcfg_n) ((n *i 4) +i 6)) ++ ((GetElem?.getElem! (← readReg pmpcfg_n)
@@ -232,7 +232,7 @@ def pmpReadCfgReg (n : Nat) : SailM (BitVec (2 ^ 3 * 8)) := do
                     (← readReg pmpcfg_n) ((n *i 4) +i 0))))))))))
 
 /-- Type quantifiers: n : Nat, 0 ≤ n ∧ n ≤ 63 -/
-def pmpReadAddrReg (n : Nat) : SailM (BitVec (2 ^ 3 * 8)) := do
+def pmpReadAddrReg (n : Nat) : SailM (BitVec 64) := do
   let G := sys_pmp_grain
   let match_type ← do (pure (_get_Pmpcfg_ent_A (GetElem?.getElem! (← readReg pmpcfg_n) n)))
   let addr ← do (pure (GetElem?.getElem! (← readReg pmpaddr_n) n))
@@ -240,14 +240,13 @@ def pmpReadAddrReg (n : Nat) : SailM (BitVec (2 ^ 3 * 8)) := do
   | 1#1 =>
     (bif (G ≥b 2)
     then
-      (let mask : xlenbits :=
-        (zero_extend (m := ((2 ^i 3) *i 8)) (ones (n := (Min.min (G -i 1) xlen))))
+      (let mask : xlenbits := (zero_extend (m := 64) (ones (n := (Min.min (G -i 1) xlen))))
       (pure (addr ||| mask)))
     else (pure addr))
   | 0#1 =>
     (bif (G ≥b 1)
     then
-      (let mask : xlenbits := (zero_extend (m := ((2 ^i 3) *i 8)) (ones (n := (Min.min G xlen))))
+      (let mask : xlenbits := (zero_extend (m := 64) (ones (n := (Min.min G xlen))))
       (pure (addr &&& (Complement.complement mask))))
     else (pure addr))
   | _ => (pure addr)
@@ -277,7 +276,7 @@ def pmpWriteCfg (n : Nat) (cfg : (BitVec 8)) (v : (BitVec 8)) : (BitVec 8) :=
     else cfg)
 
 /-- Type quantifiers: n : Nat, 0 ≤ n ∧ n ≤ 15 -/
-def pmpWriteCfgReg (n : Nat) (v : (BitVec (2 ^ 3 * 8))) : SailM Unit := do
+def pmpWriteCfgReg (n : Nat) (v : (BitVec 64)) : SailM Unit := do
   assert ((Int.tmod n 2) == 0) "Unexpected pmp config reg write"
   let loop_i_lower := 0
   let loop_i_upper := 7
@@ -291,14 +290,14 @@ def pmpWriteCfgReg (n : Nat) (v : (BitVec (2 ^ 3 * 8))) : SailM Unit := do
           (Sail.BitVec.extractLsb v ((8 *i i) +i 7) (8 *i i))))
   (pure loop_vars)
 
-/-- Type quantifiers: k_ex375003# : Bool, k_ex375002# : Bool -/
-def pmpWriteAddr (locked : Bool) (tor_locked : Bool) (reg : (BitVec (2 ^ 3 * 8))) (v : (BitVec (2 ^ 3 * 8))) : (BitVec (2 ^ 3 * 8)) :=
+/-- Type quantifiers: k_ex375427# : Bool, k_ex375426# : Bool -/
+def pmpWriteAddr (locked : Bool) (tor_locked : Bool) (reg : (BitVec 64)) (v : (BitVec 64)) : (BitVec 64) :=
   bif (locked || tor_locked)
   then reg
-  else (zero_extend (m := ((2 ^i 3) *i 8)) (Sail.BitVec.extractLsb v 53 0))
+  else (zero_extend (m := 64) (Sail.BitVec.extractLsb v 53 0))
 
 /-- Type quantifiers: n : Nat, 0 ≤ n ∧ n ≤ 63 -/
-def pmpWriteAddrReg (n : Nat) (v : (BitVec (2 ^ 3 * 8))) : SailM Unit := do
+def pmpWriteAddrReg (n : Nat) (v : (BitVec 64)) : SailM Unit := do
   writeReg pmpaddr_n (vectorUpdate (← readReg pmpaddr_n) n
     (pmpWriteAddr (pmpLocked (GetElem?.getElem! (← readReg pmpcfg_n) n))
       (← do

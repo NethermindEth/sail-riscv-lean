@@ -207,7 +207,7 @@ def pmpRangeMatch (begin : Nat) (end_ : Nat) (addr : Nat) (width : Nat) : pmpAdd
     then PMP_Match
     else PMP_PartialMatch)
 
-def pmpMatchAddr (typ_0 : physaddr) (width : (BitVec (2 ^ 3 * 8))) (ent : (BitVec 8)) (pmpaddr : (BitVec (2 ^ 3 * 8))) (prev_pmpaddr : (BitVec (2 ^ 3 * 8))) : SailM pmpAddrMatch := do
+def pmpMatchAddr (typ_0 : physaddr) (width : (BitVec 64)) (ent : (BitVec 8)) (pmpaddr : (BitVec 64)) (prev_pmpaddr : (BitVec 64)) : SailM pmpAddrMatch := do
   let .Physaddr addr : physaddr := typ_0
   let addr := (BitVec.toNat addr)
   let width := (BitVec.toNat width)
@@ -239,7 +239,7 @@ def accessToFault (acc : (AccessType Unit)) : ExceptionType :=
 
 /-- Type quantifiers: width : Nat, 0 < width ∧ width ≤ max_mem_access -/
 def pmpCheck (addr : physaddr) (width : Nat) (acc : (AccessType Unit)) (priv : Privilege) : SailM (Option ExceptionType) := SailME.run do
-  let width : xlenbits := (to_bits (l := ((2 ^i 3) *i 8)) width)
+  let width : xlenbits := (to_bits (l := 64) width)
   let loop_i_lower := 0
   let loop_i_upper := 63
   let mut loop_vars := ()
@@ -249,7 +249,7 @@ def pmpCheck (addr : physaddr) (width : Nat) (acc : (AccessType Unit)) (priv : P
       let prev_pmpaddr ← do
         bif (i >b 0)
         then (pmpReadAddrReg (i -i 1))
-        else (pure (zeros (n := ((2 ^i 3) *i 8))))
+        else (pure (zeros (n := 64)))
       let cfg ← do (pure (GetElem?.getElem! (← readReg pmpcfg_n) i))
       match (← (pmpMatchAddr addr width cfg (← (pmpReadAddrReg i)) prev_pmpaddr)) with
       | PMP_NoMatch => (pure ())

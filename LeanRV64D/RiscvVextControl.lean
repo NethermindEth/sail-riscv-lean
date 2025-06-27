@@ -175,7 +175,6 @@ open AccessType
 
 def set_vstart (value : (BitVec 16)) : SailM Unit := do
   (dirty_v_context ())
-  writeReg vstart (zero_extend (m := ((2 ^i 3) *i 8))
-    (Sail.BitVec.extractLsb value (VLEN_pow -i 1) 0))
+  writeReg vstart (zero_extend (m := 64) (Sail.BitVec.extractLsb value (VLEN_pow -i 1) 0))
   (csr_name_write_callback "vstart" (← readReg vstart))
 

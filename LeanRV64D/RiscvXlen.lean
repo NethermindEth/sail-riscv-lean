@@ -176,13 +176,11 @@ open ExceptionType
 open Architecture
 open AccessType
 
-def log2_xlen := (3 +i 3)
+def log2_xlen := 6
 
-def log2_xlen_bytes := 3
+def xlen_bytes := 8
 
-def xlen_bytes := (2 ^i 3)
-
-def xlen := ((2 ^i 3) *i 8)
+def xlen := 64
 
 def asidlen := 16
 

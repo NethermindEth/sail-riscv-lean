@@ -201,23 +201,23 @@ def _update_HpmEvent_bits (v : (BitVec 64)) (x : (BitVec 64)) : (BitVec 64) :=
 def _update_MEnvcfg_bits (v : (BitVec 64)) (x : (BitVec 64)) : (BitVec 64) :=
   (Sail.BitVec.updateSubrange v (64 -i 1) 0 x)
 
-def _update_Mcause_bits (v : (BitVec (2 ^ 3 * 8))) (x : (BitVec 64)) : (BitVec (2 ^ 3 * 8)) :=
-  (Sail.BitVec.updateSubrange v (((2 ^i 3) *i 8) -i 1) 0 x)
+def _update_Mcause_bits (v : (BitVec 64)) (x : (BitVec 64)) : (BitVec 64) :=
+  (Sail.BitVec.updateSubrange v (64 -i 1) 0 x)
 
 def _update_Medeleg_bits (v : (BitVec 64)) (x : (BitVec 64)) : (BitVec 64) :=
   (Sail.BitVec.updateSubrange v (64 -i 1) 0 x)
 
-def _update_Minterrupts_bits (v : (BitVec (2 ^ 3 * 8))) (x : (BitVec 64)) : (BitVec (2 ^ 3 * 8)) :=
-  (Sail.BitVec.updateSubrange v (((2 ^i 3) *i 8) -i 1) 0 x)
+def _update_Minterrupts_bits (v : (BitVec 64)) (x : (BitVec 64)) : (BitVec 64) :=
+  (Sail.BitVec.updateSubrange v (64 -i 1) 0 x)
 
-def _update_Misa_bits (v : (BitVec (2 ^ 3 * 8))) (x : (BitVec 64)) : (BitVec (2 ^ 3 * 8)) :=
-  (Sail.BitVec.updateSubrange v (((2 ^i 3) *i 8) -i 1) 0 x)
+def _update_Misa_bits (v : (BitVec 64)) (x : (BitVec 64)) : (BitVec 64) :=
+  (Sail.BitVec.updateSubrange v (64 -i 1) 0 x)
 
 def _update_Mstatus_bits (v : (BitVec 64)) (x : (BitVec 64)) : (BitVec 64) :=
   (Sail.BitVec.updateSubrange v (64 -i 1) 0 x)
 
-def _update_Mtvec_bits (v : (BitVec (2 ^ 3 * 8))) (x : (BitVec 64)) : (BitVec (2 ^ 3 * 8)) :=
-  (Sail.BitVec.updateSubrange v (((2 ^i 3) *i 8) -i 1) 0 x)
+def _update_Mtvec_bits (v : (BitVec 64)) (x : (BitVec 64)) : (BitVec 64) :=
+  (Sail.BitVec.updateSubrange v (64 -i 1) 0 x)
 
 def _update_PTE_Ext_bits (v : (BitVec 10)) (x : (BitVec 10)) : (BitVec 10) :=
   (Sail.BitVec.updateSubrange v (10 -i 1) 0 x)
@@ -246,8 +246,8 @@ def _update_RVFI_DII_Execution_Packet_PC_bits (v : (BitVec 128)) (x : (BitVec 12
 def _update_RVFI_DII_Execution_Packet_V1_bits (v : (BitVec 704)) (x : (BitVec 704)) : (BitVec 704) :=
   (Sail.BitVec.updateSubrange v (704 -i 1) 0 x)
 
-def _update_SEnvcfg_bits (v : (BitVec (2 ^ 3 * 8))) (x : (BitVec 64)) : (BitVec (2 ^ 3 * 8)) :=
-  (Sail.BitVec.updateSubrange v (((2 ^i 3) *i 8) -i 1) 0 x)
+def _update_SEnvcfg_bits (v : (BitVec 64)) (x : (BitVec 64)) : (BitVec 64) :=
+  (Sail.BitVec.updateSubrange v (64 -i 1) 0 x)
 
 def _update_Satp32_bits (v : (BitVec 32)) (x : (BitVec 32)) : (BitVec 32) :=
   (Sail.BitVec.updateSubrange v (32 -i 1) 0 x)
@@ -258,8 +258,8 @@ def _update_Satp64_bits (v : (BitVec 64)) (x : (BitVec 64)) : (BitVec 64) :=
 def _update_Seccfg_bits (v : (BitVec 64)) (x : (BitVec 64)) : (BitVec 64) :=
   (Sail.BitVec.updateSubrange v (64 -i 1) 0 x)
 
-def _update_Sinterrupts_bits (v : (BitVec (2 ^ 3 * 8))) (x : (BitVec 64)) : (BitVec (2 ^ 3 * 8)) :=
-  (Sail.BitVec.updateSubrange v (((2 ^i 3) *i 8) -i 1) 0 x)
+def _update_Sinterrupts_bits (v : (BitVec 64)) (x : (BitVec 64)) : (BitVec 64) :=
+  (Sail.BitVec.updateSubrange v (64 -i 1) 0 x)
 
 def _update_Sstatus_bits (v : (BitVec 64)) (x : (BitVec 64)) : (BitVec 64) :=
   (Sail.BitVec.updateSubrange v (64 -i 1) 0 x)
@@ -267,8 +267,8 @@ def _update_Sstatus_bits (v : (BitVec 64)) (x : (BitVec 64)) : (BitVec 64) :=
 def _update_Vcsr_bits (v : (BitVec 3)) (x : (BitVec 3)) : (BitVec 3) :=
   (Sail.BitVec.updateSubrange v (3 -i 1) 0 x)
 
-def _update_Vtype_bits (v : (BitVec (2 ^ 3 * 8))) (x : (BitVec 64)) : (BitVec (2 ^ 3 * 8)) :=
-  (Sail.BitVec.updateSubrange v (((2 ^i 3) *i 8) -i 1) 0 x)
+def _update_Vtype_bits (v : (BitVec 64)) (x : (BitVec 64)) : (BitVec 64) :=
+  (Sail.BitVec.updateSubrange v (64 -i 1) 0 x)
 
 def _update_htif_cmd_bits (v : (BitVec 64)) (x : (BitVec 64)) : (BitVec 64) :=
   (Sail.BitVec.updateSubrange v (64 -i 1) 0 x)
@@ -295,23 +295,23 @@ def _get_HpmEvent_bits (v : (BitVec 64)) : (BitVec 64) :=
 def _get_MEnvcfg_bits (v : (BitVec 64)) : (BitVec 64) :=
   (Sail.BitVec.extractLsb v (64 -i 1) 0)
 
-def _get_Mcause_bits (v : (BitVec (2 ^ 3 * 8))) : (BitVec 64) :=
-  (Sail.BitVec.extractLsb v (((2 ^i 3) *i 8) -i 1) 0)
+def _get_Mcause_bits (v : (BitVec 64)) : (BitVec 64) :=
+  (Sail.BitVec.extractLsb v (64 -i 1) 0)
 
 def _get_Medeleg_bits (v : (BitVec 64)) : (BitVec 64) :=
   (Sail.BitVec.extractLsb v (64 -i 1) 0)
 
-def _get_Minterrupts_bits (v : (BitVec (2 ^ 3 * 8))) : (BitVec 64) :=
-  (Sail.BitVec.extractLsb v (((2 ^i 3) *i 8) -i 1) 0)
+def _get_Minterrupts_bits (v : (BitVec 64)) : (BitVec 64) :=
+  (Sail.BitVec.extractLsb v (64 -i 1) 0)
 
-def _get_Misa_bits (v : (BitVec (2 ^ 3 * 8))) : (BitVec 64) :=
-  (Sail.BitVec.extractLsb v (((2 ^i 3) *i 8) -i 1) 0)
+def _get_Misa_bits (v : (BitVec 64)) : (BitVec 64) :=
+  (Sail.BitVec.extractLsb v (64 -i 1) 0)
 
 def _get_Mstatus_bits (v : (BitVec 64)) : (BitVec 64) :=
   (Sail.BitVec.extractLsb v (64 -i 1) 0)
 
-def _get_Mtvec_bits (v : (BitVec (2 ^ 3 * 8))) : (BitVec 64) :=
-  (Sail.BitVec.extractLsb v (((2 ^i 3) *i 8) -i 1) 0)
+def _get_Mtvec_bits (v : (BitVec 64)) : (BitVec 64) :=
+  (Sail.BitVec.extractLsb v (64 -i 1) 0)
 
 def _get_PTE_Ext_bits (v : (BitVec 10)) : (BitVec 10) :=
   (Sail.BitVec.extractLsb v (10 -i 1) 0)
@@ -340,8 +340,8 @@ def _get_RVFI_DII_Execution_Packet_PC_bits (v : (BitVec 128)) : (BitVec 128) :=
 def _get_RVFI_DII_Execution_Packet_V1_bits (v : (BitVec 704)) : (BitVec 704) :=
   (Sail.BitVec.extractLsb v (704 -i 1) 0)
 
-def _get_SEnvcfg_bits (v : (BitVec (2 ^ 3 * 8))) : (BitVec 64) :=
-  (Sail.BitVec.extractLsb v (((2 ^i 3) *i 8) -i 1) 0)
+def _get_SEnvcfg_bits (v : (BitVec 64)) : (BitVec 64) :=
+  (Sail.BitVec.extractLsb v (64 -i 1) 0)
 
 def _get_Satp32_bits (v : (BitVec 32)) : (BitVec 32) :=
   (Sail.BitVec.extractLsb v (32 -i 1) 0)
@@ -352,8 +352,8 @@ def _get_Satp64_bits (v : (BitVec 64)) : (BitVec 64) :=
 def _get_Seccfg_bits (v : (BitVec 64)) : (BitVec 64) :=
   (Sail.BitVec.extractLsb v (64 -i 1) 0)
 
-def _get_Sinterrupts_bits (v : (BitVec (2 ^ 3 * 8))) : (BitVec 64) :=
-  (Sail.BitVec.extractLsb v (((2 ^i 3) *i 8) -i 1) 0)
+def _get_Sinterrupts_bits (v : (BitVec 64)) : (BitVec 64) :=
+  (Sail.BitVec.extractLsb v (64 -i 1) 0)
 
 def _get_Sstatus_bits (v : (BitVec 64)) : (BitVec 64) :=
   (Sail.BitVec.extractLsb v (64 -i 1) 0)
@@ -361,8 +361,8 @@ def _get_Sstatus_bits (v : (BitVec 64)) : (BitVec 64) :=
 def _get_Vcsr_bits (v : (BitVec 3)) : (BitVec 3) :=
   (Sail.BitVec.extractLsb v (3 -i 1) 0)
 
-def _get_Vtype_bits (v : (BitVec (2 ^ 3 * 8))) : (BitVec 64) :=
-  (Sail.BitVec.extractLsb v (((2 ^i 3) *i 8) -i 1) 0)
+def _get_Vtype_bits (v : (BitVec 64)) : (BitVec 64) :=
+  (Sail.BitVec.extractLsb v (64 -i 1) 0)
 
 def _get_htif_cmd_bits (v : (BitVec 64)) : (BitVec 64) :=
   (Sail.BitVec.extractLsb v (64 -i 1) 0)
@@ -391,7 +391,7 @@ def _set_MEnvcfg_bits (r_ref : (RegisterRef (BitVec 64))) (v : (BitVec 64)) : Sa
   let r ← do (reg_deref r_ref)
   writeRegRef r_ref (_update_MEnvcfg_bits r v)
 
-def _set_Mcause_bits (r_ref : (RegisterRef (BitVec (2 ^ 3 * 8)))) (v : (BitVec 64)) : SailM Unit := do
+def _set_Mcause_bits (r_ref : (RegisterRef (BitVec 64))) (v : (BitVec 64)) : SailM Unit := do
   let r ← do (reg_deref r_ref)
   writeRegRef r_ref (_update_Mcause_bits r v)
 
@@ -399,11 +399,11 @@ def _set_Medeleg_bits (r_ref : (RegisterRef (BitVec 64))) (v : (BitVec 64)) : Sa
   let r ← do (reg_deref r_ref)
   writeRegRef r_ref (_update_Medeleg_bits r v)
 
-def _set_Minterrupts_bits (r_ref : (RegisterRef (BitVec (2 ^ 3 * 8)))) (v : (BitVec 64)) : SailM Unit := do
+def _set_Minterrupts_bits (r_ref : (RegisterRef (BitVec 64))) (v : (BitVec 64)) : SailM Unit := do
   let r ← do (reg_deref r_ref)
   writeRegRef r_ref (_update_Minterrupts_bits r v)
 
-def _set_Misa_bits (r_ref : (RegisterRef (BitVec (2 ^ 3 * 8)))) (v : (BitVec 64)) : SailM Unit := do
+def _set_Misa_bits (r_ref : (RegisterRef (BitVec 64))) (v : (BitVec 64)) : SailM Unit := do
   let r ← do (reg_deref r_ref)
   writeRegRef r_ref (_update_Misa_bits r v)
 
@@ -411,7 +411,7 @@ def _set_Mstatus_bits (r_ref : (RegisterRef (BitVec 64))) (v : (BitVec 64)) : Sa
   let r ← do (reg_deref r_ref)
   writeRegRef r_ref (_update_Mstatus_bits r v)
 
-def _set_Mtvec_bits (r_ref : (RegisterRef (BitVec (2 ^ 3 * 8)))) (v : (BitVec 64)) : SailM Unit := do
+def _set_Mtvec_bits (r_ref : (RegisterRef (BitVec 64))) (v : (BitVec 64)) : SailM Unit := do
   let r ← do (reg_deref r_ref)
   writeRegRef r_ref (_update_Mtvec_bits r v)
 
@@ -451,7 +451,7 @@ def _set_RVFI_DII_Execution_Packet_V1_bits (r_ref : (RegisterRef (BitVec 704))) 
   let r ← do (reg_deref r_ref)
   writeRegRef r_ref (_update_RVFI_DII_Execution_Packet_V1_bits r v)
 
-def _set_SEnvcfg_bits (r_ref : (RegisterRef (BitVec (2 ^ 3 * 8)))) (v : (BitVec 64)) : SailM Unit := do
+def _set_SEnvcfg_bits (r_ref : (RegisterRef (BitVec 64))) (v : (BitVec 64)) : SailM Unit := do
   let r ← do (reg_deref r_ref)
   writeRegRef r_ref (_update_SEnvcfg_bits r v)
 
@@ -467,7 +467,7 @@ def _set_Seccfg_bits (r_ref : (RegisterRef (BitVec 64))) (v : (BitVec 64)) : Sai
   let r ← do (reg_deref r_ref)
   writeRegRef r_ref (_update_Seccfg_bits r v)
 
-def _set_Sinterrupts_bits (r_ref : (RegisterRef (BitVec (2 ^ 3 * 8)))) (v : (BitVec 64)) : SailM Unit := do
+def _set_Sinterrupts_bits (r_ref : (RegisterRef (BitVec 64))) (v : (BitVec 64)) : SailM Unit := do
   let r ← do (reg_deref r_ref)
   writeRegRef r_ref (_update_Sinterrupts_bits r v)
 
@@ -479,7 +479,7 @@ def _set_Vcsr_bits (r_ref : (RegisterRef (BitVec 3))) (v : (BitVec 3)) : SailM U
   let r ← do (reg_deref r_ref)
   writeRegRef r_ref (_update_Vcsr_bits r v)
 
-def _set_Vtype_bits (r_ref : (RegisterRef (BitVec (2 ^ 3 * 8)))) (v : (BitVec 64)) : SailM Unit := do
+def _set_Vtype_bits (r_ref : (RegisterRef (BitVec 64))) (v : (BitVec 64)) : SailM Unit := do
   let r ← do (reg_deref r_ref)
   writeRegRef r_ref (_update_Vtype_bits r v)
 
@@ -1052,7 +1052,7 @@ def print_rvfi_exec (_ : Unit) : SailM Unit := do
       (_get_RVFI_DII_Execution_Packet_InstMetaData_rvfi_order (← readReg rvfi_inst_data))))
 
 /-- Type quantifiers: width : Nat, width ≥ 0, 0 < width ∧ width ≤ max_mem_access -/
-def rvfi_write (paddr : (BitVec (2 ^ 3 * 8))) (width : Nat) (value : (BitVec (8 * width))) : SailM Unit := do
+def rvfi_write (paddr : (BitVec 64)) (width : Nat) (value : (BitVec (8 * width))) : SailM Unit := do
   writeReg rvfi_mem_data (Sail.BitVec.updateSubrange (← readReg rvfi_mem_data) 703 640
     (zero_extend (m := 64) paddr))
   writeReg rvfi_mem_data_present true
@@ -1066,7 +1066,7 @@ def rvfi_write (paddr : (BitVec (2 ^ 3 * 8))) (width : Nat) (value : (BitVec (8 
   else (internal_error "rvfi_dii.sail" 232 "Expected at most 16 bytes here!")
 
 /-- Type quantifiers: width : Nat, width ≥ 0, width > 0 -/
-def rvfi_read (paddr : (BitVec (2 ^ 3 * 8))) (width : Nat) (value : (BitVec (8 * width))) : SailM Unit := do
+def rvfi_read (paddr : (BitVec 64)) (width : Nat) (value : (BitVec (8 * width))) : SailM Unit := do
   writeReg rvfi_mem_data (Sail.BitVec.updateSubrange (← readReg rvfi_mem_data) 703 640
     (zero_extend (m := 64) paddr))
   writeReg rvfi_mem_data_present true
@@ -1079,13 +1079,13 @@ def rvfi_read (paddr : (BitVec (2 ^ 3 * 8))) (width : Nat) (value : (BitVec (8 *
         (rvfi_encode_width_mask width)))
   else (internal_error "rvfi_dii.sail" 245 "Expected at most 16 bytes here!")
 
-def rvfi_mem_exception (paddr : (BitVec (2 ^ 3 * 8))) : SailM Unit := do
+def rvfi_mem_exception (paddr : (BitVec 64)) : SailM Unit := do
   writeReg rvfi_mem_data (Sail.BitVec.updateSubrange (← readReg rvfi_mem_data) 703 640
     (zero_extend (m := 64) paddr))
   writeReg rvfi_mem_data_present true
 
 /-- Type quantifiers: r : Nat, 0 ≤ r ∧ r < 32 -/
-def rvfi_wX (r : Nat) (v : (BitVec (2 ^ 3 * 8))) : SailM Unit := do
+def rvfi_wX (r : Nat) (v : (BitVec 64)) : SailM Unit := do
   writeReg rvfi_int_data (Sail.BitVec.updateSubrange (← readReg rvfi_int_data) 127 64
     (zero_extend (m := 64) v))
   writeReg rvfi_int_data (Sail.BitVec.updateSubrange (← readReg rvfi_int_data) 263 256

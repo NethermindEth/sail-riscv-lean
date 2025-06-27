@@ -177,10 +177,10 @@ def ext_check_xret_priv (p : Privilege) : Bool :=
 def ext_fail_xret_priv (_ : Unit) : Unit :=
   ()
 
-def handle_trap_extension (p : Privilege) (pc : (BitVec (2 ^ 3 * 8))) (u : (Option Unit)) : Unit :=
+def handle_trap_extension (p : Privilege) (pc : (BitVec 64)) (u : (Option Unit)) : Unit :=
   ()
 
-def prepare_trap_vector (p : Privilege) (cause : (BitVec (2 ^ 3 * 8))) : SailM (BitVec (2 ^ 3 * 8)) := do
+def prepare_trap_vector (p : Privilege) (cause : (BitVec 64)) : SailM (BitVec 64) := do
   let tvec ← (( do
     match p with
     | Machine => readReg mtvec
@@ -191,13 +191,13 @@ def prepare_trap_vector (p : Privilege) (cause : (BitVec (2 ^ 3 * 8))) : SailM (
   | .some epc => (pure epc)
   | none => (internal_error "riscv_sys_exceptions.sail" 29 "Invalid tvec mode")
 
-def get_xepc (p : Privilege) : SailM (BitVec (2 ^ 3 * 8)) := do
+def get_xepc (p : Privilege) : SailM (BitVec 64) := do
   match p with
   | Machine => (align_pc (← readReg mepc))
   | Supervisor => (align_pc (← readReg sepc))
   | User => (internal_error "riscv_sys_exceptions.sail" 45 "Invalid privilege level")
 
-def set_xepc (p : Privilege) (value : (BitVec (2 ^ 3 * 8))) : SailM (BitVec (2 ^ 3 * 8)) := do
+def set_xepc (p : Privilege) (value : (BitVec 64)) : SailM (BitVec 64) := do
   let target := (legalize_xepc value)
   match p with
   | Machine => writeReg mepc target
@@ -205,20 +205,20 @@ def set_xepc (p : Privilege) (value : (BitVec (2 ^ 3 * 8))) : SailM (BitVec (2 ^
   | User => (internal_error "riscv_sys_exceptions.sail" 54 "Invalid privilege level")
   (pure target)
 
-def prepare_xret_target (p : Privilege) : SailM (BitVec (2 ^ 3 * 8)) := do
+def prepare_xret_target (p : Privilege) : SailM (BitVec 64) := do
   (get_xepc p)
 
-def get_mtvec (_ : Unit) : SailM (BitVec (2 ^ 3 * 8)) := do
+def get_mtvec (_ : Unit) : SailM (BitVec 64) := do
   readReg mtvec
 
-def get_stvec (_ : Unit) : SailM (BitVec (2 ^ 3 * 8)) := do
+def get_stvec (_ : Unit) : SailM (BitVec 64) := do
   readReg stvec
 
-def set_mtvec (value : (BitVec (2 ^ 3 * 8))) : SailM (BitVec (2 ^ 3 * 8)) := do
+def set_mtvec (value : (BitVec 64)) : SailM (BitVec 64) := do
   writeReg mtvec (legalize_tvec (← readReg mtvec) value)
   readReg mtvec
 
-def set_stvec (value : (BitVec (2 ^ 3 * 8))) : SailM (BitVec (2 ^ 3 * 8)) := do
+def set_stvec (value : (BitVec 64)) : SailM (BitVec 64) := do
   writeReg stvec (legalize_tvec (← readReg stvec) value)
   readReg stvec
 

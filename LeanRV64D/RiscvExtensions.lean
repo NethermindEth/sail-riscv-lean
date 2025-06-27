@@ -471,7 +471,8 @@ def extensionName_backwards_matches (arg_ : String) : Bool :=
 
 def hartSupports_measure (ext : extension) : Int :=
   match ext with
-  | Ext_C => 1
+  | Ext_C => 2
+  | Ext_D => 1
   | _ => 0
 
 def hartSupports (merge_var : extension) : Bool :=
@@ -479,7 +480,7 @@ def hartSupports (merge_var : extension) : Bool :=
   | Ext_M => true
   | Ext_A => true
   | Ext_F => true
-  | Ext_D => true
+  | Ext_D => (true && (hartSupports Ext_F))
   | Ext_B => true
   | Ext_V => true
   | Ext_S => true
@@ -506,7 +507,7 @@ def hartSupports (merge_var : extension) : Bool :=
   | Ext_Zca => true
   | Ext_Zcb => true
   | Ext_Zcd => true
-  | Ext_Zcf => ((true : Bool) && (xlen == 32))
+  | Ext_Zcf => ((false : Bool) && (xlen == 32))
   | Ext_Zcmop => true
   | Ext_C =>
     ((hartSupports Ext_Zca) && (((hartSupports Ext_Zcf) || ((not (hartSupports Ext_F)) || (xlen != 32))) && ((hartSupports
@@ -543,7 +544,7 @@ def hartSupports (merge_var : extension) : Bool :=
   | Ext_Svnapot => false
   | Ext_Svpbmt => false
   | Ext_Svbare => true
-  | Ext_Sv32 => ((true : Bool) && (xlen == 32))
+  | Ext_Sv32 => ((false : Bool) && (xlen == 32))
   | Ext_Sv39 => ((true : Bool) && (xlen == 64))
   | Ext_Sv48 => ((true : Bool) && (xlen == 64))
   | Ext_Sv57 => ((true : Bool) && (xlen == 64))

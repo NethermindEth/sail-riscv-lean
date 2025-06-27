@@ -172,17 +172,20 @@ open ExceptionType
 open Architecture
 open AccessType
 
-def get_arch_pc (_ : Unit) : SailM (BitVec (2 ^ 3 * 8)) := do
+def get_arch_pc (_ : Unit) : SailM (BitVec 64) := do
   readReg PC
 
-def get_next_pc (_ : Unit) : SailM (BitVec (2 ^ 3 * 8)) := do
+def get_next_pc (_ : Unit) : SailM (BitVec 64) := do
   readReg nextPC
 
-def set_next_pc (pc : (BitVec (2 ^ 3 * 8))) : SailM Unit := do
+def set_next_pc (pc : (BitVec 64)) : SailM Unit := do
   let _ : Unit := (sail_branch_announce xlen pc)
   writeReg nextPC pc
 
 def tick_pc (_ : Unit) : SailM Unit := do
   writeReg PC (← readReg nextPC)
   (pure (pc_write_callback (← readReg PC)))
+
+def force_pc (pc : (BitVec 64)) : SailM Unit := do
+  writeReg PC (Sail.BitVec.truncate pc xlen)
 

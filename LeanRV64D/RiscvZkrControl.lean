@@ -229,13 +229,13 @@ def opst_code_backwards_matches (arg_ : (BitVec 2)) : Bool :=
         then true
         else false)))
 
-def read_seed_csr (_ : Unit) : SailM (BitVec (2 ^ 3 * 8)) := do
+def read_seed_csr (_ : Unit) : SailM (BitVec 64) := do
   let reserved_bits : (BitVec 6) := (0b000000 : (BitVec 6))
   let custom_bits : (BitVec 8) := (0x00 : (BitVec 8))
   let seed ← (( do (get_16_random_bits ()) ) : SailM (BitVec 16) )
-  (pure (zero_extend (m := ((2 ^i 3) *i 8))
+  (pure (zero_extend (m := 64)
       ((opst_code_forwards ES16) ++ (reserved_bits ++ (custom_bits ++ seed)))))
 
-def write_seed_csr (_ : Unit) : (BitVec (2 ^ 3 * 8)) :=
-  (zeros (n := ((2 ^i 3) *i 8)))
+def write_seed_csr (_ : Unit) : (BitVec 64) :=
+  (zeros (n := 64))
 

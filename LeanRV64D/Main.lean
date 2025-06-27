@@ -172,8 +172,8 @@ open ExceptionType
 open Architecture
 open AccessType
 
-def get_entry_point (_ : Unit) : (BitVec (2 ^ 3 * 8)) :=
-  (zero_extend (m := ((2 ^i 3) *i 8)) (0x1000 : (BitVec 16)))
+def get_entry_point (_ : Unit) : (BitVec 64) :=
+  (zero_extend (m := 64) (0x1000 : (BitVec 16)))
 
 def sail_main (_ : Unit) : SailM Unit := do
   writeReg PC (get_entry_point ())
