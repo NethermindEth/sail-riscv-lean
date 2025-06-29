@@ -379,13 +379,7 @@ inductive zvk_vaesef_funct6 where | ZVK_VAESEF_VV | ZVK_VAESEF_VS
 inductive zvk_vaesem_funct6 where | ZVK_VAESEM_VV | ZVK_VAESEM_VS
   deriving BEq, Inhabited, Repr
 
-inductive vext2funct6 where | VEXT2_ZVF2 | VEXT2_SVF2
-  deriving BEq, Inhabited, Repr
-
-inductive vext4funct6 where | VEXT4_ZVF4 | VEXT4_SVF4
-  deriving BEq, Inhabited, Repr
-
-inductive vext8funct6 where | VEXT8_ZVF8 | VEXT8_SVF8
+inductive vextfunct6 where | VEXT2_ZVF2 | VEXT2_SVF2 | VEXT4_ZVF4 | VEXT4_SVF4 | VEXT8_ZVF8 | VEXT8_SVF8
   deriving BEq, Inhabited, Repr
 
 inductive vfnunary0 where | FNV_CVT_XU_F | FNV_CVT_X_F | FNV_CVT_F_XU | FNV_CVT_F_X | FNV_CVT_F_F | FNV_CVT_ROD_F_F | FNV_CVT_RTZ_XU_F | FNV_CVT_RTZ_X_F
@@ -749,9 +743,7 @@ inductive ast where
   | WVVTYPE (_ : (wvvfunct6 × (BitVec 1) × vregidx × vregidx × vregidx))
   | WVTYPE (_ : (wvfunct6 × (BitVec 1) × vregidx × vregidx × vregidx))
   | WMVVTYPE (_ : (wmvvfunct6 × (BitVec 1) × vregidx × vregidx × vregidx))
-  | VEXT2TYPE (_ : (vext2funct6 × (BitVec 1) × vregidx × vregidx))
-  | VEXT4TYPE (_ : (vext4funct6 × (BitVec 1) × vregidx × vregidx))
-  | VEXT8TYPE (_ : (vext8funct6 × (BitVec 1) × vregidx × vregidx))
+  | VEXTTYPE (_ : (vextfunct6 × (BitVec 1) × vregidx × vregidx))
   | VMVXS (_ : (vregidx × regidx))
   | MVVCOMPRESS (_ : (vregidx × vregidx × vregidx))
   | MVXTYPE (_ : (mvxfunct6 × (BitVec 1) × vregidx × regidx × vregidx))

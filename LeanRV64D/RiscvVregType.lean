@@ -59,9 +59,7 @@ open vfwunary0
 open vfunary1
 open vfunary0
 open vfnunary0
-open vext8funct6
-open vext4funct6
-open vext2funct6
+open vextfunct6
 open uop
 open sopw
 open sop
@@ -614,47 +612,27 @@ def num_of_wxfunct6 (arg_ : wxfunct6) : Int :=
   | WX_VADDU => 2
   | WX_VSUBU => 3
 
-def undefined_vext2funct6 (_ : Unit) : SailM vext2funct6 := do
-  (internal_pick [VEXT2_ZVF2, VEXT2_SVF2])
+def undefined_vextfunct6 (_ : Unit) : SailM vextfunct6 := do
+  (internal_pick [VEXT2_ZVF2, VEXT2_SVF2, VEXT4_ZVF4, VEXT4_SVF4, VEXT8_ZVF8, VEXT8_SVF8])
 
-/-- Type quantifiers: arg_ : Nat, 0 ≤ arg_ ∧ arg_ ≤ 1 -/
-def vext2funct6_of_num (arg_ : Nat) : vext2funct6 :=
+/-- Type quantifiers: arg_ : Nat, 0 ≤ arg_ ∧ arg_ ≤ 5 -/
+def vextfunct6_of_num (arg_ : Nat) : vextfunct6 :=
   match arg_ with
   | 0 => VEXT2_ZVF2
-  | _ => VEXT2_SVF2
+  | 1 => VEXT2_SVF2
+  | 2 => VEXT4_ZVF4
+  | 3 => VEXT4_SVF4
+  | 4 => VEXT8_ZVF8
+  | _ => VEXT8_SVF8
 
-def num_of_vext2funct6 (arg_ : vext2funct6) : Int :=
+def num_of_vextfunct6 (arg_ : vextfunct6) : Int :=
   match arg_ with
   | VEXT2_ZVF2 => 0
   | VEXT2_SVF2 => 1
-
-def undefined_vext4funct6 (_ : Unit) : SailM vext4funct6 := do
-  (internal_pick [VEXT4_ZVF4, VEXT4_SVF4])
-
-/-- Type quantifiers: arg_ : Nat, 0 ≤ arg_ ∧ arg_ ≤ 1 -/
-def vext4funct6_of_num (arg_ : Nat) : vext4funct6 :=
-  match arg_ with
-  | 0 => VEXT4_ZVF4
-  | _ => VEXT4_SVF4
-
-def num_of_vext4funct6 (arg_ : vext4funct6) : Int :=
-  match arg_ with
-  | VEXT4_ZVF4 => 0
-  | VEXT4_SVF4 => 1
-
-def undefined_vext8funct6 (_ : Unit) : SailM vext8funct6 := do
-  (internal_pick [VEXT8_ZVF8, VEXT8_SVF8])
-
-/-- Type quantifiers: arg_ : Nat, 0 ≤ arg_ ∧ arg_ ≤ 1 -/
-def vext8funct6_of_num (arg_ : Nat) : vext8funct6 :=
-  match arg_ with
-  | 0 => VEXT8_ZVF8
-  | _ => VEXT8_SVF8
-
-def num_of_vext8funct6 (arg_ : vext8funct6) : Int :=
-  match arg_ with
-  | VEXT8_ZVF8 => 0
-  | VEXT8_SVF8 => 1
+  | VEXT4_ZVF4 => 2
+  | VEXT4_SVF4 => 3
+  | VEXT8_ZVF8 => 4
+  | VEXT8_SVF8 => 5
 
 def undefined_vxfunct6 (_ : Unit) : SailM vxfunct6 := do
   (internal_pick

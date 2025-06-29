@@ -62,9 +62,7 @@ open vfwunary0
 open vfunary1
 open vfunary0
 open vfnunary0
-open vext8funct6
-open vext4funct6
-open vext2funct6
+open vextfunct6
 open uop
 open sopw
 open sop
@@ -2780,7 +2778,7 @@ def maybe_lmul_flag_backwards (arg_ : (BitVec 3)) : SailM String := do
                               assert false "Pattern match failure at unknown location"
                               throw Error.Exit)))))))
 
-/-- Type quantifiers: k_ex373281# : Bool -/
+/-- Type quantifiers: k_ex371646# : Bool -/
 def maybe_u_forwards (arg_ : Bool) : String :=
   match arg_ with
   | true => "u"
@@ -3075,18 +3073,12 @@ def vaesem_mnemonic_forwards (arg_ : zvk_vaesem_funct6) : String :=
   | ZVK_VAESEM_VV => "vaesem.vv"
   | ZVK_VAESEM_VS => "vaesem.vs"
 
-def vext2type_mnemonic_forwards (arg_ : vext2funct6) : String :=
+def vexttype_mnemonic_forwards (arg_ : vextfunct6) : String :=
   match arg_ with
   | VEXT2_ZVF2 => "vzext.vf2"
   | VEXT2_SVF2 => "vsext.vf2"
-
-def vext4type_mnemonic_forwards (arg_ : vext4funct6) : String :=
-  match arg_ with
   | VEXT4_ZVF4 => "vzext.vf4"
   | VEXT4_SVF4 => "vsext.vf4"
-
-def vext8type_mnemonic_forwards (arg_ : vext8funct6) : String :=
-  match arg_ with
   | VEXT8_ZVF8 => "vzext.vf8"
   | VEXT8_SVF8 => "vsext.vf8"
 
@@ -5338,20 +5330,8 @@ def assembly_forwards (arg_ : ast) : SailM String := do
                 (String.append (sep_forwards ())
                   (String.append (vreg_name_forwards vs2)
                     (String.append (maybe_vmask_backwards vm) "")))))))))
-  | .VEXT2TYPE (funct6, vm, vs2, vd) =>
-    (pure (String.append (vext2type_mnemonic_forwards funct6)
-        (String.append (spc_forwards ())
-          (String.append (vreg_name_forwards vd)
-            (String.append (sep_forwards ())
-              (String.append (vreg_name_forwards vs2) (String.append (maybe_vmask_backwards vm) "")))))))
-  | .VEXT4TYPE (funct6, vm, vs2, vd) =>
-    (pure (String.append (vext4type_mnemonic_forwards funct6)
-        (String.append (spc_forwards ())
-          (String.append (vreg_name_forwards vd)
-            (String.append (sep_forwards ())
-              (String.append (vreg_name_forwards vs2) (String.append (maybe_vmask_backwards vm) "")))))))
-  | .VEXT8TYPE (funct6, vm, vs2, vd) =>
-    (pure (String.append (vext8type_mnemonic_forwards funct6)
+  | .VEXTTYPE (funct6, vm, vs2, vd) =>
+    (pure (String.append (vexttype_mnemonic_forwards funct6)
         (String.append (spc_forwards ())
           (String.append (vreg_name_forwards vd)
             (String.append (sep_forwards ())

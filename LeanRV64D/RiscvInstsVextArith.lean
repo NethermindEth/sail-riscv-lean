@@ -59,9 +59,7 @@ open vfwunary0
 open vfunary1
 open vfunary0
 open vfnunary0
-open vext8funct6
-open vext4funct6
-open vext2funct6
+open vextfunct6
 open uop
 open sopw
 open sop
@@ -1918,12 +1916,16 @@ def wmvvtype_mnemonic_backwards_matches (arg_ : String) : Bool :=
   | "vwmaccsu.vv" => true
   | _ => false
 
-def vext2_vs1_forwards (arg_ : vext2funct6) : (BitVec 5) :=
+def vext_vs1_forwards (arg_ : vextfunct6) : (BitVec 5) :=
   match arg_ with
   | VEXT2_ZVF2 => (0b00110 : (BitVec 5))
   | VEXT2_SVF2 => (0b00111 : (BitVec 5))
+  | VEXT4_ZVF4 => (0b00100 : (BitVec 5))
+  | VEXT4_SVF4 => (0b00101 : (BitVec 5))
+  | VEXT8_ZVF8 => (0b00010 : (BitVec 5))
+  | VEXT8_SVF8 => (0b00011 : (BitVec 5))
 
-def vext2_vs1_backwards (arg_ : (BitVec 5)) : SailM vext2funct6 := do
+def vext_vs1_backwards (arg_ : (BitVec 5)) : SailM vextfunct6 := do
   let b__0 := arg_
   bif (b__0 == (0b00110 : (BitVec 5)))
   then (pure VEXT2_ZVF2)
@@ -1933,129 +1935,61 @@ def vext2_vs1_backwards (arg_ : (BitVec 5)) : SailM vext2funct6 := do
       then (pure VEXT2_SVF2)
       else
         (do
-          assert false "Pattern match failure at unknown location"
-          throw Error.Exit))
+          bif (b__0 == (0b00100 : (BitVec 5)))
+          then (pure VEXT4_ZVF4)
+          else
+            (do
+              bif (b__0 == (0b00101 : (BitVec 5)))
+              then (pure VEXT4_SVF4)
+              else
+                (do
+                  bif (b__0 == (0b00010 : (BitVec 5)))
+                  then (pure VEXT8_ZVF8)
+                  else
+                    (do
+                      bif (b__0 == (0b00011 : (BitVec 5)))
+                      then (pure VEXT8_SVF8)
+                      else
+                        (do
+                          assert false "Pattern match failure at unknown location"
+                          throw Error.Exit))))))
 
-def vext2_vs1_forwards_matches (arg_ : vext2funct6) : Bool :=
+def vext_vs1_forwards_matches (arg_ : vextfunct6) : Bool :=
   match arg_ with
   | VEXT2_ZVF2 => true
   | VEXT2_SVF2 => true
+  | VEXT4_ZVF4 => true
+  | VEXT4_SVF4 => true
+  | VEXT8_ZVF8 => true
+  | VEXT8_SVF8 => true
 
-def vext2_vs1_backwards_matches (arg_ : (BitVec 5)) : Bool :=
+def vext_vs1_backwards_matches (arg_ : (BitVec 5)) : Bool :=
   let b__0 := arg_
   bif (b__0 == (0b00110 : (BitVec 5)))
   then true
   else
     (bif (b__0 == (0b00111 : (BitVec 5)))
     then true
-    else false)
+    else
+      (bif (b__0 == (0b00100 : (BitVec 5)))
+      then true
+      else
+        (bif (b__0 == (0b00101 : (BitVec 5)))
+        then true
+        else
+          (bif (b__0 == (0b00010 : (BitVec 5)))
+          then true
+          else
+            (bif (b__0 == (0b00011 : (BitVec 5)))
+            then true
+            else false)))))
 
-def vext2type_mnemonic_backwards (arg_ : String) : SailM vext2funct6 := do
+def vexttype_mnemonic_backwards (arg_ : String) : SailM vextfunct6 := do
   match arg_ with
   | "vzext.vf2" => (pure VEXT2_ZVF2)
   | "vsext.vf2" => (pure VEXT2_SVF2)
-  | _ =>
-    (do
-      assert false "Pattern match failure at unknown location"
-      throw Error.Exit)
-
-def vext2type_mnemonic_forwards_matches (arg_ : vext2funct6) : Bool :=
-  match arg_ with
-  | VEXT2_ZVF2 => true
-  | VEXT2_SVF2 => true
-
-def vext2type_mnemonic_backwards_matches (arg_ : String) : Bool :=
-  match arg_ with
-  | "vzext.vf2" => true
-  | "vsext.vf2" => true
-  | _ => false
-
-def vext4_vs1_forwards (arg_ : vext4funct6) : (BitVec 5) :=
-  match arg_ with
-  | VEXT4_ZVF4 => (0b00100 : (BitVec 5))
-  | VEXT4_SVF4 => (0b00101 : (BitVec 5))
-
-def vext4_vs1_backwards (arg_ : (BitVec 5)) : SailM vext4funct6 := do
-  let b__0 := arg_
-  bif (b__0 == (0b00100 : (BitVec 5)))
-  then (pure VEXT4_ZVF4)
-  else
-    (do
-      bif (b__0 == (0b00101 : (BitVec 5)))
-      then (pure VEXT4_SVF4)
-      else
-        (do
-          assert false "Pattern match failure at unknown location"
-          throw Error.Exit))
-
-def vext4_vs1_forwards_matches (arg_ : vext4funct6) : Bool :=
-  match arg_ with
-  | VEXT4_ZVF4 => true
-  | VEXT4_SVF4 => true
-
-def vext4_vs1_backwards_matches (arg_ : (BitVec 5)) : Bool :=
-  let b__0 := arg_
-  bif (b__0 == (0b00100 : (BitVec 5)))
-  then true
-  else
-    (bif (b__0 == (0b00101 : (BitVec 5)))
-    then true
-    else false)
-
-def vext4type_mnemonic_backwards (arg_ : String) : SailM vext4funct6 := do
-  match arg_ with
   | "vzext.vf4" => (pure VEXT4_ZVF4)
   | "vsext.vf4" => (pure VEXT4_SVF4)
-  | _ =>
-    (do
-      assert false "Pattern match failure at unknown location"
-      throw Error.Exit)
-
-def vext4type_mnemonic_forwards_matches (arg_ : vext4funct6) : Bool :=
-  match arg_ with
-  | VEXT4_ZVF4 => true
-  | VEXT4_SVF4 => true
-
-def vext4type_mnemonic_backwards_matches (arg_ : String) : Bool :=
-  match arg_ with
-  | "vzext.vf4" => true
-  | "vsext.vf4" => true
-  | _ => false
-
-def vext8_vs1_forwards (arg_ : vext8funct6) : (BitVec 5) :=
-  match arg_ with
-  | VEXT8_ZVF8 => (0b00010 : (BitVec 5))
-  | VEXT8_SVF8 => (0b00011 : (BitVec 5))
-
-def vext8_vs1_backwards (arg_ : (BitVec 5)) : SailM vext8funct6 := do
-  let b__0 := arg_
-  bif (b__0 == (0b00010 : (BitVec 5)))
-  then (pure VEXT8_ZVF8)
-  else
-    (do
-      bif (b__0 == (0b00011 : (BitVec 5)))
-      then (pure VEXT8_SVF8)
-      else
-        (do
-          assert false "Pattern match failure at unknown location"
-          throw Error.Exit))
-
-def vext8_vs1_forwards_matches (arg_ : vext8funct6) : Bool :=
-  match arg_ with
-  | VEXT8_ZVF8 => true
-  | VEXT8_SVF8 => true
-
-def vext8_vs1_backwards_matches (arg_ : (BitVec 5)) : Bool :=
-  let b__0 := arg_
-  bif (b__0 == (0b00010 : (BitVec 5)))
-  then true
-  else
-    (bif (b__0 == (0b00011 : (BitVec 5)))
-    then true
-    else false)
-
-def vext8type_mnemonic_backwards (arg_ : String) : SailM vext8funct6 := do
-  match arg_ with
   | "vzext.vf8" => (pure VEXT8_ZVF8)
   | "vsext.vf8" => (pure VEXT8_SVF8)
   | _ =>
@@ -2063,13 +1997,21 @@ def vext8type_mnemonic_backwards (arg_ : String) : SailM vext8funct6 := do
       assert false "Pattern match failure at unknown location"
       throw Error.Exit)
 
-def vext8type_mnemonic_forwards_matches (arg_ : vext8funct6) : Bool :=
+def vexttype_mnemonic_forwards_matches (arg_ : vextfunct6) : Bool :=
   match arg_ with
+  | VEXT2_ZVF2 => true
+  | VEXT2_SVF2 => true
+  | VEXT4_ZVF4 => true
+  | VEXT4_SVF4 => true
   | VEXT8_ZVF8 => true
   | VEXT8_SVF8 => true
 
-def vext8type_mnemonic_backwards_matches (arg_ : String) : Bool :=
+def vexttype_mnemonic_backwards_matches (arg_ : String) : Bool :=
   match arg_ with
+  | "vzext.vf2" => true
+  | "vsext.vf2" => true
+  | "vzext.vf4" => true
+  | "vsext.vf4" => true
   | "vzext.vf8" => true
   | "vsext.vf8" => true
   | _ => false
