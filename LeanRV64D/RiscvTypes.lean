@@ -2207,74 +2207,77 @@ def reg_abi_name_raw_forwards (arg_ : (BitVec 5)) : String :=
                 then "t2"
                 else
                   (bif (b__0 == (0b01000 : (BitVec 5)))
-                  then "fp"
+                  then "s0"
                   else
-                    (bif (b__0 == (0b01001 : (BitVec 5)))
-                    then "s1"
+                    (bif (b__0 == (0b01000 : (BitVec 5)))
+                    then "fp"
                     else
-                      (bif (b__0 == (0b01010 : (BitVec 5)))
-                      then "a0"
+                      (bif (b__0 == (0b01001 : (BitVec 5)))
+                      then "s1"
                       else
-                        (bif (b__0 == (0b01011 : (BitVec 5)))
-                        then "a1"
+                        (bif (b__0 == (0b01010 : (BitVec 5)))
+                        then "a0"
                         else
-                          (bif (b__0 == (0b01100 : (BitVec 5)))
-                          then "a2"
+                          (bif (b__0 == (0b01011 : (BitVec 5)))
+                          then "a1"
                           else
-                            (bif (b__0 == (0b01101 : (BitVec 5)))
-                            then "a3"
+                            (bif (b__0 == (0b01100 : (BitVec 5)))
+                            then "a2"
                             else
-                              (bif (b__0 == (0b01110 : (BitVec 5)))
-                              then "a4"
+                              (bif (b__0 == (0b01101 : (BitVec 5)))
+                              then "a3"
                               else
-                                (bif (b__0 == (0b01111 : (BitVec 5)))
-                                then "a5"
+                                (bif (b__0 == (0b01110 : (BitVec 5)))
+                                then "a4"
                                 else
-                                  (bif (b__0 == (0b10000 : (BitVec 5)))
-                                  then "a6"
+                                  (bif (b__0 == (0b01111 : (BitVec 5)))
+                                  then "a5"
                                   else
-                                    (bif (b__0 == (0b10001 : (BitVec 5)))
-                                    then "a7"
+                                    (bif (b__0 == (0b10000 : (BitVec 5)))
+                                    then "a6"
                                     else
-                                      (bif (b__0 == (0b10010 : (BitVec 5)))
-                                      then "s2"
+                                      (bif (b__0 == (0b10001 : (BitVec 5)))
+                                      then "a7"
                                       else
-                                        (bif (b__0 == (0b10011 : (BitVec 5)))
-                                        then "s3"
+                                        (bif (b__0 == (0b10010 : (BitVec 5)))
+                                        then "s2"
                                         else
-                                          (bif (b__0 == (0b10100 : (BitVec 5)))
-                                          then "s4"
+                                          (bif (b__0 == (0b10011 : (BitVec 5)))
+                                          then "s3"
                                           else
-                                            (bif (b__0 == (0b10101 : (BitVec 5)))
-                                            then "s5"
+                                            (bif (b__0 == (0b10100 : (BitVec 5)))
+                                            then "s4"
                                             else
-                                              (bif (b__0 == (0b10110 : (BitVec 5)))
-                                              then "s6"
+                                              (bif (b__0 == (0b10101 : (BitVec 5)))
+                                              then "s5"
                                               else
-                                                (bif (b__0 == (0b10111 : (BitVec 5)))
-                                                then "s7"
+                                                (bif (b__0 == (0b10110 : (BitVec 5)))
+                                                then "s6"
                                                 else
-                                                  (bif (b__0 == (0b11000 : (BitVec 5)))
-                                                  then "s8"
+                                                  (bif (b__0 == (0b10111 : (BitVec 5)))
+                                                  then "s7"
                                                   else
-                                                    (bif (b__0 == (0b11001 : (BitVec 5)))
-                                                    then "s9"
+                                                    (bif (b__0 == (0b11000 : (BitVec 5)))
+                                                    then "s8"
                                                     else
-                                                      (bif (b__0 == (0b11010 : (BitVec 5)))
-                                                      then "s10"
+                                                      (bif (b__0 == (0b11001 : (BitVec 5)))
+                                                      then "s9"
                                                       else
-                                                        (bif (b__0 == (0b11011 : (BitVec 5)))
-                                                        then "s11"
+                                                        (bif (b__0 == (0b11010 : (BitVec 5)))
+                                                        then "s10"
                                                         else
-                                                          (bif (b__0 == (0b11100 : (BitVec 5)))
-                                                          then "t3"
+                                                          (bif (b__0 == (0b11011 : (BitVec 5)))
+                                                          then "s11"
                                                           else
-                                                            (bif (b__0 == (0b11101 : (BitVec 5)))
-                                                            then "t4"
+                                                            (bif (b__0 == (0b11100 : (BitVec 5)))
+                                                            then "t3"
                                                             else
-                                                              (bif (b__0 == (0b11110 : (BitVec 5)))
-                                                              then "t5"
-                                                              else "t6"))))))))))))))))))))))))))))))
+                                                              (bif (b__0 == (0b11101 : (BitVec 5)))
+                                                              then "t4"
+                                                              else
+                                                                (bif (b__0 == (0b11110 : (BitVec 5)))
+                                                                then "t5"
+                                                                else "t6")))))))))))))))))))))))))))))))
 
 def reg_arch_name_raw_forwards (arg_ : (BitVec 5)) : String :=
   let b__0 := arg_
@@ -2778,7 +2781,7 @@ def maybe_lmul_flag_backwards (arg_ : (BitVec 3)) : SailM String := do
                               assert false "Pattern match failure at unknown location"
                               throw Error.Exit)))))))
 
-/-- Type quantifiers: k_ex371646# : Bool -/
+/-- Type quantifiers: k_ex371660# : Bool -/
 def maybe_u_forwards (arg_ : Bool) : String :=
   match arg_ with
   | true => "u"

@@ -182,6 +182,7 @@ def reg_abi_name_raw_backwards (arg_ : String) : SailM (BitVec 5) := do
   | "t0" => (pure (0b00101 : (BitVec 5)))
   | "t1" => (pure (0b00110 : (BitVec 5)))
   | "t2" => (pure (0b00111 : (BitVec 5)))
+  | "s0" => (pure (0b01000 : (BitVec 5)))
   | "fp" => (pure (0b01000 : (BitVec 5)))
   | "s1" => (pure (0b01001 : (BitVec 5)))
   | "a0" => (pure (0b01010 : (BitVec 5)))
@@ -240,75 +241,78 @@ def reg_abi_name_raw_forwards_matches (arg_ : (BitVec 5)) : Bool :=
                   (bif (b__0 == (0b01000 : (BitVec 5)))
                   then true
                   else
-                    (bif (b__0 == (0b01001 : (BitVec 5)))
+                    (bif (b__0 == (0b01000 : (BitVec 5)))
                     then true
                     else
-                      (bif (b__0 == (0b01010 : (BitVec 5)))
+                      (bif (b__0 == (0b01001 : (BitVec 5)))
                       then true
                       else
-                        (bif (b__0 == (0b01011 : (BitVec 5)))
+                        (bif (b__0 == (0b01010 : (BitVec 5)))
                         then true
                         else
-                          (bif (b__0 == (0b01100 : (BitVec 5)))
+                          (bif (b__0 == (0b01011 : (BitVec 5)))
                           then true
                           else
-                            (bif (b__0 == (0b01101 : (BitVec 5)))
+                            (bif (b__0 == (0b01100 : (BitVec 5)))
                             then true
                             else
-                              (bif (b__0 == (0b01110 : (BitVec 5)))
+                              (bif (b__0 == (0b01101 : (BitVec 5)))
                               then true
                               else
-                                (bif (b__0 == (0b01111 : (BitVec 5)))
+                                (bif (b__0 == (0b01110 : (BitVec 5)))
                                 then true
                                 else
-                                  (bif (b__0 == (0b10000 : (BitVec 5)))
+                                  (bif (b__0 == (0b01111 : (BitVec 5)))
                                   then true
                                   else
-                                    (bif (b__0 == (0b10001 : (BitVec 5)))
+                                    (bif (b__0 == (0b10000 : (BitVec 5)))
                                     then true
                                     else
-                                      (bif (b__0 == (0b10010 : (BitVec 5)))
+                                      (bif (b__0 == (0b10001 : (BitVec 5)))
                                       then true
                                       else
-                                        (bif (b__0 == (0b10011 : (BitVec 5)))
+                                        (bif (b__0 == (0b10010 : (BitVec 5)))
                                         then true
                                         else
-                                          (bif (b__0 == (0b10100 : (BitVec 5)))
+                                          (bif (b__0 == (0b10011 : (BitVec 5)))
                                           then true
                                           else
-                                            (bif (b__0 == (0b10101 : (BitVec 5)))
+                                            (bif (b__0 == (0b10100 : (BitVec 5)))
                                             then true
                                             else
-                                              (bif (b__0 == (0b10110 : (BitVec 5)))
+                                              (bif (b__0 == (0b10101 : (BitVec 5)))
                                               then true
                                               else
-                                                (bif (b__0 == (0b10111 : (BitVec 5)))
+                                                (bif (b__0 == (0b10110 : (BitVec 5)))
                                                 then true
                                                 else
-                                                  (bif (b__0 == (0b11000 : (BitVec 5)))
+                                                  (bif (b__0 == (0b10111 : (BitVec 5)))
                                                   then true
                                                   else
-                                                    (bif (b__0 == (0b11001 : (BitVec 5)))
+                                                    (bif (b__0 == (0b11000 : (BitVec 5)))
                                                     then true
                                                     else
-                                                      (bif (b__0 == (0b11010 : (BitVec 5)))
+                                                      (bif (b__0 == (0b11001 : (BitVec 5)))
                                                       then true
                                                       else
-                                                        (bif (b__0 == (0b11011 : (BitVec 5)))
+                                                        (bif (b__0 == (0b11010 : (BitVec 5)))
                                                         then true
                                                         else
-                                                          (bif (b__0 == (0b11100 : (BitVec 5)))
+                                                          (bif (b__0 == (0b11011 : (BitVec 5)))
                                                           then true
                                                           else
-                                                            (bif (b__0 == (0b11101 : (BitVec 5)))
+                                                            (bif (b__0 == (0b11100 : (BitVec 5)))
                                                             then true
                                                             else
-                                                              (bif (b__0 == (0b11110 : (BitVec 5)))
+                                                              (bif (b__0 == (0b11101 : (BitVec 5)))
                                                               then true
                                                               else
-                                                                (bif (b__0 == (0b11111 : (BitVec 5)))
+                                                                (bif (b__0 == (0b11110 : (BitVec 5)))
                                                                 then true
-                                                                else false)))))))))))))))))))))))))))))))
+                                                                else
+                                                                  (bif (b__0 == (0b11111 : (BitVec 5)))
+                                                                  then true
+                                                                  else false))))))))))))))))))))))))))))))))
 
 def reg_abi_name_raw_backwards_matches (arg_ : String) : Bool :=
   match arg_ with
@@ -320,6 +324,7 @@ def reg_abi_name_raw_backwards_matches (arg_ : String) : Bool :=
   | "t0" => true
   | "t1" => true
   | "t2" => true
+  | "s0" => true
   | "fp" => true
   | "s1" => true
   | "a0" => true
