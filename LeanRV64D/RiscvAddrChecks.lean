@@ -24,7 +24,6 @@ open wvvfunct6
 open wvfunct6
 open wrsop
 open write_kind
-open word_width
 open wmvxfunct6
 open wmvvfunct6
 open vxsgfunct6
@@ -191,7 +190,7 @@ def ext_data_get_addr (base : regidx) (offset : (BitVec 64)) (acc : (AccessType 
 def ext_handle_data_check_error (err : Unit) : Unit :=
   ()
 
-/-- Type quantifiers: k_ex373872# : Bool, k_ex373871# : Bool, k_ex373870# : Bool, k_ex373869# : Bool, size
+/-- Type quantifiers: k_ex374239# : Bool, k_ex374238# : Bool, k_ex374237# : Bool, k_ex374236# : Bool, size
   : Nat, 0 < size ∧ size ≤ max_mem_access -/
 def ext_check_phys_mem_read (access_type : (AccessType Unit)) (paddr : physaddr) (size : Nat) (acquire : Bool) (release : Bool) (reserved : Bool) (read_meta : Bool) : Ext_PhysAddr_Check :=
   (Ext_PhysAddr_OK ())

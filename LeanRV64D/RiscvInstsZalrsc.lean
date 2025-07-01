@@ -24,7 +24,6 @@ open wvvfunct6
 open wvfunct6
 open wrsop
 open write_kind
-open word_width
 open wmvxfunct6
 open wmvvfunct6
 open vxsgfunct6
@@ -168,9 +167,10 @@ open ExceptionType
 open Architecture
 open AccessType
 
-def lrsc_width_valid (size : word_width) : Bool :=
+/-- Type quantifiers: size : Nat, size ∈ {1, 2, 4, 8} -/
+def lrsc_width_valid (size : Nat) : Bool :=
   match size with
-  | WORD => true
-  | DOUBLE => (xlen ≥b 64)
+  | 4 => true
+  | 8 => (xlen ≥b 64)
   | _ => false
 

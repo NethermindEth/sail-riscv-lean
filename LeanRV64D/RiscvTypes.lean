@@ -33,7 +33,6 @@ open wvvfunct6
 open wvfunct6
 open wrsop
 open write_kind
-open word_width
 open wmvxfunct6
 open wmvvfunct6
 open vxsgfunct6
@@ -2781,7 +2780,7 @@ def maybe_lmul_flag_backwards (arg_ : (BitVec 3)) : SailM String := do
                               assert false "Pattern match failure at unknown location"
                               throw Error.Exit)))))))
 
-/-- Type quantifiers: k_ex371660# : Bool -/
+/-- Type quantifiers: k_ex372019# : Bool -/
 def maybe_u_forwards (arg_ : Bool) : String :=
   match arg_ with
   | true => "u"
@@ -3023,12 +3022,13 @@ def shiftiwop_mnemonic_forwards (arg_ : sopw) : String :=
   | SRLIW => "srliw"
   | SRAIW => "sraiw"
 
-def size_mnemonic_forwards (arg_ : word_width) : String :=
+/-- Type quantifiers: arg_ : Nat, arg_ ∈ {1, 2, 4, 8} -/
+def size_mnemonic_forwards (arg_ : Nat) : String :=
   match arg_ with
-  | BYTE => "b"
-  | HALF => "h"
-  | WORD => "w"
-  | DOUBLE => "d"
+  | 1 => "b"
+  | 2 => "h"
+  | 4 => "w"
+  | _ => "d"
 
 def sp_reg_name_forwards (arg_ : Unit) : SailM String := do
   match arg_ with
@@ -6209,24 +6209,6 @@ def wait_name_forwards (arg_ : WaitReason) : String :=
   | WAIT_WRS_STO => "WAIT-WRS-STO"
   | WAIT_WRS_NTO => "WAIT-WRS-NTO"
 
-def undefined_word_width (_ : Unit) : SailM word_width := do
-  (internal_pick [BYTE, HALF, WORD, DOUBLE])
-
-/-- Type quantifiers: arg_ : Nat, 0 ≤ arg_ ∧ arg_ ≤ 3 -/
-def word_width_of_num (arg_ : Nat) : word_width :=
-  match arg_ with
-  | 0 => BYTE
-  | 1 => HALF
-  | 2 => WORD
-  | _ => DOUBLE
-
-def num_of_word_width (arg_ : word_width) : Int :=
-  match arg_ with
-  | BYTE => 0
-  | HALF => 1
-  | WORD => 2
-  | DOUBLE => 3
-
 def undefined_InterruptType (_ : Unit) : SailM InterruptType := do
   (internal_pick
     [I_U_Software, I_S_Software, I_M_Software, I_U_Timer, I_S_Timer, I_M_Timer, I_U_External, I_S_External, I_M_External])
@@ -6844,31 +6826,34 @@ def wait_name_backwards_matches (arg_ : String) : Bool :=
   | "WAIT-WRS-NTO" => true
   | _ => false
 
-def size_enc_forwards (arg_ : word_width) : (BitVec 2) :=
+/-- Type quantifiers: arg_ : Nat, arg_ ∈ {1, 2, 4, 8} -/
+def size_enc_forwards (arg_ : Nat) : (BitVec 2) :=
   match arg_ with
-  | BYTE => (0b00 : (BitVec 2))
-  | HALF => (0b01 : (BitVec 2))
-  | WORD => (0b10 : (BitVec 2))
-  | DOUBLE => (0b11 : (BitVec 2))
+  | 1 => (0b00 : (BitVec 2))
+  | 2 => (0b01 : (BitVec 2))
+  | 4 => (0b10 : (BitVec 2))
+  | _ => (0b11 : (BitVec 2))
 
-def size_enc_backwards (arg_ : (BitVec 2)) : word_width :=
+def size_enc_backwards (arg_ : (BitVec 2)) : Int :=
   let b__0 := arg_
   bif (b__0 == (0b00 : (BitVec 2)))
-  then BYTE
+  then 1
   else
     (bif (b__0 == (0b01 : (BitVec 2)))
-    then HALF
+    then 2
     else
       (bif (b__0 == (0b10 : (BitVec 2)))
-      then WORD
-      else DOUBLE))
+      then 4
+      else 8))
 
-def size_enc_forwards_matches (arg_ : word_width) : Bool :=
+/-- Type quantifiers: arg_ : Nat, arg_ ∈ {1, 2, 4, 8} -/
+def size_enc_forwards_matches (arg_ : Nat) : Bool :=
   match arg_ with
-  | BYTE => true
-  | HALF => true
-  | WORD => true
-  | DOUBLE => true
+  | 1 => true
+  | 2 => true
+  | 4 => true
+  | 8 => true
+  | _ => false
 
 def size_enc_backwards_matches (arg_ : (BitVec 2)) : Bool :=
   let b__0 := arg_
@@ -6885,23 +6870,25 @@ def size_enc_backwards_matches (arg_ : (BitVec 2)) : Bool :=
         then true
         else false)))
 
-def size_mnemonic_backwards (arg_ : String) : SailM word_width := do
+def size_mnemonic_backwards (arg_ : String) : SailM Int := do
   match arg_ with
-  | "b" => (pure BYTE)
-  | "h" => (pure HALF)
-  | "w" => (pure WORD)
-  | "d" => (pure DOUBLE)
+  | "b" => (pure 1)
+  | "h" => (pure 2)
+  | "w" => (pure 4)
+  | "d" => (pure 8)
   | _ =>
     (do
       assert false "Pattern match failure at unknown location"
       throw Error.Exit)
 
-def size_mnemonic_forwards_matches (arg_ : word_width) : Bool :=
+/-- Type quantifiers: arg_ : Nat, arg_ ∈ {1, 2, 4, 8} -/
+def size_mnemonic_forwards_matches (arg_ : Nat) : Bool :=
   match arg_ with
-  | BYTE => true
-  | HALF => true
-  | WORD => true
-  | DOUBLE => true
+  | 1 => true
+  | 2 => true
+  | 4 => true
+  | 8 => true
+  | _ => false
 
 def size_mnemonic_backwards_matches (arg_ : String) : Bool :=
   match arg_ with
@@ -6909,37 +6896,6 @@ def size_mnemonic_backwards_matches (arg_ : String) : Bool :=
   | "h" => true
   | "w" => true
   | "d" => true
-  | _ => false
-
-def size_bytes_forwards (arg_ : word_width) : Int :=
-  match arg_ with
-  | BYTE => 1
-  | HALF => 2
-  | WORD => 4
-  | DOUBLE => 8
-
-/-- Type quantifiers: arg_ : Nat, arg_ ∈ {1, 2, 4, 8} -/
-def size_bytes_backwards (arg_ : Nat) : word_width :=
-  match arg_ with
-  | 1 => BYTE
-  | 2 => HALF
-  | 4 => WORD
-  | _ => DOUBLE
-
-def size_bytes_forwards_matches (arg_ : word_width) : Bool :=
-  match arg_ with
-  | BYTE => true
-  | HALF => true
-  | WORD => true
-  | DOUBLE => true
-
-/-- Type quantifiers: arg_ : Nat, arg_ ∈ {1, 2, 4, 8} -/
-def size_bytes_backwards_matches (arg_ : Nat) : Bool :=
-  match arg_ with
-  | 1 => true
-  | 2 => true
-  | 4 => true
-  | 8 => true
   | _ => false
 
 def undefined_mul_op (_ : Unit) : SailM mul_op := do

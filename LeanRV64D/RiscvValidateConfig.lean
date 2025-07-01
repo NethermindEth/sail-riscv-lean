@@ -1,6 +1,8 @@
+import LeanRV64D.Flow
 import LeanRV64D.Prelude
 import LeanRV64D.RiscvVlen
 import LeanRV64D.RiscvExtensions
+import LeanRV64D.RiscvPmpRegs
 
 set_option maxHeartbeats 1_000_000_000
 set_option maxRecDepth 1_000_000
@@ -26,7 +28,6 @@ open wvvfunct6
 open wvfunct6
 open wrsop
 open write_kind
-open word_width
 open wmvxfunct6
 open wmvvfunct6
 open vxsgfunct6
@@ -260,7 +261,16 @@ def check_mem_layout (_ : Unit) : SailM Bool := do
     (pure valid))
   else (pure valid)
 
+def check_pmp (_ : Unit) : Bool :=
+  let valid : Bool := true
+  bif ((true : Bool) && (sys_pmp_grain != 0))
+  then
+    (let valid : Bool := false
+    let _ : Unit := (print_endline "NA4 is not supported if the PMP grain G is non-zero.")
+    valid)
+  else valid
+
 def config_is_valid (_ : Unit) : SailM Bool := do
-  (pure ((check_privs ()) && ((check_mmu_config ()) && ((← (check_mem_layout ())) && (check_vlen_elen
-            ())))))
+  (pure ((check_privs ()) && ((check_mmu_config ()) && ((← (check_mem_layout ())) && ((check_vlen_elen
+              ()) && (check_pmp ()))))))
 

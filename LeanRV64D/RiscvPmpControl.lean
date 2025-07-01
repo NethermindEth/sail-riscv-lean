@@ -27,7 +27,6 @@ open wvvfunct6
 open wvfunct6
 open wrsop
 open write_kind
-open word_width
 open wmvxfunct6
 open wmvvfunct6
 open vxsgfunct6
@@ -209,7 +208,7 @@ def pmpMatchAddr (typ_0 : physaddr) (width : (BitVec 64)) (ent : (BitVec 8)) (pm
   let .Physaddr addr : physaddr := typ_0
   let addr := (BitVec.toNat addr)
   let width := (BitVec.toNat width)
-  match (pmpAddrMatchType_of_bits (_get_Pmpcfg_ent_A ent)) with
+  match (pmpAddrMatchType_encdec_backwards (_get_Pmpcfg_ent_A ent)) with
   | OFF => (pure PMP_NoMatch)
   | TOR =>
     (bif (zopz0zKzJ_u prev_pmpaddr pmpaddr)
@@ -271,6 +270,6 @@ def reset_pmp (_ : Unit) : SailM Unit := do
       writeReg pmpcfg_n (vectorUpdate (← readReg pmpcfg_n) i
         (_update_Pmpcfg_ent_L
           (_update_Pmpcfg_ent_A (GetElem?.getElem! (← readReg pmpcfg_n) i)
-            (pmpAddrMatchType_to_bits OFF)) (0b0 : (BitVec 1))))
+            (pmpAddrMatchType_encdec_forwards OFF)) (0b0 : (BitVec 1))))
   (pure loop_vars)
 

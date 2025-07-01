@@ -361,9 +361,6 @@ inductive sop where | SLLI | SRLI | SRAI
 inductive sopw where | SLLIW | SRLIW | SRAIW
   deriving BEq, Inhabited, Repr
 
-inductive word_width where | BYTE | HALF | WORD | DOUBLE
-  deriving BEq, Inhabited, Repr
-
 inductive uop where | LUI | AUIPC
   deriving BEq, Inhabited, Repr
 
@@ -508,6 +505,8 @@ inductive zicondop where | CZERO_EQZ | CZERO_NEZ
 
 inductive f_un_rm_ff_op_S where | FSQRT_S
   deriving BEq, Inhabited, Repr
+
+abbrev word_width := Int
 
 inductive wrsop where | WRS_STO | WRS_NTO
   deriving BEq, Inhabited, Repr

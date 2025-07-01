@@ -25,7 +25,6 @@ open wvvfunct6
 open wvfunct6
 open wrsop
 open write_kind
-open word_width
 open wmvxfunct6
 open wmvvfunct6
 open vxsgfunct6
@@ -169,12 +168,13 @@ open ExceptionType
 open Architecture
 open AccessType
 
-def amo_width_valid (size : word_width) : SailM Bool := do
+/-- Type quantifiers: size : Nat, size ∈ {1, 2, 4, 8} -/
+def amo_width_valid (size : Nat) : SailM Bool := do
   match size with
-  | BYTE => (currentlyEnabled Ext_Zabha)
-  | HALF => (currentlyEnabled Ext_Zabha)
-  | WORD => (pure true)
-  | DOUBLE => (pure (xlen ≥b 64))
+  | 1 => (currentlyEnabled Ext_Zabha)
+  | 2 => (currentlyEnabled Ext_Zabha)
+  | 4 => (pure true)
+  | _ => (pure (xlen ≥b 64))
 
 def encdec_amoop_forwards (arg_ : amoop) : (BitVec 5) :=
   match arg_ with
