@@ -511,7 +511,7 @@ abbrev word_width := Int
 inductive wrsop where | WRS_STO | WRS_NTO
   deriving BEq, Inhabited, Repr
 
-inductive ast where
+inductive instruction where
   | ILLEGAL (_ : word)
   | C_ILLEGAL (_ : half)
   | UTYPE (_ : ((BitVec 20) × regidx × uop))

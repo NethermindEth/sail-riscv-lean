@@ -90,6 +90,7 @@ open mvvfunct6
 open mmfunct6
 open maskfunct3
 open iop
+open instruction
 open fwvvmafunct6
 open fwvvfunct6
 open fwvfunct6
@@ -149,7 +150,6 @@ open brop_zba
 open bop
 open biop_zbs
 open barrier_kind
-open ast
 open amoop
 open agtype
 open WaitReason

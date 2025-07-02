@@ -96,6 +96,7 @@ open mvvfunct6
 open mmfunct6
 open maskfunct3
 open iop
+open instruction
 open fwvvmafunct6
 open fwvvfunct6
 open fwvfunct6
@@ -155,7 +156,6 @@ open brop_zba
 open bop
 open biop_zbs
 open barrier_kind
-open ast
 open amoop
 open agtype
 open WaitReason
@@ -281,7 +281,7 @@ def run_hart_active (step_no : Nat) : SailM Step := do
         (do
           let _ : Unit := (sail_instr_announce h)
           let instbits : instbits := (zero_extend (m := 32) h)
-          let ast ← do (ext_decode_compressed h)
+          let instruction ← do (ext_decode_compressed h)
           bif (get_config_print_instr ())
           then
             (pure (print_endline
@@ -293,20 +293,20 @@ def run_hart_active (step_no : Nat) : SailM Step := do
                           (HAppend.hAppend (BitVec.toFormatted (← readReg PC))
                             (HAppend.hAppend " ("
                               (HAppend.hAppend (BitVec.toFormatted h)
-                                (HAppend.hAppend ") " (← (print_insn ast)))))))))))))
+                                (HAppend.hAppend ") " (← (print_insn instruction)))))))))))))
           else (pure ())
           bif (← (currentlyEnabled Ext_Zca))
           then
             (do
               writeReg nextPC (BitVec.addInt (← readReg PC) 2)
-              let r ← do (execute ast)
+              let r ← do (execute instruction)
               (pure (Step_Execute (r, instbits))))
           else (pure (Step_Execute ((Illegal_Instruction ()), instbits))))
       | .F_Base w =>
         (do
           let _ : Unit := (sail_instr_announce w)
           let instbits : instbits := (zero_extend (m := 32) w)
-          let ast ← do (ext_decode w)
+          let instruction ← do (ext_decode w)
           bif (get_config_print_instr ())
           then
             (pure (print_endline
@@ -318,10 +318,10 @@ def run_hart_active (step_no : Nat) : SailM Step := do
                           (HAppend.hAppend (BitVec.toFormatted (← readReg PC))
                             (HAppend.hAppend " ("
                               (HAppend.hAppend (BitVec.toFormatted w)
-                                (HAppend.hAppend ") " (← (print_insn ast)))))))))))))
+                                (HAppend.hAppend ") " (← (print_insn instruction)))))))))))))
           else (pure ())
           writeReg nextPC (BitVec.addInt (← readReg PC) 4)
-          let r ← do (execute ast)
+          let r ← do (execute instruction)
           (pure (Step_Execute (r, instbits)))))
 
 def wait_is_nop (wr : WaitReason) : Bool :=

@@ -91,6 +91,7 @@ open mvvfunct6
 open mmfunct6
 open maskfunct3
 open iop
+open instruction
 open fwvvmafunct6
 open fwvvfunct6
 open fwvfunct6
@@ -150,7 +151,6 @@ open brop_zba
 open bop
 open biop_zbs
 open barrier_kind
-open ast
 open amoop
 open agtype
 open WaitReason
@@ -3496,7 +3496,7 @@ def zicond_mnemonic_forwards (arg_ : zicondop) : String :=
   | CZERO_EQZ => "czero.eqz"
   | CZERO_NEZ => "czero.nez"
 
-def assembly_forwards (arg_ : ast) : SailM String := do
+def assembly_forwards (arg_ : instruction) : SailM String := do
   match arg_ with
   | .UTYPE (imm, rd, op) =>
     (pure (String.append (utype_mnemonic_forwards op)
@@ -6180,7 +6180,7 @@ def assembly_forwards (arg_ : ast) : SailM String := do
     (pure (String.append "c.illegal"
         (String.append (spc_forwards ()) (String.append (← (hex_bits_16_forwards s)) ""))))
 
-def print_insn (insn : ast) : SailM String := do
+def print_insn (insn : instruction) : SailM String := do
   (assembly_forwards insn)
 
 def ptw_error_to_str (e : PTW_Error) : String :=
