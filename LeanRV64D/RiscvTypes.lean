@@ -140,6 +140,7 @@ open ctl_result
 open csrop
 open cregidx
 open checked_cbop
+open cfregidx
 open cbop_zicbom
 open cbie
 open bropw_zbb
@@ -2175,9 +2176,9 @@ def freg_name_forwards (arg_ : fregidx) : SailM String := do
               assert false "Pattern match failure at unknown location"
               throw Error.Exit)))
 
-def cfreg_name_forwards (arg_ : cregidx) : SailM String := do
+def cfreg_name_forwards (arg_ : cfregidx) : SailM String := do
   match arg_ with
-  | .Cregidx i => (freg_name_forwards (Fregidx ((0b01 : (BitVec 2)) ++ (i : (BitVec 3)))))
+  | .Cfregidx i => (freg_name_forwards (Fregidx ((0b01 : (BitVec 2)) ++ (i : (BitVec 3)))))
 
 def reg_abi_name_raw_forwards (arg_ : (BitVec 5)) : String :=
   let b__0 := arg_
@@ -2780,7 +2781,7 @@ def maybe_lmul_flag_backwards (arg_ : (BitVec 3)) : SailM String := do
                               assert false "Pattern match failure at unknown location"
                               throw Error.Exit)))))))
 
-/-- Type quantifiers: k_ex372019# : Bool -/
+/-- Type quantifiers: k_ex372053# : Bool -/
 def maybe_u_forwards (arg_ : Bool) : String :=
   match arg_ with
   | true => "u"
@@ -4349,69 +4350,41 @@ def assembly_forwards (arg_ : instruction) : SailM String := do
           (String.append (← (freg_name_forwards rd))
             (String.append (sep_forwards ()) (String.append (← (reg_name_forwards rs1)) ""))))))
   | .C_FLDSP (uimm, rd) =>
-    (do
-      bif ((xlen == 32) || (xlen == 64))
-      then
-        (pure (String.append "c.fldsp"
-            (String.append (spc_forwards ())
-              (String.append (← (freg_name_forwards rd))
-                (String.append (sep_forwards ())
-                  (String.append
-                    (← (hex_bits_9_forwards ((uimm : (BitVec 6)) ++ (0b000 : (BitVec 3)))))
-                    (String.append "("
-                      (String.append (← (sp_reg_name_forwards ())) (String.append ")" "")))))))))
-      else
-        (do
-          assert false "Pattern match failure at unknown location"
-          throw Error.Exit))
+    (pure (String.append "c.fldsp"
+        (String.append (spc_forwards ())
+          (String.append (← (freg_name_forwards rd))
+            (String.append (sep_forwards ())
+              (String.append
+                (← (hex_bits_9_forwards ((uimm : (BitVec 6)) ++ (0b000 : (BitVec 3)))))
+                (String.append "("
+                  (String.append (← (sp_reg_name_forwards ())) (String.append ")" "")))))))))
   | .C_FSDSP (uimm, rs2) =>
-    (do
-      bif ((xlen == 32) || (xlen == 64))
-      then
-        (pure (String.append "c.fsdsp"
-            (String.append (spc_forwards ())
-              (String.append (← (freg_name_forwards rs2))
-                (String.append (sep_forwards ())
-                  (String.append
-                    (← (hex_bits_9_forwards ((uimm : (BitVec 6)) ++ (0b000 : (BitVec 3)))))
-                    (String.append "("
-                      (String.append (← (sp_reg_name_forwards ())) (String.append ")" "")))))))))
-      else
-        (do
-          assert false "Pattern match failure at unknown location"
-          throw Error.Exit))
+    (pure (String.append "c.fsdsp"
+        (String.append (spc_forwards ())
+          (String.append (← (freg_name_forwards rs2))
+            (String.append (sep_forwards ())
+              (String.append
+                (← (hex_bits_9_forwards ((uimm : (BitVec 6)) ++ (0b000 : (BitVec 3)))))
+                (String.append "("
+                  (String.append (← (sp_reg_name_forwards ())) (String.append ")" "")))))))))
   | .C_FLD (uimm, rsc, rdc) =>
-    (do
-      bif ((xlen == 32) || (xlen == 64))
-      then
-        (pure (String.append "c.fld"
-            (String.append (spc_forwards ())
-              (String.append (← (cfreg_name_forwards rdc))
-                (String.append (sep_forwards ())
-                  (String.append
-                    (← (hex_bits_8_forwards ((uimm : (BitVec 5)) ++ (0b000 : (BitVec 3)))))
-                    (String.append "("
-                      (String.append (← (creg_name_forwards rsc)) (String.append ")" "")))))))))
-      else
-        (do
-          assert false "Pattern match failure at unknown location"
-          throw Error.Exit))
+    (pure (String.append "c.fld"
+        (String.append (spc_forwards ())
+          (String.append (← (cfreg_name_forwards rdc))
+            (String.append (sep_forwards ())
+              (String.append
+                (← (hex_bits_8_forwards ((uimm : (BitVec 5)) ++ (0b000 : (BitVec 3)))))
+                (String.append "("
+                  (String.append (← (creg_name_forwards rsc)) (String.append ")" "")))))))))
   | .C_FSD (uimm, rsc1, rsc2) =>
-    (do
-      bif ((xlen == 32) || (xlen == 64))
-      then
-        (pure (String.append "c.fsd"
-            (String.append (spc_forwards ())
-              (String.append (← (cfreg_name_forwards rsc2))
-                (String.append (sep_forwards ())
-                  (String.append
-                    (← (hex_bits_8_forwards ((uimm : (BitVec 5)) ++ (0b000 : (BitVec 3)))))
-                    (String.append "("
-                      (String.append (← (creg_name_forwards rsc1)) (String.append ")" "")))))))))
-      else
-        (do
-          assert false "Pattern match failure at unknown location"
-          throw Error.Exit))
+    (pure (String.append "c.fsd"
+        (String.append (spc_forwards ())
+          (String.append (← (cfreg_name_forwards rsc2))
+            (String.append (sep_forwards ())
+              (String.append
+                (← (hex_bits_8_forwards ((uimm : (BitVec 5)) ++ (0b000 : (BitVec 3)))))
+                (String.append "("
+                  (String.append (← (creg_name_forwards rsc1)) (String.append ")" "")))))))))
   | .SINVAL_VMA (rs1, rs2) =>
     (pure (String.append "sinval.vma"
         (String.append (spc_forwards ())

@@ -137,6 +137,7 @@ open ctl_result
 open csrop
 open cregidx
 open checked_cbop
+open cfregidx
 open cbop_zicbom
 open cbie
 open bropw_zbb
@@ -173,7 +174,7 @@ open ExceptionType
 open Architecture
 open AccessType
 
-/-- Type quantifiers: k_ex374233# : Bool -/
+/-- Type quantifiers: k_ex374267# : Bool -/
 def ext_check_CSR (csrno : (BitVec 12)) (p : Privilege) (isWrite : Bool) : Bool :=
   true
 

@@ -137,6 +137,7 @@ open ctl_result
 open csrop
 open cregidx
 open checked_cbop
+open cfregidx
 open cbop_zicbom
 open cbie
 open bropw_zbb
@@ -173,7 +174,7 @@ open ExceptionType
 open Architecture
 open AccessType
 
-/-- Type quantifiers: k_ex370504# : Bool, k_ex370503# : Bool -/
+/-- Type quantifiers: k_ex370536# : Bool, k_ex370535# : Bool -/
 def neq_bool (x : Bool) (y : Bool) : Bool :=
   (! (x == y))
 

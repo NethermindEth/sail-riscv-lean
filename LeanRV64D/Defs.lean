@@ -178,6 +178,10 @@ inductive fregidx where
   | Fregidx (_ : (BitVec 5))
   deriving Inhabited, BEq, Repr
 
+inductive cfregidx where
+  | Cfregidx (_ : (BitVec 3))
+  deriving Inhabited, BEq, Repr
+
 inductive csrop where | CSRRW | CSRRS | CSRRC
   deriving BEq, Inhabited, Repr
 
@@ -595,8 +599,8 @@ inductive instruction where
   | F_UN_TYPE_X_S (_ : (fregidx × regidx × f_un_op_x_S))
   | C_FLWSP (_ : ((BitVec 6) × fregidx))
   | C_FSWSP (_ : ((BitVec 6) × fregidx))
-  | C_FLW (_ : ((BitVec 5) × cregidx × cregidx))
-  | C_FSW (_ : ((BitVec 5) × cregidx × cregidx))
+  | C_FLW (_ : ((BitVec 5) × cregidx × cfregidx))
+  | C_FSW (_ : ((BitVec 5) × cregidx × cfregidx))
   | F_MADD_TYPE_D (_ : (fregidx × fregidx × fregidx × rounding_mode × fregidx × f_madd_op_D))
   | F_BIN_RM_TYPE_D (_ : (fregidx × fregidx × rounding_mode × fregidx × f_bin_rm_op_D))
   | F_UN_RM_FF_TYPE_D (_ : (fregidx × rounding_mode × fregidx × f_un_rm_ff_op_D))
@@ -608,8 +612,8 @@ inductive instruction where
   | F_UN_F_TYPE_D (_ : (regidx × fregidx × f_un_f_op_D))
   | C_FLDSP (_ : ((BitVec 6) × fregidx))
   | C_FSDSP (_ : ((BitVec 6) × fregidx))
-  | C_FLD (_ : ((BitVec 5) × cregidx × cregidx))
-  | C_FSD (_ : ((BitVec 5) × cregidx × cregidx))
+  | C_FLD (_ : ((BitVec 5) × cregidx × cfregidx))
+  | C_FSD (_ : ((BitVec 5) × cregidx × cfregidx))
   | SINVAL_VMA (_ : (regidx × regidx))
   | SFENCE_W_INVAL (_ : Unit)
   | SFENCE_INVAL_IR (_ : Unit)

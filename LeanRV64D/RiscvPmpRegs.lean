@@ -134,6 +134,7 @@ open ctl_result
 open csrop
 open cregidx
 open checked_cbop
+open cfregidx
 open cbop_zicbom
 open cbie
 open bropw_zbb
@@ -315,7 +316,7 @@ def pmpWriteCfgReg (n : Nat) (v : (BitVec 64)) : SailM Unit := do
           (Sail.BitVec.extractLsb v ((8 *i i) +i 7) (8 *i i))))
   (pure loop_vars)
 
-/-- Type quantifiers: k_ex374168# : Bool, k_ex374167# : Bool -/
+/-- Type quantifiers: k_ex374202# : Bool, k_ex374201# : Bool -/
 def pmpWriteAddr (locked : Bool) (tor_locked : Bool) (reg : (BitVec 64)) (v : (BitVec 64)) : (BitVec 64) :=
   bif (locked || tor_locked)
   then reg
