@@ -692,6 +692,12 @@ def currentlyEnabled (merge_var : extension) : SailM Bool := do
   match merge_var with
   | Ext_Zkt => (pure (hartSupports Ext_Zkt))
   | Ext_Zvkt => (pure (hartSupports Ext_Zvkt))
+  | Ext_Zvkn => (pure (hartSupports Ext_Zvkn))
+  | Ext_Zvknc => (pure (hartSupports Ext_Zvknc))
+  | Ext_Zvkng => (pure (hartSupports Ext_Zvkng))
+  | Ext_Zvks => (pure (hartSupports Ext_Zvks))
+  | Ext_Zvksc => (pure (hartSupports Ext_Zvksc))
+  | Ext_Zvksg => (pure (hartSupports Ext_Zvksg))
   | Ext_Sstc => (pure (hartSupports Ext_Sstc))
   | Ext_U =>
     (pure ((hartSupports Ext_U) && (((_get_Misa_U (← readReg misa)) == (0b1 : (BitVec 1))) && (← (currentlyEnabled
