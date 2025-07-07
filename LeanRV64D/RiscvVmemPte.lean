@@ -138,11 +138,9 @@ open cfregidx
 open cbop_zicbom
 open cbie
 open bropw_zbb
-open bropw_zba
 open brop_zbs
 open brop_zbkb
 open brop_zbb
-open brop_zba
 open bop
 open biop_zbs
 open barrier_kind
@@ -219,7 +217,7 @@ def pte_is_invalid (pte_flags : (BitVec 8)) (pte_ext : (BitVec 10)) : SailM Bool
                   (n := 2))) && (not (← (currentlyEnabled Ext_Svpbmt)))) || ((_get_PTE_Ext_reserved
                 pte_ext) != (zeros (n := 7))))))))
 
-/-- Type quantifiers: k_ex377446# : Bool, k_ex377445# : Bool -/
+/-- Type quantifiers: k_ex374263# : Bool, k_ex374262# : Bool -/
 def check_PTE_permission (ac : (AccessType Unit)) (priv : Privilege) (mxr : Bool) (do_sum : Bool) (pte_flags : (BitVec 8)) (ext : (BitVec 10)) (ext_ptw : Unit) : SailM PTE_Check := do
   let pte_U := (_get_PTE_Flags_U pte_flags)
   let pte_R := (_get_PTE_Flags_R pte_flags)

@@ -480,12 +480,6 @@ inductive wvxfunct6 where | WVX_VADD | WVX_VSUB | WVX_VADDU | WVX_VSUBU | WVX_VW
 inductive wxfunct6 where | WX_VADD | WX_VSUB | WX_VADDU | WX_VSUBU
   deriving BEq, Inhabited, Repr
 
-inductive brop_zba where | SH1ADD | SH2ADD | SH3ADD
-  deriving BEq, Inhabited, Repr
-
-inductive bropw_zba where | ADDUW | SH1ADDUW | SH2ADDUW | SH3ADDUW
-  deriving BEq, Inhabited, Repr
-
 inductive extop_zbb where | SEXTB | SEXTH | ZEXTH
   deriving BEq, Inhabited, Repr
 
@@ -509,6 +503,8 @@ inductive zicondop where | CZERO_EQZ | CZERO_NEZ
 
 inductive f_un_rm_ff_op_S where | FSQRT_S
   deriving BEq, Inhabited, Repr
+
+abbrev shamt_zba := (BitVec 2)
 
 abbrev word_width := Int
 
@@ -618,8 +614,8 @@ inductive instruction where
   | SFENCE_W_INVAL (_ : Unit)
   | SFENCE_INVAL_IR (_ : Unit)
   | SLLIUW (_ : ((BitVec 6) × regidx × regidx))
-  | ZBA_RTYPEUW (_ : (regidx × regidx × regidx × bropw_zba))
-  | ZBA_RTYPE (_ : (regidx × regidx × regidx × brop_zba))
+  | ZBA_RTYPEUW (_ : (regidx × regidx × regidx × shamt_zba))
+  | ZBA_RTYPE (_ : (regidx × regidx × regidx × shamt_zba))
   | RORIW (_ : ((BitVec 5) × regidx × regidx))
   | RORI (_ : ((BitVec 6) × regidx × regidx))
   | ZBB_RTYPEW (_ : (regidx × regidx × regidx × bropw_zbb))

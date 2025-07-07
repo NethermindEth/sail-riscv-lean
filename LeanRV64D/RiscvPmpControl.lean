@@ -138,11 +138,9 @@ open cfregidx
 open cbop_zicbom
 open cbie
 open bropw_zbb
-open bropw_zba
 open brop_zbs
 open brop_zbkb
 open brop_zbb
-open brop_zba
 open bop
 open biop_zbs
 open barrier_kind

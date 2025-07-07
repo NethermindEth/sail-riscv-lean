@@ -137,11 +137,9 @@ open cfregidx
 open cbop_zicbom
 open cbie
 open bropw_zbb
-open bropw_zba
 open brop_zbs
 open brop_zbkb
 open brop_zbb
-open brop_zba
 open bop
 open biop_zbs
 open barrier_kind
@@ -231,7 +229,7 @@ def lookup_TLB (sv_width : Nat) (asid : (BitVec (bif 64 = 32 then 9 else 16))) (
     then (pure (some (index, entry)))
     else (pure none))
 
-/-- Type quantifiers: k_ex377842# : Bool, level : Nat, sv_width : Nat, is_sv_mode(sv_width), 0 ≤
+/-- Type quantifiers: k_ex374659# : Bool, level : Nat, sv_width : Nat, is_sv_mode(sv_width), 0 ≤
   level ∧
   level ≤
   (bif sv_width = 32 then 1 else (bif sv_width = 39 then 2 else (bif sv_width = 48 then 3 else 4))) -/

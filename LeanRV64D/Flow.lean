@@ -141,11 +141,9 @@ open cfregidx
 open cbop_zicbom
 open cbie
 open bropw_zbb
-open bropw_zba
 open brop_zbs
 open brop_zbkb
 open brop_zbb
-open brop_zba
 open bop
 open biop_zbs
 open barrier_kind
@@ -174,7 +172,7 @@ open ExceptionType
 open Architecture
 open AccessType
 
-/-- Type quantifiers: k_ex370896# : Bool, k_ex370895# : Bool -/
+/-- Type quantifiers: k_ex367713# : Bool, k_ex367712# : Bool -/
 def neq_bool (x : Bool) (y : Bool) : Bool :=
   (! (x == y))
 

@@ -141,11 +141,9 @@ open cfregidx
 open cbop_zicbom
 open cbie
 open bropw_zbb
-open bropw_zba
 open brop_zbs
 open brop_zbkb
 open brop_zbb
-open brop_zba
 open bop
 open biop_zbs
 open barrier_kind
@@ -174,23 +172,31 @@ open ExceptionType
 open Architecture
 open AccessType
 
-def zba_rtypeuw_mnemonic_backwards (arg_ : String) : SailM bropw_zba := do
+def zba_rtypeuw_mnemonic_backwards (arg_ : String) : SailM (BitVec 2) := do
   match arg_ with
-  | "add.uw" => (pure ADDUW)
-  | "sh1add.uw" => (pure SH1ADDUW)
-  | "sh2add.uw" => (pure SH2ADDUW)
-  | "sh3add.uw" => (pure SH3ADDUW)
+  | "add.uw" => (pure (0b00 : (BitVec 2)))
+  | "sh1add.uw" => (pure (0b01 : (BitVec 2)))
+  | "sh2add.uw" => (pure (0b10 : (BitVec 2)))
+  | "sh3add.uw" => (pure (0b11 : (BitVec 2)))
   | _ =>
     (do
       assert false "Pattern match failure at unknown location"
       throw Error.Exit)
 
-def zba_rtypeuw_mnemonic_forwards_matches (arg_ : bropw_zba) : Bool :=
-  match arg_ with
-  | ADDUW => true
-  | SH1ADDUW => true
-  | SH2ADDUW => true
-  | SH3ADDUW => true
+def zba_rtypeuw_mnemonic_forwards_matches (arg_ : (BitVec 2)) : Bool :=
+  let b__0 := arg_
+  bif (b__0 == (0b00 : (BitVec 2)))
+  then true
+  else
+    (bif (b__0 == (0b01 : (BitVec 2)))
+    then true
+    else
+      (bif (b__0 == (0b10 : (BitVec 2)))
+      then true
+      else
+        (bif (b__0 == (0b11 : (BitVec 2)))
+        then true
+        else false)))
 
 def zba_rtypeuw_mnemonic_backwards_matches (arg_ : String) : Bool :=
   match arg_ with
@@ -200,21 +206,27 @@ def zba_rtypeuw_mnemonic_backwards_matches (arg_ : String) : Bool :=
   | "sh3add.uw" => true
   | _ => false
 
-def zba_rtype_mnemonic_backwards (arg_ : String) : SailM brop_zba := do
+def zba_rtype_mnemonic_backwards (arg_ : String) : SailM (BitVec 2) := do
   match arg_ with
-  | "sh1add" => (pure SH1ADD)
-  | "sh2add" => (pure SH2ADD)
-  | "sh3add" => (pure SH3ADD)
+  | "sh1add" => (pure (0b01 : (BitVec 2)))
+  | "sh2add" => (pure (0b10 : (BitVec 2)))
+  | "sh3add" => (pure (0b11 : (BitVec 2)))
   | _ =>
     (do
       assert false "Pattern match failure at unknown location"
       throw Error.Exit)
 
-def zba_rtype_mnemonic_forwards_matches (arg_ : brop_zba) : Bool :=
-  match arg_ with
-  | SH1ADD => true
-  | SH2ADD => true
-  | SH3ADD => true
+def zba_rtype_mnemonic_forwards_matches (arg_ : (BitVec 2)) : Bool :=
+  let b__0 := arg_
+  bif (b__0 == (0b01 : (BitVec 2)))
+  then true
+  else
+    (bif (b__0 == (0b10 : (BitVec 2)))
+    then true
+    else
+      (bif (b__0 == (0b11 : (BitVec 2)))
+      then true
+      else false))
 
 def zba_rtype_mnemonic_backwards_matches (arg_ : String) : Bool :=
   match arg_ with

@@ -138,11 +138,9 @@ open cfregidx
 open cbop_zicbom
 open cbie
 open bropw_zbb
-open bropw_zba
 open brop_zbs
 open brop_zbkb
 open brop_zbb
-open brop_zba
 open bop
 open biop_zbs
 open barrier_kind
@@ -370,7 +368,7 @@ def feq_quiet_S (v1 : (BitVec 32)) (v2 : (BitVec 32)) : (Bool × (BitVec 5)) :=
     else (zeros (n := 5))
   (result, fflags)
 
-/-- Type quantifiers: k_ex380222# : Bool -/
+/-- Type quantifiers: k_ex377039# : Bool -/
 def flt_S (v1 : (BitVec 32)) (v2 : (BitVec 32)) (is_quiet : Bool) : (Bool × (BitVec 5)) :=
   let (s1, e1, m1) := (fsplit_S v1)
   let (s2, e2, m2) := (fsplit_S v2)
@@ -402,7 +400,7 @@ def flt_S (v1 : (BitVec 32)) (v2 : (BitVec 32)) (is_quiet : Bool) : (Bool × (Bi
       else (zeros (n := 5)))
   (result, fflags)
 
-/-- Type quantifiers: k_ex380290# : Bool -/
+/-- Type quantifiers: k_ex377107# : Bool -/
 def fle_S (v1 : (BitVec 32)) (v2 : (BitVec 32)) (is_quiet : Bool) : (Bool × (BitVec 5)) :=
   let (s1, e1, m1) := (fsplit_S v1)
   let (s2, e2, m2) := (fsplit_S v2)
@@ -438,6 +436,14 @@ def fle_S (v1 : (BitVec 32)) (v2 : (BitVec 32)) (is_quiet : Bool) : (Bool × (Bi
 
 def haveSingleFPU (_ : Unit) : SailM Bool := do
   (pure ((← (currentlyEnabled Ext_F)) || (← (currentlyEnabled Ext_Zfinx))))
+
+/-- Type quantifiers: width : Nat, width ∈ {1, 2, 4, 8} -/
+def float_load_store_width_supported (width : Nat) : SailM Bool := do
+  match width with
+  | 1 => (pure false)
+  | 2 => (currentlyEnabled Ext_Zfhmin)
+  | 4 => (currentlyEnabled Ext_F)
+  | _ => (currentlyEnabled Ext_D)
 
 def f_madd_type_mnemonic_S_backwards (arg_ : String) : SailM f_madd_op_S := do
   match arg_ with
