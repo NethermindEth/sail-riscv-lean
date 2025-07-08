@@ -1,6 +1,5 @@
 import LeanRV64D.Prelude
 import LeanRV64D.RiscvVlen
-import LeanRV64D.RiscvSysRegs
 import LeanRV64D.RiscvVextRegs
 import LeanRV64D.RiscvTypesKext
 

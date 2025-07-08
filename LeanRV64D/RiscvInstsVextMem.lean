@@ -4,7 +4,6 @@ import LeanRV64D.RiscvErrors
 import LeanRV64D.RiscvXlen
 import LeanRV64D.RiscvVmemTypes
 import LeanRV64D.RiscvCallbacks
-import LeanRV64D.RiscvSysRegs
 import LeanRV64D.RiscvVextRegs
 import LeanRV64D.RiscvVextControl
 import LeanRV64D.RiscvInstRetire

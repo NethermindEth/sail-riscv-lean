@@ -100,7 +100,7 @@ This work was funded by a grant provided by the [Ethereum Foundation](https://et
 
 # Statistics
 
-Lines: 131,119  
+Lines: 131,115  
 Definitions: 3,987  
 Inductive definitions: 161  
 Abbreviations: 151  

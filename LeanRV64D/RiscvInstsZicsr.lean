@@ -8,7 +8,6 @@ import LeanRV64D.RiscvSysRegs
 import LeanRV64D.RiscvPmpRegs
 import LeanRV64D.RiscvExtRegs
 import LeanRV64D.RiscvVextRegs
-import LeanRV64D.RiscvVextControl
 import LeanRV64D.RiscvSysExceptions
 import LeanRV64D.RiscvZihpm
 import LeanRV64D.RiscvSscofpmf

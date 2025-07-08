@@ -930,19 +930,6 @@ abbrev Satp64 := (BitVec 64)
 
 abbrev Satp32 := (BitVec 32)
 
-abbrev Vtype := (BitVec 64)
-
-abbrev SEW_pow := Nat
-
-abbrev LMUL_pow := Int
-
-abbrev sew_bitsize := Int
-
-
-
-inductive agtype where | UNDISTURBED | AGNOSTIC
-  deriving BEq, Inhabited, Repr
-
 inductive PmpAddrMatchType where | OFF | TOR | NA4 | NAPOT
   deriving BEq, Inhabited, Repr
 
@@ -990,6 +977,19 @@ inductive maskfunct3 where | VV_VMERGE | VI_VMERGE | VX_VMERGE
 inductive vregno where
   | Vregno (_ : Nat)
   deriving Inhabited, BEq, Repr
+
+abbrev Vtype := (BitVec 64)
+
+abbrev SEW_pow := Nat
+
+abbrev LMUL_pow := Int
+
+abbrev sew_bitsize := Int
+
+
+
+inductive agtype where | UNDISTURBED | AGNOSTIC
+  deriving BEq, Inhabited, Repr
 
 abbrev Vcsr := (BitVec 3)
 
@@ -1194,6 +1194,9 @@ inductive Register : Type where
   | mhpmcounter
   | mhpmevent
   | vcsr
+  | vtype
+  | vl
+  | vstart
   | vr31
   | vr30
   | vr29
@@ -1228,9 +1231,6 @@ inductive Register : Type where
   | vr0
   | pmpaddr_n
   | pmpcfg_n
-  | vtype
-  | vl
-  | vstart
   | tselect
   | stval
   | scause
@@ -1365,6 +1365,9 @@ abbrev RegisterType : Register → Type
   | .mhpmcounter => (Vector (BitVec 64) 32)
   | .mhpmevent => (Vector (BitVec 64) 32)
   | .vcsr => (BitVec 3)
+  | .vtype => (BitVec 64)
+  | .vl => (BitVec 64)
+  | .vstart => (BitVec 64)
   | .vr31 => (BitVec 65536)
   | .vr30 => (BitVec 65536)
   | .vr29 => (BitVec 65536)
@@ -1399,9 +1402,6 @@ abbrev RegisterType : Register → Type
   | .vr0 => (BitVec 65536)
   | .pmpaddr_n => (Vector (BitVec 64) 64)
   | .pmpcfg_n => (Vector (BitVec 8) 64)
-  | .vtype => (BitVec 64)
-  | .vl => (BitVec 64)
-  | .vstart => (BitVec 64)
   | .tselect => (BitVec 64)
   | .stval => (BitVec 64)
   | .scause => (BitVec 64)
