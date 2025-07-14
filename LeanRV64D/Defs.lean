@@ -96,7 +96,7 @@ abbrev RVFI_DII_Execution_Packet_V1 := (BitVec 704)
 
 abbrev RVFI_DII_Execution_PacketV2 := (BitVec 512)
 
-inductive extension where | Ext_M | Ext_A | Ext_F | Ext_D | Ext_B | Ext_V | Ext_S | Ext_U | Ext_H | Ext_Zicbom | Ext_Zicboz | Ext_Zicntr | Ext_Zicond | Ext_Zicsr | Ext_Zifencei | Ext_Zihpm | Ext_Zimop | Ext_Zmmul | Ext_Zaamo | Ext_Zabha | Ext_Zalrsc | Ext_Zawrs | Ext_Zfa | Ext_Zfh | Ext_Zfhmin | Ext_Zfinx | Ext_Zdinx | Ext_Zca | Ext_Zcb | Ext_Zcd | Ext_Zcf | Ext_Zcmop | Ext_C | Ext_Zba | Ext_Zbb | Ext_Zbc | Ext_Zbkb | Ext_Zbkc | Ext_Zbkx | Ext_Zbs | Ext_Zknd | Ext_Zkne | Ext_Zknh | Ext_Zkr | Ext_Zksed | Ext_Zksh | Ext_Zkt | Ext_Zhinx | Ext_Zhinxmin | Ext_Zvbb | Ext_Zvbc | Ext_Zvkb | Ext_Zvkg | Ext_Zvkned | Ext_Zvknha | Ext_Zvknhb | Ext_Zvksed | Ext_Zvksh | Ext_Zvkt | Ext_Zvkn | Ext_Zvknc | Ext_Zvkng | Ext_Zvks | Ext_Zvksc | Ext_Zvksg | Ext_Sscofpmf | Ext_Sstc | Ext_Svinval | Ext_Svnapot | Ext_Svpbmt | Ext_Svbare | Ext_Sv32 | Ext_Sv39 | Ext_Sv48 | Ext_Sv57 | Ext_Smcntrpmf
+inductive extension where | Ext_M | Ext_A | Ext_F | Ext_D | Ext_B | Ext_V | Ext_S | Ext_U | Ext_H | Ext_Zicbom | Ext_Zicboz | Ext_Zicntr | Ext_Zicond | Ext_Zicsr | Ext_Zifencei | Ext_Zihpm | Ext_Zimop | Ext_Zmmul | Ext_Zaamo | Ext_Zabha | Ext_Zacas | Ext_Zalrsc | Ext_Zawrs | Ext_Zfa | Ext_Zfh | Ext_Zfhmin | Ext_Zfinx | Ext_Zdinx | Ext_Zca | Ext_Zcb | Ext_Zcd | Ext_Zcf | Ext_Zcmop | Ext_C | Ext_Zba | Ext_Zbb | Ext_Zbc | Ext_Zbkb | Ext_Zbkc | Ext_Zbkx | Ext_Zbs | Ext_Zknd | Ext_Zkne | Ext_Zknh | Ext_Zkr | Ext_Zksed | Ext_Zksh | Ext_Zkt | Ext_Zhinx | Ext_Zhinxmin | Ext_Zvbb | Ext_Zvbc | Ext_Zvkb | Ext_Zvkg | Ext_Zvkned | Ext_Zvknha | Ext_Zvknhb | Ext_Zvksed | Ext_Zvksh | Ext_Zvkt | Ext_Zvkn | Ext_Zvknc | Ext_Zvkng | Ext_Zvks | Ext_Zvksc | Ext_Zvksg | Ext_Sscofpmf | Ext_Sstc | Ext_Svinval | Ext_Svnapot | Ext_Svpbmt | Ext_Svbare | Ext_Sv32 | Ext_Sv39 | Ext_Sv48 | Ext_Sv57 | Ext_Smcntrpmf
   deriving BEq, Inhabited, Repr
 
 abbrev exc_code := (BitVec 8)
@@ -165,7 +165,7 @@ inductive ExceptionType where
   | E_Extension (_ : ext_exc_type)
   deriving Inhabited, BEq, Repr
 
-inductive amoop where | AMOSWAP | AMOADD | AMOXOR | AMOAND | AMOOR | AMOMIN | AMOMAX | AMOMINU | AMOMAXU
+inductive amoop where | AMOSWAP | AMOADD | AMOXOR | AMOAND | AMOOR | AMOMIN | AMOMAX | AMOMINU | AMOMAXU | AMOCAS
   deriving BEq, Inhabited, Repr
 
 inductive bop where | BEQ | BNE | BLT | BGE | BLTU | BGEU
@@ -508,6 +508,8 @@ abbrev shamt_zba := (BitVec 2)
 
 abbrev word_width := Int
 
+abbrev word_width_wide := Int
+
 inductive wrsop where | WRS_STO | WRS_NTO
   deriving BEq, Inhabited, Repr
 
@@ -535,7 +537,7 @@ inductive instruction where
   | WFI (_ : Unit)
   | SFENCE_VMA (_ : (regidx × regidx))
   | FENCEI (_ : Unit)
-  | AMO (_ : (amoop × Bool × Bool × regidx × regidx × word_width × regidx))
+  | AMO (_ : (amoop × Bool × Bool × regidx × regidx × word_width_wide × regidx))
   | LOADRES (_ : (Bool × Bool × regidx × word_width × regidx))
   | STORECON (_ : (Bool × Bool × regidx × regidx × word_width × regidx))
   | C_NOP (_ : (BitVec 6))

@@ -672,6 +672,7 @@ def currentlyEnabled_measure (ext : extension) : Int :=
   | Ext_H => 4
   | Ext_Smcntrpmf => 3
   | Ext_Zabha => 3
+  | Ext_Zacas => 3
   | Ext_Zcb => 3
   | Ext_Zcd => 3
   | Ext_Zcf => 3
@@ -734,6 +735,7 @@ def currentlyEnabled (merge_var : extension) : SailM Bool := do
     (pure ((hartSupports Ext_A) && ((_get_Misa_A (← readReg misa)) == (0b1 : (BitVec 1)))))
   | Ext_Zaamo => (pure ((hartSupports Ext_Zaamo) || (← (currentlyEnabled Ext_A))))
   | Ext_Zabha => (pure ((hartSupports Ext_Zabha) && (← (currentlyEnabled Ext_Zaamo))))
+  | Ext_Zacas => (pure ((hartSupports Ext_Zacas) && (← (currentlyEnabled Ext_Zaamo))))
   | Ext_Zalrsc => (pure ((hartSupports Ext_Zalrsc) || (← (currentlyEnabled Ext_A))))
   | Ext_M =>
     (pure ((hartSupports Ext_M) && ((_get_Misa_M (← readReg misa)) == (0b1 : (BitVec 1)))))

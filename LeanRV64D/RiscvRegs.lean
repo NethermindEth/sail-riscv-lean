@@ -1,5 +1,7 @@
 import LeanRV64D.Flow
+import LeanRV64D.Arith
 import LeanRV64D.Prelude
+import LeanRV64D.RiscvXlen
 import LeanRV64D.RiscvTypes
 import LeanRV64D.RiscvCallbacks
 import LeanRV64D.RiscvRegType
@@ -743,6 +745,19 @@ def rX_bits (app_0 : regidx) : SailM (BitVec 64) := do
 def wX_bits (typ_0 : regidx) (data : (BitVec 64)) : SailM Unit := do
   let .Regidx i : regidx := typ_0
   (wX (Regno (BitVec.toNat i)) data)
+
+def rX_pair_bits (i : regidx) : SailM (BitVec (64 * 2)) := do
+  bif (bne i zreg)
+  then (pure ((← (rX_bits (regidx_offset_range i 1))) ++ (← (rX_bits i))))
+  else (pure (zeros (n := (64 *i 2))))
+
+def wX_pair_bits (i : regidx) (data : (BitVec (64 * 2))) : SailM Unit := do
+  bif (bne i zreg)
+  then
+    (do
+      (wX_bits i (Sail.BitVec.extractLsb data (xlen -i 1) 0))
+      (wX_bits (regidx_offset_range i 1) (Sail.BitVec.extractLsb data ((xlen *i 2) -i 1) xlen)))
+  else (pure ())
 
 def encdec_reg_forwards (arg_ : regidx) : (BitVec 5) :=
   match arg_ with

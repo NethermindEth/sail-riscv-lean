@@ -167,13 +167,19 @@ open ExceptionType
 open Architecture
 open AccessType
 
-/-- Type quantifiers: size : Nat, size ∈ {1, 2, 4, 8} -/
-def amo_width_valid (size : Nat) : SailM Bool := do
-  match size with
-  | 1 => (currentlyEnabled Ext_Zabha)
-  | 2 => (currentlyEnabled Ext_Zabha)
-  | 4 => (pure true)
-  | _ => (pure (xlen ≥b 64))
+/-- Type quantifiers: width : Nat, width ∈ {1, 2, 4, 8, 16} -/
+def amo_encoding_valid (width : Nat) (op : amoop) (typ_2 : regidx) (typ_3 : regidx) : SailM Bool := do
+  let .Regidx rs2 : regidx := typ_2
+  let .Regidx rd : regidx := typ_3
+  (pure ((← do
+        bif (op == AMOCAS)
+        then (currentlyEnabled Ext_Zacas)
+        else (currentlyEnabled Ext_Zaamo)) && (← do
+        bif (width <b 4)
+        then (currentlyEnabled Ext_Zabha)
+        else
+          (pure ((width ≤b xlen_bytes) || ((op == AMOCAS) && ((width ≤b (xlen_bytes *i 2)) && (((BitVec.access
+                        rs2 0) == 0#1) && ((BitVec.access rd 0) == 0#1)))))))))
 
 def encdec_amoop_forwards (arg_ : amoop) : (BitVec 5) :=
   match arg_ with
@@ -186,6 +192,7 @@ def encdec_amoop_forwards (arg_ : amoop) : (BitVec 5) :=
   | AMOMAX => (0b10100 : (BitVec 5))
   | AMOMINU => (0b11000 : (BitVec 5))
   | AMOMAXU => (0b11100 : (BitVec 5))
+  | AMOCAS => (0b00101 : (BitVec 5))
 
 def encdec_amoop_backwards (arg_ : (BitVec 5)) : SailM amoop := do
   let b__0 := arg_
@@ -225,8 +232,12 @@ def encdec_amoop_backwards (arg_ : (BitVec 5)) : SailM amoop := do
                                   then (pure AMOMAXU)
                                   else
                                     (do
-                                      assert false "Pattern match failure at unknown location"
-                                      throw Error.Exit)))))))))
+                                      bif (b__0 == (0b00101 : (BitVec 5)))
+                                      then (pure AMOCAS)
+                                      else
+                                        (do
+                                          assert false "Pattern match failure at unknown location"
+                                          throw Error.Exit))))))))))
 
 def encdec_amoop_forwards_matches (arg_ : amoop) : Bool :=
   match arg_ with
@@ -239,6 +250,7 @@ def encdec_amoop_forwards_matches (arg_ : amoop) : Bool :=
   | AMOMAX => true
   | AMOMINU => true
   | AMOMAXU => true
+  | AMOCAS => true
 
 def encdec_amoop_backwards_matches (arg_ : (BitVec 5)) : Bool :=
   let b__0 := arg_
@@ -268,7 +280,10 @@ def encdec_amoop_backwards_matches (arg_ : (BitVec 5)) : Bool :=
                 else
                   (bif (b__0 == (0b11100 : (BitVec 5)))
                   then true
-                  else false))))))))
+                  else
+                    (bif (b__0 == (0b00101 : (BitVec 5)))
+                    then true
+                    else false)))))))))
 
 def amo_mnemonic_backwards (arg_ : String) : SailM amoop := do
   match arg_ with
@@ -281,6 +296,7 @@ def amo_mnemonic_backwards (arg_ : String) : SailM amoop := do
   | "amomax" => (pure AMOMAX)
   | "amominu" => (pure AMOMINU)
   | "amomaxu" => (pure AMOMAXU)
+  | "amocas" => (pure AMOCAS)
   | _ =>
     (do
       assert false "Pattern match failure at unknown location"
@@ -297,6 +313,7 @@ def amo_mnemonic_forwards_matches (arg_ : amoop) : Bool :=
   | AMOMAX => true
   | AMOMINU => true
   | AMOMAXU => true
+  | AMOCAS => true
 
 def amo_mnemonic_backwards_matches (arg_ : String) : Bool :=
   match arg_ with
@@ -309,6 +326,7 @@ def amo_mnemonic_backwards_matches (arg_ : String) : Bool :=
   | "amomax" => true
   | "amominu" => true
   | "amomaxu" => true
+  | "amocas" => true
   | _ => false
 
 def maybe_aqrl_backwards (arg_ : String) : SailM (Bool × Bool) := do

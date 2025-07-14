@@ -1951,6 +1951,7 @@ def amo_mnemonic_forwards (arg_ : amoop) : String :=
   | AMOMAX => "amomax"
   | AMOMINU => "amominu"
   | AMOMAXU => "amomaxu"
+  | AMOCAS => "amocas"
 
 def btype_mnemonic_forwards (arg_ : bop) : String :=
   match arg_ with
@@ -2779,7 +2780,7 @@ def maybe_lmul_flag_backwards (arg_ : (BitVec 3)) : SailM String := do
                               assert false "Pattern match failure at unknown location"
                               throw Error.Exit)))))))
 
-/-- Type quantifiers: k_ex369945# : Bool -/
+/-- Type quantifiers: k_ex371642# : Bool -/
 def maybe_u_forwards (arg_ : Bool) : String :=
   match arg_ with
   | true => "u"
@@ -3028,6 +3029,15 @@ def size_mnemonic_forwards (arg_ : Nat) : String :=
   | 2 => "h"
   | 4 => "w"
   | _ => "d"
+
+/-- Type quantifiers: arg_ : Nat, arg_ ∈ {1, 2, 4, 8, 16} -/
+def size_mnemonic_wide_forwards (arg_ : Nat) : String :=
+  match arg_ with
+  | 1 => "b"
+  | 2 => "h"
+  | 4 => "w"
+  | 8 => "d"
+  | _ => "q"
 
 def sp_reg_name_forwards (arg_ : Unit) : SailM String := do
   match arg_ with
@@ -3651,7 +3661,7 @@ def assembly_forwards (arg_ : instruction) : SailM String := do
   | .AMO (op, aq, rl, rs2, rs1, width, rd) =>
     (pure (String.append (amo_mnemonic_forwards op)
         (String.append "."
-          (String.append (size_mnemonic_forwards width)
+          (String.append (size_mnemonic_wide_forwards width)
             (String.append (maybe_aqrl_forwards (aq, rl))
               (String.append (spc_forwards ())
                 (String.append (← (reg_name_forwards rd))
@@ -6555,9 +6565,9 @@ def num_of_sopw (arg_ : sopw) : Int :=
   | SRAIW => 2
 
 def undefined_amoop (_ : Unit) : SailM amoop := do
-  (internal_pick [AMOSWAP, AMOADD, AMOXOR, AMOAND, AMOOR, AMOMIN, AMOMAX, AMOMINU, AMOMAXU])
+  (internal_pick [AMOSWAP, AMOADD, AMOXOR, AMOAND, AMOOR, AMOMIN, AMOMAX, AMOMINU, AMOMAXU, AMOCAS])
 
-/-- Type quantifiers: arg_ : Nat, 0 ≤ arg_ ∧ arg_ ≤ 8 -/
+/-- Type quantifiers: arg_ : Nat, 0 ≤ arg_ ∧ arg_ ≤ 9 -/
 def amoop_of_num (arg_ : Nat) : amoop :=
   match arg_ with
   | 0 => AMOSWAP
@@ -6568,7 +6578,8 @@ def amoop_of_num (arg_ : Nat) : amoop :=
   | 5 => AMOMIN
   | 6 => AMOMAX
   | 7 => AMOMINU
-  | _ => AMOMAXU
+  | 8 => AMOMAXU
+  | _ => AMOCAS
 
 def num_of_amoop (arg_ : amoop) : Int :=
   match arg_ with
@@ -6581,6 +6592,7 @@ def num_of_amoop (arg_ : amoop) : Int :=
   | AMOMAX => 6
   | AMOMINU => 7
   | AMOMAXU => 8
+  | AMOCAS => 9
 
 def undefined_csrop (_ : Unit) : SailM csrop := do
   (internal_pick [CSRRW, CSRRS, CSRRC])
@@ -6849,6 +6861,99 @@ def size_mnemonic_backwards_matches (arg_ : String) : Bool :=
   | "h" => true
   | "w" => true
   | "d" => true
+  | _ => false
+
+/-- Type quantifiers: arg_ : Nat, arg_ ∈ {1, 2, 4, 8, 16} -/
+def size_enc_wide_forwards (arg_ : Nat) : (BitVec 3) :=
+  match arg_ with
+  | 1 => (0b000 : (BitVec 3))
+  | 2 => (0b001 : (BitVec 3))
+  | 4 => (0b010 : (BitVec 3))
+  | 8 => (0b011 : (BitVec 3))
+  | _ => (0b100 : (BitVec 3))
+
+def size_enc_wide_backwards (arg_ : (BitVec 3)) : SailM Int := do
+  let b__0 := arg_
+  bif (b__0 == (0b000 : (BitVec 3)))
+  then (pure 1)
+  else
+    (do
+      bif (b__0 == (0b001 : (BitVec 3)))
+      then (pure 2)
+      else
+        (do
+          bif (b__0 == (0b010 : (BitVec 3)))
+          then (pure 4)
+          else
+            (do
+              bif (b__0 == (0b011 : (BitVec 3)))
+              then (pure 8)
+              else
+                (do
+                  bif (b__0 == (0b100 : (BitVec 3)))
+                  then (pure 16)
+                  else
+                    (do
+                      assert false "Pattern match failure at unknown location"
+                      throw Error.Exit)))))
+
+/-- Type quantifiers: arg_ : Nat, arg_ ∈ {1, 2, 4, 8, 16} -/
+def size_enc_wide_forwards_matches (arg_ : Nat) : Bool :=
+  match arg_ with
+  | 1 => true
+  | 2 => true
+  | 4 => true
+  | 8 => true
+  | 16 => true
+  | _ => false
+
+def size_enc_wide_backwards_matches (arg_ : (BitVec 3)) : Bool :=
+  let b__0 := arg_
+  bif (b__0 == (0b000 : (BitVec 3)))
+  then true
+  else
+    (bif (b__0 == (0b001 : (BitVec 3)))
+    then true
+    else
+      (bif (b__0 == (0b010 : (BitVec 3)))
+      then true
+      else
+        (bif (b__0 == (0b011 : (BitVec 3)))
+        then true
+        else
+          (bif (b__0 == (0b100 : (BitVec 3)))
+          then true
+          else false))))
+
+def size_mnemonic_wide_backwards (arg_ : String) : SailM Int := do
+  match arg_ with
+  | "b" => (pure 1)
+  | "h" => (pure 2)
+  | "w" => (pure 4)
+  | "d" => (pure 8)
+  | "q" => (pure 16)
+  | _ =>
+    (do
+      assert false "Pattern match failure at unknown location"
+      throw Error.Exit)
+
+/-- Type quantifiers: arg_ : Nat, arg_ ∈ {1, 2, 4, 8, 16} -/
+def size_mnemonic_wide_forwards_matches (arg_ : Nat) : Bool :=
+  match arg_ with
+  | 1 => true
+  | 2 => true
+  | 4 => true
+  | 8 => true
+  | 16 => true
+  | _ => false
+
+def size_mnemonic_wide_backwards_matches (arg_ : String) : Bool :=
+  match arg_ with
+  | "b" => true
+  | "h" => true
+  | "w" => true
+  | "d" => true
+  | "q" => true
   | _ => false
 
 def undefined_mul_op (_ : Unit) : SailM mul_op := do
