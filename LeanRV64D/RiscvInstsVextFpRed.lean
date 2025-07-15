@@ -296,15 +296,14 @@ def process_rfvv_single (funct6 : rfvvfunct6) (vm : (BitVec 1)) (vs2 : vregidx) 
 
 /-- Type quantifiers: LMUL_pow : Int, SEW : Nat, num_elem_vs : Nat, num_elem_vs > 0, SEW ∈
   {8, 16, 32, 64}, (-3) ≤ LMUL_pow ∧ LMUL_pow ≤ 3 -/
-def process_rfvv_widen (funct6 : rfvvfunct6) (vm : (BitVec 1)) (vs2 : vregidx) (vs1 : vregidx) (vd : vregidx) (num_elem_vs : Nat) (SEW : Nat) (LMUL_pow : Int) : SailM ExecutionResult := SailME.run do
+def process_rfvv_widening_reduction (funct6 : rfvvfunct6) (vm : (BitVec 1)) (vs2 : vregidx) (vs1 : vregidx) (vd : vregidx) (num_elem_vs : Nat) (SEW : Nat) (LMUL_pow : Int) : SailM ExecutionResult := SailME.run do
   let rm_3b ← do (pure (_get_Fcsr_FRM (← readReg fcsr)))
   let SEW_widen := (SEW *i 2)
-  let LMUL_pow_widen := (LMUL_pow +i 1)
-  bif (← (illegal_fp_reduction_widen SEW rm_3b SEW_widen LMUL_pow_widen))
+  bif (← (illegal_fp_widening_reduction SEW rm_3b SEW_widen))
   then (pure (Illegal_Instruction ()))
   else
     (do
-      assert ((SEW ≥b 16) && (SEW_widen ≤b 64)) "riscv_insts_vext_fp_red.sail:80.36-80.37"
+      assert ((SEW ≥b 16) && (SEW_widen ≤b 64)) "riscv_insts_vext_fp_red.sail:79.36-79.37"
       let num_elem_vd ← do (get_num_elem 0 SEW_widen)
       bif ((BitVec.toNat (← readReg vl)) == 0)
       then (pure RETIRE_SUCCESS)
