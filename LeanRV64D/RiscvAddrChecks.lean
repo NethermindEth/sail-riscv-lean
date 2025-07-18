@@ -189,12 +189,12 @@ def ext_data_get_addr (base : regidx) (offset : (BitVec 64)) (acc : (AccessType 
 def ext_handle_data_check_error (err : Unit) : Unit :=
   ()
 
-/-- Type quantifiers: k_ex373643# : Bool, k_ex373642# : Bool, k_ex373641# : Bool, k_ex373640# : Bool, size
-  : Nat, 0 < size ∧ size ≤ max_mem_access -/
-def ext_check_phys_mem_read (access_type : (AccessType Unit)) (paddr : physaddr) (size : Nat) (acquire : Bool) (release : Bool) (reserved : Bool) (read_meta : Bool) : Ext_PhysAddr_Check :=
+/-- Type quantifiers: k_ex373642# : Bool, k_ex373641# : Bool, k_ex373640# : Bool, k_ex373639# : Bool, width
+  : Nat, 0 < width ∧ width ≤ max_mem_access -/
+def ext_check_phys_mem_read (access_type : (AccessType Unit)) (paddr : physaddr) (width : Nat) (acquire : Bool) (release : Bool) (reserved : Bool) (read_meta : Bool) : Ext_PhysAddr_Check :=
   (Ext_PhysAddr_OK ())
 
-/-- Type quantifiers: size : Nat, size ≥ 0, 0 < size ∧ size ≤ max_mem_access -/
-def ext_check_phys_mem_write (write_kind : write_kind) (paddr : physaddr) (size : Nat) (data : (BitVec (8 * size))) (metadata : Unit) : Ext_PhysAddr_Check :=
+/-- Type quantifiers: width : Nat, width ≥ 0, 0 < width ∧ width ≤ max_mem_access -/
+def ext_check_phys_mem_write (write_kind : write_kind) (paddr : physaddr) (width : Nat) (data : (BitVec (8 * width))) (metadata : Unit) : Ext_PhysAddr_Check :=
   (Ext_PhysAddr_OK ())
 

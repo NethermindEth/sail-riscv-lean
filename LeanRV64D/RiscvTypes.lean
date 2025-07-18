@@ -2780,7 +2780,7 @@ def maybe_lmul_flag_backwards (arg_ : (BitVec 3)) : SailM String := do
                               assert false "Pattern match failure at unknown location"
                               throw Error.Exit)))))))
 
-/-- Type quantifiers: k_ex371416# : Bool -/
+/-- Type quantifiers: k_ex371415# : Bool -/
 def maybe_u_forwards (arg_ : Bool) : String :=
   match arg_ with
   | true => "u"
@@ -3021,23 +3021,6 @@ def shiftiwop_mnemonic_forwards (arg_ : sopw) : String :=
   | SLLIW => "slliw"
   | SRLIW => "srliw"
   | SRAIW => "sraiw"
-
-/-- Type quantifiers: arg_ : Nat, arg_ ∈ {1, 2, 4, 8} -/
-def size_mnemonic_forwards (arg_ : Nat) : String :=
-  match arg_ with
-  | 1 => "b"
-  | 2 => "h"
-  | 4 => "w"
-  | _ => "d"
-
-/-- Type quantifiers: arg_ : Nat, arg_ ∈ {1, 2, 4, 8, 16} -/
-def size_mnemonic_wide_forwards (arg_ : Nat) : String :=
-  match arg_ with
-  | 1 => "b"
-  | 2 => "h"
-  | 4 => "w"
-  | 8 => "d"
-  | _ => "q"
 
 def sp_reg_name_forwards (arg_ : Unit) : SailM String := do
   match arg_ with
@@ -3398,6 +3381,23 @@ def vxtype_mnemonic_forwards (arg_ : vxfunct6) : String :=
   | VX_VMAXU => "vmaxu.vx"
   | VX_VMAX => "vmax.vx"
 
+/-- Type quantifiers: arg_ : Nat, arg_ ∈ {1, 2, 4, 8} -/
+def width_mnemonic_forwards (arg_ : Nat) : String :=
+  match arg_ with
+  | 1 => "b"
+  | 2 => "h"
+  | 4 => "w"
+  | _ => "d"
+
+/-- Type quantifiers: arg_ : Nat, arg_ ∈ {1, 2, 4, 8, 16} -/
+def width_mnemonic_wide_forwards (arg_ : Nat) : String :=
+  match arg_ with
+  | 1 => "b"
+  | 2 => "h"
+  | 4 => "w"
+  | 8 => "d"
+  | _ => "q"
+
 def wmvvtype_mnemonic_forwards (arg_ : wmvvfunct6) : String :=
   match arg_ with
   | WMVV_VWMACCU => "vwmaccu.vv"
@@ -3576,7 +3576,7 @@ def assembly_forwards (arg_ : instruction) : SailM String := do
                 (String.append (sep_forwards ()) (String.append (← (reg_name_forwards rs2)) ""))))))))
   | .LOAD (imm, rs1, rd, is_unsigned, width) =>
     (pure (String.append "l"
-        (String.append (size_mnemonic_forwards width)
+        (String.append (width_mnemonic_forwards width)
           (String.append (maybe_u_forwards is_unsigned)
             (String.append (spc_forwards ())
               (String.append (← (reg_name_forwards rd))
@@ -3586,7 +3586,7 @@ def assembly_forwards (arg_ : instruction) : SailM String := do
                       (String.append (← (reg_name_forwards rs1)) (String.append ")" "")))))))))))
   | .STORE (imm, rs2, rs1, width) =>
     (pure (String.append "s"
-        (String.append (size_mnemonic_forwards width)
+        (String.append (width_mnemonic_forwards width)
           (String.append (spc_forwards ())
             (String.append (← (reg_name_forwards rs2))
               (String.append (sep_forwards ())
@@ -3661,7 +3661,7 @@ def assembly_forwards (arg_ : instruction) : SailM String := do
   | .AMO (op, aq, rl, rs2, rs1, width, rd) =>
     (pure (String.append (amo_mnemonic_forwards op)
         (String.append "."
-          (String.append (size_mnemonic_wide_forwards width)
+          (String.append (width_mnemonic_wide_forwards width)
             (String.append (maybe_aqrl_forwards (aq, rl))
               (String.append (spc_forwards ())
                 (String.append (← (reg_name_forwards rd))
@@ -3670,18 +3670,18 @@ def assembly_forwards (arg_ : instruction) : SailM String := do
                       (String.append (sep_forwards ())
                         (String.append "("
                           (String.append (← (reg_name_forwards rs1)) (String.append ")" "")))))))))))))
-  | .LOADRES (aq, rl, rs1, size, rd) =>
+  | .LOADRES (aq, rl, rs1, width, rd) =>
     (pure (String.append "lr."
-        (String.append (size_mnemonic_forwards size)
+        (String.append (width_mnemonic_forwards width)
           (String.append (maybe_aqrl_forwards (aq, rl))
             (String.append (spc_forwards ())
               (String.append (← (reg_name_forwards rd))
                 (String.append (sep_forwards ())
                   (String.append "("
                     (String.append (← (reg_name_forwards rs1)) (String.append ")" ""))))))))))
-  | .STORECON (aq, rl, rs2, rs1, size, rd) =>
+  | .STORECON (aq, rl, rs2, rs1, width, rd) =>
     (pure (String.append "sc."
-        (String.append (size_mnemonic_forwards size)
+        (String.append (width_mnemonic_forwards width)
           (String.append (maybe_aqrl_forwards (aq, rl))
             (String.append (spc_forwards ())
               (String.append (← (reg_name_forwards rd))
@@ -4151,7 +4151,7 @@ def assembly_forwards (arg_ : instruction) : SailM String := do
           throw Error.Exit))
   | .LOAD_FP (imm, rs1, rd, width) =>
     (pure (String.append "fl"
-        (String.append (size_mnemonic_forwards width)
+        (String.append (width_mnemonic_forwards width)
           (String.append (spc_forwards ())
             (String.append (← (freg_or_reg_name_forwards rd))
               (String.append (sep_forwards ())
@@ -4163,7 +4163,7 @@ def assembly_forwards (arg_ : instruction) : SailM String := do
                           (String.append (opt_spc_forwards ()) (String.append ")" "")))))))))))))
   | .STORE_FP (imm, rs2, rs1, width) =>
     (pure (String.append "fs"
-        (String.append (size_mnemonic_forwards width)
+        (String.append (width_mnemonic_forwards width)
           (String.append (spc_forwards ())
             (String.append (← (freg_name_forwards rs2))
               (String.append (sep_forwards ())
@@ -6792,14 +6792,14 @@ def wait_name_backwards_matches (arg_ : String) : Bool :=
   | _ => false
 
 /-- Type quantifiers: arg_ : Nat, arg_ ∈ {1, 2, 4, 8} -/
-def size_enc_forwards (arg_ : Nat) : (BitVec 2) :=
+def width_enc_forwards (arg_ : Nat) : (BitVec 2) :=
   match arg_ with
   | 1 => (0b00 : (BitVec 2))
   | 2 => (0b01 : (BitVec 2))
   | 4 => (0b10 : (BitVec 2))
   | _ => (0b11 : (BitVec 2))
 
-def size_enc_backwards (arg_ : (BitVec 2)) : Int :=
+def width_enc_backwards (arg_ : (BitVec 2)) : Int :=
   let b__0 := arg_
   bif (b__0 == (0b00 : (BitVec 2)))
   then 1
@@ -6812,7 +6812,7 @@ def size_enc_backwards (arg_ : (BitVec 2)) : Int :=
       else 8))
 
 /-- Type quantifiers: arg_ : Nat, arg_ ∈ {1, 2, 4, 8} -/
-def size_enc_forwards_matches (arg_ : Nat) : Bool :=
+def width_enc_forwards_matches (arg_ : Nat) : Bool :=
   match arg_ with
   | 1 => true
   | 2 => true
@@ -6820,7 +6820,7 @@ def size_enc_forwards_matches (arg_ : Nat) : Bool :=
   | 8 => true
   | _ => false
 
-def size_enc_backwards_matches (arg_ : (BitVec 2)) : Bool :=
+def width_enc_backwards_matches (arg_ : (BitVec 2)) : Bool :=
   let b__0 := arg_
   bif (b__0 == (0b00 : (BitVec 2)))
   then true
@@ -6835,7 +6835,7 @@ def size_enc_backwards_matches (arg_ : (BitVec 2)) : Bool :=
         then true
         else false)))
 
-def size_mnemonic_backwards (arg_ : String) : SailM Int := do
+def width_mnemonic_backwards (arg_ : String) : SailM Int := do
   match arg_ with
   | "b" => (pure 1)
   | "h" => (pure 2)
@@ -6847,7 +6847,7 @@ def size_mnemonic_backwards (arg_ : String) : SailM Int := do
       throw Error.Exit)
 
 /-- Type quantifiers: arg_ : Nat, arg_ ∈ {1, 2, 4, 8} -/
-def size_mnemonic_forwards_matches (arg_ : Nat) : Bool :=
+def width_mnemonic_forwards_matches (arg_ : Nat) : Bool :=
   match arg_ with
   | 1 => true
   | 2 => true
@@ -6855,7 +6855,7 @@ def size_mnemonic_forwards_matches (arg_ : Nat) : Bool :=
   | 8 => true
   | _ => false
 
-def size_mnemonic_backwards_matches (arg_ : String) : Bool :=
+def width_mnemonic_backwards_matches (arg_ : String) : Bool :=
   match arg_ with
   | "b" => true
   | "h" => true
@@ -6864,7 +6864,7 @@ def size_mnemonic_backwards_matches (arg_ : String) : Bool :=
   | _ => false
 
 /-- Type quantifiers: arg_ : Nat, arg_ ∈ {1, 2, 4, 8, 16} -/
-def size_enc_wide_forwards (arg_ : Nat) : (BitVec 3) :=
+def width_enc_wide_forwards (arg_ : Nat) : (BitVec 3) :=
   match arg_ with
   | 1 => (0b000 : (BitVec 3))
   | 2 => (0b001 : (BitVec 3))
@@ -6872,7 +6872,7 @@ def size_enc_wide_forwards (arg_ : Nat) : (BitVec 3) :=
   | 8 => (0b011 : (BitVec 3))
   | _ => (0b100 : (BitVec 3))
 
-def size_enc_wide_backwards (arg_ : (BitVec 3)) : SailM Int := do
+def width_enc_wide_backwards (arg_ : (BitVec 3)) : SailM Int := do
   let b__0 := arg_
   bif (b__0 == (0b000 : (BitVec 3)))
   then (pure 1)
@@ -6898,7 +6898,7 @@ def size_enc_wide_backwards (arg_ : (BitVec 3)) : SailM Int := do
                       throw Error.Exit)))))
 
 /-- Type quantifiers: arg_ : Nat, arg_ ∈ {1, 2, 4, 8, 16} -/
-def size_enc_wide_forwards_matches (arg_ : Nat) : Bool :=
+def width_enc_wide_forwards_matches (arg_ : Nat) : Bool :=
   match arg_ with
   | 1 => true
   | 2 => true
@@ -6907,7 +6907,7 @@ def size_enc_wide_forwards_matches (arg_ : Nat) : Bool :=
   | 16 => true
   | _ => false
 
-def size_enc_wide_backwards_matches (arg_ : (BitVec 3)) : Bool :=
+def width_enc_wide_backwards_matches (arg_ : (BitVec 3)) : Bool :=
   let b__0 := arg_
   bif (b__0 == (0b000 : (BitVec 3)))
   then true
@@ -6925,7 +6925,7 @@ def size_enc_wide_backwards_matches (arg_ : (BitVec 3)) : Bool :=
           then true
           else false))))
 
-def size_mnemonic_wide_backwards (arg_ : String) : SailM Int := do
+def width_mnemonic_wide_backwards (arg_ : String) : SailM Int := do
   match arg_ with
   | "b" => (pure 1)
   | "h" => (pure 2)
@@ -6938,7 +6938,7 @@ def size_mnemonic_wide_backwards (arg_ : String) : SailM Int := do
       throw Error.Exit)
 
 /-- Type quantifiers: arg_ : Nat, arg_ ∈ {1, 2, 4, 8, 16} -/
-def size_mnemonic_wide_forwards_matches (arg_ : Nat) : Bool :=
+def width_mnemonic_wide_forwards_matches (arg_ : Nat) : Bool :=
   match arg_ with
   | 1 => true
   | 2 => true
@@ -6947,7 +6947,7 @@ def size_mnemonic_wide_forwards_matches (arg_ : Nat) : Bool :=
   | 16 => true
   | _ => false
 
-def size_mnemonic_wide_backwards_matches (arg_ : String) : Bool :=
+def width_mnemonic_wide_backwards_matches (arg_ : String) : Bool :=
   match arg_ with
   | "b" => true
   | "h" => true

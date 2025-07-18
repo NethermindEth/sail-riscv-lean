@@ -166,9 +166,9 @@ open ExceptionType
 open Architecture
 open AccessType
 
-/-- Type quantifiers: size : Nat, size ∈ {1, 2, 4, 8} -/
-def lrsc_width_valid (size : Nat) : Bool :=
-  match size with
+/-- Type quantifiers: width : Nat, width ∈ {1, 2, 4, 8} -/
+def lrsc_width_valid (width : Nat) : Bool :=
+  match width with
   | 4 => true
   | 8 => (xlen ≥b 64)
   | _ => false

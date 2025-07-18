@@ -172,9 +172,9 @@ def tlb_vpn_bits := (57 -i 12)
 
 def tlb_ppn_bits := 44
 
-/-- Type quantifiers: pte_width : Nat, pte_width ≥ 0, pte_width ∈ {4, 8} -/
-def tlb_get_pte (pte_width : Nat) (ent : TLB_Entry) : (BitVec (pte_width * 8)) :=
-  (Sail.BitVec.extractLsb ent.pte ((pte_width *i 8) -i 1) 0)
+/-- Type quantifiers: pte_size : Nat, pte_size ≥ 0, pte_size ∈ {4, 8} -/
+def tlb_get_pte (pte_size : Nat) (ent : TLB_Entry) : (BitVec (pte_size * 8)) :=
+  (Sail.BitVec.extractLsb ent.pte ((pte_size *i 8) -i 1) 0)
 
 /-- Type quantifiers: k_n : Nat, k_n ≥ 0, k_n ∈ {4, 8} -/
 def tlb_set_pte (ent : TLB_Entry) (pte : (BitVec (k_n * 8))) : TLB_Entry :=
@@ -229,7 +229,7 @@ def lookup_TLB (sv_width : Nat) (asid : (BitVec (bif 64 = 32 then 9 else 16))) (
     then (pure (some (index, entry)))
     else (pure none))
 
-/-- Type quantifiers: k_ex376771# : Bool, level : Nat, sv_width : Nat, is_sv_mode(sv_width), 0 ≤
+/-- Type quantifiers: k_ex376770# : Bool, level : Nat, sv_width : Nat, is_sv_mode(sv_width), 0 ≤
   level ∧
   level ≤
   (bif sv_width = 32 then 1 else (bif sv_width = 39 then 2 else (bif sv_width = 48 then 3 else 4))) -/
