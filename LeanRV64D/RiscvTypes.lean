@@ -2780,7 +2780,7 @@ def maybe_lmul_flag_backwards (arg_ : (BitVec 3)) : SailM String := do
                               assert false "Pattern match failure at unknown location"
                               throw Error.Exit)))))))
 
-/-- Type quantifiers: k_ex371786# : Bool -/
+/-- Type quantifiers: k_ex371416# : Bool -/
 def maybe_u_forwards (arg_ : Bool) : String :=
   match arg_ with
   | true => "u"
@@ -6399,11 +6399,11 @@ def num_of_SATPMode (arg_ : SATPMode) : Int :=
 
 def satpMode_of_bits (a : Architecture) (m : (BitVec 4)) : (Option SATPMode) :=
   match (a, m) with
-  | (g__3, b__0) =>
+  | (g__5, b__0) =>
     (bif (b__0 == (0x0 : (BitVec 4)))
     then (some Bare)
     else
-      (match (g__3, b__0) with
+      (match (g__5, b__0) with
       | (RV32, b__0) =>
         (bif (b__0 == (0x1 : (BitVec 4)))
         then (some Sv32)

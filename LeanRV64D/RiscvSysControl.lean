@@ -191,54 +191,16 @@ def csrPriv (csr : (BitVec 12)) : (BitVec 2) :=
 def check_CSR_priv (csr : (BitVec 12)) (p : Privilege) : Bool :=
   (zopz0zKzJ_u (privLevel_to_bits p) (csrPriv csr))
 
-/-- Type quantifiers: k_ex375059# : Bool -/
+/-- Type quantifiers: k_ex374718# : Bool -/
 def check_CSR_access (csr : (BitVec 12)) (isWrite : Bool) : Bool :=
   (not (isWrite && ((csrAccess csr) == (0b11 : (BitVec 2)))))
 
-def check_TVM_SATP (csr : (BitVec 12)) (p : Privilege) : SailM Bool := do
-  (pure (not
-      ((csr == (0x180 : (BitVec 12))) && ((p == Supervisor) && ((_get_Mstatus_TVM
-              (← readReg mstatus)) == (0b1 : (BitVec 1)))))))
+def sstc_CSRs_accessible (priv : Privilege) : SailM Bool := do
+  (pure ((priv == Machine) || ((priv == Supervisor) && (((_get_Counteren_TM (← readReg mcounteren)) == (0b1 : (BitVec 1))) && ((_get_MEnvcfg_STCE
+              (← readReg menvcfg)) == (0b1 : (BitVec 1)))))))
 
-def feature_enabled_for_priv (p : Privilege) (machine_enable_bit : (BitVec 1)) (supervisor_enable_bit : (BitVec 1)) : SailM Bool := do
-  match p with
-  | Machine => (pure true)
-  | Supervisor => (pure (machine_enable_bit == 1#1))
-  | User =>
-    (pure ((machine_enable_bit == 1#1) && ((not (← (currentlyEnabled Ext_S))) || (supervisor_enable_bit == 1#1))))
-
-def check_Counteren (csr : (BitVec 12)) (p : Privilege) : SailM Bool := do
-  bif ((zopz0zI_u csr (0xC00 : (BitVec 12))) || (zopz0zI_u (0xC1F : (BitVec 12)) csr))
-  then (pure true)
-  else
-    (do
-      let index := (BitVec.toNat (Sail.BitVec.extractLsb csr 4 0))
-      (feature_enabled_for_priv p (BitVec.access (← readReg mcounteren) index)
-        (BitVec.access (← readReg scounteren) index)))
-
-def check_Stimecmp (csr : (BitVec 12)) (p : Privilege) : SailM Bool := do
-  bif ((csr != (0x14D : (BitVec 12))) && (csr != (0x15D : (BitVec 12))))
-  then (pure true)
-  else
-    (pure ((p == Machine) || ((p == Supervisor) && (((_get_Counteren_TM (← readReg mcounteren)) == (0b1 : (BitVec 1))) && ((_get_MEnvcfg_STCE
-                (← readReg menvcfg)) == (0b1 : (BitVec 1)))))))
-
-/-- Type quantifiers: k_ex375146# : Bool -/
-def check_seed_CSR (csr : (BitVec 12)) (p : Privilege) (isWrite : Bool) : SailM Bool := do
-  bif (not (csr == (0x015 : (BitVec 12))))
-  then (pure true)
-  else
-    (do
-      bif (not isWrite)
-      then (pure false)
-      else
-        (do
-          match p with
-          | Machine => (pure true)
-          | Supervisor => (pure ((_get_Seccfg_SSEED (← readReg mseccfg)) == (0b1 : (BitVec 1))))
-          | User => (pure ((_get_Seccfg_USEED (← readReg mseccfg)) == (0b1 : (BitVec 1))))))
-
-def is_CSR_defined (b__0 : (BitVec 12)) : SailM Bool := do
+/-- Type quantifiers: k_ex374754# : Bool -/
+def is_CSR_accessible (b__0 : (BitVec 12)) (g__2 : Privilege) (g__3 : Bool) : SailM Bool := do
   bif (b__0 == (0x301 : (BitVec 12)))
   then (pure true)
   else
@@ -572,9 +534,18 @@ def is_CSR_defined (b__0 : (BitVec 12)) : SailM Bool := do
                                                                                                                                                                                                                ((BitVec.toNat
                                                                                                                                                                                                                    index) ≥b 3) : Bool))
                                                                                                                                                                                                           then
-                                                                                                                                                                                                            (pure ((← (currentlyEnabled
-                                                                                                                                                                                                                    Ext_Zihpm)) && (← (currentlyEnabled
-                                                                                                                                                                                                                    Ext_U))))
+                                                                                                                                                                                                            (do
+                                                                                                                                                                                                              let index : (BitVec 5) :=
+                                                                                                                                                                                                                (Sail.BitVec.extractLsb
+                                                                                                                                                                                                                  b__0
+                                                                                                                                                                                                                  4
+                                                                                                                                                                                                                  0)
+                                                                                                                                                                                                              (pure ((← (currentlyEnabled
+                                                                                                                                                                                                                      Ext_Zihpm)) && ((← (currentlyEnabled
+                                                                                                                                                                                                                        Ext_U)) && (← (counter_enabled
+                                                                                                                                                                                                                        (BitVec.toNat
+                                                                                                                                                                                                                          index)
+                                                                                                                                                                                                                        g__2))))))
                                                                                                                                                                                                           else
                                                                                                                                                                                                             (do
                                                                                                                                                                                                               bif (((Sail.BitVec.extractLsb
@@ -588,9 +559,18 @@ def is_CSR_defined (b__0 : (BitVec 12)) : SailM Bool := do
                                                                                                                                                                                                                    ((BitVec.toNat
                                                                                                                                                                                                                        index) ≥b 3) : Bool))
                                                                                                                                                                                                               then
-                                                                                                                                                                                                                (pure ((← (currentlyEnabled
-                                                                                                                                                                                                                        Ext_Zihpm)) && ((← (currentlyEnabled
-                                                                                                                                                                                                                          Ext_U)) && (xlen == 32))))
+                                                                                                                                                                                                                (do
+                                                                                                                                                                                                                  let index : (BitVec 5) :=
+                                                                                                                                                                                                                    (Sail.BitVec.extractLsb
+                                                                                                                                                                                                                      b__0
+                                                                                                                                                                                                                      4
+                                                                                                                                                                                                                      0)
+                                                                                                                                                                                                                  (pure ((← (currentlyEnabled
+                                                                                                                                                                                                                          Ext_Zihpm)) && ((← (currentlyEnabled
+                                                                                                                                                                                                                            Ext_U)) && ((xlen == 32) && (← (counter_enabled
+                                                                                                                                                                                                                              (BitVec.toNat
+                                                                                                                                                                                                                                index)
+                                                                                                                                                                                                                              g__2)))))))
                                                                                                                                                                                                               else
                                                                                                                                                                                                                 (do
                                                                                                                                                                                                                   bif (((Sail.BitVec.extractLsb
@@ -617,44 +597,65 @@ def is_CSR_defined (b__0 : (BitVec 12)) : SailM Bool := do
                                                                                                                                                                                                                         (do
                                                                                                                                                                                                                           bif (b__0 == (0x015 : (BitVec 12)))
                                                                                                                                                                                                                           then
-                                                                                                                                                                                                                            (currentlyEnabled
-                                                                                                                                                                                                                              Ext_Zkr)
+                                                                                                                                                                                                                            (pure ((← (currentlyEnabled
+                                                                                                                                                                                                                                    Ext_Zkr)) && (g__3 && (← do
+                                                                                                                                                                                                                                    match g__2 with
+                                                                                                                                                                                                                                    | Machine =>
+                                                                                                                                                                                                                                      (pure true)
+                                                                                                                                                                                                                                    | Supervisor =>
+                                                                                                                                                                                                                                      (pure ((_get_Seccfg_SSEED
+                                                                                                                                                                                                                                            (← readReg mseccfg)) == (0b1 : (BitVec 1))))
+                                                                                                                                                                                                                                    | User =>
+                                                                                                                                                                                                                                      (pure ((_get_Seccfg_USEED
+                                                                                                                                                                                                                                            (← readReg mseccfg)) == (0b1 : (BitVec 1))))))))
                                                                                                                                                                                                                           else
                                                                                                                                                                                                                             (do
                                                                                                                                                                                                                               bif (b__0 == (0xC00 : (BitVec 12)))
                                                                                                                                                                                                                               then
-                                                                                                                                                                                                                                (currentlyEnabled
-                                                                                                                                                                                                                                  Ext_Zicntr)
+                                                                                                                                                                                                                                (pure ((← (currentlyEnabled
+                                                                                                                                                                                                                                        Ext_Zicntr)) && (← (counter_enabled
+                                                                                                                                                                                                                                        0
+                                                                                                                                                                                                                                        g__2))))
                                                                                                                                                                                                                               else
                                                                                                                                                                                                                                 (do
                                                                                                                                                                                                                                   bif (b__0 == (0xC01 : (BitVec 12)))
                                                                                                                                                                                                                                   then
-                                                                                                                                                                                                                                    (currentlyEnabled
-                                                                                                                                                                                                                                      Ext_Zicntr)
+                                                                                                                                                                                                                                    (pure ((← (currentlyEnabled
+                                                                                                                                                                                                                                            Ext_Zicntr)) && (← (counter_enabled
+                                                                                                                                                                                                                                            1
+                                                                                                                                                                                                                                            g__2))))
                                                                                                                                                                                                                                   else
                                                                                                                                                                                                                                     (do
                                                                                                                                                                                                                                       bif (b__0 == (0xC02 : (BitVec 12)))
                                                                                                                                                                                                                                       then
-                                                                                                                                                                                                                                        (currentlyEnabled
-                                                                                                                                                                                                                                          Ext_Zicntr)
+                                                                                                                                                                                                                                        (pure ((← (currentlyEnabled
+                                                                                                                                                                                                                                                Ext_Zicntr)) && (← (counter_enabled
+                                                                                                                                                                                                                                                2
+                                                                                                                                                                                                                                                g__2))))
                                                                                                                                                                                                                                       else
                                                                                                                                                                                                                                         (do
                                                                                                                                                                                                                                           bif (b__0 == (0xC80 : (BitVec 12)))
                                                                                                                                                                                                                                           then
                                                                                                                                                                                                                                             (pure ((← (currentlyEnabled
-                                                                                                                                                                                                                                                    Ext_Zicntr)) && (xlen == 32)))
+                                                                                                                                                                                                                                                    Ext_Zicntr)) && ((xlen == 32) && (← (counter_enabled
+                                                                                                                                                                                                                                                      0
+                                                                                                                                                                                                                                                      g__2)))))
                                                                                                                                                                                                                                           else
                                                                                                                                                                                                                                             (do
                                                                                                                                                                                                                                               bif (b__0 == (0xC81 : (BitVec 12)))
                                                                                                                                                                                                                                               then
                                                                                                                                                                                                                                                 (pure ((← (currentlyEnabled
-                                                                                                                                                                                                                                                        Ext_Zicntr)) && (xlen == 32)))
+                                                                                                                                                                                                                                                        Ext_Zicntr)) && ((xlen == 32) && (← (counter_enabled
+                                                                                                                                                                                                                                                          1
+                                                                                                                                                                                                                                                          g__2)))))
                                                                                                                                                                                                                                               else
                                                                                                                                                                                                                                                 (do
                                                                                                                                                                                                                                                   bif (b__0 == (0xC82 : (BitVec 12)))
                                                                                                                                                                                                                                                   then
                                                                                                                                                                                                                                                     (pure ((← (currentlyEnabled
-                                                                                                                                                                                                                                                            Ext_Zicntr)) && (xlen == 32)))
+                                                                                                                                                                                                                                                            Ext_Zicntr)) && ((xlen == 32) && (← (counter_enabled
+                                                                                                                                                                                                                                                              2
+                                                                                                                                                                                                                                                              g__2)))))
                                                                                                                                                                                                                                                   else
                                                                                                                                                                                                                                                     (do
                                                                                                                                                                                                                                                       bif (b__0 == (0xB00 : (BitVec 12)))
@@ -729,29 +730,32 @@ def is_CSR_defined (b__0 : (BitVec 12)) : SailM Bool := do
                                                                                                                                                                                                                                                                                                   bif (b__0 == (0x14D : (BitVec 12)))
                                                                                                                                                                                                                                                                                                   then
                                                                                                                                                                                                                                                                                                     (pure ((← (currentlyEnabled
-                                                                                                                                                                                                                                                                                                            Ext_S)) && (← (currentlyEnabled
-                                                                                                                                                                                                                                                                                                            Ext_Sstc))))
+                                                                                                                                                                                                                                                                                                            Ext_S)) && ((← (currentlyEnabled
+                                                                                                                                                                                                                                                                                                              Ext_Sstc)) && (← (sstc_CSRs_accessible
+                                                                                                                                                                                                                                                                                                              g__2)))))
                                                                                                                                                                                                                                                                                                   else
                                                                                                                                                                                                                                                                                                     (do
                                                                                                                                                                                                                                                                                                       bif (b__0 == (0x15D : (BitVec 12)))
                                                                                                                                                                                                                                                                                                       then
                                                                                                                                                                                                                                                                                                         (pure ((← (currentlyEnabled
                                                                                                                                                                                                                                                                                                                 Ext_S)) && ((← (currentlyEnabled
-                                                                                                                                                                                                                                                                                                                  Ext_Sstc)) && (xlen == 32))))
+                                                                                                                                                                                                                                                                                                                  Ext_Sstc)) && ((xlen == 32) && (← (sstc_CSRs_accessible
+                                                                                                                                                                                                                                                                                                                    g__2))))))
                                                                                                                                                                                                                                                                                                       else
                                                                                                                                                                                                                                                                                                         (do
                                                                                                                                                                                                                                                                                                           bif (b__0 == (0x180 : (BitVec 12)))
                                                                                                                                                                                                                                                                                                           then
-                                                                                                                                                                                                                                                                                                            (currentlyEnabled
-                                                                                                                                                                                                                                                                                                              Ext_S)
+                                                                                                                                                                                                                                                                                                            (pure ((← (currentlyEnabled
+                                                                                                                                                                                                                                                                                                                    Ext_S)) && (not
+                                                                                                                                                                                                                                                                                                                  ((g__2 == Supervisor) && ((_get_Mstatus_TVM
+                                                                                                                                                                                                                                                                                                                        (← readReg mstatus)) == (0b1 : (BitVec 1)))))))
                                                                                                                                                                                                                                                                                                           else
                                                                                                                                                                                                                                                                                                             (pure false)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
 
-/-- Type quantifiers: k_ex375586# : Bool -/
+/-- Type quantifiers: k_ex375345# : Bool -/
 def check_CSR (csr : (BitVec 12)) (p : Privilege) (isWrite : Bool) : SailM Bool := do
-  (pure ((← (is_CSR_defined csr)) && ((check_CSR_priv csr p) && ((check_CSR_access csr isWrite) && ((← (check_TVM_SATP
-                csr p)) && ((← (check_Counteren csr p)) && ((← (check_Stimecmp csr p)) && (← (check_seed_CSR
-                    csr p isWrite)))))))))
+  (pure ((check_CSR_priv csr p) && ((check_CSR_access csr isWrite) && (← (is_CSR_accessible csr p
+            isWrite)))))
 
 def exception_delegatee (e : ExceptionType) (p : Privilege) : SailM Privilege := do
   let idx := (num_of_ExceptionType e)
@@ -786,7 +790,7 @@ def findPendingInterrupt (ip : (BitVec 64)) : (Option InterruptType) :=
             else none)))))
 
 def getPendingSet (priv : Privilege) : SailM (Option ((BitVec 64) × Privilege)) := do
-  assert ((← (currentlyEnabled Ext_S)) || ((← readReg mideleg) == (zeros (n := 64)))) "riscv_sys_control.sail:124.58-124.59"
+  assert ((← (currentlyEnabled Ext_S)) || ((← readReg mideleg) == (zeros (n := 64)))) "riscv_sys_control.sail:70.58-70.59"
   let pending_m ← do
     (pure ((← readReg mip) &&& ((← readReg mie) &&& (Complement.complement (← readReg mideleg)))))
   let pending_s ← do (pure ((← readReg mip) &&& ((← readReg mie) &&& (← readReg mideleg))))
@@ -830,9 +834,9 @@ def track_trap (p : Privilege) : SailM Unit := do
       (csr_name_write_callback "scause" (← readReg scause))
       (csr_name_write_callback "stval" (← readReg stval))
       (csr_name_write_callback "sepc" (← readReg sepc)))
-  | User => (internal_error "riscv_sys_control.sail" 204 "Invalid privilege level")
+  | User => (internal_error "riscv_sys_control.sail" 150 "Invalid privilege level")
 
-/-- Type quantifiers: k_ex375832# : Bool -/
+/-- Type quantifiers: k_ex375411# : Bool -/
 def trap_handler (del_priv : Privilege) (intr : Bool) (c : (BitVec 8)) (pc : (BitVec 64)) (info : (Option (BitVec 64))) (ext : (Option Unit)) : SailM (BitVec 64) := do
   let _ : Unit := (trap_callback ())
   let _ : Unit :=
@@ -883,14 +887,14 @@ def trap_handler (del_priv : Privilege) (intr : Bool) (c : (BitVec 8)) (pc : (Bi
           | User => (pure (0b0 : (BitVec 1)))
           | Supervisor => (pure (0b1 : (BitVec 1)))
           | Machine =>
-            (internal_error "riscv_sys_control.sail" 247 "invalid privilege for s-mode trap")))
+            (internal_error "riscv_sys_control.sail" 193 "invalid privilege for s-mode trap")))
       writeReg stval (tval info)
       writeReg sepc pc
       writeReg cur_privilege del_priv
       let _ : Unit := (handle_trap_extension del_priv pc ext)
       (track_trap del_priv)
       (prepare_trap_vector del_priv (← readReg scause)))
-  | User => (internal_error "riscv_sys_control.sail" 260 "Invalid privilege level")
+  | User => (internal_error "riscv_sys_control.sail" 206 "Invalid privilege level")
 
 def exception_handler (cur_priv : Privilege) (ctl : ctl_result) (pc : (BitVec 64)) : SailM (BitVec 64) := do
   match (cur_priv, ctl) with
@@ -995,7 +999,7 @@ def reset_misa (_ : Unit) : SailM Unit := do
   writeReg misa (Sail.BitVec.updateSubrange (← readReg misa) 21 21
     (bool_to_bits (hartSupports Ext_V)))
   bif ((hartSupports Ext_F) && (hartSupports Ext_Zfinx))
-  then (internal_error "riscv_sys_control.sail" 339 "F and Zfinx cannot both be enabled!")
+  then (internal_error "riscv_sys_control.sail" 285 "F and Zfinx cannot both be enabled!")
   else (pure ())
   writeReg misa (Sail.BitVec.updateSubrange (← readReg misa) 5 5
     (bool_to_bits (hartSupports Ext_F)))

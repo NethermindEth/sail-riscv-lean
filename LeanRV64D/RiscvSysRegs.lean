@@ -2099,3 +2099,15 @@ def legalize_satp (arch : Architecture) (prev_value : (BitVec 64)) (written_valu
           else (pure prev_value))
       | _ => (pure prev_value))
 
+def feature_enabled_for_priv (p : Privilege) (machine_enable_bit : (BitVec 1)) (supervisor_enable_bit : (BitVec 1)) : SailM Bool := do
+  match p with
+  | Machine => (pure true)
+  | Supervisor => (pure (machine_enable_bit == 1#1))
+  | User =>
+    (pure ((machine_enable_bit == 1#1) && ((not (← (currentlyEnabled Ext_S))) || (supervisor_enable_bit == 1#1))))
+
+/-- Type quantifiers: index : Nat, 0 ≤ index ∧ index ≤ 31 -/
+def counter_enabled (index : Nat) (priv : Privilege) : SailM Bool := do
+  (feature_enabled_for_priv priv (BitVec.access (← readReg mcounteren) index)
+    (BitVec.access (← readReg scounteren) index))
+
