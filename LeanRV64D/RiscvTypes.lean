@@ -2734,12 +2734,6 @@ def itype_mnemonic_forwards (arg_ : iop) : String :=
   | ORI => "ori"
   | ANDI => "andi"
 
-def ma_flag_backwards (arg_ : (BitVec 1)) : String :=
-  let b__0 := arg_
-  bif (b__0 == (0b1 : (BitVec 1)))
-  then (String.append (sep_forwards ()) (String.append "ma" ""))
-  else (String.append (sep_forwards ()) (String.append "mu" ""))
-
 def maybe_aqrl_forwards (arg_ : (Bool × Bool)) : String :=
   match arg_ with
   | (true, true) => ".aqrl"
@@ -2747,40 +2741,7 @@ def maybe_aqrl_forwards (arg_ : (Bool × Bool)) : String :=
   | (false, true) => ".rl"
   | (false, false) => ""
 
-def maybe_lmul_flag_backwards (arg_ : (BitVec 3)) : SailM String := do
-  let b__0 := arg_
-  bif (b__0 == (0b101 : (BitVec 3)))
-  then (pure (String.append (sep_forwards ()) (String.append "mf8" "")))
-  else
-    (do
-      bif (b__0 == (0b110 : (BitVec 3)))
-      then (pure (String.append (sep_forwards ()) (String.append "mf4" "")))
-      else
-        (do
-          bif (b__0 == (0b111 : (BitVec 3)))
-          then (pure (String.append (sep_forwards ()) (String.append "mf2" "")))
-          else
-            (do
-              bif (b__0 == (0b000 : (BitVec 3)))
-              then (pure (String.append (sep_forwards ()) (String.append "m1" "")))
-              else
-                (do
-                  bif (b__0 == (0b001 : (BitVec 3)))
-                  then (pure (String.append (sep_forwards ()) (String.append "m2" "")))
-                  else
-                    (do
-                      bif (b__0 == (0b010 : (BitVec 3)))
-                      then (pure (String.append (sep_forwards ()) (String.append "m4" "")))
-                      else
-                        (do
-                          bif (b__0 == (0b011 : (BitVec 3)))
-                          then (pure (String.append (sep_forwards ()) (String.append "m8" "")))
-                          else
-                            (do
-                              assert false "Pattern match failure at unknown location"
-                              throw Error.Exit)))))))
-
-/-- Type quantifiers: k_ex371415# : Bool -/
+/-- Type quantifiers: k_ex371542# : Bool -/
 def maybe_u_forwards (arg_ : Bool) : String :=
   match arg_ with
   | true => "u"
@@ -2989,27 +2950,6 @@ def rtypew_mnemonic_forwards (arg_ : ropw) : String :=
   | SRLW => "srlw"
   | SRAW => "sraw"
 
-def sew_flag_backwards (arg_ : (BitVec 3)) : SailM String := do
-  let b__0 := arg_
-  bif (b__0 == (0b000 : (BitVec 3)))
-  then (pure "e8")
-  else
-    (do
-      bif (b__0 == (0b001 : (BitVec 3)))
-      then (pure "e16")
-      else
-        (do
-          bif (b__0 == (0b010 : (BitVec 3)))
-          then (pure "e32")
-          else
-            (do
-              bif (b__0 == (0b011 : (BitVec 3)))
-              then (pure "e64")
-              else
-                (do
-                  assert false "Pattern match failure at unknown location"
-                  throw Error.Exit))))
-
 def shiftiop_mnemonic_forwards (arg_ : sop) : String :=
   match arg_ with
   | SLLI => "slli"
@@ -3036,12 +2976,6 @@ def sp_reg_name_forwards (arg_ : Unit) : SailM String := do
             (do
               assert false "Pattern match failure at unknown location"
               throw Error.Exit)))
-
-def ta_flag_backwards (arg_ : (BitVec 1)) : String :=
-  let b__0 := arg_
-  bif (b__0 == (0b1 : (BitVec 1)))
-  then (String.append (sep_forwards ()) (String.append "ta" ""))
-  else (String.append (sep_forwards ()) (String.append "tu" ""))
 
 def utype_mnemonic_forwards (arg_ : uop) : String :=
   match arg_ with
@@ -3277,6 +3211,85 @@ def vsm4r_mnemonic_forwards (arg_ : zvk_vsm4r_funct6) : String :=
   match arg_ with
   | ZVK_VSM4R_VV => "vsm4r.vv"
   | ZVK_VSM4R_VS => "vsm4r.vs"
+
+def ma_flag_backwards (arg_ : (BitVec 1)) : String :=
+  let b__0 := arg_
+  bif (b__0 == (0b1 : (BitVec 1)))
+  then (String.append (sep_forwards ()) (String.append "ma" ""))
+  else (String.append (sep_forwards ()) (String.append "mu" ""))
+
+def maybe_lmul_flag_backwards (arg_ : (BitVec 3)) : SailM String := do
+  let b__0 := arg_
+  bif (b__0 == (0b101 : (BitVec 3)))
+  then (pure (String.append (sep_forwards ()) (String.append "mf8" "")))
+  else
+    (do
+      bif (b__0 == (0b110 : (BitVec 3)))
+      then (pure (String.append (sep_forwards ()) (String.append "mf4" "")))
+      else
+        (do
+          bif (b__0 == (0b111 : (BitVec 3)))
+          then (pure (String.append (sep_forwards ()) (String.append "mf2" "")))
+          else
+            (do
+              bif (b__0 == (0b000 : (BitVec 3)))
+              then (pure (String.append (sep_forwards ()) (String.append "m1" "")))
+              else
+                (do
+                  bif (b__0 == (0b001 : (BitVec 3)))
+                  then (pure (String.append (sep_forwards ()) (String.append "m2" "")))
+                  else
+                    (do
+                      bif (b__0 == (0b010 : (BitVec 3)))
+                      then (pure (String.append (sep_forwards ()) (String.append "m4" "")))
+                      else
+                        (do
+                          bif (b__0 == (0b011 : (BitVec 3)))
+                          then (pure (String.append (sep_forwards ()) (String.append "m8" "")))
+                          else
+                            (do
+                              assert false "Pattern match failure at unknown location"
+                              throw Error.Exit)))))))
+
+def sew_flag_backwards (arg_ : (BitVec 3)) : SailM String := do
+  let b__0 := arg_
+  bif (b__0 == (0b000 : (BitVec 3)))
+  then (pure "e8")
+  else
+    (do
+      bif (b__0 == (0b001 : (BitVec 3)))
+      then (pure "e16")
+      else
+        (do
+          bif (b__0 == (0b010 : (BitVec 3)))
+          then (pure "e32")
+          else
+            (do
+              bif (b__0 == (0b011 : (BitVec 3)))
+              then (pure "e64")
+              else
+                (do
+                  assert false "Pattern match failure at unknown location"
+                  throw Error.Exit))))
+
+def ta_flag_backwards (arg_ : (BitVec 1)) : String :=
+  let b__0 := arg_
+  bif (b__0 == (0b1 : (BitVec 1)))
+  then (String.append (sep_forwards ()) (String.append "ta" ""))
+  else (String.append (sep_forwards ()) (String.append "tu" ""))
+
+def vtype_assembly_backwards (arg_ : ((BitVec 1) × (BitVec 1) × (BitVec 3) × (BitVec 3))) : SailM String := do
+  match arg_ with
+  | (ma, ta, sew, lmul) =>
+    (do
+      bif ((bne (BitVec.access sew 2) 1#1) && (lmul != (0b100 : (BitVec 3))))
+      then
+        (pure (String.append (← (sew_flag_backwards sew))
+            (String.append (← (maybe_lmul_flag_backwards lmul))
+              (String.append (ta_flag_backwards ta) (String.append (ma_flag_backwards ma) "")))))
+      else
+        (hex_bits_8_forwards
+          ((ma : (BitVec 1)) ++ ((ta : (BitVec 1)) ++ ((sew : (BitVec 3)) ++ (lmul : (BitVec 3)))))))
 
 def vvcmptype_mnemonic_forwards (arg_ : vvcmpfunct6) : String :=
   match arg_ with
@@ -5114,10 +5127,7 @@ def assembly_forwards (arg_ : instruction) : SailM String := do
             (String.append (sep_forwards ())
               (String.append (← (reg_name_forwards rs1))
                 (String.append (sep_forwards ())
-                  (String.append (← (sew_flag_backwards sew))
-                    (String.append (← (maybe_lmul_flag_backwards lmul))
-                      (String.append (ta_flag_backwards ta)
-                        (String.append (ma_flag_backwards ma) "")))))))))))
+                  (String.append (← (vtype_assembly_backwards (ma, ta, sew, lmul))) ""))))))))
   | .VSETVL (rs2, rs1, rd) =>
     (pure (String.append "vsetvl"
         (String.append (spc_forwards ())
@@ -5132,10 +5142,7 @@ def assembly_forwards (arg_ : instruction) : SailM String := do
             (String.append (sep_forwards ())
               (String.append (← (hex_bits_5_forwards uimm))
                 (String.append (sep_forwards ())
-                  (String.append (← (sew_flag_backwards sew))
-                    (String.append (← (maybe_lmul_flag_backwards lmul))
-                      (String.append (ta_flag_backwards ta)
-                        (String.append (ma_flag_backwards ma) "")))))))))))
+                  (String.append (← (vtype_assembly_backwards (ma, ta, sew, lmul))) ""))))))))
   | .VVTYPE (funct6, vm, vs2, vs1, vd) =>
     (pure (String.append (vvtype_mnemonic_forwards funct6)
         (String.append (spc_forwards ())
@@ -6399,11 +6406,11 @@ def num_of_SATPMode (arg_ : SATPMode) : Int :=
 
 def satpMode_of_bits (a : Architecture) (m : (BitVec 4)) : (Option SATPMode) :=
   match (a, m) with
-  | (g__5, b__0) =>
+  | (g__7, b__0) =>
     (bif (b__0 == (0x0 : (BitVec 4)))
     then (some Bare)
     else
-      (match (g__5, b__0) with
+      (match (g__7, b__0) with
       | (RV32, b__0) =>
         (bif (b__0 == (0x1 : (BitVec 4)))
         then (some Sv32)

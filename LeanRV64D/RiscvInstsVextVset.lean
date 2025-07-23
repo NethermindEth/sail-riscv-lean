@@ -1,3 +1,4 @@
+import LeanRV64D.Flow
 import LeanRV64D.Prelude
 import LeanRV64D.RiscvXlen
 import LeanRV64D.RiscvCallbacks
@@ -268,6 +269,34 @@ def ma_flag_backwards_matches (arg_ : (BitVec 1)) : Bool :=
     (bif (b__0 == (0b0 : (BitVec 1)))
     then true
     else false)
+
+def vtype_assembly_forwards (arg_ : String) : SailM ((BitVec 1) × (BitVec 1) × (BitVec 3) × (BitVec 3)) := do
+  let head_exp_ := arg_
+  match (← do
+    let g__6 := head_exp_
+    (pure (some throw Error.Exit))) with
+  | .some result => (pure result)
+  | _ =>
+    (do
+      assert false "Pattern match failure at unknown location"
+      throw Error.Exit)
+
+def vtype_assembly_forwards_matches (arg_ : String) : SailM Bool := do
+  let head_exp_ := arg_
+  match (← do
+    let g__5 := head_exp_
+    (pure (some throw Error.Exit))) with
+  | .some result => (pure result)
+  | none =>
+    (match head_exp_ with
+    | _ => (pure false))
+
+def vtype_assembly_backwards_matches (arg_ : ((BitVec 1) × (BitVec 1) × (BitVec 3) × (BitVec 3))) : Bool :=
+  match arg_ with
+  | (ma, ta, sew, lmul) =>
+    (bif ((bne (BitVec.access sew 2) 1#1) && (lmul != (0b100 : (BitVec 3))))
+    then true
+    else true)
 
 def handle_illegal_vtype (_ : Unit) : SailM Unit := do
   writeReg vtype ((0b1 : (BitVec 1)) ++ (zeros (n := (xlen -i 1))))
