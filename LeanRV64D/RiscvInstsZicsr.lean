@@ -15,7 +15,9 @@ import LeanRV64D.RiscvZkrControl
 import LeanRV64D.RiscvFdextRegs
 import LeanRV64D.RiscvSmcntrpmf
 import LeanRV64D.RiscvSysControl
+import LeanRV64D.RiscvPlatform
 import LeanRV64D.RiscvInstRetire
+import LeanRV64D.RiscvVmem
 
 set_option maxHeartbeats 1_000_000_000
 set_option maxRecDepth 1_000_000

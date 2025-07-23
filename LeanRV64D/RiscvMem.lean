@@ -5,6 +5,7 @@ import LeanRV64D.PreludeMem
 import LeanRV64D.RiscvTypes
 import LeanRV64D.RiscvVmemTypes
 import LeanRV64D.RiscvCallbacks
+import LeanRV64D.RiscvSysRegs
 import LeanRV64D.RiscvPmpRegs
 import LeanRV64D.RiscvPmpControl
 import LeanRV64D.RiscvAddrChecks

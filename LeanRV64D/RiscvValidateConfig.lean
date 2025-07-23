@@ -3,6 +3,7 @@ import LeanRV64D.Prelude
 import LeanRV64D.RiscvVlen
 import LeanRV64D.RiscvExtensions
 import LeanRV64D.RiscvPmpRegs
+import LeanRV64D.RiscvPlatform
 
 set_option maxHeartbeats 1_000_000_000
 set_option maxRecDepth 1_000_000

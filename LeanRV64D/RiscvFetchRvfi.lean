@@ -3,6 +3,7 @@ import LeanRV64D.Prelude
 import LeanRV64D.PreludeMemAddrtype
 import LeanRV64D.RvfiDii
 import LeanRV64D.RiscvTypes
+import LeanRV64D.RiscvRegs
 import LeanRV64D.RiscvPcAccess
 import LeanRV64D.RiscvSysRegs
 import LeanRV64D.RiscvAddrChecks

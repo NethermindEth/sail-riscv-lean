@@ -2,6 +2,7 @@ import LeanRV64D.RiscvSysControl
 import LeanRV64D.RiscvPlatform
 import LeanRV64D.RiscvVmem
 import LeanRV64D.RiscvStepExt
+import LeanRV64D.RiscvStep
 import LeanRV64D.RiscvValidateConfig
 
 set_option maxHeartbeats 1_000_000_000

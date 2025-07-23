@@ -1,6 +1,7 @@
 import LeanRV64D.Flow
 import LeanRV64D.Prelude
 import LeanRV64D.RiscvXlen
+import LeanRV64D.RiscvRegs
 import LeanRV64D.RiscvPcAccess
 import LeanRV64D.RiscvSysRegs
 import LeanRV64D.RiscvSmcntrpmf

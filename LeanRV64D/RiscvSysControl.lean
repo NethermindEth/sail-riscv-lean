@@ -5,10 +5,12 @@ import LeanRV64D.RiscvXlen
 import LeanRV64D.RiscvExtensions
 import LeanRV64D.RiscvTypes
 import LeanRV64D.RiscvCallbacks
+import LeanRV64D.RiscvRegs
 import LeanRV64D.RiscvPcAccess
 import LeanRV64D.RiscvSysRegs
 import LeanRV64D.RiscvPmpRegs
 import LeanRV64D.RiscvPmpControl
+import LeanRV64D.RiscvVextRegs
 import LeanRV64D.RiscvSysExceptions
 
 set_option maxHeartbeats 1_000_000_000

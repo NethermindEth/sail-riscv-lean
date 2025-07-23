@@ -1,8 +1,10 @@
 import LeanRV64D.Flow
 import LeanRV64D.Prelude
+import LeanRV64D.RiscvXlen
 import LeanRV64D.RiscvFlen
 import LeanRV64D.RiscvExtensions
 import LeanRV64D.RiscvTypes
+import LeanRV64D.RiscvRegs
 
 set_option maxHeartbeats 1_000_000_000
 set_option maxRecDepth 1_000_000

@@ -1,4 +1,5 @@
 import LeanRV64D.Prelude
+import LeanRV64D.RiscvRegs
 import LeanRV64D.RiscvStep
 import LeanRV64D.RiscvModel
 

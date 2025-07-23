@@ -6,6 +6,7 @@ import LeanRV64D.RiscvTypes
 import LeanRV64D.RiscvCallbacks
 import LeanRV64D.RiscvFregType
 import LeanRV64D.RiscvRegs
+import LeanRV64D.RiscvSysRegs
 
 set_option maxHeartbeats 1_000_000_000
 set_option maxRecDepth 1_000_000

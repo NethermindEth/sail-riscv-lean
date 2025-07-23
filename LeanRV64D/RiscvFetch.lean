@@ -1,6 +1,7 @@
 import LeanRV64D.Flow
 import LeanRV64D.Prelude
 import LeanRV64D.PreludeMemAddrtype
+import LeanRV64D.RiscvRegs
 import LeanRV64D.RiscvSysRegs
 import LeanRV64D.RiscvAddrChecks
 import LeanRV64D.RiscvMem
