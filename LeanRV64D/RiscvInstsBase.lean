@@ -1,5 +1,10 @@
 import LeanRV64D.Prelude
 import LeanRV64D.RiscvXlen
+import LeanRV64D.PreludeMemAddrtype
+import LeanRV64D.RiscvPcAccess
+import LeanRV64D.RiscvSysRegs
+import LeanRV64D.RiscvAddrChecks
+import LeanRV64D.RiscvInstRetire
 
 set_option maxHeartbeats 1_000_000_000
 set_option maxRecDepth 1_000_000
@@ -218,6 +223,21 @@ def utype_mnemonic_backwards_matches (arg_ : String) : Bool :=
   | "lui" => true
   | "auipc" => true
   | _ => false
+
+def jump_to (target : (BitVec 64)) : SailM ExecutionResult := do
+  match (ext_control_check_pc target) with
+  | .Ext_ControlAddr_Error e => (pure (Ext_ControlAddr_Check_Failure e))
+  | .Ext_ControlAddr_OK target =>
+    (do
+      let target_bits := (bits_of_virtaddr target)
+      assert ((BitVec.access target_bits 0) == 0#1) "./riscv_insts_base.sail:57.38-57.39"
+      bif ((← (bit_to_bool (BitVec.access target_bits 1))) && (not
+             (← (currentlyEnabled Ext_Zca))))
+      then (pure (Memory_Exception (target, (E_Fetch_Addr_Align ()))))
+      else
+        (do
+          (set_next_pc target_bits)
+          (pure RETIRE_SUCCESS)))
 
 def encdec_bop_forwards (arg_ : bop) : (BitVec 3) :=
   match arg_ with
@@ -527,11 +547,11 @@ def rtype_mnemonic_backwards_matches (arg_ : String) : Bool :=
   | "sra" => true
   | _ => false
 
-/-- Type quantifiers: k_ex377818# : Bool, width : Nat, width ∈ {1, 2, 4, 8} -/
+/-- Type quantifiers: k_ex377686# : Bool, width : Nat, width ∈ {1, 2, 4, 8} -/
 def valid_load_encdec (width : Nat) (is_unsigned : Bool) : Bool :=
   ((width <b xlen_bytes) || ((not is_unsigned) && (width ≤b xlen_bytes)))
 
-/-- Type quantifiers: k_ex377821# : Bool, k_n : Nat, k_n ≥ 0, 0 < k_n ∧ k_n ≤ xlen -/
+/-- Type quantifiers: k_ex377689# : Bool, k_n : Nat, k_n ≥ 0, 0 < k_n ∧ k_n ≤ xlen -/
 def extend_value (is_unsigned : Bool) (value : (BitVec k_n)) : (BitVec 64) :=
   bif is_unsigned
   then (zero_extend (m := 64) value)
@@ -546,7 +566,7 @@ def maybe_u_backwards (arg_ : String) : SailM Bool := do
       assert false "Pattern match failure at unknown location"
       throw Error.Exit)
 
-/-- Type quantifiers: k_ex377822# : Bool -/
+/-- Type quantifiers: k_ex377690# : Bool -/
 def maybe_u_forwards_matches (arg_ : Bool) : Bool :=
   match arg_ with
   | true => true
@@ -610,7 +630,7 @@ def shiftiwop_mnemonic_backwards_matches (arg_ : String) : Bool :=
   | "sraiw" => true
   | _ => false
 
-/-- Type quantifiers: k_ex377823# : Bool -/
+/-- Type quantifiers: k_ex377691# : Bool -/
 def effective_fence_set (set : (BitVec 4)) (fiom : Bool) : (BitVec 4) :=
   bif fiom
   then
