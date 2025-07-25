@@ -237,7 +237,7 @@ def aes_mixcolumn_inv (x : (BitVec 32)) : SailM (BitVec 32) := do
   (pure (b3 ++ (b2 ++ (b1 ++ b0))))
 
 def aes_decode_rcon (r : (BitVec 4)) : SailM (BitVec 32) := do
-  assert (zopz0zI_u r (0xA : (BitVec 4))) "riscv_types_kext.sail:87.18-87.19"
+  assert (zopz0zI_u r (0xA : (BitVec 4))) "./riscv_types_kext.sail:87.18-87.19"
   let b__0 := r
   bif (b__0 == (0x0 : (BitVec 4)))
   then (pure (0x00000001 : (BitVec 32)))
@@ -278,7 +278,7 @@ def aes_decode_rcon (r : (BitVec 4)) : SailM (BitVec 32) := do
                                       bif (b__0 == (0x9 : (BitVec 4)))
                                       then (pure (0x00000036 : (BitVec 32)))
                                       else
-                                        (internal_error "riscv_types_kext.sail" 99
+                                        (internal_error "./riscv_types_kext.sail" 99
                                           "Unexpected AES r"))))))))))
 
 def sm4_sbox_table : (Vector (BitVec 8) 256) :=

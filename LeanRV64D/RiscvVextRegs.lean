@@ -454,7 +454,7 @@ def rV (app_0 : vregno) : SailM (BitVec 65536) := do
   | _ => readReg vr31
 
 def dirty_v_context (_ : Unit) : SailM Unit := do
-  assert (hartSupports Ext_V) "riscv_vext_regs.sail:134.28-134.29"
+  assert (hartSupports Ext_V) "./riscv_vext_regs.sail:134.28-134.29"
   writeReg mstatus (Sail.BitVec.updateSubrange (← readReg mstatus) 10 9 (extStatus_to_bits Dirty))
   writeReg mstatus (Sail.BitVec.updateSubrange (← readReg mstatus) (64 -i 1) (64 -i 1)
     (0b1 : (BitVec 1)))
@@ -496,7 +496,7 @@ def wV (typ_0 : vregno) (v : (BitVec 65536)) : SailM Unit := do
   | 30 => writeReg vr30 v
   | _ => writeReg vr31 v
   (dirty_v_context ())
-  assert ((0 <b VLEN) && (VLEN ≤b 65536)) "riscv_vext_regs.sail:178.43-178.44"
+  assert ((0 <b VLEN) && (VLEN ≤b 65536)) "./riscv_vext_regs.sail:178.43-178.44"
   (pure (vreg_write_callback (vregno_to_vregidx (Vregno r)) v))
 
 def rV_bits (i : vregidx) : SailM (BitVec 65536) := do

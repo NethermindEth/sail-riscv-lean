@@ -181,24 +181,24 @@ def prepare_trap_vector (p : Privilege) (cause : (BitVec 64)) : SailM (BitVec 64
     match p with
     | Machine => readReg mtvec
     | Supervisor => readReg stvec
-    | User => (internal_error "riscv_sys_exceptions.sail" 25 "Invalid privilege level") ) : SailM
+    | User => (internal_error "./riscv_sys_exceptions.sail" 25 "Invalid privilege level") ) : SailM
     Mtvec )
   match (tvec_addr tvec cause) with
   | .some epc => (pure epc)
-  | none => (internal_error "riscv_sys_exceptions.sail" 29 "Invalid tvec mode")
+  | none => (internal_error "./riscv_sys_exceptions.sail" 29 "Invalid tvec mode")
 
 def get_xepc (p : Privilege) : SailM (BitVec 64) := do
   match p with
   | Machine => (align_pc (← readReg mepc))
   | Supervisor => (align_pc (← readReg sepc))
-  | User => (internal_error "riscv_sys_exceptions.sail" 45 "Invalid privilege level")
+  | User => (internal_error "./riscv_sys_exceptions.sail" 45 "Invalid privilege level")
 
 def set_xepc (p : Privilege) (value : (BitVec 64)) : SailM (BitVec 64) := do
   let target := (legalize_xepc value)
   match p with
   | Machine => writeReg mepc target
   | Supervisor => writeReg sepc target
-  | User => (internal_error "riscv_sys_exceptions.sail" 54 "Invalid privilege level")
+  | User => (internal_error "./riscv_sys_exceptions.sail" 54 "Invalid privilege level")
   (pure target)
 
 def prepare_xret_target (p : Privilege) : SailM (BitVec 64) := do

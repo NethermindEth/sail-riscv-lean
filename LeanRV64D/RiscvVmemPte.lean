@@ -218,7 +218,7 @@ def pte_is_invalid (pte_flags : (BitVec 8)) (pte_ext : (BitVec 10)) : SailM Bool
                   (n := 2))) && (not (← (currentlyEnabled Ext_Svpbmt)))) || ((_get_PTE_Ext_reserved
                 pte_ext) != (zeros (n := 7))))))))
 
-/-- Type quantifiers: k_ex376513# : Bool, k_ex376512# : Bool -/
+/-- Type quantifiers: k_ex377027# : Bool, k_ex377026# : Bool -/
 def check_PTE_permission (ac : (AccessType Unit)) (priv : Privilege) (mxr : Bool) (do_sum : Bool) (pte_flags : (BitVec 8)) (ext : (BitVec 10)) (ext_ptw : Unit) : SailM PTE_Check := do
   let pte_U := (_get_PTE_Flags_U pte_flags)
   let pte_R := (_get_PTE_Flags_R pte_flags)
@@ -241,7 +241,7 @@ def check_PTE_permission (ac : (AccessType Unit)) (priv : Privilege) (mxr : Bool
       (pure (((pte_U == (0b0 : (BitVec 1))) || do_sum) && ((pte_W == (0b1 : (BitVec 1))) && ((pte_R == (0b1 : (BitVec 1))) || ((pte_X == (0b1 : (BitVec 1))) && mxr)))))
     | (.InstructionFetch (), Supervisor) =>
       (pure ((pte_U == (0b0 : (BitVec 1))) && (pte_X == (0b1 : (BitVec 1)))))
-    | (_, Machine) => (internal_error "riscv_vmem_pte.sail" 132 "m-mode mem perm check") ) : SailM
+    | (_, Machine) => (internal_error "./riscv_vmem_pte.sail" 132 "m-mode mem perm check") ) : SailM
     Bool )
   bif success
   then (pure (PTE_Check_Success ()))

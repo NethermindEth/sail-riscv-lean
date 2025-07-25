@@ -182,7 +182,7 @@ def bit_str (b : (BitVec 1)) : SailM String := do
   | 1#1 => (pure "0b1")
   | _ =>
     (do
-      assert false "Pattern match failure at prelude.sail:36.2-39.3"
+      assert false "Pattern match failure at ./prelude.sail:36.2-39.3"
       throw Error.Exit)
 
 def print_step (_ : Unit) : Unit :=
@@ -220,7 +220,7 @@ def ones {n : _} : (BitVec n) :=
 def trunc {m : _} (v : (BitVec k_n)) : (BitVec m) :=
   (Sail.BitVec.truncate v m)
 
-/-- Type quantifiers: k_ex370542# : Bool -/
+/-- Type quantifiers: k_ex370405# : Bool -/
 def bool_bit_forwards (arg_ : Bool) : (BitVec 1) :=
   match arg_ with
   | true => 1#1
@@ -235,7 +235,7 @@ def bool_bit_backwards (arg_ : (BitVec 1)) : SailM Bool := do
       assert false "Pattern match failure at unknown location"
       throw Error.Exit)
 
-/-- Type quantifiers: k_ex370543# : Bool -/
+/-- Type quantifiers: k_ex370406# : Bool -/
 def bool_bit_forwards_matches (arg_ : Bool) : Bool :=
   match arg_ with
   | true => true
@@ -247,7 +247,7 @@ def bool_bit_backwards_matches (arg_ : (BitVec 1)) : Bool :=
   | 0#1 => true
   | g__8 => false
 
-/-- Type quantifiers: k_ex370544# : Bool -/
+/-- Type quantifiers: k_ex370407# : Bool -/
 def bool_bits_forwards (arg_ : Bool) : (BitVec 1) :=
   match arg_ with
   | true => (0b1 : (BitVec 1))
@@ -259,7 +259,7 @@ def bool_bits_backwards (arg_ : (BitVec 1)) : Bool :=
   then true
   else false
 
-/-- Type quantifiers: k_ex370546# : Bool -/
+/-- Type quantifiers: k_ex370409# : Bool -/
 def bool_bits_forwards_matches (arg_ : Bool) : Bool :=
   match arg_ with
   | true => true
@@ -274,14 +274,14 @@ def bool_bits_backwards_matches (arg_ : (BitVec 1)) : Bool :=
     then true
     else false)
 
-/-- Type quantifiers: k_ex370549# : Bool -/
+/-- Type quantifiers: k_ex370412# : Bool -/
 def bool_to_bit (x : Bool) : (BitVec 1) :=
   (bool_bit_forwards x)
 
 def bit_to_bool (x : (BitVec 1)) : SailM Bool := do
   (bool_bit_backwards x)
 
-/-- Type quantifiers: k_ex370551# : Bool -/
+/-- Type quantifiers: k_ex370414# : Bool -/
 def bool_to_bits (x : Bool) : (BitVec 1) :=
   (bool_bits_forwards x)
 

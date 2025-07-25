@@ -536,10 +536,38 @@ inductive instruction where
   | EBREAK (_ : Unit)
   | WFI (_ : Unit)
   | SFENCE_VMA (_ : (regidx × regidx))
-  | FENCEI (_ : Unit)
+  | FENCE_RESERVED (_ : ((BitVec 4) × (BitVec 4) × (BitVec 4) × regidx × regidx))
+  | FENCEI_RESERVED (_ : ((BitVec 12) × regidx × regidx))
   | AMO (_ : (amoop × Bool × Bool × regidx × regidx × word_width_wide × regidx))
   | LOADRES (_ : (Bool × Bool × regidx × word_width × regidx))
   | STORECON (_ : (Bool × Bool × regidx × regidx × word_width × regidx))
+  | MUL (_ : (regidx × regidx × regidx × mul_op))
+  | DIV (_ : (regidx × regidx × regidx × Bool))
+  | REM (_ : (regidx × regidx × regidx × Bool))
+  | MULW (_ : (regidx × regidx × regidx))
+  | DIVW (_ : (regidx × regidx × regidx × Bool))
+  | REMW (_ : (regidx × regidx × regidx × Bool))
+  | SLLIUW (_ : ((BitVec 6) × regidx × regidx))
+  | ZBA_RTYPEUW (_ : (regidx × regidx × regidx × shamt_zba))
+  | ZBA_RTYPE (_ : (regidx × regidx × regidx × shamt_zba))
+  | RORIW (_ : ((BitVec 5) × regidx × regidx))
+  | RORI (_ : ((BitVec 6) × regidx × regidx))
+  | ZBB_RTYPEW (_ : (regidx × regidx × regidx × bropw_zbb))
+  | ZBB_RTYPE (_ : (regidx × regidx × regidx × brop_zbb))
+  | ZBB_EXTOP (_ : (regidx × regidx × extop_zbb))
+  | REV8 (_ : (regidx × regidx))
+  | ORCB (_ : (regidx × regidx))
+  | CPOP (_ : (regidx × regidx))
+  | CPOPW (_ : (regidx × regidx))
+  | CLZ (_ : (regidx × regidx))
+  | CLZW (_ : (regidx × regidx))
+  | CTZ (_ : (regidx × regidx))
+  | CTZW (_ : (regidx × regidx))
+  | CLMUL (_ : (regidx × regidx × regidx))
+  | CLMULH (_ : (regidx × regidx × regidx))
+  | CLMULR (_ : (regidx × regidx × regidx))
+  | ZBS_IOP (_ : ((BitVec 6) × regidx × regidx × biop_zbs))
+  | ZBS_RTYPE (_ : (regidx × regidx × regidx × brop_zbs))
   | C_NOP (_ : (BitVec 6))
   | C_ADDI4SPN (_ : (cregidx × (BitVec 8)))
   | C_LW (_ : ((BitVec 5) × cregidx × cregidx))
@@ -574,16 +602,18 @@ inductive instruction where
   | C_MV (_ : (regidx × regidx))
   | C_EBREAK (_ : Unit)
   | C_ADD (_ : (regidx × regidx))
-  | MUL (_ : (regidx × regidx × regidx × mul_op))
-  | DIV (_ : (regidx × regidx × regidx × Bool))
-  | REM (_ : (regidx × regidx × regidx × Bool))
-  | MULW (_ : (regidx × regidx × regidx))
-  | DIVW (_ : (regidx × regidx × regidx × Bool))
-  | REMW (_ : (regidx × regidx × regidx × Bool))
-  | CSRReg (_ : (csreg × regidx × regidx × csrop))
-  | CSRImm (_ : (csreg × (BitVec 5) × regidx × csrop))
-  | FENCE_RESERVED (_ : ((BitVec 4) × (BitVec 4) × (BitVec 4) × regidx × regidx))
-  | FENCEI_RESERVED (_ : ((BitVec 12) × regidx × regidx))
+  | C_LBU (_ : ((BitVec 2) × cregidx × cregidx))
+  | C_LHU (_ : ((BitVec 2) × cregidx × cregidx))
+  | C_LH (_ : ((BitVec 2) × cregidx × cregidx))
+  | C_SB (_ : ((BitVec 2) × cregidx × cregidx))
+  | C_SH (_ : ((BitVec 2) × cregidx × cregidx))
+  | C_ZEXT_B (_ : cregidx)
+  | C_SEXT_B (_ : cregidx)
+  | C_ZEXT_H (_ : cregidx)
+  | C_SEXT_H (_ : cregidx)
+  | C_ZEXT_W (_ : cregidx)
+  | C_NOT (_ : cregidx)
+  | C_MUL (_ : (cregidx × cregidx))
   | LOAD_FP (_ : ((BitVec 12) × regidx × fregidx × word_width))
   | STORE_FP (_ : ((BitVec 12) × fregidx × regidx × word_width))
   | F_MADD_TYPE_S (_ : (fregidx × fregidx × fregidx × rounding_mode × fregidx × f_madd_op_S))
@@ -612,42 +642,6 @@ inductive instruction where
   | C_FSDSP (_ : ((BitVec 6) × fregidx))
   | C_FLD (_ : ((BitVec 5) × cregidx × cfregidx))
   | C_FSD (_ : ((BitVec 5) × cregidx × cfregidx))
-  | SINVAL_VMA (_ : (regidx × regidx))
-  | SFENCE_W_INVAL (_ : Unit)
-  | SFENCE_INVAL_IR (_ : Unit)
-  | SLLIUW (_ : ((BitVec 6) × regidx × regidx))
-  | ZBA_RTYPEUW (_ : (regidx × regidx × regidx × shamt_zba))
-  | ZBA_RTYPE (_ : (regidx × regidx × regidx × shamt_zba))
-  | RORIW (_ : ((BitVec 5) × regidx × regidx))
-  | RORI (_ : ((BitVec 6) × regidx × regidx))
-  | ZBB_RTYPEW (_ : (regidx × regidx × regidx × bropw_zbb))
-  | ZBB_RTYPE (_ : (regidx × regidx × regidx × brop_zbb))
-  | ZBB_EXTOP (_ : (regidx × regidx × extop_zbb))
-  | REV8 (_ : (regidx × regidx))
-  | ORCB (_ : (regidx × regidx))
-  | CPOP (_ : (regidx × regidx))
-  | CPOPW (_ : (regidx × regidx))
-  | CLZ (_ : (regidx × regidx))
-  | CLZW (_ : (regidx × regidx))
-  | CTZ (_ : (regidx × regidx))
-  | CTZW (_ : (regidx × regidx))
-  | CLMUL (_ : (regidx × regidx × regidx))
-  | CLMULH (_ : (regidx × regidx × regidx))
-  | CLMULR (_ : (regidx × regidx × regidx))
-  | ZBS_IOP (_ : ((BitVec 6) × regidx × regidx × biop_zbs))
-  | ZBS_RTYPE (_ : (regidx × regidx × regidx × brop_zbs))
-  | C_LBU (_ : ((BitVec 2) × cregidx × cregidx))
-  | C_LHU (_ : ((BitVec 2) × cregidx × cregidx))
-  | C_LH (_ : ((BitVec 2) × cregidx × cregidx))
-  | C_SB (_ : ((BitVec 2) × cregidx × cregidx))
-  | C_SH (_ : ((BitVec 2) × cregidx × cregidx))
-  | C_ZEXT_B (_ : cregidx)
-  | C_SEXT_B (_ : cregidx)
-  | C_ZEXT_H (_ : cregidx)
-  | C_SEXT_H (_ : cregidx)
-  | C_ZEXT_W (_ : cregidx)
-  | C_NOT (_ : cregidx)
-  | C_MUL (_ : (cregidx × cregidx))
   | F_BIN_RM_TYPE_H (_ : (fregidx × fregidx × rounding_mode × fregidx × f_bin_rm_op_H))
   | F_MADD_TYPE_H (_ : (fregidx × fregidx × fregidx × rounding_mode × fregidx × f_madd_op_H))
   | F_BIN_F_TYPE_H (_ : (fregidx × fregidx × fregidx × f_bin_f_op_H))
@@ -681,43 +675,6 @@ inductive instruction where
   | FLEQ_D (_ : (fregidx × fregidx × regidx))
   | FLTQ_D (_ : (fregidx × fregidx × regidx))
   | FCVTMOD_W_D (_ : (fregidx × regidx))
-  | SHA256SIG0 (_ : (regidx × regidx))
-  | SHA256SIG1 (_ : (regidx × regidx))
-  | SHA256SUM0 (_ : (regidx × regidx))
-  | SHA256SUM1 (_ : (regidx × regidx))
-  | AES32ESMI (_ : ((BitVec 2) × regidx × regidx × regidx))
-  | AES32ESI (_ : ((BitVec 2) × regidx × regidx × regidx))
-  | AES32DSMI (_ : ((BitVec 2) × regidx × regidx × regidx))
-  | AES32DSI (_ : ((BitVec 2) × regidx × regidx × regidx))
-  | SHA512SIG0L (_ : (regidx × regidx × regidx))
-  | SHA512SIG0H (_ : (regidx × regidx × regidx))
-  | SHA512SIG1L (_ : (regidx × regidx × regidx))
-  | SHA512SIG1H (_ : (regidx × regidx × regidx))
-  | SHA512SUM0R (_ : (regidx × regidx × regidx))
-  | SHA512SUM1R (_ : (regidx × regidx × regidx))
-  | AES64KS1I (_ : ((BitVec 4) × regidx × regidx))
-  | AES64KS2 (_ : (regidx × regidx × regidx))
-  | AES64IM (_ : (regidx × regidx))
-  | AES64ESM (_ : (regidx × regidx × regidx))
-  | AES64ES (_ : (regidx × regidx × regidx))
-  | AES64DSM (_ : (regidx × regidx × regidx))
-  | AES64DS (_ : (regidx × regidx × regidx))
-  | SHA512SIG0 (_ : (regidx × regidx))
-  | SHA512SIG1 (_ : (regidx × regidx))
-  | SHA512SUM0 (_ : (regidx × regidx))
-  | SHA512SUM1 (_ : (regidx × regidx))
-  | SM3P0 (_ : (regidx × regidx))
-  | SM3P1 (_ : (regidx × regidx))
-  | SM4ED (_ : ((BitVec 2) × regidx × regidx × regidx))
-  | SM4KS (_ : ((BitVec 2) × regidx × regidx × regidx))
-  | ZBKB_RTYPE (_ : (regidx × regidx × regidx × brop_zbkb))
-  | ZBKB_PACKW (_ : (regidx × regidx × regidx))
-  | ZIP (_ : (regidx × regidx))
-  | UNZIP (_ : (regidx × regidx))
-  | BREV8 (_ : (regidx × regidx))
-  | XPERM8 (_ : (regidx × regidx × regidx))
-  | XPERM4 (_ : (regidx × regidx × regidx))
-  | ZICOND_RTYPE (_ : (regidx × regidx × regidx × zicondop))
   | VSETVLI (_ : ((BitVec 1) × (BitVec 1) × (BitVec 3) × (BitVec 3) × regidx × regidx))
   | VSETVL (_ : (regidx × regidx × regidx))
   | VSETIVLI (_ : ((BitVec 1) × (BitVec 1) × (BitVec 3) × (BitVec 3) × (BitVec 5) × regidx))
@@ -808,9 +765,42 @@ inductive instruction where
   | RIVVTYPE (_ : (rivvfunct6 × (BitVec 1) × vregidx × vregidx × vregidx))
   | RMVVTYPE (_ : (rmvvfunct6 × (BitVec 1) × vregidx × vregidx × vregidx))
   | RFVVTYPE (_ : (rfvvfunct6 × (BitVec 1) × vregidx × vregidx × vregidx))
-  | ZICBOM (_ : (cbop_zicbom × regidx))
-  | ZICBOZ (_ : regidx)
-  | WRS (_ : wrsop)
+  | SHA256SIG0 (_ : (regidx × regidx))
+  | SHA256SIG1 (_ : (regidx × regidx))
+  | SHA256SUM0 (_ : (regidx × regidx))
+  | SHA256SUM1 (_ : (regidx × regidx))
+  | AES32ESMI (_ : ((BitVec 2) × regidx × regidx × regidx))
+  | AES32ESI (_ : ((BitVec 2) × regidx × regidx × regidx))
+  | AES32DSMI (_ : ((BitVec 2) × regidx × regidx × regidx))
+  | AES32DSI (_ : ((BitVec 2) × regidx × regidx × regidx))
+  | SHA512SIG0L (_ : (regidx × regidx × regidx))
+  | SHA512SIG0H (_ : (regidx × regidx × regidx))
+  | SHA512SIG1L (_ : (regidx × regidx × regidx))
+  | SHA512SIG1H (_ : (regidx × regidx × regidx))
+  | SHA512SUM0R (_ : (regidx × regidx × regidx))
+  | SHA512SUM1R (_ : (regidx × regidx × regidx))
+  | AES64KS1I (_ : ((BitVec 4) × regidx × regidx))
+  | AES64KS2 (_ : (regidx × regidx × regidx))
+  | AES64IM (_ : (regidx × regidx))
+  | AES64ESM (_ : (regidx × regidx × regidx))
+  | AES64ES (_ : (regidx × regidx × regidx))
+  | AES64DSM (_ : (regidx × regidx × regidx))
+  | AES64DS (_ : (regidx × regidx × regidx))
+  | SHA512SIG0 (_ : (regidx × regidx))
+  | SHA512SIG1 (_ : (regidx × regidx))
+  | SHA512SUM0 (_ : (regidx × regidx))
+  | SHA512SUM1 (_ : (regidx × regidx))
+  | SM3P0 (_ : (regidx × regidx))
+  | SM3P1 (_ : (regidx × regidx))
+  | SM4ED (_ : ((BitVec 2) × regidx × regidx × regidx))
+  | SM4KS (_ : ((BitVec 2) × regidx × regidx × regidx))
+  | ZBKB_RTYPE (_ : (regidx × regidx × regidx × brop_zbkb))
+  | ZBKB_PACKW (_ : (regidx × regidx × regidx))
+  | ZIP (_ : (regidx × regidx))
+  | UNZIP (_ : (regidx × regidx))
+  | BREV8 (_ : (regidx × regidx))
+  | XPERM8 (_ : (regidx × regidx × regidx))
+  | XPERM4 (_ : (regidx × regidx × regidx))
   | VANDN_VV (_ : ((BitVec 1) × vregidx × vregidx × vregidx))
   | VANDN_VX (_ : ((BitVec 1) × vregidx × regidx × vregidx))
   | VBREV_V (_ : ((BitVec 1) × vregidx × vregidx))
@@ -840,12 +830,22 @@ inductive instruction where
   | VAESKF1_VI (_ : (vregidx × (BitVec 5) × vregidx))
   | VAESKF2_VI (_ : (vregidx × (BitVec 5) × vregidx))
   | VAESZ_VS (_ : (vregidx × vregidx))
-  | VSHA2MS_VV (_ : (vregidx × vregidx × vregidx))
-  | ZVKSHA2TYPE (_ : (zvk_vsha2_funct6 × vregidx × vregidx × vregidx))
   | VSM4K_VI (_ : (vregidx × (BitVec 5) × vregidx))
   | ZVKSM4RTYPE (_ : (zvk_vsm4r_funct6 × vregidx × vregidx))
+  | VSHA2MS_VV (_ : (vregidx × vregidx × vregidx))
+  | ZVKSHA2TYPE (_ : (zvk_vsha2_funct6 × vregidx × vregidx × vregidx))
   | VSM3ME_VV (_ : (vregidx × vregidx × vregidx))
   | VSM3C_VI (_ : (vregidx × (BitVec 5) × vregidx))
+  | CSRReg (_ : (csreg × regidx × regidx × csrop))
+  | CSRImm (_ : (csreg × (BitVec 5) × regidx × csrop))
+  | SINVAL_VMA (_ : (regidx × regidx))
+  | SFENCE_W_INVAL (_ : Unit)
+  | SFENCE_INVAL_IR (_ : Unit)
+  | WRS (_ : wrsop)
+  | ZICOND_RTYPE (_ : (regidx × regidx × regidx × zicondop))
+  | ZICBOM (_ : (cbop_zicbom × regidx))
+  | ZICBOZ (_ : regidx)
+  | FENCEI (_ : Unit)
   | ZIMOP_MOP_R (_ : ((BitVec 5) × regidx × regidx))
   | ZIMOP_MOP_RR (_ : ((BitVec 3) × regidx × regidx × regidx))
   | ZCMOP (_ : (BitVec 3))
@@ -900,8 +900,6 @@ abbrev ext_access_type := Unit
 
 abbrev regtype := xlenbits
 
-abbrev fregtype := flenbits
-
 abbrev Misa := (BitVec 64)
 
 abbrev Mstatus := (BitVec 64)
@@ -932,14 +930,6 @@ abbrev Satp64 := (BitVec 64)
 
 abbrev Satp32 := (BitVec 32)
 
-inductive PmpAddrMatchType where | OFF | TOR | NA4 | NAPOT
-  deriving BEq, Inhabited, Repr
-
-abbrev Pmpcfg_ent := (BitVec 8)
-
-inductive pmpAddrMatch where | PMP_NoMatch | PMP_PartialMatch | PMP_Match
-  deriving BEq, Inhabited, Repr
-
 /-- Type quantifiers: k_a : Type -/
 inductive Ext_FetchAddr_Check (k_a : Type) where
   | Ext_FetchAddr_OK (_ : virtaddr)
@@ -969,6 +959,48 @@ abbrev ext_control_addr_error := Unit
 
 abbrev ext_data_addr_error := Unit
 
+abbrev bits_rm := (BitVec 3)
+
+abbrev bits_fflags := (BitVec 5)
+
+abbrev bits_H := (BitVec 16)
+
+abbrev bits_S := (BitVec 32)
+
+abbrev bits_D := (BitVec 64)
+
+abbrev bits_W := (BitVec 32)
+
+abbrev bits_WU := (BitVec 32)
+
+abbrev bits_L := (BitVec 64)
+
+abbrev bits_LU := (BitVec 64)
+
+abbrev ext_exception := Unit
+
+structure sync_exception where
+  trap : ExceptionType
+  excinfo : (Option xlenbits)
+  ext : (Option ext_exception)
+  deriving BEq, Inhabited, Repr
+
+inductive PmpAddrMatchType where | OFF | TOR | NA4 | NAPOT
+  deriving BEq, Inhabited, Repr
+
+abbrev Pmpcfg_ent := (BitVec 8)
+
+inductive pmpAddrMatch where | PMP_NoMatch | PMP_PartialMatch | PMP_Match
+  deriving BEq, Inhabited, Repr
+
+abbrev fregtype := flenbits
+
+inductive fregno where
+  | Fregno (_ : Nat)
+  deriving Inhabited, BEq, Repr
+
+abbrev Fcsr := (BitVec 32)
+
 abbrev vreglenbits := (BitVec 65536)
 
 abbrev vregtype := vreglenbits
@@ -994,45 +1026,6 @@ inductive agtype where | UNDISTURBED | AGNOSTIC
   deriving BEq, Inhabited, Repr
 
 abbrev Vcsr := (BitVec 3)
-
-abbrev ext_exception := Unit
-
-structure sync_exception where
-  trap : ExceptionType
-  excinfo : (Option xlenbits)
-  ext : (Option ext_exception)
-  deriving BEq, Inhabited, Repr
-
-abbrev HpmEvent := (BitVec 64)
-
-abbrev hpmidx := Nat
-
-inductive seed_opst where | BIST | ES16 | WAIT | DEAD
-  deriving BEq, Inhabited, Repr
-
-abbrev bits_rm := (BitVec 3)
-
-abbrev bits_fflags := (BitVec 5)
-
-abbrev bits_H := (BitVec 16)
-
-abbrev bits_S := (BitVec 32)
-
-abbrev bits_D := (BitVec 64)
-
-abbrev bits_W := (BitVec 32)
-
-abbrev bits_WU := (BitVec 32)
-
-abbrev bits_L := (BitVec 64)
-
-abbrev bits_LU := (BitVec 64)
-
-inductive fregno where
-  | Fregno (_ : Nat)
-  deriving Inhabited, BEq, Repr
-
-abbrev Fcsr := (BitVec 32)
 
 abbrev CountSmcntrpmf := (BitVec 64)
 
@@ -1110,6 +1103,13 @@ abbrev TR_Result k_paddr k_failure := (Result (k_paddr × ext_ptw) (k_failure ×
 
 abbrev nfields := Int
 
+inductive seed_opst where | BIST | ES16 | WAIT | DEAD
+  deriving BEq, Inhabited, Repr
+
+abbrev HpmEvent := (BitVec 64)
+
+abbrev hpmidx := Nat
+
 inductive cbie where | CBIE_ILLEGAL | CBIE_EXEC_FLUSH | CBIE_EXEC_INVAL
   deriving BEq, Inhabited, Repr
 
@@ -1141,6 +1141,8 @@ inductive ISA_Format where | Canonical_Lowercase | DeviceTree_ISA_Extensions
 
 inductive Register : Type where
   | hart_state
+  | mhpmcounter
+  | mhpmevent
   | satp
   | tlb
   | htif_payload_writes
@@ -1158,43 +1160,6 @@ inductive Register : Type where
   | plat_ram_base
   | minstretcfg
   | mcyclecfg
-  | fcsr
-  | f31
-  | f30
-  | f29
-  | f28
-  | f27
-  | f26
-  | f25
-  | f24
-  | f23
-  | f22
-  | f21
-  | f20
-  | f19
-  | f18
-  | f17
-  | f16
-  | f15
-  | f14
-  | f13
-  | f12
-  | f11
-  | f10
-  | f9
-  | f8
-  | f7
-  | f6
-  | f5
-  | f4
-  | f3
-  | f2
-  | f1
-  | f0
-  | float_fflags
-  | float_result
-  | mhpmcounter
-  | mhpmevent
   | vcsr
   | vtype
   | vl
@@ -1231,8 +1196,43 @@ inductive Register : Type where
   | vr2
   | vr1
   | vr0
+  | fcsr
+  | f31
+  | f30
+  | f29
+  | f28
+  | f27
+  | f26
+  | f25
+  | f24
+  | f23
+  | f22
+  | f21
+  | f20
+  | f19
+  | f18
+  | f17
+  | f16
+  | f15
+  | f14
+  | f13
+  | f12
+  | f11
+  | f10
+  | f9
+  | f8
+  | f7
+  | f6
+  | f5
+  | f4
+  | f3
+  | f2
+  | f1
+  | f0
   | pmpaddr_n
   | pmpcfg_n
+  | float_fflags
+  | float_result
   | tselect
   | stval
   | scause
@@ -1312,6 +1312,8 @@ open Register
 
 abbrev RegisterType : Register → Type
   | .hart_state => HartState
+  | .mhpmcounter => (Vector (BitVec 64) 32)
+  | .mhpmevent => (Vector (BitVec 64) 32)
   | .satp => (BitVec 64)
   | .tlb => (Vector (Option TLB_Entry) 64)
   | .htif_payload_writes => (BitVec 4)
@@ -1329,43 +1331,6 @@ abbrev RegisterType : Register → Type
   | .plat_ram_base => (BitVec (bif 64 = 32 then 34 else 64))
   | .minstretcfg => (BitVec 64)
   | .mcyclecfg => (BitVec 64)
-  | .fcsr => (BitVec 32)
-  | .f31 => (BitVec (bif true then 8 else 4 * 8))
-  | .f30 => (BitVec (bif true then 8 else 4 * 8))
-  | .f29 => (BitVec (bif true then 8 else 4 * 8))
-  | .f28 => (BitVec (bif true then 8 else 4 * 8))
-  | .f27 => (BitVec (bif true then 8 else 4 * 8))
-  | .f26 => (BitVec (bif true then 8 else 4 * 8))
-  | .f25 => (BitVec (bif true then 8 else 4 * 8))
-  | .f24 => (BitVec (bif true then 8 else 4 * 8))
-  | .f23 => (BitVec (bif true then 8 else 4 * 8))
-  | .f22 => (BitVec (bif true then 8 else 4 * 8))
-  | .f21 => (BitVec (bif true then 8 else 4 * 8))
-  | .f20 => (BitVec (bif true then 8 else 4 * 8))
-  | .f19 => (BitVec (bif true then 8 else 4 * 8))
-  | .f18 => (BitVec (bif true then 8 else 4 * 8))
-  | .f17 => (BitVec (bif true then 8 else 4 * 8))
-  | .f16 => (BitVec (bif true then 8 else 4 * 8))
-  | .f15 => (BitVec (bif true then 8 else 4 * 8))
-  | .f14 => (BitVec (bif true then 8 else 4 * 8))
-  | .f13 => (BitVec (bif true then 8 else 4 * 8))
-  | .f12 => (BitVec (bif true then 8 else 4 * 8))
-  | .f11 => (BitVec (bif true then 8 else 4 * 8))
-  | .f10 => (BitVec (bif true then 8 else 4 * 8))
-  | .f9 => (BitVec (bif true then 8 else 4 * 8))
-  | .f8 => (BitVec (bif true then 8 else 4 * 8))
-  | .f7 => (BitVec (bif true then 8 else 4 * 8))
-  | .f6 => (BitVec (bif true then 8 else 4 * 8))
-  | .f5 => (BitVec (bif true then 8 else 4 * 8))
-  | .f4 => (BitVec (bif true then 8 else 4 * 8))
-  | .f3 => (BitVec (bif true then 8 else 4 * 8))
-  | .f2 => (BitVec (bif true then 8 else 4 * 8))
-  | .f1 => (BitVec (bif true then 8 else 4 * 8))
-  | .f0 => (BitVec (bif true then 8 else 4 * 8))
-  | .float_fflags => (BitVec 64)
-  | .float_result => (BitVec 64)
-  | .mhpmcounter => (Vector (BitVec 64) 32)
-  | .mhpmevent => (Vector (BitVec 64) 32)
   | .vcsr => (BitVec 3)
   | .vtype => (BitVec 64)
   | .vl => (BitVec 64)
@@ -1402,8 +1367,43 @@ abbrev RegisterType : Register → Type
   | .vr2 => (BitVec 65536)
   | .vr1 => (BitVec 65536)
   | .vr0 => (BitVec 65536)
+  | .fcsr => (BitVec 32)
+  | .f31 => (BitVec (bif true then 8 else 4 * 8))
+  | .f30 => (BitVec (bif true then 8 else 4 * 8))
+  | .f29 => (BitVec (bif true then 8 else 4 * 8))
+  | .f28 => (BitVec (bif true then 8 else 4 * 8))
+  | .f27 => (BitVec (bif true then 8 else 4 * 8))
+  | .f26 => (BitVec (bif true then 8 else 4 * 8))
+  | .f25 => (BitVec (bif true then 8 else 4 * 8))
+  | .f24 => (BitVec (bif true then 8 else 4 * 8))
+  | .f23 => (BitVec (bif true then 8 else 4 * 8))
+  | .f22 => (BitVec (bif true then 8 else 4 * 8))
+  | .f21 => (BitVec (bif true then 8 else 4 * 8))
+  | .f20 => (BitVec (bif true then 8 else 4 * 8))
+  | .f19 => (BitVec (bif true then 8 else 4 * 8))
+  | .f18 => (BitVec (bif true then 8 else 4 * 8))
+  | .f17 => (BitVec (bif true then 8 else 4 * 8))
+  | .f16 => (BitVec (bif true then 8 else 4 * 8))
+  | .f15 => (BitVec (bif true then 8 else 4 * 8))
+  | .f14 => (BitVec (bif true then 8 else 4 * 8))
+  | .f13 => (BitVec (bif true then 8 else 4 * 8))
+  | .f12 => (BitVec (bif true then 8 else 4 * 8))
+  | .f11 => (BitVec (bif true then 8 else 4 * 8))
+  | .f10 => (BitVec (bif true then 8 else 4 * 8))
+  | .f9 => (BitVec (bif true then 8 else 4 * 8))
+  | .f8 => (BitVec (bif true then 8 else 4 * 8))
+  | .f7 => (BitVec (bif true then 8 else 4 * 8))
+  | .f6 => (BitVec (bif true then 8 else 4 * 8))
+  | .f5 => (BitVec (bif true then 8 else 4 * 8))
+  | .f4 => (BitVec (bif true then 8 else 4 * 8))
+  | .f3 => (BitVec (bif true then 8 else 4 * 8))
+  | .f2 => (BitVec (bif true then 8 else 4 * 8))
+  | .f1 => (BitVec (bif true then 8 else 4 * 8))
+  | .f0 => (BitVec (bif true then 8 else 4 * 8))
   | .pmpaddr_n => (Vector (BitVec 64) 64)
   | .pmpcfg_n => (Vector (BitVec 8) 64)
+  | .float_fflags => (BitVec 64)
+  | .float_result => (BitVec 64)
   | .tselect => (BitVec 64)
   | .stval => (BitVec 64)
   | .scause => (BitVec 64)

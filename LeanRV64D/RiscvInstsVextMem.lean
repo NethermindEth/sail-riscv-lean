@@ -670,7 +670,7 @@ def process_vsseg (nf : Nat) (vm : (BitVec 1)) (vs3 : vregidx) (load_width_bytes
                   data (Write Data) false false false)) with
               | .Ok true => (pure ())
               | .Ok false =>
-                (internal_error "riscv_insts_vext_mem.sail" 238 "store got false from vmem_write")
+                (internal_error "./riscv_insts_vext_mem.sail" 238 "store got false from vmem_write")
               | .Err e => SailME.throw (e : ExecutionResult)
           (pure loop_vars_1))
       else (pure ())
@@ -779,7 +779,7 @@ def process_vssseg (nf : Nat) (vm : (BitVec 1)) (vs3 : vregidx) (load_width_byte
                   data (Write Data) false false false)) with
               | .Ok true => (pure ())
               | .Ok false =>
-                (internal_error "riscv_insts_vext_mem.sail" 359 "store got false from vmem_write")
+                (internal_error "./riscv_insts_vext_mem.sail" 359 "store got false from vmem_write")
               | .Err e => SailME.throw (e : ExecutionResult)
           (pure loop_vars_1))
       else (pure ())
@@ -893,7 +893,7 @@ def process_vsxseg (nf : Nat) (vm : (BitVec 1)) (vs3 : vregidx) (EEW_index_bytes
                   data (Write Data) false false false)) with
               | .Ok true => (pure ())
               | .Ok false =>
-                (internal_error "riscv_insts_vext_mem.sail" 511 "store got false from vmem_write")
+                (internal_error "./riscv_insts_vext_mem.sail" 511 "store got false from vmem_write")
               | .Err e => SailME.throw (e : ExecutionResult)
           (pure loop_vars_1))
       else (pure ())
@@ -1001,7 +1001,7 @@ def process_vsre (nf : Nat) (load_width_bytes : Nat) (rs1 : regidx) (vs3 : vregi
                       load_width_bytes data (Write Data) false false false)) with
                   | .Ok true => (pure ())
                   | .Ok false =>
-                    (internal_error "riscv_insts_vext_mem.sail" 659
+                    (internal_error "./riscv_insts_vext_mem.sail" 659
                       "store got false from vmem_write")
                   | .Err e => SailME.throw (e : ExecutionResult)
                   (pure (cur_elem +i 1))
@@ -1032,7 +1032,8 @@ def process_vsre (nf : Nat) (load_width_bytes : Nat) (rs1 : regidx) (vs3 : vregi
                     (GetElem?.getElem! vs3_val i) (Write Data) false false false)) with
                 | .Ok true => (pure ())
                 | .Ok false =>
-                  (internal_error "riscv_insts_vext_mem.sail" 674 "store got false from vmem_write")
+                  (internal_error "./riscv_insts_vext_mem.sail" 674
+                    "store got false from vmem_write")
                 | .Err e => SailME.throw (e : ExecutionResult)
                 (pure (cur_elem +i 1))
             (pure loop_vars_2)
@@ -1107,7 +1108,7 @@ def process_vm (vd_or_vs3 : vregidx) (rs1 : regidx) (num_elem : Nat) (evl : Nat)
                       (GetElem?.getElem! vd_or_vs3_val i) (Write Data) false false false)) with
                   | .Ok true => (pure ())
                   | .Ok false =>
-                    (internal_error "riscv_insts_vext_mem.sail" 731
+                    (internal_error "./riscv_insts_vext_mem.sail" 731
                       "store got false from vmem_write")
                   | .Err e => SailME.throw (e : ExecutionResult))
               else (pure ())))

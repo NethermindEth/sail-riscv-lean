@@ -710,13 +710,6 @@ def currentlyEnabled (merge_var : extension) : SailM Bool := do
   | Ext_Sv39 => (pure ((hartSupports Ext_Sv39) && (← (currentlyEnabled Ext_S))))
   | Ext_Sv48 => (pure ((hartSupports Ext_Sv48) && (← (currentlyEnabled Ext_S))))
   | Ext_Sv57 => (pure ((hartSupports Ext_Sv57) && (← (currentlyEnabled Ext_S))))
-  | Ext_V =>
-    (pure ((hartSupports Ext_V) && (((_get_Misa_V (← readReg misa)) == (0b1 : (BitVec 1))) && (((_get_Mstatus_VS
-                (← readReg mstatus)) != (0b00 : (BitVec 2))) && (← (currentlyEnabled Ext_Zicsr))))))
-  | Ext_Zihpm => (pure ((hartSupports Ext_Zihpm) && (← (currentlyEnabled Ext_Zicsr))))
-  | Ext_Sscofpmf => (pure ((hartSupports Ext_Sscofpmf) && (← (currentlyEnabled Ext_Zihpm))))
-  | Ext_Zkr => (pure (hartSupports Ext_Zkr))
-  | Ext_Zicntr => (pure ((hartSupports Ext_Zicntr) && (← (currentlyEnabled Ext_Zicsr))))
   | Ext_F =>
     (pure ((hartSupports Ext_F) && (((_get_Misa_F (← readReg misa)) == (0b1 : (BitVec 1))) && (((_get_Mstatus_FS
                 (← readReg mstatus)) != (0b00 : (BitVec 2))) && (← (currentlyEnabled Ext_Zicsr))))))
@@ -725,6 +718,9 @@ def currentlyEnabled (merge_var : extension) : SailM Bool := do
                 (← readReg mstatus)) != (0b00 : (BitVec 2))) && ((flen ≥b 64) && (← (currentlyEnabled
                   Ext_Zicsr)))))))
   | Ext_Zfinx => (pure ((hartSupports Ext_Zfinx) && (← (currentlyEnabled Ext_Zicsr))))
+  | Ext_V =>
+    (pure ((hartSupports Ext_V) && (((_get_Misa_V (← readReg misa)) == (0b1 : (BitVec 1))) && (((_get_Mstatus_VS
+                (← readReg mstatus)) != (0b00 : (BitVec 2))) && (← (currentlyEnabled Ext_Zicsr))))))
   | Ext_Smcntrpmf => (pure ((hartSupports Ext_Smcntrpmf) && (← (currentlyEnabled Ext_Zicntr))))
   | Ext_Svnapot => (pure false)
   | Ext_Svpbmt => (pure false)
@@ -732,7 +728,6 @@ def currentlyEnabled (merge_var : extension) : SailM Bool := do
     (pure ((hartSupports Ext_C) && ((_get_Misa_C (← readReg misa)) == (0b1 : (BitVec 1)))))
   | Ext_Zca =>
     (pure ((hartSupports Ext_Zca) && ((← (currentlyEnabled Ext_C)) || (not (hartSupports Ext_C)))))
-  | Ext_Zifencei => (pure (hartSupports Ext_Zifencei))
   | Ext_A =>
     (pure ((hartSupports Ext_A) && ((_get_Misa_A (← readReg misa)) == (0b1 : (BitVec 1)))))
   | Ext_Zaamo => (pure ((hartSupports Ext_Zaamo) || (← (currentlyEnabled Ext_A))))
@@ -742,7 +737,15 @@ def currentlyEnabled (merge_var : extension) : SailM Bool := do
   | Ext_M =>
     (pure ((hartSupports Ext_M) && ((_get_Misa_M (← readReg misa)) == (0b1 : (BitVec 1)))))
   | Ext_Zmmul => (pure ((hartSupports Ext_Zmmul) || (← (currentlyEnabled Ext_M))))
-  | Ext_Zicsr => (pure (hartSupports Ext_Zicsr))
+  | Ext_B =>
+    (pure ((hartSupports Ext_B) && ((_get_Misa_B (← readReg misa)) == (0b1 : (BitVec 1)))))
+  | Ext_Zba => (pure ((hartSupports Ext_Zba) || (← (currentlyEnabled Ext_B))))
+  | Ext_Zbb => (pure ((hartSupports Ext_Zbb) || (← (currentlyEnabled Ext_B))))
+  | Ext_Zbkb => (pure (hartSupports Ext_Zbkb))
+  | Ext_Zbc => (pure (hartSupports Ext_Zbc))
+  | Ext_Zbkc => (pure (hartSupports Ext_Zbkc))
+  | Ext_Zbs => (pure ((hartSupports Ext_Zbs) || (← (currentlyEnabled Ext_B))))
+  | Ext_Zcb => (pure ((hartSupports Ext_Zcb) && (← (currentlyEnabled Ext_Zca))))
   | Ext_H =>
     (pure ((hartSupports Ext_H) && (((_get_Misa_H (← readReg misa)) == (0b1 : (BitVec 1))) && (← (virtual_memory_supported
               ())))))
@@ -757,16 +760,6 @@ def currentlyEnabled (merge_var : extension) : SailM Bool := do
   | Ext_Zcd =>
     (pure ((hartSupports Ext_Zcd) && ((← (currentlyEnabled Ext_D)) && ((← (currentlyEnabled
                 Ext_Zca)) && ((← (currentlyEnabled Ext_C)) || (not (hartSupports Ext_C)))))))
-  | Ext_Svinval => (pure (hartSupports Ext_Svinval))
-  | Ext_B =>
-    (pure ((hartSupports Ext_B) && ((_get_Misa_B (← readReg misa)) == (0b1 : (BitVec 1)))))
-  | Ext_Zba => (pure ((hartSupports Ext_Zba) || (← (currentlyEnabled Ext_B))))
-  | Ext_Zbb => (pure ((hartSupports Ext_Zbb) || (← (currentlyEnabled Ext_B))))
-  | Ext_Zbkb => (pure (hartSupports Ext_Zbkb))
-  | Ext_Zbc => (pure (hartSupports Ext_Zbc))
-  | Ext_Zbkc => (pure (hartSupports Ext_Zbkc))
-  | Ext_Zbs => (pure ((hartSupports Ext_Zbs) || (← (currentlyEnabled Ext_B))))
-  | Ext_Zcb => (pure ((hartSupports Ext_Zcb) && (← (currentlyEnabled Ext_Zca))))
   | Ext_Zhinx => (pure ((hartSupports Ext_Zhinx) && (← (currentlyEnabled Ext_Zfinx))))
   | Ext_Zhinxmin =>
     (pure (((hartSupports Ext_Zhinxmin) && (← (currentlyEnabled Ext_Zfinx))) || (← (currentlyEnabled
@@ -777,11 +770,8 @@ def currentlyEnabled (merge_var : extension) : SailM Bool := do
   | Ext_Zknd => (pure (hartSupports Ext_Zknd))
   | Ext_Zksh => (pure (hartSupports Ext_Zksh))
   | Ext_Zksed => (pure (hartSupports Ext_Zksed))
+  | Ext_Zkr => (pure (hartSupports Ext_Zkr))
   | Ext_Zbkx => (pure (hartSupports Ext_Zbkx))
-  | Ext_Zicond => (pure (hartSupports Ext_Zicond))
-  | Ext_Zicbom => (pure (hartSupports Ext_Zicbom))
-  | Ext_Zicboz => (pure (hartSupports Ext_Zicboz))
-  | Ext_Zawrs => (pure (hartSupports Ext_Zawrs))
   | Ext_Zvbb => (pure ((hartSupports Ext_Zvbb) && (← (currentlyEnabled Ext_V))))
   | Ext_Zvkb =>
     (pure (((hartSupports Ext_Zvkb) || (← (currentlyEnabled Ext_Zvbb))) && (← (currentlyEnabled
@@ -789,10 +779,20 @@ def currentlyEnabled (merge_var : extension) : SailM Bool := do
   | Ext_Zvbc => (pure ((hartSupports Ext_Zvbc) && (← (currentlyEnabled Ext_V))))
   | Ext_Zvkg => (pure ((hartSupports Ext_Zvkg) && (← (currentlyEnabled Ext_V))))
   | Ext_Zvkned => (pure ((hartSupports Ext_Zvkned) && (← (currentlyEnabled Ext_V))))
+  | Ext_Zvksed => (pure ((hartSupports Ext_Zvksed) && (← (currentlyEnabled Ext_V))))
   | Ext_Zvknha => (pure ((hartSupports Ext_Zvknha) && (← (currentlyEnabled Ext_V))))
   | Ext_Zvknhb => (pure ((hartSupports Ext_Zvknhb) && (← (currentlyEnabled Ext_V))))
-  | Ext_Zvksed => (pure ((hartSupports Ext_Zvksed) && (← (currentlyEnabled Ext_V))))
   | Ext_Zvksh => (pure ((hartSupports Ext_Zvksh) && (← (currentlyEnabled Ext_V))))
+  | Ext_Zicsr => (pure (hartSupports Ext_Zicsr))
+  | Ext_Svinval => (pure (hartSupports Ext_Svinval))
+  | Ext_Zihpm => (pure ((hartSupports Ext_Zihpm) && (← (currentlyEnabled Ext_Zicsr))))
+  | Ext_Sscofpmf => (pure ((hartSupports Ext_Sscofpmf) && (← (currentlyEnabled Ext_Zihpm))))
+  | Ext_Zawrs => (pure (hartSupports Ext_Zawrs))
+  | Ext_Zicond => (pure (hartSupports Ext_Zicond))
+  | Ext_Zicntr => (pure ((hartSupports Ext_Zicntr) && (← (currentlyEnabled Ext_Zicsr))))
+  | Ext_Zicbom => (pure (hartSupports Ext_Zicbom))
+  | Ext_Zicboz => (pure (hartSupports Ext_Zicboz))
+  | Ext_Zifencei => (pure (hartSupports Ext_Zifencei))
   | Ext_Zimop => (pure (hartSupports Ext_Zimop))
   | Ext_Zcmop => (pure ((hartSupports Ext_Zcmop) && (← (currentlyEnabled Ext_Zca))))
 termination_by let ext := merge_var; ((currentlyEnabled_measure ext)).toNat

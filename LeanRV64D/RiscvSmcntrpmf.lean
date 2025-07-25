@@ -1,5 +1,4 @@
 import LeanRV64D.RiscvSysRegs
-import LeanRV64D.RiscvZihpm
 
 set_option maxHeartbeats 1_000_000_000
 set_option maxRecDepth 1_000_000
@@ -172,6 +171,106 @@ def undefined_CountSmcntrpmf (_ : Unit) : SailM (BitVec 64) := do
 
 def Mk_CountSmcntrpmf (v : (BitVec 64)) : (BitVec 64) :=
   v
+
+def _get_CountSmcntrpmf_MINH (v : (BitVec 64)) : (BitVec 1) :=
+  (Sail.BitVec.extractLsb v 62 62)
+
+def _update_CountSmcntrpmf_MINH (v : (BitVec 64)) (x : (BitVec 1)) : (BitVec 64) :=
+  (Sail.BitVec.updateSubrange v 62 62 x)
+
+def _update_HpmEvent_MINH (v : (BitVec 64)) (x : (BitVec 1)) : (BitVec 64) :=
+  (Sail.BitVec.updateSubrange v 62 62 x)
+
+def _set_CountSmcntrpmf_MINH (r_ref : (RegisterRef (BitVec 64))) (v : (BitVec 1)) : SailM Unit := do
+  let r ← do (reg_deref r_ref)
+  writeRegRef r_ref (_update_CountSmcntrpmf_MINH r v)
+
+def _get_HpmEvent_MINH (v : (BitVec 64)) : (BitVec 1) :=
+  (Sail.BitVec.extractLsb v 62 62)
+
+def _set_HpmEvent_MINH (r_ref : (RegisterRef (BitVec 64))) (v : (BitVec 1)) : SailM Unit := do
+  let r ← do (reg_deref r_ref)
+  writeRegRef r_ref (_update_HpmEvent_MINH r v)
+
+def _get_CountSmcntrpmf_SINH (v : (BitVec 64)) : (BitVec 1) :=
+  (Sail.BitVec.extractLsb v 61 61)
+
+def _update_CountSmcntrpmf_SINH (v : (BitVec 64)) (x : (BitVec 1)) : (BitVec 64) :=
+  (Sail.BitVec.updateSubrange v 61 61 x)
+
+def _update_HpmEvent_SINH (v : (BitVec 64)) (x : (BitVec 1)) : (BitVec 64) :=
+  (Sail.BitVec.updateSubrange v 61 61 x)
+
+def _set_CountSmcntrpmf_SINH (r_ref : (RegisterRef (BitVec 64))) (v : (BitVec 1)) : SailM Unit := do
+  let r ← do (reg_deref r_ref)
+  writeRegRef r_ref (_update_CountSmcntrpmf_SINH r v)
+
+def _get_HpmEvent_SINH (v : (BitVec 64)) : (BitVec 1) :=
+  (Sail.BitVec.extractLsb v 61 61)
+
+def _set_HpmEvent_SINH (r_ref : (RegisterRef (BitVec 64))) (v : (BitVec 1)) : SailM Unit := do
+  let r ← do (reg_deref r_ref)
+  writeRegRef r_ref (_update_HpmEvent_SINH r v)
+
+def _get_CountSmcntrpmf_UINH (v : (BitVec 64)) : (BitVec 1) :=
+  (Sail.BitVec.extractLsb v 60 60)
+
+def _update_CountSmcntrpmf_UINH (v : (BitVec 64)) (x : (BitVec 1)) : (BitVec 64) :=
+  (Sail.BitVec.updateSubrange v 60 60 x)
+
+def _update_HpmEvent_UINH (v : (BitVec 64)) (x : (BitVec 1)) : (BitVec 64) :=
+  (Sail.BitVec.updateSubrange v 60 60 x)
+
+def _set_CountSmcntrpmf_UINH (r_ref : (RegisterRef (BitVec 64))) (v : (BitVec 1)) : SailM Unit := do
+  let r ← do (reg_deref r_ref)
+  writeRegRef r_ref (_update_CountSmcntrpmf_UINH r v)
+
+def _get_HpmEvent_UINH (v : (BitVec 64)) : (BitVec 1) :=
+  (Sail.BitVec.extractLsb v 60 60)
+
+def _set_HpmEvent_UINH (r_ref : (RegisterRef (BitVec 64))) (v : (BitVec 1)) : SailM Unit := do
+  let r ← do (reg_deref r_ref)
+  writeRegRef r_ref (_update_HpmEvent_UINH r v)
+
+def _get_CountSmcntrpmf_VSINH (v : (BitVec 64)) : (BitVec 1) :=
+  (Sail.BitVec.extractLsb v 59 59)
+
+def _update_CountSmcntrpmf_VSINH (v : (BitVec 64)) (x : (BitVec 1)) : (BitVec 64) :=
+  (Sail.BitVec.updateSubrange v 59 59 x)
+
+def _update_HpmEvent_VSINH (v : (BitVec 64)) (x : (BitVec 1)) : (BitVec 64) :=
+  (Sail.BitVec.updateSubrange v 59 59 x)
+
+def _set_CountSmcntrpmf_VSINH (r_ref : (RegisterRef (BitVec 64))) (v : (BitVec 1)) : SailM Unit := do
+  let r ← do (reg_deref r_ref)
+  writeRegRef r_ref (_update_CountSmcntrpmf_VSINH r v)
+
+def _get_HpmEvent_VSINH (v : (BitVec 64)) : (BitVec 1) :=
+  (Sail.BitVec.extractLsb v 59 59)
+
+def _set_HpmEvent_VSINH (r_ref : (RegisterRef (BitVec 64))) (v : (BitVec 1)) : SailM Unit := do
+  let r ← do (reg_deref r_ref)
+  writeRegRef r_ref (_update_HpmEvent_VSINH r v)
+
+def _get_CountSmcntrpmf_VUINH (v : (BitVec 64)) : (BitVec 1) :=
+  (Sail.BitVec.extractLsb v 58 58)
+
+def _update_CountSmcntrpmf_VUINH (v : (BitVec 64)) (x : (BitVec 1)) : (BitVec 64) :=
+  (Sail.BitVec.updateSubrange v 58 58 x)
+
+def _update_HpmEvent_VUINH (v : (BitVec 64)) (x : (BitVec 1)) : (BitVec 64) :=
+  (Sail.BitVec.updateSubrange v 58 58 x)
+
+def _set_CountSmcntrpmf_VUINH (r_ref : (RegisterRef (BitVec 64))) (v : (BitVec 1)) : SailM Unit := do
+  let r ← do (reg_deref r_ref)
+  writeRegRef r_ref (_update_CountSmcntrpmf_VUINH r v)
+
+def _get_HpmEvent_VUINH (v : (BitVec 64)) : (BitVec 1) :=
+  (Sail.BitVec.extractLsb v 58 58)
+
+def _set_HpmEvent_VUINH (r_ref : (RegisterRef (BitVec 64))) (v : (BitVec 1)) : SailM Unit := do
+  let r ← do (reg_deref r_ref)
+  writeRegRef r_ref (_update_HpmEvent_VUINH r v)
 
 def legalize_smcntrpmf (c : (BitVec 64)) (value : (BitVec 64)) : SailM (BitVec 64) := do
   let v := (Mk_CountSmcntrpmf value)

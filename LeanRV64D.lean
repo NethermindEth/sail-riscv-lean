@@ -6,15 +6,16 @@ import LeanRV64D.RiscvExtensions
 import LeanRV64D.RiscvTypes
 import LeanRV64D.RiscvRegs
 import LeanRV64D.RiscvSysRegs
-import LeanRV64D.RiscvPmpRegs
-import LeanRV64D.RiscvVextRegs
-import LeanRV64D.RiscvZihpm
 import LeanRV64D.RiscvSoftfloatInterface
+import LeanRV64D.RiscvPmpRegs
 import LeanRV64D.RiscvFdextRegs
+import LeanRV64D.RiscvVextRegs
 import LeanRV64D.RiscvSmcntrpmf
 import LeanRV64D.RiscvPlatform
 import LeanRV64D.RiscvVmemTlb
 import LeanRV64D.RiscvVmem
+import LeanRV64D.RiscvInstsZicsr
+import LeanRV64D.RiscvZihpm
 import LeanRV64D.RiscvStep
 import LeanRV64D.Main
 
@@ -249,8 +250,43 @@ def initialize_registers (_ : Unit) : SailM Unit := do
   writeReg scause (← (undefined_Mcause ()))
   writeReg stval (← (undefined_bitvector 64))
   writeReg tselect (← (undefined_bitvector 64))
+  writeReg float_result (← (undefined_bitvector 64))
+  writeReg float_fflags (← (undefined_bitvector 64))
   writeReg pmpcfg_n (← (undefined_vector 64 (← (undefined_Pmpcfg_ent ()))))
   writeReg pmpaddr_n (← (undefined_vector 64 (← (undefined_bitvector 64))))
+  writeReg f0 (← (undefined_bitvector (8 *i 8)))
+  writeReg f1 (← (undefined_bitvector (8 *i 8)))
+  writeReg f2 (← (undefined_bitvector (8 *i 8)))
+  writeReg f3 (← (undefined_bitvector (8 *i 8)))
+  writeReg f4 (← (undefined_bitvector (8 *i 8)))
+  writeReg f5 (← (undefined_bitvector (8 *i 8)))
+  writeReg f6 (← (undefined_bitvector (8 *i 8)))
+  writeReg f7 (← (undefined_bitvector (8 *i 8)))
+  writeReg f8 (← (undefined_bitvector (8 *i 8)))
+  writeReg f9 (← (undefined_bitvector (8 *i 8)))
+  writeReg f10 (← (undefined_bitvector (8 *i 8)))
+  writeReg f11 (← (undefined_bitvector (8 *i 8)))
+  writeReg f12 (← (undefined_bitvector (8 *i 8)))
+  writeReg f13 (← (undefined_bitvector (8 *i 8)))
+  writeReg f14 (← (undefined_bitvector (8 *i 8)))
+  writeReg f15 (← (undefined_bitvector (8 *i 8)))
+  writeReg f16 (← (undefined_bitvector (8 *i 8)))
+  writeReg f17 (← (undefined_bitvector (8 *i 8)))
+  writeReg f18 (← (undefined_bitvector (8 *i 8)))
+  writeReg f19 (← (undefined_bitvector (8 *i 8)))
+  writeReg f20 (← (undefined_bitvector (8 *i 8)))
+  writeReg f21 (← (undefined_bitvector (8 *i 8)))
+  writeReg f22 (← (undefined_bitvector (8 *i 8)))
+  writeReg f23 (← (undefined_bitvector (8 *i 8)))
+  writeReg f24 (← (undefined_bitvector (8 *i 8)))
+  writeReg f25 (← (undefined_bitvector (8 *i 8)))
+  writeReg f26 (← (undefined_bitvector (8 *i 8)))
+  writeReg f27 (← (undefined_bitvector (8 *i 8)))
+  writeReg f28 (← (undefined_bitvector (8 *i 8)))
+  writeReg f29 (← (undefined_bitvector (8 *i 8)))
+  writeReg f30 (← (undefined_bitvector (8 *i 8)))
+  writeReg f31 (← (undefined_bitvector (8 *i 8)))
+  writeReg fcsr (← (undefined_Fcsr ()))
   writeReg vr0 (← (undefined_bitvector 65536))
   writeReg vr1 (← (undefined_bitvector 65536))
   writeReg vr2 (← (undefined_bitvector 65536))
@@ -287,43 +323,6 @@ def initialize_registers (_ : Unit) : SailM Unit := do
   writeReg vl (← (undefined_bitvector 64))
   writeReg vtype (← (undefined_Vtype ()))
   writeReg vcsr (← (undefined_Vcsr ()))
-  writeReg mhpmevent (← (undefined_vector 32 (← (undefined_HpmEvent ()))))
-  writeReg mhpmcounter (← (undefined_vector 32 (← (undefined_bitvector 64))))
-  writeReg float_result (← (undefined_bitvector 64))
-  writeReg float_fflags (← (undefined_bitvector 64))
-  writeReg f0 (← (undefined_bitvector (8 *i 8)))
-  writeReg f1 (← (undefined_bitvector (8 *i 8)))
-  writeReg f2 (← (undefined_bitvector (8 *i 8)))
-  writeReg f3 (← (undefined_bitvector (8 *i 8)))
-  writeReg f4 (← (undefined_bitvector (8 *i 8)))
-  writeReg f5 (← (undefined_bitvector (8 *i 8)))
-  writeReg f6 (← (undefined_bitvector (8 *i 8)))
-  writeReg f7 (← (undefined_bitvector (8 *i 8)))
-  writeReg f8 (← (undefined_bitvector (8 *i 8)))
-  writeReg f9 (← (undefined_bitvector (8 *i 8)))
-  writeReg f10 (← (undefined_bitvector (8 *i 8)))
-  writeReg f11 (← (undefined_bitvector (8 *i 8)))
-  writeReg f12 (← (undefined_bitvector (8 *i 8)))
-  writeReg f13 (← (undefined_bitvector (8 *i 8)))
-  writeReg f14 (← (undefined_bitvector (8 *i 8)))
-  writeReg f15 (← (undefined_bitvector (8 *i 8)))
-  writeReg f16 (← (undefined_bitvector (8 *i 8)))
-  writeReg f17 (← (undefined_bitvector (8 *i 8)))
-  writeReg f18 (← (undefined_bitvector (8 *i 8)))
-  writeReg f19 (← (undefined_bitvector (8 *i 8)))
-  writeReg f20 (← (undefined_bitvector (8 *i 8)))
-  writeReg f21 (← (undefined_bitvector (8 *i 8)))
-  writeReg f22 (← (undefined_bitvector (8 *i 8)))
-  writeReg f23 (← (undefined_bitvector (8 *i 8)))
-  writeReg f24 (← (undefined_bitvector (8 *i 8)))
-  writeReg f25 (← (undefined_bitvector (8 *i 8)))
-  writeReg f26 (← (undefined_bitvector (8 *i 8)))
-  writeReg f27 (← (undefined_bitvector (8 *i 8)))
-  writeReg f28 (← (undefined_bitvector (8 *i 8)))
-  writeReg f29 (← (undefined_bitvector (8 *i 8)))
-  writeReg f30 (← (undefined_bitvector (8 *i 8)))
-  writeReg f31 (← (undefined_bitvector (8 *i 8)))
-  writeReg fcsr (← (undefined_Fcsr ()))
   writeReg mcyclecfg (← (undefined_CountSmcntrpmf ()))
   writeReg minstretcfg (← (undefined_CountSmcntrpmf ()))
   writeReg mtimecmp (← (undefined_bitvector 64))
@@ -334,6 +333,8 @@ def initialize_registers (_ : Unit) : SailM Unit := do
   writeReg htif_cmd_write (← (undefined_bit ()))
   writeReg htif_payload_writes (← (undefined_bitvector 4))
   writeReg satp (← (undefined_bitvector 64))
+  writeReg mhpmevent (← (undefined_vector 32 (← (undefined_HpmEvent ()))))
+  writeReg mhpmcounter (← (undefined_vector 32 (← (undefined_bitvector 64))))
 
 def sail_model_init (x_0 : Unit) : SailM Unit := do
   writeReg misa (_update_Misa_MXL (Mk_Misa (zeros (n := 64))) (architecture_forwards RV64))
