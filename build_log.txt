@@ -26,13 +26,13 @@
 ✔ [27/98] Built LeanRV64D.RiscvVlen
 ✔ [28/98] Built LeanRV64D.RiscvFlen
 ✔ [29/98] Built LeanRV64D.RiscvInstsVextFp
-✔ [30/98] Built LeanRV64D.Arith
-✔ [31/98] Built LeanRV64D.RiscvTypesExt
+✔ [30/98] Built LeanRV64D.RiscvTypesExt
+✔ [31/98] Built LeanRV64D.Arith
 ✔ [32/98] Built LeanRV64D.DecBits
 ✔ [33/98] Built LeanRV64D.Mapping
 ✔ [34/98] Built LeanRV64D.RiscvErrors
-✔ [35/98] Built LeanRV64D.RiscvInstsVextArith
-✔ [36/98] Built LeanRV64D.RiscvXlen
+✔ [35/98] Built LeanRV64D.RiscvXlen
+✔ [36/98] Built LeanRV64D.RiscvInstsVextArith
 ✔ [37/98] Built LeanRV64D.Flow
 ✔ [38/98] Built LeanRV64D.RiscvVmemPtw
 ✔ [39/98] Built LeanRV64D.RiscvInstsZalrsc
@@ -53,8 +53,8 @@
 ✔ [54/98] Built LeanRV64D.RiscvVmemTlb
 ✔ [55/98] Built LeanRV64D.RiscvCallbacks
 ✔ [56/98] Built LeanRV64D.RiscvRegs
-✔ [57/98] Built LeanRV64D.RiscvAddrChecks
-✔ [58/98] Built LeanRV64D.RiscvPcAccess
+✔ [57/98] Built LeanRV64D.RiscvPcAccess
+✔ [58/98] Built LeanRV64D.RiscvAddrChecks
 ✔ [59/98] Built LeanRV64D.RiscvSysRegs
 ✔ [60/98] Built LeanRV64D.RiscvPmpRegs
 ✔ [61/98] Built LeanRV64D.RiscvInstsBase
@@ -65,7 +65,8 @@
 ✔ [66/98] Built LeanRV64D.RiscvSmcntrpmf
 ✔ [67/98] Built LeanRV64D.RiscvFdextRegs
 ✔ [68/98] Built LeanRV64D.RiscvPmpControl
-✖ [69/98] Building LeanRV64D.RiscvInstsVextVset
+✔ [69/98] Built LeanRV64D.RiscvVmemPte
+✖ [70/98] Building LeanRV64D.RiscvInstsVextVset
 trace: .> LEAN_PATH=/home/runner/work/sail-riscv-lean/sail-riscv-lean/sail-riscv/build/model/Lean_RV64D/.lake/build/lib/lean /home/runner/.elan/toolchains/leanprover--lean4-nightly---nightly-2025-07-10/bin/lean --tstack=400000 /home/runner/work/sail-riscv-lean/sail-riscv-lean/sail-riscv/build/model/Lean_RV64D/LeanRV64D/RiscvInstsVextVset.lean -o /home/runner/work/sail-riscv-lean/sail-riscv-lean/sail-riscv/build/model/Lean_RV64D/.lake/build/lib/lean/LeanRV64D/RiscvInstsVextVset.olean -i /home/runner/work/sail-riscv-lean/sail-riscv-lean/sail-riscv/build/model/Lean_RV64D/.lake/build/lib/lean/LeanRV64D/RiscvInstsVextVset.ilean -c /home/runner/work/sail-riscv-lean/sail-riscv-lean/sail-riscv/build/model/Lean_RV64D/.lake/build/ir/LeanRV64D/RiscvInstsVextVset.c --setup /home/runner/work/sail-riscv-lean/sail-riscv-lean/sail-riscv/build/model/Lean_RV64D/.lake/build/ir/LeanRV64D/RiscvInstsVextVset.setup.json --json
 error: LeanRV64D/RiscvInstsVextVset.lean:277:11: Function expected at
   some throw
@@ -84,7 +85,6 @@ Note: Expected a function because this term is being applied to the argument
   Error.Exit
 error: LeanRV64D/RiscvInstsVextVset.lean:289:4: Invalid dotted identifier notation: The expected type of `.some` could not be determined
 error: Lean exited with code 1
-✔ [70/98] Built LeanRV64D.RiscvVmemPte
 ✔ [71/98] Built LeanRV64D.RiscvZvkUtils
 ✔ [72/98] Built LeanRV64D.RiscvVextControl
 ✔ [73/98] Built LeanRV64D.RiscvInstsFext
