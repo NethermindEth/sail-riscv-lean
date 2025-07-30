@@ -172,9 +172,11 @@ open ExceptionType
 open Architecture
 open AccessType
 
-def ELEN_pow : Nat := 6
+def vlen_exp := 9
 
-def VLEN_pow : Nat := 9
+def elen_exp := 6
 
-def VLEN := (2 ^i VLEN_pow)
+def vlen := (2 ^i 9)
+
+def elen := (2 ^i 6)
 

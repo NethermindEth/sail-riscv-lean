@@ -176,170 +176,6 @@ open ExceptionType
 open Architecture
 open AccessType
 
-def nfields_int_forwards (arg_ : (BitVec 3)) : Int :=
-  let b__0 := arg_
-  bif (b__0 == (0b000 : (BitVec 3)))
-  then 1
-  else
-    (bif (b__0 == (0b001 : (BitVec 3)))
-    then 2
-    else
-      (bif (b__0 == (0b010 : (BitVec 3)))
-      then 3
-      else
-        (bif (b__0 == (0b011 : (BitVec 3)))
-        then 4
-        else
-          (bif (b__0 == (0b100 : (BitVec 3)))
-          then 5
-          else
-            (bif (b__0 == (0b101 : (BitVec 3)))
-            then 6
-            else
-              (bif (b__0 == (0b110 : (BitVec 3)))
-              then 7
-              else 8))))))
-
-/-- Type quantifiers: arg_ : Nat, arg_ > 0 ∧ arg_ ≤ 8 -/
-def nfields_int_backwards (arg_ : Nat) : (BitVec 3) :=
-  match arg_ with
-  | 1 => (0b000 : (BitVec 3))
-  | 2 => (0b001 : (BitVec 3))
-  | 3 => (0b010 : (BitVec 3))
-  | 4 => (0b011 : (BitVec 3))
-  | 5 => (0b100 : (BitVec 3))
-  | 6 => (0b101 : (BitVec 3))
-  | 7 => (0b110 : (BitVec 3))
-  | _ => (0b111 : (BitVec 3))
-
-def nfields_int_forwards_matches (arg_ : (BitVec 3)) : Bool :=
-  let b__0 := arg_
-  bif (b__0 == (0b000 : (BitVec 3)))
-  then true
-  else
-    (bif (b__0 == (0b001 : (BitVec 3)))
-    then true
-    else
-      (bif (b__0 == (0b010 : (BitVec 3)))
-      then true
-      else
-        (bif (b__0 == (0b011 : (BitVec 3)))
-        then true
-        else
-          (bif (b__0 == (0b100 : (BitVec 3)))
-          then true
-          else
-            (bif (b__0 == (0b101 : (BitVec 3)))
-            then true
-            else
-              (bif (b__0 == (0b110 : (BitVec 3)))
-              then true
-              else
-                (bif (b__0 == (0b111 : (BitVec 3)))
-                then true
-                else false)))))))
-
-/-- Type quantifiers: arg_ : Nat, arg_ > 0 ∧ arg_ ≤ 8 -/
-def nfields_int_backwards_matches (arg_ : Nat) : Bool :=
-  match arg_ with
-  | 1 => true
-  | 2 => true
-  | 3 => true
-  | 4 => true
-  | 5 => true
-  | 6 => true
-  | 7 => true
-  | 8 => true
-  | _ => false
-
-def nfields_string_backwards (arg_ : String) : SailM (BitVec 3) := do
-  match arg_ with
-  | "" => (pure (0b000 : (BitVec 3)))
-  | "seg2" => (pure (0b001 : (BitVec 3)))
-  | "seg3" => (pure (0b010 : (BitVec 3)))
-  | "seg4" => (pure (0b011 : (BitVec 3)))
-  | "seg5" => (pure (0b100 : (BitVec 3)))
-  | "seg6" => (pure (0b101 : (BitVec 3)))
-  | "seg7" => (pure (0b110 : (BitVec 3)))
-  | "seg8" => (pure (0b111 : (BitVec 3)))
-  | _ =>
-    (do
-      assert false "Pattern match failure at unknown location"
-      throw Error.Exit)
-
-def nfields_string_forwards_matches (arg_ : (BitVec 3)) : Bool :=
-  let b__0 := arg_
-  bif (b__0 == (0b000 : (BitVec 3)))
-  then true
-  else
-    (bif (b__0 == (0b001 : (BitVec 3)))
-    then true
-    else
-      (bif (b__0 == (0b010 : (BitVec 3)))
-      then true
-      else
-        (bif (b__0 == (0b011 : (BitVec 3)))
-        then true
-        else
-          (bif (b__0 == (0b100 : (BitVec 3)))
-          then true
-          else
-            (bif (b__0 == (0b101 : (BitVec 3)))
-            then true
-            else
-              (bif (b__0 == (0b110 : (BitVec 3)))
-              then true
-              else
-                (bif (b__0 == (0b111 : (BitVec 3)))
-                then true
-                else false)))))))
-
-def nfields_string_backwards_matches (arg_ : String) : Bool :=
-  match arg_ with
-  | "" => true
-  | "seg2" => true
-  | "seg3" => true
-  | "seg4" => true
-  | "seg5" => true
-  | "seg6" => true
-  | "seg7" => true
-  | "seg8" => true
-  | _ => false
-
-def nfields_int_string_backwards (arg_ : String) : SailM (BitVec 3) := do
-  match arg_ with
-  | "1" => (pure (0b000 : (BitVec 3)))
-  | "2" => (pure (0b001 : (BitVec 3)))
-  | "4" => (pure (0b011 : (BitVec 3)))
-  | "8" => (pure (0b111 : (BitVec 3)))
-  | _ =>
-    (do
-      assert false "Pattern match failure at unknown location"
-      throw Error.Exit)
-
-def nfields_int_string_forwards_matches (arg_ : (BitVec 3)) : Bool :=
-  let b__0 := arg_
-  bif (b__0 == (0b000 : (BitVec 3)))
-  then true
-  else
-    (bif (b__0 == (0b001 : (BitVec 3)))
-    then true
-    else
-      (bif (b__0 == (0b011 : (BitVec 3)))
-      then true
-      else
-        (bif (b__0 == (0b111 : (BitVec 3)))
-        then true
-        else false)))
-
-def nfields_int_string_backwards_matches (arg_ : String) : Bool :=
-  match arg_ with
-  | "1" => true
-  | "2" => true
-  | "4" => true
-  | "8" => true
-  | _ => false
-
 def vlewidth_bitsnumberstr_backwards (arg_ : String) : SailM vlewidth := do
   match arg_ with
   | "8" => (pure VLE8)
@@ -670,7 +506,7 @@ def process_vsseg (nf : Nat) (vm : (BitVec 1)) (vs3 : vregidx) (load_width_bytes
                   data (Write Data) false false false)) with
               | .Ok true => (pure ())
               | .Ok false =>
-                (internal_error "./riscv_insts_vext_mem.sail" 238 "store got false from vmem_write")
+                (internal_error "./riscv_insts_vext_mem.sail" 206 "store got false from vmem_write")
               | .Err e => SailME.throw (e : ExecutionResult)
           (pure loop_vars_1))
       else (pure ())
@@ -779,7 +615,7 @@ def process_vssseg (nf : Nat) (vm : (BitVec 1)) (vs3 : vregidx) (load_width_byte
                   data (Write Data) false false false)) with
               | .Ok true => (pure ())
               | .Ok false =>
-                (internal_error "./riscv_insts_vext_mem.sail" 359 "store got false from vmem_write")
+                (internal_error "./riscv_insts_vext_mem.sail" 325 "store got false from vmem_write")
               | .Err e => SailME.throw (e : ExecutionResult)
           (pure loop_vars_1))
       else (pure ())
@@ -893,7 +729,7 @@ def process_vsxseg (nf : Nat) (vm : (BitVec 1)) (vs3 : vregidx) (EEW_index_bytes
                   data (Write Data) false false false)) with
               | .Ok true => (pure ())
               | .Ok false =>
-                (internal_error "./riscv_insts_vext_mem.sail" 511 "store got false from vmem_write")
+                (internal_error "./riscv_insts_vext_mem.sail" 474 "store got false from vmem_write")
               | .Err e => SailME.throw (e : ExecutionResult)
           (pure loop_vars_1))
       else (pure ())
@@ -1001,7 +837,7 @@ def process_vsre (nf : Nat) (load_width_bytes : Nat) (rs1 : regidx) (vs3 : vregi
                       load_width_bytes data (Write Data) false false false)) with
                   | .Ok true => (pure ())
                   | .Ok false =>
-                    (internal_error "./riscv_insts_vext_mem.sail" 659
+                    (internal_error "./riscv_insts_vext_mem.sail" 618
                       "store got false from vmem_write")
                   | .Err e => SailME.throw (e : ExecutionResult)
                   (pure (cur_elem +i 1))
@@ -1032,7 +868,7 @@ def process_vsre (nf : Nat) (load_width_bytes : Nat) (rs1 : regidx) (vs3 : vregi
                     (GetElem?.getElem! vs3_val i) (Write Data) false false false)) with
                 | .Ok true => (pure ())
                 | .Ok false =>
-                  (internal_error "./riscv_insts_vext_mem.sail" 674
+                  (internal_error "./riscv_insts_vext_mem.sail" 633
                     "store got false from vmem_write")
                 | .Err e => SailME.throw (e : ExecutionResult)
                 (pure (cur_elem +i 1))
@@ -1108,7 +944,7 @@ def process_vm (vd_or_vs3 : vregidx) (rs1 : regidx) (num_elem : Nat) (evl : Nat)
                       (GetElem?.getElem! vd_or_vs3_val i) (Write Data) false false false)) with
                   | .Ok true => (pure ())
                   | .Ok false =>
-                    (internal_error "./riscv_insts_vext_mem.sail" 731
+                    (internal_error "./riscv_insts_vext_mem.sail" 688
                       "store got false from vmem_write")
                   | .Err e => SailME.throw (e : ExecutionResult))
               else (pure ())))

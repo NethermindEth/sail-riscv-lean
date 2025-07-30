@@ -212,16 +212,32 @@ def check_mmu_config (_ : Unit) : Bool :=
   valid
 
 def check_vlen_elen (_ : Unit) : Bool :=
-  bif (VLEN_pow <b ELEN_pow)
+  bif ((vlen_exp : Nat) <b (elen_exp : Nat))
   then
     (let _ : Unit :=
       (print_endline
         (HAppend.hAppend "VLEN (set to 2^"
-          (HAppend.hAppend (Int.repr VLEN_pow)
+          (HAppend.hAppend (Int.repr vlen_exp)
             (HAppend.hAppend ") cannot be less than ELEN (set to 2^"
-              (HAppend.hAppend (Int.repr ELEN_pow) ").")))))
+              (HAppend.hAppend (Int.repr elen_exp) ").")))))
     false)
-  else true
+  else
+    (bif (((vlen_exp : Nat) <b 3) || (((vlen_exp : Nat) >b 16) : Bool))
+    then
+      (let _ : Unit :=
+        (print_endline
+          (HAppend.hAppend "VLEN set to 2^"
+            (HAppend.hAppend (Int.repr vlen_exp) " but must be within [2^3, 2^16].")))
+      false)
+    else
+      (bif (((elen_exp : Nat) <b 3) || (((elen_exp : Nat) >b 16) : Bool))
+      then
+        (let _ : Unit :=
+          (print_endline
+            (HAppend.hAppend "ELEN set to 2^"
+              (HAppend.hAppend (Int.repr elen_exp) " but must be within [2^3, 2^16].")))
+        false)
+      else true))
 
 /-- Type quantifiers: b_hi : Nat, b_lo : Nat, a_hi : Nat, a_lo : Nat, 0 ≤ a_lo, 0 ≤ a_hi, 0 ≤
   b_lo, 0 ≤ b_hi -/

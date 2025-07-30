@@ -59,7 +59,13 @@ abbrev flen : Int := (bif true then 8 else 4 * 8)
 
 abbrev flenbits := (BitVec (bif true then 8 else 4 * 8))
 
-abbrev vlenmax : Int := 65536
+abbrev vlen_exp : Int := 9
+
+abbrev elen_exp : Int := 6
+
+abbrev vlen : Int := (2 ^ 9)
+
+abbrev elen : Int := (2 ^ 6)
 
 abbrev physaddrbits := (BitVec (bif 64 = 32 then 34 else 64))
 
@@ -504,6 +510,14 @@ inductive zicondop where | CZERO_EQZ | CZERO_NEZ
 inductive f_un_rm_ff_op_S where | FSQRT_S
   deriving BEq, Inhabited, Repr
 
+
+
+abbrev nfields := Int
+
+
+
+abbrev nfields_pow2 := Int
+
 abbrev shamt_zba := (BitVec 2)
 
 abbrev word_width := Int
@@ -728,17 +742,17 @@ inductive instruction where
   | VFMERGE (_ : (vregidx × fregidx × vregidx))
   | VFMV (_ : (fregidx × vregidx))
   | VFMVSF (_ : (fregidx × vregidx))
-  | VLSEGTYPE (_ : ((BitVec 3) × (BitVec 1) × regidx × vlewidth × vregidx))
-  | VLSEGFFTYPE (_ : ((BitVec 3) × (BitVec 1) × regidx × vlewidth × vregidx))
-  | VSSEGTYPE (_ : ((BitVec 3) × (BitVec 1) × regidx × vlewidth × vregidx))
-  | VLSSEGTYPE (_ : ((BitVec 3) × (BitVec 1) × regidx × regidx × vlewidth × vregidx))
-  | VSSSEGTYPE (_ : ((BitVec 3) × (BitVec 1) × regidx × regidx × vlewidth × vregidx))
-  | VLUXSEGTYPE (_ : ((BitVec 3) × (BitVec 1) × vregidx × regidx × vlewidth × vregidx))
-  | VLOXSEGTYPE (_ : ((BitVec 3) × (BitVec 1) × vregidx × regidx × vlewidth × vregidx))
-  | VSUXSEGTYPE (_ : ((BitVec 3) × (BitVec 1) × vregidx × regidx × vlewidth × vregidx))
-  | VSOXSEGTYPE (_ : ((BitVec 3) × (BitVec 1) × vregidx × regidx × vlewidth × vregidx))
-  | VLRETYPE (_ : ((BitVec 3) × regidx × vlewidth × vregidx))
-  | VSRETYPE (_ : ((BitVec 3) × regidx × vregidx))
+  | VLSEGTYPE (_ : (nfields × (BitVec 1) × regidx × vlewidth × vregidx))
+  | VLSEGFFTYPE (_ : (nfields × (BitVec 1) × regidx × vlewidth × vregidx))
+  | VSSEGTYPE (_ : (nfields × (BitVec 1) × regidx × vlewidth × vregidx))
+  | VLSSEGTYPE (_ : (nfields × (BitVec 1) × regidx × regidx × vlewidth × vregidx))
+  | VSSSEGTYPE (_ : (nfields × (BitVec 1) × regidx × regidx × vlewidth × vregidx))
+  | VLUXSEGTYPE (_ : (nfields × (BitVec 1) × vregidx × regidx × vlewidth × vregidx))
+  | VLOXSEGTYPE (_ : (nfields × (BitVec 1) × vregidx × regidx × vlewidth × vregidx))
+  | VSUXSEGTYPE (_ : (nfields × (BitVec 1) × vregidx × regidx × vlewidth × vregidx))
+  | VSOXSEGTYPE (_ : (nfields × (BitVec 1) × vregidx × regidx × vlewidth × vregidx))
+  | VLRETYPE (_ : (nfields_pow2 × regidx × vlewidth × vregidx))
+  | VSRETYPE (_ : (nfields_pow2 × regidx × vregidx))
   | VMTYPE (_ : (regidx × vregidx × vmlsop))
   | MMTYPE (_ : (mmfunct6 × vregidx × vregidx × vregidx))
   | VCPOP_M (_ : ((BitVec 1) × vregidx × regidx))
@@ -1001,9 +1015,7 @@ inductive fregno where
 
 abbrev Fcsr := (BitVec 32)
 
-abbrev vreglenbits := (BitVec 65536)
-
-abbrev vregtype := vreglenbits
+abbrev vlenbits := (BitVec (2 ^ 9))
 
 inductive maskfunct3 where | VV_VMERGE | VI_VMERGE | VX_VMERGE
   deriving BEq, Inhabited, Repr
@@ -1096,12 +1108,6 @@ abbrev PTW_Result k_v := (Result ((PTW_Output k_v) × ext_ptw) (PTW_Error × ext
 abbrev TR_Result k_paddr k_failure := (Result (k_paddr × ext_ptw) (k_failure × ext_ptw))
 
 
-
-
-
-
-
-abbrev nfields := Int
 
 inductive seed_opst where | BIST | ES16 | WAIT | DEAD
   deriving BEq, Inhabited, Repr
@@ -1335,38 +1341,38 @@ abbrev RegisterType : Register → Type
   | .vtype => (BitVec 64)
   | .vl => (BitVec 64)
   | .vstart => (BitVec 64)
-  | .vr31 => (BitVec 65536)
-  | .vr30 => (BitVec 65536)
-  | .vr29 => (BitVec 65536)
-  | .vr28 => (BitVec 65536)
-  | .vr27 => (BitVec 65536)
-  | .vr26 => (BitVec 65536)
-  | .vr25 => (BitVec 65536)
-  | .vr24 => (BitVec 65536)
-  | .vr23 => (BitVec 65536)
-  | .vr22 => (BitVec 65536)
-  | .vr21 => (BitVec 65536)
-  | .vr20 => (BitVec 65536)
-  | .vr19 => (BitVec 65536)
-  | .vr18 => (BitVec 65536)
-  | .vr17 => (BitVec 65536)
-  | .vr16 => (BitVec 65536)
-  | .vr15 => (BitVec 65536)
-  | .vr14 => (BitVec 65536)
-  | .vr13 => (BitVec 65536)
-  | .vr12 => (BitVec 65536)
-  | .vr11 => (BitVec 65536)
-  | .vr10 => (BitVec 65536)
-  | .vr9 => (BitVec 65536)
-  | .vr8 => (BitVec 65536)
-  | .vr7 => (BitVec 65536)
-  | .vr6 => (BitVec 65536)
-  | .vr5 => (BitVec 65536)
-  | .vr4 => (BitVec 65536)
-  | .vr3 => (BitVec 65536)
-  | .vr2 => (BitVec 65536)
-  | .vr1 => (BitVec 65536)
-  | .vr0 => (BitVec 65536)
+  | .vr31 => (BitVec (2 ^ 9))
+  | .vr30 => (BitVec (2 ^ 9))
+  | .vr29 => (BitVec (2 ^ 9))
+  | .vr28 => (BitVec (2 ^ 9))
+  | .vr27 => (BitVec (2 ^ 9))
+  | .vr26 => (BitVec (2 ^ 9))
+  | .vr25 => (BitVec (2 ^ 9))
+  | .vr24 => (BitVec (2 ^ 9))
+  | .vr23 => (BitVec (2 ^ 9))
+  | .vr22 => (BitVec (2 ^ 9))
+  | .vr21 => (BitVec (2 ^ 9))
+  | .vr20 => (BitVec (2 ^ 9))
+  | .vr19 => (BitVec (2 ^ 9))
+  | .vr18 => (BitVec (2 ^ 9))
+  | .vr17 => (BitVec (2 ^ 9))
+  | .vr16 => (BitVec (2 ^ 9))
+  | .vr15 => (BitVec (2 ^ 9))
+  | .vr14 => (BitVec (2 ^ 9))
+  | .vr13 => (BitVec (2 ^ 9))
+  | .vr12 => (BitVec (2 ^ 9))
+  | .vr11 => (BitVec (2 ^ 9))
+  | .vr10 => (BitVec (2 ^ 9))
+  | .vr9 => (BitVec (2 ^ 9))
+  | .vr8 => (BitVec (2 ^ 9))
+  | .vr7 => (BitVec (2 ^ 9))
+  | .vr6 => (BitVec (2 ^ 9))
+  | .vr5 => (BitVec (2 ^ 9))
+  | .vr4 => (BitVec (2 ^ 9))
+  | .vr3 => (BitVec (2 ^ 9))
+  | .vr2 => (BitVec (2 ^ 9))
+  | .vr1 => (BitVec (2 ^ 9))
+  | .vr0 => (BitVec (2 ^ 9))
   | .fcsr => (BitVec 32)
   | .f31 => (BitVec (bif true then 8 else 4 * 8))
   | .f30 => (BitVec (bif true then 8 else 4 * 8))
@@ -1489,6 +1495,8 @@ instance : Inhabited (RegisterRef RegisterType (BitVec 128)) where
   default := .Reg rvfi_pc_data
 instance : Inhabited (RegisterRef RegisterType (BitVec 192)) where
   default := .Reg rvfi_inst_data
+instance : Inhabited (RegisterRef RegisterType (BitVec (2 ^ 9))) where
+  default := .Reg vr0
 instance : Inhabited (RegisterRef RegisterType (BitVec 3)) where
   default := .Reg vcsr
 instance : Inhabited (RegisterRef RegisterType (BitVec 32)) where
@@ -1499,8 +1507,6 @@ instance : Inhabited (RegisterRef RegisterType (BitVec 4)) where
   default := .Reg htif_payload_writes
 instance : Inhabited (RegisterRef RegisterType (BitVec 64)) where
   default := .Reg rvfi_instruction
-instance : Inhabited (RegisterRef RegisterType (BitVec 65536)) where
-  default := .Reg vr0
 instance : Inhabited (RegisterRef RegisterType (BitVec 704)) where
   default := .Reg rvfi_mem_data
 instance : Inhabited (RegisterRef RegisterType Bool) where

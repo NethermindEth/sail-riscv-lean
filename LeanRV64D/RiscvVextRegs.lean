@@ -203,7 +203,7 @@ def encdec_vreg_backwards_matches (arg_ : (BitVec 5)) : Bool :=
   match arg_ with
   | r => true
 
-def vreg_write_callback (x_0 : vregidx) (x_1 : (BitVec 65536)) : Unit :=
+def vreg_write_callback (x_0 : vregidx) (x_1 : (BitVec (2 ^ 9))) : Unit :=
   ()
 
 def zvreg : vregidx := (Vregidx (0b00000 : (BitVec 5)))
@@ -417,7 +417,7 @@ def vreg_name_backwards_matches (arg_ : String) : SailM Bool := do
     (match head_exp_ with
     | _ => (pure false))
 
-def rV (app_0 : vregno) : SailM (BitVec 65536) := do
+def rV (app_0 : vregno) : SailM (BitVec (2 ^ 9)) := do
   let .Vregno r := app_0
   match r with
   | 0 => readReg vr0
@@ -454,13 +454,13 @@ def rV (app_0 : vregno) : SailM (BitVec 65536) := do
   | _ => readReg vr31
 
 def dirty_v_context (_ : Unit) : SailM Unit := do
-  assert (hartSupports Ext_V) "./riscv_vext_regs.sail:134.28-134.29"
+  assert (hartSupports Ext_V) "./riscv_vext_regs.sail:133.28-133.29"
   writeReg mstatus (Sail.BitVec.updateSubrange (← readReg mstatus) 10 9 (extStatus_to_bits Dirty))
   writeReg mstatus (Sail.BitVec.updateSubrange (← readReg mstatus) (64 -i 1) (64 -i 1)
     (0b1 : (BitVec 1)))
   (long_csr_write_callback "mstatus" "mstatush" (← readReg mstatus))
 
-def wV (typ_0 : vregno) (v : (BitVec 65536)) : SailM Unit := do
+def wV (typ_0 : vregno) (v : (BitVec (2 ^ 9))) : SailM Unit := do
   let .Vregno r : vregno := typ_0
   match r with
   | 0 => writeReg vr0 v
@@ -496,17 +496,16 @@ def wV (typ_0 : vregno) (v : (BitVec 65536)) : SailM Unit := do
   | 30 => writeReg vr30 v
   | _ => writeReg vr31 v
   (dirty_v_context ())
-  assert ((0 <b VLEN) && (VLEN ≤b 65536)) "./riscv_vext_regs.sail:178.43-178.44"
   (pure (vreg_write_callback (vregno_to_vregidx (Vregno r)) v))
 
-def rV_bits (i : vregidx) : SailM (BitVec 65536) := do
+def rV_bits (i : vregidx) : SailM (BitVec (2 ^ 9)) := do
   (rV (vregidx_to_vregno i))
 
-def wV_bits (i : vregidx) (data : (BitVec 65536)) : SailM Unit := do
+def wV_bits (i : vregidx) (data : (BitVec (2 ^ 9))) : SailM Unit := do
   (wV (vregidx_to_vregno i) data)
 
 def init_vregs (_ : Unit) : SailM Unit := do
-  let zero_vreg : vregtype := (zeros (n := 65536))
+  let zero_vreg : vlenbits := (zeros (n := (2 ^i 9)))
   writeReg vr0 zero_vreg
   writeReg vr1 zero_vreg
   writeReg vr2 zero_vreg
@@ -540,7 +539,7 @@ def init_vregs (_ : Unit) : SailM Unit := do
   writeReg vr30 zero_vreg
   writeReg vr31 zero_vreg
 
-def VLENB : xlenbits := (to_bits (l := 64) (Int.tdiv (2 ^i VLEN_pow) 8))
+def VLENB : xlenbits := (to_bits (l := 64) (Int.tdiv vlen 8))
 
 def undefined_Vtype (_ : Unit) : SailM (BitVec 64) := do
   (undefined_bitvector 64)
@@ -825,7 +824,7 @@ def _set_Vcsr_vxsat (r_ref : (RegisterRef (BitVec 3))) (v : (BitVec 1)) : SailM 
 
 def set_vstart (value : (BitVec 16)) : SailM Unit := do
   (dirty_v_context ())
-  writeReg vstart (zero_extend (m := 64) (Sail.BitVec.extractLsb value (VLEN_pow -i 1) 0))
+  writeReg vstart (zero_extend (m := 64) (Sail.BitVec.extractLsb value (vlen_exp -i 1) 0))
   (csr_name_write_callback "vstart" (← readReg vstart))
 
 def ext_write_vcsr (vxrm_val : (BitVec 2)) (vxsat_val : (BitVec 1)) : SailM Unit := do

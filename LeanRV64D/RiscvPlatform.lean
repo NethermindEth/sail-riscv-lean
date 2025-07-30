@@ -393,16 +393,17 @@ def clint_store (app_0 : physaddr) (width : Nat) (data : (BitVec (8 * width))) :
   bif ((addr == MSIP_BASE) && ((width == 8) || (width == 4)))
   then
     (do
-      bif (get_config_print_platform ())
-      then
-        (pure (print_endline
+      let _ : Unit :=
+        bif (get_config_print_platform ())
+        then
+          (print_endline
             (HAppend.hAppend "clint["
               (HAppend.hAppend (BitVec.toFormatted addr)
                 (HAppend.hAppend "] <- "
                   (HAppend.hAppend (BitVec.toFormatted data)
                     (HAppend.hAppend " (mip.MSI <- "
-                      (HAppend.hAppend (← (bit_str (BitVec.access data 0))) ")"))))))))
-      else (pure ())
+                      (HAppend.hAppend (BitVec.toFormatted (Sail.BitVec.extractLsb data 0 0)) ")")))))))
+        else ()
       writeReg mip (Sail.BitVec.updateSubrange (← readReg mip) 3 3
         (BitVec.join1 [(BitVec.access data 0)]))
       (clint_dispatch ())
