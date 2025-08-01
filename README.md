@@ -100,18 +100,12 @@ This work was funded by a grant provided by the [Ethereum Foundation](https://et
 
 # Statistics
 
-Lines: 132,081  
+Lines: 132,066  
 Definitions: 4,005  
 Inductive definitions: 161  
 Abbreviations: 155  
 
 ## Warnings and Errors
 
-Errors found: 5  
+Errors found: 0  
 Warnings found: 0  
-
-### Error Classes
-
-- 2x The expected type of `.some` could not be determined
-- 2x Function expected at
-- 1x Lean exited with code 1
