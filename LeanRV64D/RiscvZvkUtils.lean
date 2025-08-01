@@ -181,9 +181,13 @@ def zvk_valid_reg_overlap (rs : vregidx) (rd : vregidx) (emul_pow : Int) : Bool 
 
 /-- Type quantifiers: EGS : Nat, EGW : Nat, 0 ≤ EGW, EGS > 0 -/
 def zvk_check_encdec (EGW : Nat) (EGS : Nat) : SailM Bool := do
+  let LMUL_pow ← do (get_lmul_pow ())
+  let LMUL_times_VLEN :=
+    bif (LMUL_pow <b 0)
+    then (Int.tdiv vlen (2 ^i (Int.natAbs LMUL_pow)))
+    else ((2 ^i LMUL_pow) *i vlen)
   (pure (((Int.tmod (BitVec.toNat (← readReg vl)) EGS) == 0) && (← do
-        (pure (((Int.tmod (BitVec.toNat (← readReg vstart)) EGS) == 0) && (← do
-              (pure (((2 ^i (← (get_lmul_pow ()))) *i vlen) ≥b EGW))))))))
+        (pure (((Int.tmod (BitVec.toNat (← readReg vstart)) EGS) == 0) && (LMUL_times_VLEN ≥b EGW))))))
 
 def undefined_zvk_vsha2_funct6 (_ : Unit) : SailM zvk_vsha2_funct6 := do
   (internal_pick [ZVK_VSHA2CH_VV, ZVK_VSHA2CL_VV])
