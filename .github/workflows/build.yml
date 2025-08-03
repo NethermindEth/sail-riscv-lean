@@ -13,5 +13,6 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - uses: leanprover/lean-action@v1
-      use-github-cache: "false"
-      reinstall-transient-toolchain: "true"
+      with:
+        use-github-cache: "false"
+        reinstall-transient-toolchain: "true"
