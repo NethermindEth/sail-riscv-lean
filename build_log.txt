@@ -1,97 +1,97 @@
-✔ [2/98] Built LeanRV64D.Sail.IntRange
-✔ [3/98] Built LeanRV64D.Sail.BitVec
-✔ [4/98] Built LeanRV64D.Sail.Sail
-✔ [5/98] Built LeanRV64D.Defs
-✔ [6/98] Built LeanRV64D.FakeReal
-✔ [7/98] Built LeanRV64D.RiscvExtras
-✔ [8/98] Built LeanRV64D.Specialization
-✔ [9/98] Built LeanRV64D.RiscvStepExt
-✔ [10/98] Built LeanRV64D.RiscvInstsZawrs
-✔ [11/98] Built LeanRV64D.RiscvStepCommon
-✔ [12/98] Built LeanRV64D.RiscvInstsZvknhab
-✔ [13/98] Built LeanRV64D.RiscvInstsVextRed
-✔ [14/98] Built LeanRV64D.RiscvInstsVextFpVm
-✔ [15/98] Built LeanRV64D.RiscvInstsZvkned
-✔ [16/98] Built LeanRV64D.RiscvInstsVextMask
-✔ [17/98] Built LeanRV64D.RiscvInstsMext
-✔ [18/98] Built LeanRV64D.RiscvInstsVextVm
-✔ [19/98] Built LeanRV64D.RiscvVextTypes
-✔ [20/98] Built LeanRV64D.RiscvInstRetire
-✔ [21/98] Built LeanRV64D.RiscvExtRegs
-✔ [22/98] Built LeanRV64D.ReadWriteV1
-✔ [23/98] Built LeanRV64D.PreludeMemMetadata
-✔ [24/98] Built LeanRV64D.RiscvVmemTypes
-✔ [25/98] Built LeanRV64D.PreludeMemAddrtype
-✔ [26/98] Built LeanRV64D.Common
-✔ [27/98] Built LeanRV64D.RiscvVlen
-✔ [28/98] Built LeanRV64D.RiscvFlen
-✔ [29/98] Built LeanRV64D.RiscvInstsVextFp
-✔ [30/98] Built LeanRV64D.Arith
-✔ [31/98] Built LeanRV64D.RiscvTypesExt
-✔ [32/98] Built LeanRV64D.DecBits
-✔ [33/98] Built LeanRV64D.Mapping
-✔ [34/98] Built LeanRV64D.RiscvErrors
-✔ [35/98] Built LeanRV64D.RiscvXlen
-✔ [36/98] Built LeanRV64D.Flow
-✔ [37/98] Built LeanRV64D.RiscvInstsVextArith
-✔ [38/98] Built LeanRV64D.RiscvVmemPtw
-✔ [39/98] Built LeanRV64D.RiscvInstsZalrsc
-✔ [40/98] Built LeanRV64D.Vector
-✔ [41/98] Built LeanRV64D.Prelude
-✔ [42/98] Built LeanRV64D.Arithmetic
-✔ [43/98] Built LeanRV64D.HexBitsSigned
-✔ [44/98] Built LeanRV64D.HexBits
-✔ [45/98] Built LeanRV64D.RiscvZkrControl
-✔ [46/98] Built LeanRV64D.PreludeMem
-✔ [47/98] Built LeanRV64D.RiscvFregType
-✔ [48/98] Built LeanRV64D.RiscvRegType
-✔ [49/98] Built LeanRV64D.RiscvTypesKext
-✔ [50/98] Built LeanRV64D.RiscvSoftfloatInterface
-✔ [51/98] Built LeanRV64D.RvfiDii
-✔ [52/98] Built LeanRV64D.RiscvExtensions
-✔ [53/98] Built LeanRV64D.RiscvTypes
-✔ [54/98] Built LeanRV64D.RiscvVmemTlb
-✔ [55/98] Built LeanRV64D.RiscvCallbacks
-✔ [56/98] Built LeanRV64D.RiscvRegs
-✔ [57/98] Built LeanRV64D.RiscvAddrChecks
-✔ [58/98] Built LeanRV64D.RiscvPcAccess
-✔ [59/98] Built LeanRV64D.RiscvSysRegs
-✔ [60/98] Built LeanRV64D.RiscvPmpRegs
-✔ [61/98] Built LeanRV64D.RiscvInstsBase
-✔ [62/98] Built LeanRV64D.RiscvInstsZaamo
-✔ [63/98] Built LeanRV64D.RiscvInstsZicboz
-✔ [64/98] Built LeanRV64D.RiscvSysExceptions
-✔ [65/98] Built LeanRV64D.RiscvVextRegs
-✔ [66/98] Built LeanRV64D.RiscvSmcntrpmf
-✔ [67/98] Built LeanRV64D.RiscvPmpControl
-✔ [68/98] Built LeanRV64D.RiscvFdextRegs
-✔ [69/98] Built LeanRV64D.RiscvVmemPte
-✔ [70/98] Built LeanRV64D.RiscvInstsVextVset
-✔ [71/98] Built LeanRV64D.RiscvZvkUtils
-✔ [72/98] Built LeanRV64D.RiscvVextControl
-✔ [73/98] Built LeanRV64D.RiscvInstsFext
-✔ [74/98] Built LeanRV64D.RiscvInstsZfh
-✔ [75/98] Built LeanRV64D.RiscvInstsDext
-✔ [76/98] Built LeanRV64D.RiscvSysControl
-✔ [77/98] Built LeanRV64D.RiscvInstsZfa
-✔ [78/98] Built LeanRV64D.RiscvInstsVextUtils
-✔ [79/98] Built LeanRV64D.RiscvPlatform
-✔ [80/98] Built LeanRV64D.RiscvValidateConfig
-✔ [81/98] Built LeanRV64D.RiscvMem
-✔ [82/98] Built LeanRV64D.RiscvInstsVextFpUtils
-✔ [83/98] Built LeanRV64D.RiscvVmem
-✔ [84/98] Built LeanRV64D.RiscvInstsVextFpRed
-✔ [85/98] Built LeanRV64D.RiscvFetchRvfi
-✔ [86/98] Built LeanRV64D.RiscvInstsZicbom
-✔ [87/98] Built LeanRV64D.RiscvVmemUtils
-✔ [88/98] Built LeanRV64D.RiscvFetch
-✔ [89/98] Built LeanRV64D.RiscvInstsVextMem
-✔ [90/98] Built LeanRV64D.RiscvInstsZicsr
-✔ [91/98] Built LeanRV64D.RiscvZihpm
-✔ [92/98] Built LeanRV64D.RiscvInstsEnd
-✔ [93/98] Built LeanRV64D.RiscvDecodeExt
-✔ [94/98] Built LeanRV64D.RiscvStep
-✔ [95/98] Built LeanRV64D.RiscvModel
-✔ [96/98] Built LeanRV64D.Main
-✔ [97/98] Built LeanRV64D
-Build completed successfully.
+✔ [2/98] Built LeanRV64D.Sail.IntRange (1.5s)
+✔ [3/98] Built LeanRV64D.Sail.BitVec (2.7s)
+✔ [4/98] Built LeanRV64D.Sail.Sail (3.3s)
+✔ [5/98] Built LeanRV64D.Defs (24s)
+✔ [6/98] Built LeanRV64D.FakeReal (518ms)
+✔ [7/98] Built LeanRV64D.RiscvExtras (600ms)
+✔ [8/98] Built LeanRV64D.Specialization (612ms)
+✔ [9/98] Built LeanRV64D.RiscvStepCommon (534ms)
+✔ [10/98] Built LeanRV64D.RiscvStepExt (519ms)
+✔ [11/98] Built LeanRV64D.RiscvInstsZvknhab (684ms)
+✔ [12/98] Built LeanRV64D.RiscvInstsZawrs (640ms)
+✔ [13/98] Built LeanRV64D.RiscvInstsVextRed (1.2s)
+✔ [14/98] Built LeanRV64D.RiscvInstsZvkned (1.3s)
+✔ [15/98] Built LeanRV64D.RiscvInstsVextFpVm (1.2s)
+✔ [16/98] Built LeanRV64D.RiscvInstsVextMask (1.0s)
+✔ [17/98] Built LeanRV64D.RiscvInstsMext (1.3s)
+✔ [18/98] Built LeanRV64D.RiscvInstsVextVm (3.4s)
+✔ [19/98] Built LeanRV64D.RiscvInstRetire (710ms)
+✔ [20/98] Built LeanRV64D.RiscvVextTypes (1.4s)
+✔ [21/98] Built LeanRV64D.RiscvExtRegs (754ms)
+✔ [22/98] Built LeanRV64D.PreludeMemMetadata (643ms)
+✔ [23/98] Built LeanRV64D.ReadWriteV1 (793ms)
+✔ [24/98] Built LeanRV64D.RiscvVmemTypes (597ms)
+✔ [25/98] Built LeanRV64D.PreludeMemAddrtype (673ms)
+✔ [26/98] Built LeanRV64D.Common (638ms)
+✔ [27/98] Built LeanRV64D.RiscvVlen (605ms)
+✔ [28/98] Built LeanRV64D.RiscvInstsVextFp (5.8s)
+✔ [29/98] Built LeanRV64D.RiscvFlen (549ms)
+✔ [30/98] Built LeanRV64D.RiscvTypesExt (520ms)
+✔ [31/98] Built LeanRV64D.Arith (685ms)
+✔ [32/98] Built LeanRV64D.DecBits (2.0s)
+✔ [33/98] Built LeanRV64D.Mapping (756ms)
+✔ [34/98] Built LeanRV64D.RiscvErrors (723ms)
+✔ [35/98] Built LeanRV64D.RiscvInstsVextArith (9.6s)
+✔ [36/98] Built LeanRV64D.RiscvXlen (513ms)
+✔ [37/98] Built LeanRV64D.Flow (665ms)
+✔ [38/98] Built LeanRV64D.RiscvVmemPtw (741ms)
+✔ [39/98] Built LeanRV64D.RiscvInstsZalrsc (547ms)
+✔ [40/98] Built LeanRV64D.Vector (694ms)
+✔ [41/98] Built LeanRV64D.Prelude (1.2s)
+✔ [42/98] Built LeanRV64D.Arithmetic (1.1s)
+✔ [43/98] Built LeanRV64D.HexBits (7.9s)
+✔ [44/98] Built LeanRV64D.HexBitsSigned (7.9s)
+✔ [45/98] Built LeanRV64D.RiscvZkrControl (882ms)
+✔ [46/98] Built LeanRV64D.PreludeMem (1.4s)
+✔ [47/98] Built LeanRV64D.RiscvFregType (2.6s)
+✔ [48/98] Built LeanRV64D.RiscvRegType (564ms)
+✔ [49/98] Built LeanRV64D.RiscvSoftfloatInterface (4.8s)
+✔ [50/98] Built LeanRV64D.RiscvTypesKext (7.0s)
+✔ [51/98] Built LeanRV64D.RvfiDii (4.1s)
+✔ [52/98] Built LeanRV64D.RiscvExtensions (10s)
+✔ [53/98] Built LeanRV64D.RiscvTypes (42s)
+✔ [54/98] Built LeanRV64D.RiscvVmemTlb (805ms)
+✔ [55/98] Built LeanRV64D.RiscvCallbacks (40s)
+✔ [56/98] Built LeanRV64D.RiscvRegs (1.0s)
+✔ [57/98] Built LeanRV64D.RiscvPcAccess (582ms)
+✔ [58/98] Built LeanRV64D.RiscvAddrChecks (547ms)
+✔ [59/98] Built LeanRV64D.RiscvSysRegs (13s)
+✔ [60/98] Built LeanRV64D.RiscvPmpRegs (1.8s)
+✔ [61/98] Built LeanRV64D.RiscvInstsBase (2.9s)
+✔ [62/98] Built LeanRV64D.RiscvInstsZaamo (1.5s)
+✔ [63/98] Built LeanRV64D.RiscvSysExceptions (1.0s)
+✔ [64/98] Built LeanRV64D.RiscvInstsZicboz (695ms)
+✔ [65/98] Built LeanRV64D.RiscvVextRegs (4.9s)
+✔ [66/98] Built LeanRV64D.RiscvSmcntrpmf (1.1s)
+✔ [67/98] Built LeanRV64D.RiscvFdextRegs (5.5s)
+✔ [68/98] Built LeanRV64D.RiscvPmpControl (1.5s)
+✔ [69/98] Built LeanRV64D.RiscvVmemPte (1.3s)
+✔ [70/98] Built LeanRV64D.RiscvInstsVextVset (1.2s)
+✔ [71/98] Built LeanRV64D.RiscvZvkUtils (1.8s)
+✔ [72/98] Built LeanRV64D.RiscvVextControl (2.2s)
+✔ [73/98] Built LeanRV64D.RiscvInstsFext (2.3s)
+✔ [74/98] Built LeanRV64D.RiscvInstsZfh (2.3s)
+✔ [75/98] Built LeanRV64D.RiscvInstsDext (2.7s)
+✔ [76/98] Built LeanRV64D.RiscvSysControl (5.6s)
+✔ [77/98] Built LeanRV64D.RiscvInstsZfa (650ms)
+✔ [78/98] Built LeanRV64D.RiscvInstsVextUtils (4.7s)
+✔ [79/98] Built LeanRV64D.RiscvPlatform (2.6s)
+✔ [80/98] Built LeanRV64D.RiscvValidateConfig (792ms)
+✔ [81/98] Built LeanRV64D.RiscvMem (1.6s)
+✔ [82/98] Built LeanRV64D.RiscvInstsVextFpUtils (4.2s)
+✔ [83/98] Built LeanRV64D.RiscvInstsVextFpRed (1.2s)
+✔ [84/98] Built LeanRV64D.RiscvVmem (2.1s)
+✔ [85/98] Built LeanRV64D.RiscvFetchRvfi (1.1s)
+✔ [86/98] Built LeanRV64D.RiscvInstsZicbom (1.6s)
+✔ [87/98] Built LeanRV64D.RiscvFetch (992ms)
+✔ [88/98] Built LeanRV64D.RiscvVmemUtils (2.3s)
+✔ [89/98] Built LeanRV64D.RiscvInstsVextMem (4.5s)
+✔ [90/98] Built LeanRV64D.RiscvInstsZicsr (7.6s)
+✔ [91/98] Built LeanRV64D.RiscvZihpm (371ms)
+✔ [92/98] Built LeanRV64D.RiscvInstsEnd (1247s)
+✔ [93/98] Built LeanRV64D.RiscvDecodeExt (349ms)
+✔ [94/98] Built LeanRV64D.RiscvStep (1.4s)
+✔ [95/98] Built LeanRV64D.RiscvModel (389ms)
+✔ [96/98] Built LeanRV64D.Main (413ms)
+✔ [97/98] Built LeanRV64D (5.7s)
+Build completed successfully (98 jobs).
