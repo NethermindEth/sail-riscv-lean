@@ -22,6 +22,10 @@ inductive regidx where
   | Regidx (_ : (BitVec 5))
   deriving Inhabited, BEq, Repr
 
+inductive vregidx where
+  | Vregidx (_ : (BitVec 5))
+  deriving Inhabited, BEq, Repr
+
 abbrev xlenbits := (BitVec 64)
 
 inductive virtaddr where
@@ -424,10 +428,6 @@ inductive vlewidth where | VLE8 | VLE16 | VLE32 | VLE64
 
 inductive vmlsop where | VLM | VSM
   deriving BEq, Inhabited, Repr
-
-inductive vregidx where
-  | Vregidx (_ : (BitVec 5))
-  deriving Inhabited, BEq, Repr
 
 inductive zvk_vsha2_funct6 where | ZVK_VSHA2CH_VV | ZVK_VSHA2CL_VV
   deriving BEq, Inhabited, Repr

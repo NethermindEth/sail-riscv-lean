@@ -368,7 +368,7 @@ def feq_quiet_S (v1 : (BitVec 32)) (v2 : (BitVec 32)) : (Bool × (BitVec 5)) :=
     else (zeros (n := 5))
   (result, fflags)
 
-/-- Type quantifiers: k_ex379812# : Bool -/
+/-- Type quantifiers: k_ex379606# : Bool -/
 def flt_S (v1 : (BitVec 32)) (v2 : (BitVec 32)) (is_quiet : Bool) : (Bool × (BitVec 5)) :=
   let (s1, e1, m1) := (fsplit_S v1)
   let (s2, e2, m2) := (fsplit_S v2)
@@ -400,7 +400,7 @@ def flt_S (v1 : (BitVec 32)) (v2 : (BitVec 32)) (is_quiet : Bool) : (Bool × (Bi
       else (zeros (n := 5)))
   (result, fflags)
 
-/-- Type quantifiers: k_ex379880# : Bool -/
+/-- Type quantifiers: k_ex379674# : Bool -/
 def fle_S (v1 : (BitVec 32)) (v2 : (BitVec 32)) (is_quiet : Bool) : (Bool × (BitVec 5)) :=
   let (s1, e1, m1) := (fsplit_S v1)
   let (s2, e2, m2) := (fsplit_S v2)
