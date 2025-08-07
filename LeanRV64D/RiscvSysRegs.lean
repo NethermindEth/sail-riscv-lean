@@ -607,31 +607,33 @@ def legalize_misa (m : (BitVec 64)) (v : (BitVec 64)) : SailM (BitVec 64) := do
         (_update_Misa_U
           (_update_Misa_S
             (_update_Misa_M
-              (_update_Misa_I
-                (_update_Misa_H
-                  (_update_Misa_F
-                    (_update_Misa_D
-                      (_update_Misa_C
-                        (_update_Misa_B
-                          (_update_Misa_A m
-                            (bif (hartSupports Ext_A)
-                            then (_get_Misa_A v)
+              (_update_Misa_E
+                (_update_Misa_I
+                  (_update_Misa_H
+                    (_update_Misa_F
+                      (_update_Misa_D
+                        (_update_Misa_C
+                          (_update_Misa_B
+                            (_update_Misa_A m
+                              (bif (hartSupports Ext_A)
+                              then (_get_Misa_A v)
+                              else (0b0 : (BitVec 1))))
+                            (bif (hartSupports Ext_B)
+                            then (_get_Misa_B v)
                             else (0b0 : (BitVec 1))))
-                          (bif (hartSupports Ext_B)
-                          then (_get_Misa_B v)
+                          (bif (hartSupports Ext_C)
+                          then (_get_Misa_C v)
                           else (0b0 : (BitVec 1))))
-                        (bif (hartSupports Ext_C)
-                        then (_get_Misa_C v)
+                        (bif ((hartSupports Ext_D) && ((_get_Misa_F v) == (0b1 : (BitVec 1))))
+                        then (_get_Misa_D v)
                         else (0b0 : (BitVec 1))))
-                      (bif ((hartSupports Ext_D) && ((_get_Misa_F v) == (0b1 : (BitVec 1))))
-                      then (_get_Misa_D v)
+                      (bif (hartSupports Ext_F)
+                      then (_get_Misa_F v)
                       else (0b0 : (BitVec 1))))
-                    (bif (hartSupports Ext_F)
-                    then (_get_Misa_F v)
-                    else (0b0 : (BitVec 1))))
-                  (bif (hartSupports Ext_H)
-                  then (_get_Misa_H v)
-                  else (0b0 : (BitVec 1)))) (0b1 : (BitVec 1)))
+                    (bif (hartSupports Ext_H)
+                    then (_get_Misa_H v)
+                    else (0b0 : (BitVec 1)))) (bool_to_bits (not base_E_enabled)))
+                (bool_to_bits base_E_enabled))
               (bif (hartSupports Ext_M)
               then (_get_Misa_M v)
               else (0b0 : (BitVec 1))))

@@ -193,7 +193,7 @@ def csrPriv (csr : (BitVec 12)) : (BitVec 2) :=
 def check_CSR_priv (csr : (BitVec 12)) (p : Privilege) : Bool :=
   (zopz0zKzJ_u (privLevel_to_bits p) (csrPriv csr))
 
-/-- Type quantifiers: k_ex376697# : Bool -/
+/-- Type quantifiers: k_ex376783# : Bool -/
 def check_CSR_access (csr : (BitVec 12)) (isWrite : Bool) : Bool :=
   (not (isWrite && ((csrAccess csr) == (0b11 : (BitVec 2)))))
 
@@ -201,7 +201,7 @@ def sstc_CSRs_accessible (priv : Privilege) : SailM Bool := do
   (pure ((priv == Machine) || ((priv == Supervisor) && (((_get_Counteren_TM (← readReg mcounteren)) == (0b1 : (BitVec 1))) && ((_get_MEnvcfg_STCE
               (← readReg menvcfg)) == (0b1 : (BitVec 1)))))))
 
-/-- Type quantifiers: k_ex376733# : Bool -/
+/-- Type quantifiers: k_ex376819# : Bool -/
 def is_CSR_accessible (b__0 : (BitVec 12)) (g__2 : Privilege) (g__3 : Bool) : SailM Bool := do
   bif (b__0 == (0x301 : (BitVec 12)))
   then (pure true)
@@ -754,7 +754,7 @@ def is_CSR_accessible (b__0 : (BitVec 12)) (g__2 : Privilege) (g__3 : Bool) : Sa
                                                                                                                                                                                                                                                                                                           else
                                                                                                                                                                                                                                                                                                             (pure false)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
 
-/-- Type quantifiers: k_ex377324# : Bool -/
+/-- Type quantifiers: k_ex377410# : Bool -/
 def check_CSR (csr : (BitVec 12)) (p : Privilege) (isWrite : Bool) : SailM Bool := do
   (pure ((check_CSR_priv csr p) && ((check_CSR_access csr isWrite) && (← (is_CSR_accessible csr p
             isWrite)))))
@@ -838,7 +838,7 @@ def track_trap (p : Privilege) : SailM Unit := do
       (csr_name_write_callback "sepc" (← readReg sepc)))
   | User => (internal_error "./riscv_sys_control.sail" 150 "Invalid privilege level")
 
-/-- Type quantifiers: k_ex377390# : Bool -/
+/-- Type quantifiers: k_ex377476# : Bool -/
 def trap_handler (del_priv : Privilege) (intr : Bool) (c : (BitVec 8)) (pc : (BitVec 64)) (info : (Option (BitVec 64))) (ext : (Option Unit)) : SailM (BitVec 64) := do
   let _ : Unit := (trap_callback ())
   let _ : Unit :=
@@ -991,7 +991,6 @@ def reset_misa (_ : Unit) : SailM Unit := do
     (bool_to_bits (hartSupports Ext_C)))
   writeReg misa (Sail.BitVec.updateSubrange (← readReg misa) 1 1
     (bool_to_bits (hartSupports Ext_B)))
-  writeReg misa (Sail.BitVec.updateSubrange (← readReg misa) 8 8 (0b1 : (BitVec 1)))
   writeReg misa (Sail.BitVec.updateSubrange (← readReg misa) 12 12
     (bool_to_bits (hartSupports Ext_M)))
   writeReg misa (Sail.BitVec.updateSubrange (← readReg misa) 20 20
@@ -1000,8 +999,11 @@ def reset_misa (_ : Unit) : SailM Unit := do
     (bool_to_bits (hartSupports Ext_S)))
   writeReg misa (Sail.BitVec.updateSubrange (← readReg misa) 21 21
     (bool_to_bits (hartSupports Ext_V)))
+  writeReg misa (Sail.BitVec.updateSubrange (← readReg misa) 4 4 (bool_to_bits base_E_enabled))
+  writeReg misa (Sail.BitVec.updateSubrange (← readReg misa) 8 8
+    (Complement.complement (_get_Misa_E (← readReg misa))))
   bif ((hartSupports Ext_F) && (hartSupports Ext_Zfinx))
-  then (internal_error "./riscv_sys_control.sail" 285 "F and Zfinx cannot both be enabled!")
+  then (internal_error "./riscv_sys_control.sail" 288 "F and Zfinx cannot both be enabled!")
   else (pure ())
   writeReg misa (Sail.BitVec.updateSubrange (← readReg misa) 5 5
     (bool_to_bits (hartSupports Ext_F)))

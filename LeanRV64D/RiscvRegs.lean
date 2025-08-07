@@ -172,6 +172,28 @@ open ExceptionType
 open Architecture
 open AccessType
 
+def encdec_reg_backwards_matches (arg_ : (BitVec 5)) : Bool :=
+  let r := arg_
+  bif ((not base_E_enabled) || ((BitVec.access r 4) == 0#1))
+  then true
+  else false
+
+def encdec_creg_forwards (arg_ : cregidx) : (BitVec 3) :=
+  match arg_ with
+  | .Cregidx r => r
+
+def encdec_creg_backwards (arg_ : (BitVec 3)) : cregidx :=
+  match arg_ with
+  | r => (Cregidx r)
+
+def encdec_creg_forwards_matches (arg_ : cregidx) : Bool :=
+  match arg_ with
+  | .Cregidx r => true
+
+def encdec_creg_backwards_matches (arg_ : (BitVec 3)) : Bool :=
+  match arg_ with
+  | r => true
+
 def reg_abi_name_raw_backwards (arg_ : String) : SailM (BitVec 5) := do
   match arg_ with
   | "zero" => (pure (0b00000 : (BitVec 5)))
@@ -533,7 +555,7 @@ def reg_name_backwards (arg_ : String) : SailM regidx := do
     then
       (do
         match (← (reg_abi_name_raw_backwards mapping0_)) with
-        | i => (pure (some (Regidx i))))
+        | i => (pure (some (← (encdec_reg_backwards i)))))
     else (pure none)) with
   | .some result => (pure result)
   | none =>
@@ -544,7 +566,7 @@ def reg_name_backwards (arg_ : String) : SailM regidx := do
         then
           (do
             match (← (reg_arch_name_raw_backwards mapping1_)) with
-            | i => (pure (some (Regidx i))))
+            | i => (pure (some (← (encdec_reg_backwards i)))))
         else (pure none)) with
       | .some result => (pure result)
       | _ =>
@@ -553,14 +575,29 @@ def reg_name_backwards (arg_ : String) : SailM regidx := do
           throw Error.Exit))
 
 def reg_name_forwards_matches (arg_ : regidx) : Bool :=
-  match arg_ with
-  | .Regidx i =>
-    (bif (get_config_use_abi_names ())
-    then true
-    else
-      (bif (not (get_config_use_abi_names ()))
-      then true
-      else false))
+  let head_exp_ := arg_
+  match (let mapping0_ := head_exp_
+  bif (encdec_reg_forwards_matches mapping0_)
+  then
+    (let i := (encdec_reg_forwards mapping0_)
+    bif (get_config_use_abi_names ())
+    then (some true)
+    else none)
+  else none) with
+  | .some result => result
+  | none =>
+    (match (let mapping1_ := head_exp_
+    bif (encdec_reg_forwards_matches mapping1_)
+    then
+      (let i := (encdec_reg_forwards mapping1_)
+      bif (not (get_config_use_abi_names ()))
+      then (some true)
+      else none)
+    else none) with
+    | .some result => result
+    | none =>
+      (match head_exp_ with
+      | _ => false))
 
 def reg_name_backwards_matches (arg_ : String) : SailM Bool := do
   let head_exp_ := arg_
@@ -620,13 +657,21 @@ def creg_name_backwards (arg_ : String) : SailM cregidx := do
     bif (← (reg_name_backwards_matches mapping0_))
     then
       (do
-        match (← (reg_name_backwards mapping0_)) with
-        | .Regidx v__0 =>
-          (bif ((Sail.BitVec.extractLsb v__0 4 3) == (0b01 : (BitVec 2)))
+        let head_exp_ ← do (reg_name_backwards mapping0_)
+        match (let mapping1_ := head_exp_
+        bif (encdec_reg_forwards_matches mapping1_)
+        then
+          (let v__0 := (encdec_reg_forwards mapping1_)
+          bif ((Sail.BitVec.extractLsb v__0 4 3) == (0b01 : (BitVec 2)))
           then
             (let i : (BitVec 3) := (Sail.BitVec.extractLsb v__0 2 0)
-            (pure (some (Cregidx i))))
-          else (pure none)))
+            (some (some (Cregidx i))))
+          else none)
+        else none) with
+        | .some result => (pure result)
+        | none =>
+          (match head_exp_ with
+          | _ => (pure none)))
     else (pure none)) with
   | .some result => (pure result)
   | _ =>
@@ -645,11 +690,19 @@ def creg_name_backwards_matches (arg_ : String) : SailM Bool := do
     bif (← (reg_name_backwards_matches mapping0_))
     then
       (do
-        match (← (reg_name_backwards mapping0_)) with
-        | .Regidx v__2 =>
-          (bif ((Sail.BitVec.extractLsb v__2 4 3) == (0b01 : (BitVec 2)))
-          then (pure (some true))
-          else (pure none)))
+        let head_exp_ ← do (reg_name_backwards mapping0_)
+        match (let mapping1_ := head_exp_
+        bif (encdec_reg_forwards_matches mapping1_)
+        then
+          (let v__2 := (encdec_reg_forwards mapping1_)
+          bif ((Sail.BitVec.extractLsb v__2 4 3) == (0b01 : (BitVec 2)))
+          then (some (some true))
+          else none)
+        else none) with
+        | .some result => (pure result)
+        | none =>
+          (match head_exp_ with
+          | _ => (pure none)))
     else (pure none)) with
   | .some result => (pure result)
   | none =>
@@ -758,36 +811,4 @@ def wX_pair_bits (i : regidx) (data : (BitVec (64 * 2))) : SailM Unit := do
       (wX_bits i (Sail.BitVec.extractLsb data (xlen -i 1) 0))
       (wX_bits (regidx_offset_range i 1) (Sail.BitVec.extractLsb data ((xlen *i 2) -i 1) xlen)))
   else (pure ())
-
-def encdec_reg_forwards (arg_ : regidx) : (BitVec 5) :=
-  match arg_ with
-  | .Regidx r => r
-
-def encdec_reg_backwards (arg_ : (BitVec 5)) : regidx :=
-  match arg_ with
-  | r => (Regidx r)
-
-def encdec_reg_forwards_matches (arg_ : regidx) : Bool :=
-  match arg_ with
-  | .Regidx r => true
-
-def encdec_reg_backwards_matches (arg_ : (BitVec 5)) : Bool :=
-  match arg_ with
-  | r => true
-
-def encdec_creg_forwards (arg_ : cregidx) : (BitVec 3) :=
-  match arg_ with
-  | .Cregidx r => r
-
-def encdec_creg_backwards (arg_ : (BitVec 3)) : cregidx :=
-  match arg_ with
-  | r => (Cregidx r)
-
-def encdec_creg_forwards_matches (arg_ : cregidx) : Bool :=
-  match arg_ with
-  | .Cregidx r => true
-
-def encdec_creg_backwards_matches (arg_ : (BitVec 3)) : Bool :=
-  match arg_ with
-  | r => true
 

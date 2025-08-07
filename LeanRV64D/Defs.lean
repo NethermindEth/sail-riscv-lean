@@ -19,8 +19,12 @@ inductive option (k_a : Type) where
 abbrev bits k_n := (BitVec k_n)
 
 inductive regidx where
-  | Regidx (_ : (BitVec 5))
+  | Regidx (_ : (BitVec (bif false then 4 else 5)))
   deriving Inhabited, BEq, Repr
+
+abbrev base_E_enabled : Bool := false
+
+abbrev regidx_bit_width : Int := (bif base_E_enabled then 4 else 5)
 
 inductive vregidx where
   | Vregidx (_ : (BitVec 5))

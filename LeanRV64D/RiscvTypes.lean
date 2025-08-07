@@ -177,19 +177,23 @@ open AccessType
 
 def pagesize_bits := 12
 
-def regidx_bits (app_0 : regidx) : (BitVec 5) :=
+def base_E_enabled := false
+
+def regidx_bit_width := 5
+
+def regidx_bits (app_0 : regidx) : (BitVec (bif false then 4 else 5)) :=
   let .Regidx b := app_0
   b
 
 def creg2reg_idx (app_0 : cregidx) : regidx :=
   let .Cregidx i := app_0
-  (Regidx ((0b01 : (BitVec 2)) ++ i))
+  (Regidx (zero_extend (m := 5) ((0b1 : (BitVec 1)) ++ i)))
 
-def zreg : regidx := (Regidx (0b00000 : (BitVec 5)))
+def zreg : regidx := (Regidx (zero_extend (m := 5) (0b00 : (BitVec 2))))
 
-def ra : regidx := (Regidx (0b00001 : (BitVec 5)))
+def ra : regidx := (Regidx (zero_extend (m := 5) (0b01 : (BitVec 2))))
 
-def sp : regidx := (Regidx (0b00010 : (BitVec 5)))
+def sp : regidx := (Regidx (zero_extend (m := 5) (0b10 : (BitVec 2))))
 
 def undefined_Architecture (_ : Unit) : SailM Architecture := do
   (internal_pick [RV32, RV64, RV128])
@@ -225,7 +229,7 @@ def architecture_backwards (arg_ : (BitVec 2)) : SailM Architecture := do
         (do
           bif (b__0 == (0b11 : (BitVec 2)))
           then (pure RV128)
-          else (internal_error "./riscv_types.sail" 52 "architecture(0b00) is invalid")))
+          else (internal_error "./riscv_types.sail" 61 "architecture(0b00) is invalid")))
 
 def architecture_forwards_matches (arg_ : Architecture) : Bool :=
   match arg_ with
@@ -283,7 +287,7 @@ def privLevel_bits_backwards (arg_ : (BitVec 2)) : SailM Privilege := do
           bif (b__0 == (0b11 : (BitVec 2)))
           then (pure Machine)
           else
-            (internal_error "./riscv_types.sail" 64
+            (internal_error "./riscv_types.sail" 73
               (HAppend.hAppend "Invalid privilege level: " (BitVec.toFormatted (0b10 : (BitVec 2)))))))
 
 def privLevel_bits_forwards_matches (arg_ : Privilege) : Bool :=
@@ -2179,6 +2183,23 @@ def cfreg_name_forwards (arg_ : cfregidx) : SailM String := do
   match arg_ with
   | .Cfregidx i => (freg_name_forwards (Fregidx ((0b01 : (BitVec 2)) ++ (i : (BitVec 3)))))
 
+def encdec_reg_backwards (arg_ : (BitVec 5)) : SailM regidx := do
+  let r := arg_
+  bif ((not base_E_enabled) || ((BitVec.access r 4) == 0#1))
+  then (pure (Regidx (Sail.BitVec.extractLsb r (regidx_bit_width -i 1) 0)))
+  else
+    (do
+      assert false "Pattern match failure at unknown location"
+      throw Error.Exit)
+
+def encdec_reg_forwards (arg_ : regidx) : (BitVec 5) :=
+  match arg_ with
+  | .Regidx r => (zero_extend (m := 5) r)
+
+def encdec_reg_forwards_matches (arg_ : regidx) : Bool :=
+  match arg_ with
+  | .Regidx r => true
+
 def reg_abi_name_raw_forwards (arg_ : (BitVec 5)) : String :=
   let b__0 := arg_
   bif (b__0 == (0b00000 : (BitVec 5)))
@@ -2375,23 +2396,36 @@ def reg_arch_name_raw_forwards (arg_ : (BitVec 5)) : String :=
                                                               else "x31"))))))))))))))))))))))))))))))
 
 def reg_name_forwards (arg_ : regidx) : SailM String := do
-  match arg_ with
-  | .Regidx i =>
+  let head_exp_ := arg_
+  match (let mapping0_ := head_exp_
+  bif (encdec_reg_forwards_matches mapping0_)
+  then
+    (let i := (encdec_reg_forwards mapping0_)
+    bif (get_config_use_abi_names ())
+    then (some (reg_abi_name_raw_forwards i))
+    else none)
+  else none) with
+  | .some result => (pure result)
+  | none =>
     (do
-      bif (get_config_use_abi_names ())
-      then (pure (reg_abi_name_raw_forwards i))
-      else
+      match (let mapping1_ := head_exp_
+      bif (encdec_reg_forwards_matches mapping1_)
+      then
+        (let i := (encdec_reg_forwards mapping1_)
+        bif (not (get_config_use_abi_names ()))
+        then (some (reg_arch_name_raw_forwards i))
+        else none)
+      else none) with
+      | .some result => (pure result)
+      | _ =>
         (do
-          bif (not (get_config_use_abi_names ()))
-          then (pure (reg_arch_name_raw_forwards i))
-          else
-            (do
-              assert false "Pattern match failure at unknown location"
-              throw Error.Exit)))
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
 
 def creg_name_forwards (arg_ : cregidx) : SailM String := do
   match arg_ with
-  | .Cregidx i => (reg_name_forwards (Regidx ((0b01 : (BitVec 2)) ++ (i : (BitVec 3)))))
+  | .Cregidx i =>
+    (reg_name_forwards (← (encdec_reg_backwards ((0b01 : (BitVec 2)) ++ (i : (BitVec 3))))))
 
 def csr_mnemonic_forwards (arg_ : csrop) : String :=
   match arg_ with
@@ -2741,7 +2775,7 @@ def maybe_aqrl_forwards (arg_ : (Bool × Bool)) : String :=
   | (false, true) => ".rl"
   | (false, false) => ""
 
-/-- Type quantifiers: k_ex372794# : Bool -/
+/-- Type quantifiers: k_ex372875# : Bool -/
 def maybe_u_forwards (arg_ : Bool) : String :=
   match arg_ with
   | true => "u"

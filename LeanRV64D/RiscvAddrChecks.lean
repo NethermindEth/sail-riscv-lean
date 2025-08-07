@@ -189,7 +189,7 @@ def ext_data_get_addr (base : regidx) (offset : (BitVec 64)) (acc : (AccessType 
 def ext_handle_data_check_error (err : Unit) : Unit :=
   ()
 
-/-- Type quantifiers: k_ex374833# : Bool, k_ex374832# : Bool, k_ex374831# : Bool, k_ex374830# : Bool, width
+/-- Type quantifiers: k_ex374919# : Bool, k_ex374918# : Bool, k_ex374917# : Bool, k_ex374916# : Bool, width
   : Nat, 0 < width ∧ width ≤ max_mem_access -/
 def ext_check_phys_mem_read (access_type : (AccessType Unit)) (paddr : physaddr) (width : Nat) (acquire : Bool) (release : Bool) (reserved : Bool) (read_meta : Bool) : Ext_PhysAddr_Check :=
   (Ext_PhysAddr_OK ())

@@ -172,7 +172,7 @@ open ExceptionType
 open Architecture
 open AccessType
 
-def regidx_offset (typ_0 : regidx) (o : (BitVec 5)) : regidx :=
+def regidx_offset (typ_0 : regidx) (o : (BitVec (bif false then 4 else 5))) : regidx :=
   let .Regidx r : regidx := typ_0
   (Regidx (r + o))
 
