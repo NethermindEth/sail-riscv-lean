@@ -266,7 +266,7 @@ def get_scountovf (priv : Privilege) : SailM (BitVec 32) := do
   match priv with
   | Machine => (pure overflow)
   | Supervisor => (pure (overflow &&& (← readReg mcounteren)))
-  | User => (internal_error "./riscv_sscofpmf.sail" 74 "scountovf not readable from User mode")
+  | User => (internal_error "riscv_sscofpmf.sail" 74 "scountovf not readable from User mode")
 
 def hpmidx_from_bits (b : (BitVec 5)) : SailM Nat := do
   let index := (BitVec.toNat b)
@@ -905,7 +905,7 @@ def read_CSR (b__0 : (BitVec 12)) : SailM (BitVec 64) := do
                                                                                                                                                                                                                                                                                                                 32))
                                                                                                                                                                                                                                                                                                           else
                                                                                                                                                                                                                                                                                                             (internal_error
-                                                                                                                                                                                                                                                                                                              "./riscv_csr_end.sail"
+                                                                                                                                                                                                                                                                                                              "riscv_csr_end.sail"
                                                                                                                                                                                                                                                                                                               17
                                                                                                                                                                                                                                                                                                               (HAppend.hAppend
                                                                                                                                                                                                                                                                                                                 "Read from CSR that does not exist: "
@@ -980,7 +980,7 @@ def write_mhpmevent (index : Nat) (value : (BitVec 64)) : SailM Unit := do
                 (pure ((Sail.BitVec.extractLsb (GetElem?.getElem! (← readReg mhpmevent) index) 63
                       32) ++ value))
               | 64 => (pure value)
-              | _ => (internal_error "./riscv_zihpm.sail" 223 "Unsupported xlen"))))))
+              | _ => (internal_error "riscv_zihpm.sail" 223 "Unsupported xlen"))))))
   else (pure ())
 
 /-- Type quantifiers: index : Nat, 3 ≤ index ∧ index ≤ 31 -/
@@ -1835,7 +1835,7 @@ def write_CSR (b__0 : (BitVec 12)) (value : (BitVec 64)) : SailM (Result (BitVec
                                                                                                                                                                                                                                                                       value)))
                                                                                                                                                                                                                                                               else
                                                                                                                                                                                                                                                                 (internal_error
-                                                                                                                                                                                                                                                                  "./riscv_csr_end.sail"
+                                                                                                                                                                                                                                                                  "riscv_csr_end.sail"
                                                                                                                                                                                                                                                                   23
                                                                                                                                                                                                                                                                   (HAppend.hAppend
                                                                                                                                                                                                                                                                     "Write to CSR that does not exist: "

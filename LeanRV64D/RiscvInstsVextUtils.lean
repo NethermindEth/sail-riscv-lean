@@ -369,7 +369,7 @@ def init_masked_result (num_elem : Nat) (EEW : Nat) (LMUL_pow : Int) (vd_val : (
     bif (LMUL_pow ≥b 0)
     then num_elem
     else (Int.tdiv num_elem (2 ^i (0 -i LMUL_pow)))
-  assert (num_elem ≥b real_num_elem) "./riscv_insts_vext_utils.sail:252.34-252.35"
+  assert (num_elem ≥b real_num_elem) "riscv_insts_vext_utils.sail:252.34-252.35"
   let (mask, result) ← (( do
     let loop_i_lower := 0
     let loop_i_upper := (num_elem -i 1)
@@ -442,7 +442,7 @@ def init_masked_source (num_elem : Nat) (LMUL_pow : Int) (vm_val : (BitVec num_e
     bif (LMUL_pow ≥b 0)
     then num_elem
     else (Int.tdiv num_elem (2 ^i (0 -i LMUL_pow)))
-  assert (num_elem ≥b real_num_elem) "./riscv_insts_vext_utils.sail:305.34-305.35"
+  assert (num_elem ≥b real_num_elem) "riscv_insts_vext_utils.sail:305.34-305.35"
   let mask ← (( do
     let loop_i_lower := 0
     let loop_i_upper := (num_elem -i 1)
@@ -482,7 +482,7 @@ def init_masked_result_carry (num_elem : Nat) (EEW : Nat) (LMUL_pow : Int) (vd_v
     bif (LMUL_pow ≥b 0)
     then num_elem
     else (Int.tdiv num_elem (2 ^i (0 -i LMUL_pow)))
-  assert (num_elem ≥b real_num_elem) "./riscv_insts_vext_utils.sail:343.34-343.35"
+  assert (num_elem ≥b real_num_elem) "riscv_insts_vext_utils.sail:343.34-343.35"
   let (mask, result) ← (( do
     let loop_i_lower := 0
     let loop_i_upper := (num_elem -i 1)
@@ -540,7 +540,7 @@ def init_masked_result_cmp (num_elem : Nat) (EEW : Nat) (LMUL_pow : Int) (vd_val
     bif (LMUL_pow ≥b 0)
     then num_elem
     else (Int.tdiv num_elem (2 ^i (0 -i LMUL_pow)))
-  assert (num_elem ≥b real_num_elem) "./riscv_insts_vext_utils.sail:383.34-383.35"
+  assert (num_elem ≥b real_num_elem) "riscv_insts_vext_utils.sail:383.34-383.35"
   let (mask, result) ← (( do
     let loop_i_lower := 0
     let loop_i_upper := (num_elem -i 1)
@@ -637,7 +637,7 @@ def read_vreg_seg (num_elem : Nat) (SEW : Nat) (LMUL_pow : Int) (nf : Nat) (vrid
 /-- Type quantifiers: SEW : Nat, k_n : Nat, k_n ≥ 0, 0 ≤ k_n, SEW ∈ {8, 16, 32, 64} -/
 def get_shift_amount (bit_val : (BitVec k_n)) (SEW : Nat) : SailM Nat := do
   let lowlog2bits := (log2 SEW)
-  assert ((0 <b lowlog2bits) && (lowlog2bits <b (Sail.BitVec.length bit_val))) "./riscv_insts_vext_utils.sail:441.43-441.44"
+  assert ((0 <b lowlog2bits) && (lowlog2bits <b (Sail.BitVec.length bit_val))) "riscv_insts_vext_utils.sail:441.43-441.44"
   (pure (BitVec.toNat (Sail.BitVec.extractLsb bit_val (lowlog2bits -i 1) 0)))
 
 /-- Type quantifiers: k_m : Nat, shift_amount : Nat, k_m > 0 ∧ shift_amount ≥ 0 -/

@@ -352,14 +352,14 @@ def try_step (step_no : Nat) (exit_wait : Bool) : SailM Bool := do
   | .Step_Waiting _ =>
     assert (hart_is_waiting (← readReg hart_state)) "cannot be Waiting in a non-Wait state"
   | .Step_Execute (.Retire_Success (), _) =>
-    assert (hart_is_active (← readReg hart_state)) "./riscv_step.sail:190.74-190.75"
+    assert (hart_is_active (← readReg hart_state)) "riscv_step.sail:190.74-190.75"
   | .Step_Execute (.Trap (priv, ctl, pc), _) => (set_next_pc (← (exception_handler priv ctl pc)))
   | .Step_Execute (.Memory_Exception (vaddr, e), _) => (handle_mem_exception vaddr e)
   | .Step_Execute (.Illegal_Instruction (), instbits) => (handle_illegal instbits)
   | .Step_Execute (.Enter_Wait wr, instbits) =>
     (do
       bif (wait_is_nop wr)
-      then assert (hart_is_active (← readReg hart_state)) "./riscv_step.sail:198.41-198.42"
+      then assert (hart_is_active (← readReg hart_state)) "riscv_step.sail:198.41-198.42"
       else
         (do
           bif (get_config_print_instr ())

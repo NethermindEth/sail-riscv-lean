@@ -229,7 +229,7 @@ def architecture_backwards (arg_ : (BitVec 2)) : SailM Architecture := do
         (do
           bif (b__0 == (0b11 : (BitVec 2)))
           then (pure RV128)
-          else (internal_error "./riscv_types.sail" 61 "architecture(0b00) is invalid")))
+          else (internal_error "riscv_types.sail" 61 "architecture(0b00) is invalid")))
 
 def architecture_forwards_matches (arg_ : Architecture) : Bool :=
   match arg_ with
@@ -287,7 +287,7 @@ def privLevel_bits_backwards (arg_ : (BitVec 2)) : SailM Privilege := do
           bif (b__0 == (0b11 : (BitVec 2)))
           then (pure Machine)
           else
-            (internal_error "./riscv_types.sail" 73
+            (internal_error "riscv_types.sail" 73
               (HAppend.hAppend "Invalid privilege level: " (BitVec.toFormatted (0b10 : (BitVec 2)))))))
 
 def privLevel_bits_forwards_matches (arg_ : Privilege) : Bool :=

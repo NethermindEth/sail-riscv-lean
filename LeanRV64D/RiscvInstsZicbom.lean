@@ -279,7 +279,7 @@ def encdec_cbie_backwards (arg_ : (BitVec 2)) : SailM cbie := do
         (do
           bif (b__0 == (0b11 : (BitVec 2)))
           then (pure CBIE_EXEC_INVAL)
-          else (internal_error "./riscv_insts_zicbom.sail" 44 "reserved CBIE")))
+          else (internal_error "riscv_insts_zicbom.sail" 44 "reserved CBIE")))
 
 def encdec_cbie_forwards_matches (arg_ : cbie) : Bool :=
   match arg_ with
@@ -368,7 +368,7 @@ def process_clean_inval (rs1 : regidx) (cbop : cbop_zicbom) : SailM ExecutionRes
             | .E_Load_Page_Fault () => (pure (E_SAMO_Page_Fault ()))
             | .E_SAMO_Page_Fault () => (pure (E_SAMO_Page_Fault ()))
             | _ =>
-              (internal_error "./riscv_insts_zicbom.sail" 124
+              (internal_error "riscv_insts_zicbom.sail" 124
                 "unexpected exception for cmo.clean/inval") ) : SailM ExceptionType )
           (pure (Memory_Exception ((sub_virtaddr_xlenbits vaddr negative_offset), e)))))
 

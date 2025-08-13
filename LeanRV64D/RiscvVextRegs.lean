@@ -450,7 +450,7 @@ def rV (app_0 : vregno) : SailM (BitVec (2 ^ 9)) := do
   | _ => readReg vr31
 
 def dirty_v_context (_ : Unit) : SailM Unit := do
-  assert (hartSupports Ext_V) "./riscv_vext_regs.sail:138.28-138.29"
+  assert (hartSupports Ext_V) "riscv_vext_regs.sail:138.28-138.29"
   writeReg mstatus (Sail.BitVec.updateSubrange (← readReg mstatus) 10 9 (extStatus_to_bits Dirty))
   writeReg mstatus (Sail.BitVec.updateSubrange (← readReg mstatus) (64 -i 1) (64 -i 1)
     (0b1 : (BitVec 1)))

@@ -241,7 +241,7 @@ def check_PTE_permission (ac : (AccessType Unit)) (priv : Privilege) (mxr : Bool
       (pure (((pte_U == (0b0 : (BitVec 1))) || do_sum) && ((pte_W == (0b1 : (BitVec 1))) && ((pte_R == (0b1 : (BitVec 1))) || ((pte_X == (0b1 : (BitVec 1))) && mxr)))))
     | (.InstructionFetch (), Supervisor) =>
       (pure ((pte_U == (0b0 : (BitVec 1))) && (pte_X == (0b1 : (BitVec 1)))))
-    | (_, Machine) => (internal_error "./riscv_vmem_pte.sail" 132 "m-mode mem perm check") ) : SailM
+    | (_, Machine) => (internal_error "riscv_vmem_pte.sail" 132 "m-mode mem perm check") ) : SailM
     Bool )
   bif success
   then (pure (PTE_Check_Success ()))

@@ -171,7 +171,7 @@ open Architecture
 open AccessType
 
 def mmu_type (_ : Unit) : SailM String := do
-  assert (xlen == 64) "./riscv_device_tree.sail:14.21-14.22"
+  assert (xlen == 64) "riscv_device_tree.sail:14.21-14.22"
   bif (hartSupports Ext_Sv57)
   then (pure "sv57")
   else

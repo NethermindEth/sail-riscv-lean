@@ -230,7 +230,7 @@ def jump_to (target : (BitVec 64)) : SailM ExecutionResult := do
   | .Ext_ControlAddr_OK target =>
     (do
       let target_bits := (bits_of_virtaddr target)
-      assert ((BitVec.access target_bits 0) == 0#1) "./riscv_insts_base.sail:57.38-57.39"
+      assert ((BitVec.access target_bits 0) == 0#1) "riscv_insts_base.sail:57.38-57.39"
       bif ((← (bit_to_bool (BitVec.access target_bits 1))) && (not
              (← (currentlyEnabled Ext_Zca))))
       then (pure (Memory_Exception (target, (E_Fetch_Addr_Align ()))))

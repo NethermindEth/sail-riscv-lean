@@ -214,7 +214,7 @@ def split_misaligned (vaddr : virtaddr) (width : Nat) : SailM (Int × Int) := do
         (do
           let bytes_per_access := (2 ^i (BitVec.countTrailingZeros vaddr_bits))
           let num_accesses := (Int.tdiv width bytes_per_access)
-          assert (width == (num_accesses *i bytes_per_access)) "./riscv_vmem_utils.sail:94.51-94.52"
+          assert (width == (num_accesses *i bytes_per_access)) "riscv_vmem_utils.sail:94.51-94.52"
           (pure (num_accesses, bytes_per_access))))
 
 /-- Type quantifiers: n : Int -/
