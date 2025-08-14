@@ -1499,8 +1499,6 @@ instance : Inhabited (RegisterRef RegisterType (BitVec 128)) where
   default := .Reg rvfi_pc_data
 instance : Inhabited (RegisterRef RegisterType (BitVec 192)) where
   default := .Reg rvfi_inst_data
-instance : Inhabited (RegisterRef RegisterType (BitVec (2 ^ 9))) where
-  default := .Reg vr0
 instance : Inhabited (RegisterRef RegisterType (BitVec 3)) where
   default := .Reg vcsr
 instance : Inhabited (RegisterRef RegisterType (BitVec 32)) where
@@ -1513,6 +1511,8 @@ instance : Inhabited (RegisterRef RegisterType (BitVec 64)) where
   default := .Reg rvfi_instruction
 instance : Inhabited (RegisterRef RegisterType (BitVec 704)) where
   default := .Reg rvfi_mem_data
+instance : Inhabited (RegisterRef RegisterType (BitVec (2 ^ 9))) where
+  default := .Reg vr0
 instance : Inhabited (RegisterRef RegisterType Bool) where
   default := .Reg rvfi_int_data_present
 instance : Inhabited (RegisterRef RegisterType (Vector (BitVec 64) 32)) where
