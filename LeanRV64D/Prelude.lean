@@ -211,7 +211,7 @@ def ones {n : _} : (BitVec n) :=
 def trunc {m : _} (v : (BitVec k_n)) : (BitVec m) :=
   (Sail.BitVec.truncate v m)
 
-/-- Type quantifiers: k_ex371878# : Bool -/
+/-- Type quantifiers: k_ex371877# : Bool -/
 def bool_bit_forwards (arg_ : Bool) : (BitVec 1) :=
   match arg_ with
   | true => 1#1
@@ -226,7 +226,7 @@ def bool_bit_backwards (arg_ : (BitVec 1)) : SailM Bool := do
       assert false "Pattern match failure at unknown location"
       throw Error.Exit)
 
-/-- Type quantifiers: k_ex371879# : Bool -/
+/-- Type quantifiers: k_ex371878# : Bool -/
 def bool_bit_forwards_matches (arg_ : Bool) : Bool :=
   match arg_ with
   | true => true
@@ -238,7 +238,7 @@ def bool_bit_backwards_matches (arg_ : (BitVec 1)) : Bool :=
   | 0#1 => true
   | g__8 => false
 
-/-- Type quantifiers: k_ex371880# : Bool -/
+/-- Type quantifiers: k_ex371879# : Bool -/
 def bool_bits_forwards (arg_ : Bool) : (BitVec 1) :=
   match arg_ with
   | true => (0b1 : (BitVec 1))
@@ -250,7 +250,7 @@ def bool_bits_backwards (arg_ : (BitVec 1)) : Bool :=
   then true
   else false
 
-/-- Type quantifiers: k_ex371882# : Bool -/
+/-- Type quantifiers: k_ex371881# : Bool -/
 def bool_bits_forwards_matches (arg_ : Bool) : Bool :=
   match arg_ with
   | true => true
@@ -265,19 +265,25 @@ def bool_bits_backwards_matches (arg_ : (BitVec 1)) : Bool :=
     then true
     else false)
 
-/-- Type quantifiers: k_ex371885# : Bool -/
+/-- Type quantifiers: k_ex371884# : Bool -/
 def bool_to_bit (x : Bool) : (BitVec 1) :=
   (bool_bit_forwards x)
 
 def bit_to_bool (x : (BitVec 1)) : SailM Bool := do
   (bool_bit_backwards x)
 
-/-- Type quantifiers: k_ex371887# : Bool -/
+/-- Type quantifiers: k_ex371886# : Bool -/
 def bool_to_bits (x : Bool) : (BitVec 1) :=
   (bool_bits_forwards x)
 
 def bits_to_bool (x : (BitVec 1)) : Bool :=
   (bool_bits_backwards x)
+
+def bit_to_bits (x : (BitVec 1)) : SailM (BitVec 1) := do
+  (pure (bool_bits_forwards (← (bit_to_bool x))))
+
+def bits_to_bit (x : (BitVec 1)) : (BitVec 1) :=
+  (bool_to_bit (bits_to_bool x))
 
 /-- Type quantifiers: l : Nat, l ≥ 0, n : Nat, l ≥ 0 ∧ 0 ≤ n ∧ n < (2 ^ l) -/
 def to_bits {l : _} (n : Nat) : (BitVec l) :=

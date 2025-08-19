@@ -298,7 +298,9 @@ def write_velem_quad (vd : vregidx) (SEW : Nat) (input : (BitVec k_n)) (i : Nat)
   for j in [loop_j_lower:loop_j_upper:1]i do
     let () := loop_vars
     loop_vars ← do
-      (write_single_element SEW ((4 *i i) +i j) vd (BitVec.slice input (j *i SEW) SEW))
+      assert (((j +i 1) *i SEW) ≤b (Sail.BitVec.length input)) "riscv_insts_vext_utils.sail:184.30-184.31"
+      (write_single_element SEW ((4 *i i) +i j) vd
+        (Sail.BitVec.extractLsb input (((j +i 1) *i SEW) -i 1) (j *i SEW)))
   (pure loop_vars)
 
 /-- Type quantifiers: n : Nat, n ≥ 0, k_m : Nat, k_m ≥ 0, i : Nat, n > 0 ∧
@@ -369,7 +371,7 @@ def init_masked_result (num_elem : Nat) (EEW : Nat) (LMUL_pow : Int) (vd_val : (
     bif (LMUL_pow ≥b 0)
     then num_elem
     else (Int.tdiv num_elem (2 ^i (0 -i LMUL_pow)))
-  assert (num_elem ≥b real_num_elem) "riscv_insts_vext_utils.sail:252.34-252.35"
+  assert (num_elem ≥b real_num_elem) "riscv_insts_vext_utils.sail:255.34-255.35"
   let (mask, result) ← (( do
     let loop_i_lower := 0
     let loop_i_upper := (num_elem -i 1)
@@ -442,7 +444,7 @@ def init_masked_source (num_elem : Nat) (LMUL_pow : Int) (vm_val : (BitVec num_e
     bif (LMUL_pow ≥b 0)
     then num_elem
     else (Int.tdiv num_elem (2 ^i (0 -i LMUL_pow)))
-  assert (num_elem ≥b real_num_elem) "riscv_insts_vext_utils.sail:305.34-305.35"
+  assert (num_elem ≥b real_num_elem) "riscv_insts_vext_utils.sail:308.34-308.35"
   let mask ← (( do
     let loop_i_lower := 0
     let loop_i_upper := (num_elem -i 1)
@@ -482,7 +484,7 @@ def init_masked_result_carry (num_elem : Nat) (EEW : Nat) (LMUL_pow : Int) (vd_v
     bif (LMUL_pow ≥b 0)
     then num_elem
     else (Int.tdiv num_elem (2 ^i (0 -i LMUL_pow)))
-  assert (num_elem ≥b real_num_elem) "riscv_insts_vext_utils.sail:343.34-343.35"
+  assert (num_elem ≥b real_num_elem) "riscv_insts_vext_utils.sail:346.34-346.35"
   let (mask, result) ← (( do
     let loop_i_lower := 0
     let loop_i_upper := (num_elem -i 1)
@@ -540,7 +542,7 @@ def init_masked_result_cmp (num_elem : Nat) (EEW : Nat) (LMUL_pow : Int) (vd_val
     bif (LMUL_pow ≥b 0)
     then num_elem
     else (Int.tdiv num_elem (2 ^i (0 -i LMUL_pow)))
-  assert (num_elem ≥b real_num_elem) "riscv_insts_vext_utils.sail:383.34-383.35"
+  assert (num_elem ≥b real_num_elem) "riscv_insts_vext_utils.sail:386.34-386.35"
   let (mask, result) ← (( do
     let loop_i_lower := 0
     let loop_i_upper := (num_elem -i 1)
@@ -637,7 +639,7 @@ def read_vreg_seg (num_elem : Nat) (SEW : Nat) (LMUL_pow : Int) (nf : Nat) (vrid
 /-- Type quantifiers: SEW : Nat, k_n : Nat, k_n ≥ 0, 0 ≤ k_n, SEW ∈ {8, 16, 32, 64} -/
 def get_shift_amount (bit_val : (BitVec k_n)) (SEW : Nat) : SailM Nat := do
   let lowlog2bits := (log2 SEW)
-  assert ((0 <b lowlog2bits) && (lowlog2bits <b (Sail.BitVec.length bit_val))) "riscv_insts_vext_utils.sail:441.43-441.44"
+  assert ((0 <b lowlog2bits) && (lowlog2bits <b (Sail.BitVec.length bit_val))) "riscv_insts_vext_utils.sail:444.43-444.44"
   (pure (BitVec.toNat (Sail.BitVec.extractLsb bit_val (lowlog2bits -i 1) 0)))
 
 /-- Type quantifiers: k_m : Nat, shift_amount : Nat, k_m > 0 ∧ shift_amount ≥ 0 -/
@@ -647,23 +649,28 @@ def get_fixed_rounding_incr (vec_elem : (BitVec k_m)) (shift_amount : Nat) : Sai
   else
     (do
       let rounding_mode ← do (pure (_get_Vcsr_vxrm (← readReg vcsr)))
+      assert (shift_amount <b (Sail.BitVec.length vec_elem)) "riscv_insts_vext_utils.sail:455.28-455.29"
       let b__0 := rounding_mode
       bif (b__0 == (0b00 : (BitVec 2)))
-      then (pure (BitVec.slice vec_elem (shift_amount -i 1) 1))
+      then (bit_to_bits (BitVec.access vec_elem (shift_amount -i 1)))
       else
         (bif (b__0 == (0b01 : (BitVec 2)))
         then
           (pure (bool_to_bits
-              (((BitVec.slice vec_elem (shift_amount -i 1) 1) == (0b1 : (BitVec 1))) && (((BitVec.slice
-                      vec_elem 0 (shift_amount -i 1)) != (zeros (n := (shift_amount -i 1)))) || ((BitVec.slice
-                      vec_elem shift_amount 1) == (0b1 : (BitVec 1)))))))
+              (((BitVec.access vec_elem (shift_amount -i 1)) == 1#1) && ((bif (shift_amount == 1)
+                  then false
+                  else
+                    ((Sail.BitVec.extractLsb vec_elem (shift_amount -i 2) 0) != (zeros
+                        (n := (((shift_amount -i 2) -i 0) +i 1))))) || ((BitVec.access vec_elem
+                      shift_amount) == 1#1)))))
         else
           (bif (b__0 == (0b10 : (BitVec 2)))
           then (pure (0b0 : (BitVec 1)))
           else
             (pure (bool_to_bits
-                ((not ((BitVec.slice vec_elem shift_amount 1) == (0b1 : (BitVec 1)))) && ((BitVec.slice
-                      vec_elem 0 shift_amount) != (zeros (n := shift_amount)))))))))
+                ((bne (BitVec.access vec_elem shift_amount) 1#1) && ((Sail.BitVec.extractLsb
+                      vec_elem (shift_amount -i 1) 0) != (zeros
+                      (n := (((shift_amount -i 1) -i 0) +i 1))))))))))
 
 /-- Type quantifiers: len : Nat, k_n : Nat, k_n ≥ len ∧ len > 1 -/
 def unsigned_saturation (len : Nat) (elem : (BitVec k_n)) : SailM (BitVec len) := do
