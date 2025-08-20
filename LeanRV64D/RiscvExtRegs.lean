@@ -79,6 +79,7 @@ open nxsfunct6
 open nxfunct6
 open nvsfunct6
 open nvfunct6
+open ntl_type
 open nisfunct6
 open nifunct6
 open mvxmafunct6
@@ -172,7 +173,7 @@ open ExceptionType
 open Architecture
 open AccessType
 
-/-- Type quantifiers: k_ex374924# : Bool -/
+/-- Type quantifiers: k_ex375332# : Bool -/
 def ext_check_CSR (csrno : (BitVec 12)) (p : Privilege) (isWrite : Bool) : Bool :=
   true
 

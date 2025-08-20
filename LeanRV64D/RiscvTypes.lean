@@ -82,6 +82,7 @@ open nxsfunct6
 open nxfunct6
 open nvsfunct6
 open nvfunct6
+open ntl_type
 open nisfunct6
 open nifunct6
 open mvxmafunct6
@@ -2775,7 +2776,7 @@ def maybe_aqrl_forwards (arg_ : (Bool × Bool)) : String :=
   | (false, true) => ".rl"
   | (false, false) => ""
 
-/-- Type quantifiers: k_ex372886# : Bool -/
+/-- Type quantifiers: k_ex373294# : Bool -/
 def maybe_u_forwards (arg_ : Bool) : String :=
   match arg_ with
   | true => "u"
@@ -2892,6 +2893,13 @@ def nreg_string_forwards (arg_ : Nat) : String :=
   | 2 => "2"
   | 4 => "4"
   | _ => "8"
+
+def ntl_name_forwards (arg_ : ntl_type) : String :=
+  match arg_ with
+  | NTL_P1 => "p1"
+  | NTL_PALL => "pall"
+  | NTL_S1 => "s1"
+  | NTL_ALL => "all"
 
 def nvstype_mnemonic_forwards (arg_ : nvsfunct6) : String :=
   match arg_ with
@@ -3545,6 +3553,9 @@ def zicond_mnemonic_forwards (arg_ : zicondop) : String :=
 
 def assembly_forwards (arg_ : instruction) : SailM String := do
   match arg_ with
+  | .NTL op => (pure (String.append "ntl." (String.append (ntl_name_forwards op) "")))
+  | .C_NTL op => (pure (String.append "c.ntl." (String.append (ntl_name_forwards op) "")))
+  | .PAUSE () => (pure "pause")
   | .UTYPE (imm, rd, op) =>
     (pure (String.append (utype_mnemonic_forwards op)
         (String.append (spc_forwards ())
@@ -6415,11 +6426,11 @@ def num_of_SATPMode (arg_ : SATPMode) : Int :=
 
 def satpMode_of_bits (a : Architecture) (m : (BitVec 4)) : (Option SATPMode) :=
   match (a, m) with
-  | (g__7, b__0) =>
+  | (g__9, b__0) =>
     (bif (b__0 == (0x0 : (BitVec 4)))
     then (some Bare)
     else
-      (match (g__7, b__0) with
+      (match (g__9, b__0) with
       | (RV32, b__0) =>
         (bif (b__0 == (0x1 : (BitVec 4)))
         then (some Sv32)

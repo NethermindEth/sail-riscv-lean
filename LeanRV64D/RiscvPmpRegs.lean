@@ -76,6 +76,7 @@ open nxsfunct6
 open nxfunct6
 open nvsfunct6
 open nvfunct6
+open ntl_type
 open nisfunct6
 open nifunct6
 open mvxmafunct6
@@ -314,7 +315,7 @@ def pmpWriteCfgReg (n : Nat) (v : (BitVec 64)) : SailM Unit := do
           (Sail.BitVec.extractLsb v ((8 *i i) +i 7) (8 *i i))))
   (pure loop_vars)
 
-/-- Type quantifiers: k_ex375132# : Bool, k_ex375131# : Bool -/
+/-- Type quantifiers: k_ex375540# : Bool, k_ex375539# : Bool -/
 def pmpWriteAddr (locked : Bool) (tor_locked : Bool) (reg : (BitVec 64)) (v : (BitVec 64)) : (BitVec 64) :=
   bif (locked || tor_locked)
   then reg

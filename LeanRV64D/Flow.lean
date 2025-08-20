@@ -79,6 +79,7 @@ open nxsfunct6
 open nxfunct6
 open nvsfunct6
 open nvfunct6
+open ntl_type
 open nisfunct6
 open nifunct6
 open mvxmafunct6
@@ -172,7 +173,7 @@ open ExceptionType
 open Architecture
 open AccessType
 
-/-- Type quantifiers: k_ex371298# : Bool, k_ex371297# : Bool -/
+/-- Type quantifiers: k_ex371706# : Bool, k_ex371705# : Bool -/
 def neq_bool (x : Bool) (y : Bool) : Bool :=
   (! (x == y))
 

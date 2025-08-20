@@ -90,6 +90,7 @@ open nxsfunct6
 open nxfunct6
 open nvsfunct6
 open nvfunct6
+open ntl_type
 open nisfunct6
 open nifunct6
 open mvxmafunct6
@@ -1842,7 +1843,7 @@ def write_CSR (b__0 : (BitVec 12)) (value : (BitVec 64)) : SailM (Result (BitVec
                                                                                                                                                                                                                                                                     (BitVec.toFormatted
                                                                                                                                                                                                                                                                       b__0))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
 
-/-- Type quantifiers: k_ex385124# : Bool -/
+/-- Type quantifiers: k_ex385544# : Bool -/
 def doCSR (csr : (BitVec 12)) (rs1_val : (BitVec 64)) (rd : regidx) (op : csrop) (is_CSR_Write : Bool) : SailM ExecutionResult := do
   bif (not (← (check_CSR csr (← readReg cur_privilege) is_CSR_Write)))
   then (pure (Illegal_Instruction ()))

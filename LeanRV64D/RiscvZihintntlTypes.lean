@@ -173,7 +173,97 @@ open ExceptionType
 open Architecture
 open AccessType
 
-def flen_bytes := 8
+def undefined_ntl_type (_ : Unit) : SailM ntl_type := do
+  (internal_pick [NTL_P1, NTL_PALL, NTL_S1, NTL_ALL])
 
-def flen := (8 *i 8)
+/-- Type quantifiers: arg_ : Nat, 0 ≤ arg_ ∧ arg_ ≤ 3 -/
+def ntl_type_of_num (arg_ : Nat) : ntl_type :=
+  match arg_ with
+  | 0 => NTL_P1
+  | 1 => NTL_PALL
+  | 2 => NTL_S1
+  | _ => NTL_ALL
+
+def num_of_ntl_type (arg_ : ntl_type) : Int :=
+  match arg_ with
+  | NTL_P1 => 0
+  | NTL_PALL => 1
+  | NTL_S1 => 2
+  | NTL_ALL => 3
+
+def ntl_name_backwards (arg_ : String) : SailM ntl_type := do
+  match arg_ with
+  | "p1" => (pure NTL_P1)
+  | "pall" => (pure NTL_PALL)
+  | "s1" => (pure NTL_S1)
+  | "all" => (pure NTL_ALL)
+  | _ =>
+    (do
+      assert false "Pattern match failure at unknown location"
+      throw Error.Exit)
+
+def ntl_name_forwards_matches (arg_ : ntl_type) : Bool :=
+  match arg_ with
+  | NTL_P1 => true
+  | NTL_PALL => true
+  | NTL_S1 => true
+  | NTL_ALL => true
+
+def ntl_name_backwards_matches (arg_ : String) : Bool :=
+  match arg_ with
+  | "p1" => true
+  | "pall" => true
+  | "s1" => true
+  | "all" => true
+  | _ => false
+
+def encdec_ntl_forwards (arg_ : ntl_type) : (BitVec 5) :=
+  match arg_ with
+  | NTL_P1 => (0b00010 : (BitVec 5))
+  | NTL_PALL => (0b00011 : (BitVec 5))
+  | NTL_S1 => (0b00100 : (BitVec 5))
+  | NTL_ALL => (0b00101 : (BitVec 5))
+
+def encdec_ntl_backwards (arg_ : (BitVec 5)) : SailM ntl_type := do
+  let b__0 := arg_
+  bif (b__0 == (0b00010 : (BitVec 5)))
+  then (pure NTL_P1)
+  else
+    (do
+      bif (b__0 == (0b00011 : (BitVec 5)))
+      then (pure NTL_PALL)
+      else
+        (do
+          bif (b__0 == (0b00100 : (BitVec 5)))
+          then (pure NTL_S1)
+          else
+            (do
+              bif (b__0 == (0b00101 : (BitVec 5)))
+              then (pure NTL_ALL)
+              else
+                (do
+                  assert false "Pattern match failure at unknown location"
+                  throw Error.Exit))))
+
+def encdec_ntl_forwards_matches (arg_ : ntl_type) : Bool :=
+  match arg_ with
+  | NTL_P1 => true
+  | NTL_PALL => true
+  | NTL_S1 => true
+  | NTL_ALL => true
+
+def encdec_ntl_backwards_matches (arg_ : (BitVec 5)) : Bool :=
+  let b__0 := arg_
+  bif (b__0 == (0b00010 : (BitVec 5)))
+  then true
+  else
+    (bif (b__0 == (0b00011 : (BitVec 5)))
+    then true
+    else
+      (bif (b__0 == (0b00100 : (BitVec 5)))
+      then true
+      else
+        (bif (b__0 == (0b00101 : (BitVec 5)))
+        then true
+        else false)))
 

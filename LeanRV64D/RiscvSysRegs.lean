@@ -79,6 +79,7 @@ open nxsfunct6
 open nxfunct6
 open nvsfunct6
 open nvfunct6
+open ntl_type
 open nisfunct6
 open nifunct6
 open mvxmafunct6
@@ -726,6 +727,8 @@ def currentlyEnabled (merge_var : extension) : SailM Bool := do
   | Ext_Smcntrpmf => (pure ((hartSupports Ext_Smcntrpmf) && (← (currentlyEnabled Ext_Zicntr))))
   | Ext_Svnapot => (pure false)
   | Ext_Svpbmt => (pure false)
+  | Ext_Zihintntl => (pure (hartSupports Ext_Zihintntl))
+  | Ext_Zihintpause => (pure (hartSupports Ext_Zihintpause))
   | Ext_C =>
     (pure ((hartSupports Ext_C) && ((_get_Misa_C (← readReg misa)) == (0b1 : (BitVec 1)))))
   | Ext_Zca =>

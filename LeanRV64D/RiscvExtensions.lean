@@ -75,6 +75,7 @@ open nxsfunct6
 open nxfunct6
 open nvsfunct6
 open nvfunct6
+open ntl_type
 open nisfunct6
 open nifunct6
 open mvxmafunct6
@@ -185,6 +186,8 @@ def extensionName_forwards (arg_ : extension) : String :=
   | Ext_Zicond => "zicond"
   | Ext_Zicsr => "zicsr"
   | Ext_Zifencei => "zifencei"
+  | Ext_Zihintntl => "zihintntl"
+  | Ext_Zihintpause => "zihintpause"
   | Ext_Zihpm => "zihpm"
   | Ext_Zimop => "zimop"
   | Ext_Zmmul => "zmmul"
@@ -265,6 +268,8 @@ def extensionName_backwards (arg_ : String) : SailM extension := do
   | "zicond" => (pure Ext_Zicond)
   | "zicsr" => (pure Ext_Zicsr)
   | "zifencei" => (pure Ext_Zifencei)
+  | "zihintntl" => (pure Ext_Zihintntl)
+  | "zihintpause" => (pure Ext_Zihintpause)
   | "zihpm" => (pure Ext_Zihpm)
   | "zimop" => (pure Ext_Zimop)
   | "zmmul" => (pure Ext_Zmmul)
@@ -349,6 +354,8 @@ def extensionName_forwards_matches (arg_ : extension) : Bool :=
   | Ext_Zicond => true
   | Ext_Zicsr => true
   | Ext_Zifencei => true
+  | Ext_Zihintntl => true
+  | Ext_Zihintpause => true
   | Ext_Zihpm => true
   | Ext_Zimop => true
   | Ext_Zmmul => true
@@ -429,6 +436,8 @@ def extensionName_backwards_matches (arg_ : String) : Bool :=
   | "zicond" => true
   | "zicsr" => true
   | "zifencei" => true
+  | "zihintntl" => true
+  | "zihintpause" => true
   | "zihpm" => true
   | "zimop" => true
   | "zmmul" => true
@@ -522,6 +531,8 @@ def hartSupports (merge_var : extension) : Bool :=
   | Ext_Zicond => true
   | Ext_Zicsr => true
   | Ext_Zifencei => true
+  | Ext_Zihintntl => true
+  | Ext_Zihintpause => true
   | Ext_Zihpm => true
   | Ext_Zimop => true
   | Ext_Zmmul => false
@@ -593,5 +604,5 @@ def hartSupports (merge_var : extension) : Bool :=
 termination_by let ext := merge_var; ((hartSupports_measure ext)).toNat
 
 def extensions_ordered_for_isa_string :=
-  #v[Ext_Smcntrpmf, Ext_Svpbmt, Ext_Svnapot, Ext_Svinval, Ext_Sstc, Ext_Sscofpmf, Ext_Zvkt, Ext_Zvksh, Ext_Zvksg, Ext_Zvksed, Ext_Zvksc, Ext_Zvks, Ext_Zvknhb, Ext_Zvknha, Ext_Zvkng, Ext_Zvkned, Ext_Zvknc, Ext_Zvkn, Ext_Zvkg, Ext_Zvkb, Ext_Zvbc, Ext_Zvbb, Ext_Zkt, Ext_Zksh, Ext_Zksed, Ext_Zkr, Ext_Zknh, Ext_Zkne, Ext_Zknd, Ext_Zbs, Ext_Zbkx, Ext_Zbkc, Ext_Zbkb, Ext_Zbc, Ext_Zbb, Ext_Zba, Ext_Zcmop, Ext_Zcf, Ext_Zcd, Ext_Zcb, Ext_Zca, Ext_Zhinxmin, Ext_Zhinx, Ext_Zdinx, Ext_Zfinx, Ext_Zfhmin, Ext_Zfh, Ext_Zfa, Ext_Zawrs, Ext_Zalrsc, Ext_Zacas, Ext_Zabha, Ext_Zaamo, Ext_Zmmul, Ext_Zimop, Ext_Zihpm, Ext_Zifencei, Ext_Zicsr, Ext_Zicond, Ext_Zicntr, Ext_Zicboz, Ext_Zicbom, Ext_H, Ext_V, Ext_B, Ext_C, Ext_D, Ext_F, Ext_A, Ext_M]
+  #v[Ext_Smcntrpmf, Ext_Svpbmt, Ext_Svnapot, Ext_Svinval, Ext_Sstc, Ext_Sscofpmf, Ext_Zvkt, Ext_Zvksh, Ext_Zvksg, Ext_Zvksed, Ext_Zvksc, Ext_Zvks, Ext_Zvknhb, Ext_Zvknha, Ext_Zvkng, Ext_Zvkned, Ext_Zvknc, Ext_Zvkn, Ext_Zvkg, Ext_Zvkb, Ext_Zvbc, Ext_Zvbb, Ext_Zkt, Ext_Zksh, Ext_Zksed, Ext_Zkr, Ext_Zknh, Ext_Zkne, Ext_Zknd, Ext_Zbs, Ext_Zbkx, Ext_Zbkc, Ext_Zbkb, Ext_Zbc, Ext_Zbb, Ext_Zba, Ext_Zcmop, Ext_Zcf, Ext_Zcd, Ext_Zcb, Ext_Zca, Ext_Zhinxmin, Ext_Zhinx, Ext_Zdinx, Ext_Zfinx, Ext_Zfhmin, Ext_Zfh, Ext_Zfa, Ext_Zawrs, Ext_Zalrsc, Ext_Zacas, Ext_Zabha, Ext_Zaamo, Ext_Zmmul, Ext_Zimop, Ext_Zihpm, Ext_Zihintpause, Ext_Zihintntl, Ext_Zifencei, Ext_Zicsr, Ext_Zicond, Ext_Zicntr, Ext_Zicboz, Ext_Zicbom, Ext_H, Ext_V, Ext_B, Ext_C, Ext_D, Ext_F, Ext_A, Ext_M]
 

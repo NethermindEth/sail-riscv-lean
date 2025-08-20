@@ -73,6 +73,7 @@ open nxsfunct6
 open nxfunct6
 open nvsfunct6
 open nvfunct6
+open ntl_type
 open nisfunct6
 open nifunct6
 open mvxmafunct6
@@ -189,7 +190,7 @@ def ext_data_get_addr (base : regidx) (offset : (BitVec 64)) (acc : (AccessType 
 def ext_handle_data_check_error (err : Unit) : Unit :=
   ()
 
-/-- Type quantifiers: k_ex374930# : Bool, k_ex374929# : Bool, k_ex374928# : Bool, k_ex374927# : Bool, width
+/-- Type quantifiers: k_ex375338# : Bool, k_ex375337# : Bool, k_ex375336# : Bool, k_ex375335# : Bool, width
   : Nat, 0 < width ∧ width ≤ max_mem_access -/
 def ext_check_phys_mem_read (access_type : (AccessType Unit)) (paddr : physaddr) (width : Nat) (acquire : Bool) (release : Bool) (reserved : Bool) (read_meta : Bool) : Ext_PhysAddr_Check :=
   (Ext_PhysAddr_OK ())
