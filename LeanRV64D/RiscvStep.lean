@@ -183,7 +183,7 @@ open ExceptionType
 open Architecture
 open AccessType
 
-/-- Type quantifiers: k_ex437310# : Bool, step_no : Int -/
+/-- Type quantifiers: k_ex437311# : Bool, step_no : Int -/
 def run_hart_waiting (step_no : Int) (wr : WaitReason) (instbits : (BitVec 32)) (exit_wait : Bool) : SailM Step := do
   bif (← (shouldWakeForInterrupt ()))
   then
@@ -286,7 +286,7 @@ def run_hart_active (step_no : Nat) : SailM Step := do
           let instruction ← do (ext_decode_compressed h)
           bif (get_config_print_instr ())
           then
-            (pure (print_endline
+            (pure (print_log_instr
                 (HAppend.hAppend "["
                   (HAppend.hAppend (Int.repr step_no)
                     (HAppend.hAppend "] ["
@@ -295,7 +295,8 @@ def run_hart_active (step_no : Nat) : SailM Step := do
                           (HAppend.hAppend (BitVec.toFormatted (← readReg PC))
                             (HAppend.hAppend " ("
                               (HAppend.hAppend (BitVec.toFormatted h)
-                                (HAppend.hAppend ") " (← (print_insn instruction)))))))))))))
+                                (HAppend.hAppend ") " (← (print_insn instruction)))))))))))
+                (zero_extend (m := 64) (← readReg PC))))
           else (pure ())
           bif (← (currentlyEnabled Ext_Zca))
           then
@@ -311,7 +312,7 @@ def run_hart_active (step_no : Nat) : SailM Step := do
           let instruction ← do (ext_decode w)
           bif (get_config_print_instr ())
           then
-            (pure (print_endline
+            (pure (print_log_instr
                 (HAppend.hAppend "["
                   (HAppend.hAppend (Int.repr step_no)
                     (HAppend.hAppend "] ["
@@ -320,7 +321,8 @@ def run_hart_active (step_no : Nat) : SailM Step := do
                           (HAppend.hAppend (BitVec.toFormatted (← readReg PC))
                             (HAppend.hAppend " ("
                               (HAppend.hAppend (BitVec.toFormatted w)
-                                (HAppend.hAppend ") " (← (print_insn instruction)))))))))))))
+                                (HAppend.hAppend ") " (← (print_insn instruction)))))))))))
+                (zero_extend (m := 64) (← readReg PC))))
           else (pure ())
           writeReg nextPC (BitVec.addInt (← readReg PC) 4)
           let r ← do (execute instruction)
@@ -332,7 +334,7 @@ def wait_is_nop (wr : WaitReason) : Bool :=
   | WAIT_WRS_STO => false
   | WAIT_WRS_NTO => false
 
-/-- Type quantifiers: k_ex437347# : Bool, step_no : Nat, 0 ≤ step_no -/
+/-- Type quantifiers: k_ex437348# : Bool, step_no : Nat, 0 ≤ step_no -/
 def try_step (step_no : Nat) (exit_wait : Bool) : SailM Bool := do
   let _ : Unit := (ext_pre_step_hook ())
   writeReg minstret_increment (← (should_inc_minstret (← readReg cur_privilege)))
