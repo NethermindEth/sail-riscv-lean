@@ -194,7 +194,7 @@ def csrPriv (csr : (BitVec 12)) : (BitVec 2) :=
 def check_CSR_priv (csr : (BitVec 12)) (p : Privilege) : Bool :=
   (zopz0zKzJ_u (privLevel_to_bits p) (csrPriv csr))
 
-/-- Type quantifiers: k_ex377215# : Bool -/
+/-- Type quantifiers: k_ex375745# : Bool -/
 def check_CSR_access (csr : (BitVec 12)) (isWrite : Bool) : Bool :=
   (not (isWrite && ((csrAccess csr) == (0b11 : (BitVec 2)))))
 
@@ -202,7 +202,7 @@ def sstc_CSRs_accessible (priv : Privilege) : SailM Bool := do
   (pure ((priv == Machine) || ((priv == Supervisor) && (((_get_Counteren_TM (← readReg mcounteren)) == (0b1 : (BitVec 1))) && ((_get_MEnvcfg_STCE
               (← readReg menvcfg)) == (0b1 : (BitVec 1)))))))
 
-/-- Type quantifiers: k_ex377251# : Bool -/
+/-- Type quantifiers: k_ex375781# : Bool -/
 def is_CSR_accessible (b__0 : (BitVec 12)) (g__2 : Privilege) (g__3 : Bool) : SailM Bool := do
   bif (b__0 == (0x301 : (BitVec 12)))
   then (pure true)
@@ -755,7 +755,7 @@ def is_CSR_accessible (b__0 : (BitVec 12)) (g__2 : Privilege) (g__3 : Bool) : Sa
                                                                                                                                                                                                                                                                                                           else
                                                                                                                                                                                                                                                                                                             (pure false)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
 
-/-- Type quantifiers: k_ex377842# : Bool -/
+/-- Type quantifiers: k_ex376372# : Bool -/
 def check_CSR (csr : (BitVec 12)) (p : Privilege) (isWrite : Bool) : SailM Bool := do
   (pure ((check_CSR_priv csr p) && ((check_CSR_access csr isWrite) && (← (is_CSR_accessible csr p
             isWrite)))))
@@ -839,7 +839,7 @@ def track_trap (p : Privilege) : SailM Unit := do
       (csr_name_write_callback "sepc" (← readReg sepc)))
   | User => (internal_error "riscv_sys_control.sail" 150 "Invalid privilege level")
 
-/-- Type quantifiers: k_ex377908# : Bool -/
+/-- Type quantifiers: k_ex376438# : Bool -/
 def trap_handler (del_priv : Privilege) (intr : Bool) (c : (BitVec 8)) (pc : (BitVec 64)) (info : (Option (BitVec 64))) (ext : (Option Unit)) : SailM (BitVec 64) := do
   let _ : Unit := (trap_callback ())
   let _ : Unit :=

@@ -219,30 +219,24 @@ def pte_is_invalid (pte_flags : (BitVec 8)) (pte_ext : (BitVec 10)) : SailM Bool
                   (n := 2))) && (not (← (currentlyEnabled Ext_Svpbmt)))) || ((_get_PTE_Ext_reserved
                 pte_ext) != (zeros (n := 7))))))))
 
-/-- Type quantifiers: k_ex378873# : Bool, k_ex378872# : Bool -/
+/-- Type quantifiers: k_ex377403# : Bool, k_ex377402# : Bool -/
 def check_PTE_permission (ac : (AccessType Unit)) (priv : Privilege) (mxr : Bool) (do_sum : Bool) (pte_flags : (BitVec 8)) (ext : (BitVec 10)) (ext_ptw : Unit) : SailM PTE_Check := do
-  let pte_U := (_get_PTE_Flags_U pte_flags)
-  let pte_R := (_get_PTE_Flags_R pte_flags)
-  let pte_W := (_get_PTE_Flags_W pte_flags)
-  let pte_X := (_get_PTE_Flags_X pte_flags)
+  let pte_U := (bits_to_bool (_get_PTE_Flags_U pte_flags))
+  let pte_R := (bits_to_bool (_get_PTE_Flags_R pte_flags))
+  let pte_W := (bits_to_bool (_get_PTE_Flags_W pte_flags))
+  let pte_X := (bits_to_bool (_get_PTE_Flags_X pte_flags))
   let success ← (( do
     match (ac, priv) with
-    | (.Read _, User) =>
-      (pure ((pte_U == (0b1 : (BitVec 1))) && ((pte_R == (0b1 : (BitVec 1))) || ((pte_X == (0b1 : (BitVec 1))) && mxr))))
-    | (.Write _, User) => (pure ((pte_U == (0b1 : (BitVec 1))) && (pte_W == (0b1 : (BitVec 1)))))
-    | (.ReadWrite (_, _), User) =>
-      (pure ((pte_U == (0b1 : (BitVec 1))) && ((pte_W == (0b1 : (BitVec 1))) && ((pte_R == (0b1 : (BitVec 1))) || ((pte_X == (0b1 : (BitVec 1))) && mxr)))))
-    | (.InstructionFetch (), User) =>
-      (pure ((pte_U == (0b1 : (BitVec 1))) && (pte_X == (0b1 : (BitVec 1)))))
-    | (.Read _, Supervisor) =>
-      (pure (((pte_U == (0b0 : (BitVec 1))) || do_sum) && ((pte_R == (0b1 : (BitVec 1))) || ((pte_X == (0b1 : (BitVec 1))) && mxr))))
-    | (.Write _, Supervisor) =>
-      (pure (((pte_U == (0b0 : (BitVec 1))) || do_sum) && (pte_W == (0b1 : (BitVec 1)))))
+    | (.Read _, User) => (pure (pte_U && (pte_R || (pte_X && mxr))))
+    | (.Write _, User) => (pure (pte_U && pte_W))
+    | (.ReadWrite (_, _), User) => (pure (pte_U && (pte_W && (pte_R || (pte_X && mxr)))))
+    | (.InstructionFetch (), User) => (pure (pte_U && pte_X))
+    | (.Read _, Supervisor) => (pure (((not pte_U) || do_sum) && (pte_R || (pte_X && mxr))))
+    | (.Write _, Supervisor) => (pure (((not pte_U) || do_sum) && pte_W))
     | (.ReadWrite (_, _), Supervisor) =>
-      (pure (((pte_U == (0b0 : (BitVec 1))) || do_sum) && ((pte_W == (0b1 : (BitVec 1))) && ((pte_R == (0b1 : (BitVec 1))) || ((pte_X == (0b1 : (BitVec 1))) && mxr)))))
-    | (.InstructionFetch (), Supervisor) =>
-      (pure ((pte_U == (0b0 : (BitVec 1))) && (pte_X == (0b1 : (BitVec 1)))))
-    | (_, Machine) => (internal_error "riscv_vmem_pte.sail" 132 "m-mode mem perm check") ) : SailM
+      (pure (((not pte_U) || do_sum) && (pte_W && (pte_R || (pte_X && mxr)))))
+    | (.InstructionFetch (), Supervisor) => (pure ((not pte_U) && pte_X))
+    | (_, Machine) => (internal_error "riscv_vmem_pte.sail" 123 "m-mode mem perm check") ) : SailM
     Bool )
   bif success
   then (pure (PTE_Check_Success ()))
