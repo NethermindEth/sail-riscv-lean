@@ -173,66 +173,59 @@ open ExceptionType
 open Architecture
 open AccessType
 
-def zba_rtypeuw_mnemonic_backwards (arg_ : String) : SailM (BitVec 2) := do
+def undefined_amoop (_ : Unit) : SailM amoop := do
+  (internal_pick [AMOSWAP, AMOADD, AMOXOR, AMOAND, AMOOR, AMOMIN, AMOMAX, AMOMINU, AMOMAXU, AMOCAS])
+
+/-- Type quantifiers: arg_ : Nat, 0 ≤ arg_ ∧ arg_ ≤ 9 -/
+def amoop_of_num (arg_ : Nat) : amoop :=
   match arg_ with
-  | "add.uw" => (pure (0b00 : (BitVec 2)))
-  | "sh1add.uw" => (pure (0b01 : (BitVec 2)))
-  | "sh2add.uw" => (pure (0b10 : (BitVec 2)))
-  | "sh3add.uw" => (pure (0b11 : (BitVec 2)))
+  | 0 => AMOSWAP
+  | 1 => AMOADD
+  | 2 => AMOXOR
+  | 3 => AMOAND
+  | 4 => AMOOR
+  | 5 => AMOMIN
+  | 6 => AMOMAX
+  | 7 => AMOMINU
+  | 8 => AMOMAXU
+  | _ => AMOCAS
+
+def num_of_amoop (arg_ : amoop) : Int :=
+  match arg_ with
+  | AMOSWAP => 0
+  | AMOADD => 1
+  | AMOXOR => 2
+  | AMOAND => 3
+  | AMOOR => 4
+  | AMOMIN => 5
+  | AMOMAX => 6
+  | AMOMINU => 7
+  | AMOMAXU => 8
+  | AMOCAS => 9
+
+def maybe_aqrl_backwards (arg_ : String) : SailM (Bool × Bool) := do
+  match arg_ with
+  | ".aqrl" => (pure (true, true))
+  | ".aq" => (pure (true, false))
+  | ".rl" => (pure (false, true))
+  | "" => (pure (false, false))
   | _ =>
     (do
       assert false "Pattern match failure at unknown location"
       throw Error.Exit)
 
-def zba_rtypeuw_mnemonic_forwards_matches (arg_ : (BitVec 2)) : Bool :=
-  let b__0 := arg_
-  if ((b__0 == (0b00 : (BitVec 2))) : Bool)
-  then true
-  else
-    (if ((b__0 == (0b01 : (BitVec 2))) : Bool)
-    then true
-    else
-      (if ((b__0 == (0b10 : (BitVec 2))) : Bool)
-      then true
-      else
-        (if ((b__0 == (0b11 : (BitVec 2))) : Bool)
-        then true
-        else false)))
-
-def zba_rtypeuw_mnemonic_backwards_matches (arg_ : String) : Bool :=
+def maybe_aqrl_forwards_matches (arg_ : (Bool × Bool)) : Bool :=
   match arg_ with
-  | "add.uw" => true
-  | "sh1add.uw" => true
-  | "sh2add.uw" => true
-  | "sh3add.uw" => true
-  | _ => false
+  | (true, true) => true
+  | (true, false) => true
+  | (false, true) => true
+  | (false, false) => true
 
-def zba_rtype_mnemonic_backwards (arg_ : String) : SailM (BitVec 2) := do
+def maybe_aqrl_backwards_matches (arg_ : String) : Bool :=
   match arg_ with
-  | "sh1add" => (pure (0b01 : (BitVec 2)))
-  | "sh2add" => (pure (0b10 : (BitVec 2)))
-  | "sh3add" => (pure (0b11 : (BitVec 2)))
-  | _ =>
-    (do
-      assert false "Pattern match failure at unknown location"
-      throw Error.Exit)
-
-def zba_rtype_mnemonic_forwards_matches (arg_ : (BitVec 2)) : Bool :=
-  let b__0 := arg_
-  if ((b__0 == (0b01 : (BitVec 2))) : Bool)
-  then true
-  else
-    (if ((b__0 == (0b10 : (BitVec 2))) : Bool)
-    then true
-    else
-      (if ((b__0 == (0b11 : (BitVec 2))) : Bool)
-      then true
-      else false))
-
-def zba_rtype_mnemonic_backwards_matches (arg_ : String) : Bool :=
-  match arg_ with
-  | "sh1add" => true
-  | "sh2add" => true
-  | "sh3add" => true
+  | ".aqrl" => true
+  | ".aq" => true
+  | ".rl" => true
+  | "" => true
   | _ => false
 

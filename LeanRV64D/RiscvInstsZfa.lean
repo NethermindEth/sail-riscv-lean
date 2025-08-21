@@ -179,40 +179,40 @@ def fcvtmod_helper (x64 : (BitVec 64)) : ((BitVec 5) × (BitVec 32)) :=
   let true_exp := ((BitVec.toNat exp) -i 1023)
   let is_too_large := (true_exp ≥b 84)
   let is_too_small := (true_exp <b 0)
-  bif is_zero
+  if (is_zero : Bool)
   then ((zeros (n := 5)), (zeros (n := 32)))
   else
-    (bif is_subnorm
+    (if (is_subnorm : Bool)
     then ((nxFlag ()), (zeros (n := 32)))
     else
-      (bif is_nan_or_inf
+      (if (is_nan_or_inf : Bool)
       then ((nvFlag ()), (zeros (n := 32)))
       else
-        (bif is_too_large
+        (if (is_too_large : Bool)
         then ((nvFlag ()), (zeros (n := 32)))
         else
-          (bif is_too_small
+          (if (is_too_small : Bool)
           then ((nxFlag ()), (zeros (n := 32)))
           else
             (let fixedpoint : (BitVec 84) := (shiftl (zero_extend (m := 84) true_mant) true_exp)
             let integer := (Sail.BitVec.extractLsb fixedpoint 83 52)
             let fractional := (Sail.BitVec.extractLsb fixedpoint 51 0)
             let result :=
-              bif (sign == (0b1 : (BitVec 1)))
+              if ((sign == (0b1 : (BitVec 1))) : Bool)
               then (BitVec.addInt (Complement.complement integer) 1)
               else integer
             let max_integer :=
-              bif (sign == (0b1 : (BitVec 1)))
+              if ((sign == (0b1 : (BitVec 1))) : Bool)
               then (BitVec.toNat (0x80000000 : (BitVec 32)))
               else (BitVec.toNat (0x7FFFFFFF : (BitVec 32)))
             let flags : (BitVec 5) :=
-              bif (true_exp >b 31)
+              if ((true_exp >b 31) : Bool)
               then (nvFlag ())
               else
-                (bif ((BitVec.toNat integer) >b max_integer)
+                (if (((BitVec.toNat integer) >b max_integer) : Bool)
                 then (nvFlag ())
                 else
-                  (bif (fractional != (zeros (n := ((51 -i 0) +i 1))))
+                  (if ((fractional != (zeros (n := ((51 -i 0) +i 1)))) : Bool)
                   then (nxFlag ())
                   else (zeros (n := 5))))
             (flags, result))))))

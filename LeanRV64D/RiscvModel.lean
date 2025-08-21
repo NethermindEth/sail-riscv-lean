@@ -179,7 +179,7 @@ def reset (_ : Unit) : SailM Unit := do
 
 def init_model (config_filename : String) : SailM Unit := do
   assert (← (config_is_valid ())) (HAppend.hAppend
-    (bif (config_filename == "")
+    (if ((config_filename == "") : Bool)
     then "Default config"
     else (HAppend.hAppend "Config in " config_filename)) " is invalid.")
   writeReg hart_state (HART_ACTIVE ())

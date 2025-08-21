@@ -179,7 +179,7 @@ def isRVC (h : (BitVec 16)) : Bool :=
   (not ((Sail.BitVec.extractLsb h 1 0) == (0b11 : (BitVec 2))))
 
 def fetch (_ : Unit) : SailM FetchResult := do
-  bif (get_config_rvfi ())
+  if ((get_config_rvfi ()) : Bool)
   then (rvfi_fetch ())
   else
     (do
@@ -188,8 +188,8 @@ def fetch (_ : Unit) : SailM FetchResult := do
       | .Ext_FetchAddr_OK use_pc =>
         (do
           let use_pc_bits := (bits_of_virtaddr use_pc)
-          bif ((bne (BitVec.access use_pc_bits 0) 0#1) || ((bne (BitVec.access use_pc_bits 1) 0#1) && (not
-                   (← (currentlyEnabled Ext_Zca)))))
+          if (((bne (BitVec.access use_pc_bits 0) 0#1) || ((bne (BitVec.access use_pc_bits 1) 0#1) && (not
+                   (← (currentlyEnabled Ext_Zca))))) : Bool)
           then (pure (F_Error ((E_Fetch_Addr_Align ()), (← readReg PC))))
           else
             (do
@@ -201,7 +201,7 @@ def fetch (_ : Unit) : SailM FetchResult := do
                   | .Err e => (pure (F_Error (e, (← readReg PC))))
                   | .Ok ilo =>
                     (do
-                      bif (isRVC ilo)
+                      if ((isRVC ilo) : Bool)
                       then (pure (F_RVC ilo))
                       else
                         (do

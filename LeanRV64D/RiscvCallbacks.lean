@@ -170,15 +170,15 @@ open Architecture
 open AccessType
 
 /-- Type quantifiers: x_2 : Nat, x_2 ≥ 0, 0 < x_2 ∧ x_2 ≤ max_mem_access -/
-def mem_write_callback (x_0 : String) (x_1 : (BitVec (bif 64 = 32 then 34 else 64))) (x_2 : Nat) (x_3 : (BitVec (8 * x_2))) : Unit :=
+def mem_write_callback (x_0 : String) (x_1 : (BitVec (if ( 64 = 32  : Bool) then 34 else 64))) (x_2 : Nat) (x_3 : (BitVec (8 * x_2))) : Unit :=
   ()
 
 /-- Type quantifiers: x_2 : Nat, x_2 ≥ 0, 0 < x_2 ∧ x_2 ≤ max_mem_access -/
-def mem_read_callback (x_0 : String) (x_1 : (BitVec (bif 64 = 32 then 34 else 64))) (x_2 : Nat) (x_3 : (BitVec (8 * x_2))) : Unit :=
+def mem_read_callback (x_0 : String) (x_1 : (BitVec (if ( 64 = 32  : Bool) then 34 else 64))) (x_2 : Nat) (x_3 : (BitVec (8 * x_2))) : Unit :=
   ()
 
 /-- Type quantifiers: x_1 : Nat, 0 ≤ x_1 ∧ x_1 < xlen -/
-def mem_exception_callback (x_0 : (BitVec (bif 64 = 32 then 34 else 64))) (x_1 : Nat) : Unit :=
+def mem_exception_callback (x_0 : (BitVec (if ( 64 = 32  : Bool) then 34 else 64))) (x_1 : Nat) : Unit :=
   ()
 
 def pc_write_callback (x_0 : (BitVec 64)) : Unit :=
@@ -521,7 +521,7 @@ def csr_name_map_backwards (arg_ : String) : SailM (BitVec 12) := do
   | "mcycleh" => (some (0xB80 : (BitVec 12)))
   | "minstreth" => (some (0xB82 : (BitVec 12)))
   | mapping0_ =>
-    (bif (hex_bits_12_backwards_matches mapping0_)
+    (if ((hex_bits_12_backwards_matches mapping0_) : Bool)
     then
       (match (hex_bits_12_backwards mapping0_) with
       | reg => (some reg))

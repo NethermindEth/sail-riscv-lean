@@ -1053,7 +1053,7 @@ def rvfi_write (paddr : (BitVec 64)) (width : Nat) (value : (BitVec (8 * width))
   writeReg rvfi_mem_data (Sail.BitVec.updateSubrange (← readReg rvfi_mem_data) 703 640
     (zero_extend (m := 64) paddr))
   writeReg rvfi_mem_data_present true
-  bif (width ≤b 16)
+  if ((width ≤b 16) : Bool)
   then
     (do
       writeReg rvfi_mem_data (Sail.BitVec.updateSubrange (← readReg rvfi_mem_data) 575 320
@@ -1067,7 +1067,7 @@ def rvfi_read (paddr : (BitVec 64)) (width : Nat) (value : (BitVec (8 * width)))
   writeReg rvfi_mem_data (Sail.BitVec.updateSubrange (← readReg rvfi_mem_data) 703 640
     (zero_extend (m := 64) paddr))
   writeReg rvfi_mem_data_present true
-  bif (width ≤b 16)
+  if ((width ≤b 16) : Bool)
   then
     (do
       writeReg rvfi_mem_data (Sail.BitVec.updateSubrange (← readReg rvfi_mem_data) 319 64

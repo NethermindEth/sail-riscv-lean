@@ -173,7 +173,7 @@ open ExceptionType
 open Architecture
 open AccessType
 
-def regidx_offset (typ_0 : regidx) (o : (BitVec (bif false then 4 else 5))) : regidx :=
+def regidx_offset (typ_0 : regidx) (o : (BitVec (if ( false  : Bool) then 4 else 5))) : regidx :=
   let .Regidx r : regidx := typ_0
   (Regidx (r + o))
 
@@ -197,22 +197,22 @@ def sub_virtaddr_xlenbits (typ_0 : virtaddr) (offset : (BitVec 64)) : virtaddr :
 
 /-- Type quantifiers: n : Int, m : Int -/
 def _shl_int_general (m : Int) (n : Int) : Int :=
-  bif (n ≥b 0)
+  if ((n ≥b 0) : Bool)
   then (Int.shiftl m n)
   else (Int.shiftr m (Neg.neg n))
 
 /-- Type quantifiers: n : Int, m : Int -/
 def _shr_int_general (m : Int) (n : Int) : Int :=
-  bif (n ≥b 0)
+  if ((n ≥b 0) : Bool)
   then (Int.shiftr m n)
   else (Int.shiftl m (Neg.neg n))
 
 /-- Type quantifiers: m : Int, n : Int -/
 def fdiv_int (n : Int) (m : Int) : Int :=
-  bif ((n <b 0) && (m >b 0))
+  if (((n <b 0) && (m >b 0)) : Bool)
   then ((Int.tdiv (n +i 1) m) -i 1)
   else
-    (bif ((n >b 0) && (m <b 0))
+    (if (((n >b 0) && (m <b 0)) : Bool)
     then ((Int.tdiv (n -i 1) m) -i 1)
     else (Int.tdiv n m))
 

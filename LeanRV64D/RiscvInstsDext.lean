@@ -224,7 +224,7 @@ def f_is_NaN_D (x64 : (BitVec 64)) : Bool :=
 def negate_D (x64 : (BitVec 64)) : (BitVec 64) :=
   let (sign, exp, mant) := (fsplit_D x64)
   let new_sign :=
-    bif (sign == (0b0 : (BitVec 1)))
+    if ((sign == (0b0 : (BitVec 1))) : Bool)
     then (0b1 : (BitVec 1))
     else (0b0 : (BitVec 1))
   (fmake_D new_sign exp mant)
@@ -236,7 +236,7 @@ def feq_quiet_D (v1 : (BitVec 64)) (v2 : (BitVec 64)) : (Bool × (BitVec 5)) :=
   let v2Is0 := ((f_is_neg_zero_D v2) || (f_is_pos_zero_D v2))
   let result := ((v1 == v2) || (v1Is0 && v2Is0))
   let fflags :=
-    bif ((f_is_SNaN_D v1) || (f_is_SNaN_D v2))
+    if (((f_is_SNaN_D v1) || (f_is_SNaN_D v2)) : Bool)
     then (nvFlag ())
     else (zeros (n := 5))
   (result, fflags)
@@ -246,29 +246,29 @@ def flt_D (v1 : (BitVec 64)) (v2 : (BitVec 64)) (is_quiet : Bool) : (Bool × (Bi
   let (s1, e1, m1) := (fsplit_D v1)
   let (s2, e2, m2) := (fsplit_D v2)
   let result : Bool :=
-    bif ((s1 == (0b0 : (BitVec 1))) && (s2 == (0b0 : (BitVec 1))))
+    if (((s1 == (0b0 : (BitVec 1))) && (s2 == (0b0 : (BitVec 1)))) : Bool)
     then
-      (bif (e1 == e2)
+      (if ((e1 == e2) : Bool)
       then ((BitVec.toNat m1) <b (BitVec.toNat m2))
       else ((BitVec.toNat e1) <b (BitVec.toNat e2)))
     else
-      (bif ((s1 == (0b0 : (BitVec 1))) && (s2 == (0b1 : (BitVec 1))))
+      (if (((s1 == (0b0 : (BitVec 1))) && (s2 == (0b1 : (BitVec 1)))) : Bool)
       then false
       else
-        (bif ((s1 == (0b1 : (BitVec 1))) && (s2 == (0b0 : (BitVec 1))))
+        (if (((s1 == (0b1 : (BitVec 1))) && (s2 == (0b0 : (BitVec 1)))) : Bool)
         then true
         else
-          (bif (e1 == e2)
+          (if ((e1 == e2) : Bool)
           then ((BitVec.toNat m1) >b (BitVec.toNat m2))
           else ((BitVec.toNat e1) >b (BitVec.toNat e2)))))
   let fflags :=
-    bif is_quiet
+    if (is_quiet : Bool)
     then
-      (bif ((f_is_SNaN_D v1) || (f_is_SNaN_D v2))
+      (if (((f_is_SNaN_D v1) || (f_is_SNaN_D v2)) : Bool)
       then (nvFlag ())
       else (zeros (n := 5)))
     else
-      (bif ((f_is_NaN_D v1) || (f_is_NaN_D v2))
+      (if (((f_is_NaN_D v1) || (f_is_NaN_D v2)) : Bool)
       then (nvFlag ())
       else (zeros (n := 5)))
   (result, fflags)
@@ -280,29 +280,29 @@ def fle_D (v1 : (BitVec 64)) (v2 : (BitVec 64)) (is_quiet : Bool) : (Bool × (Bi
   let v1Is0 := ((f_is_neg_zero_D v1) || (f_is_pos_zero_D v1))
   let v2Is0 := ((f_is_neg_zero_D v2) || (f_is_pos_zero_D v2))
   let result : Bool :=
-    bif ((s1 == (0b0 : (BitVec 1))) && (s2 == (0b0 : (BitVec 1))))
+    if (((s1 == (0b0 : (BitVec 1))) && (s2 == (0b0 : (BitVec 1)))) : Bool)
     then
-      (bif (e1 == e2)
+      (if ((e1 == e2) : Bool)
       then ((BitVec.toNat m1) ≤b (BitVec.toNat m2))
       else ((BitVec.toNat e1) <b (BitVec.toNat e2)))
     else
-      (bif ((s1 == (0b0 : (BitVec 1))) && (s2 == (0b1 : (BitVec 1))))
+      (if (((s1 == (0b0 : (BitVec 1))) && (s2 == (0b1 : (BitVec 1)))) : Bool)
       then (v1Is0 && v2Is0)
       else
-        (bif ((s1 == (0b1 : (BitVec 1))) && (s2 == (0b0 : (BitVec 1))))
+        (if (((s1 == (0b1 : (BitVec 1))) && (s2 == (0b0 : (BitVec 1)))) : Bool)
         then true
         else
-          (bif (e1 == e2)
+          (if ((e1 == e2) : Bool)
           then ((BitVec.toNat m1) ≥b (BitVec.toNat m2))
           else ((BitVec.toNat e1) >b (BitVec.toNat e2)))))
   let fflags :=
-    bif is_quiet
+    if (is_quiet : Bool)
     then
-      (bif ((f_is_SNaN_D v1) || (f_is_SNaN_D v2))
+      (if (((f_is_SNaN_D v1) || (f_is_SNaN_D v2)) : Bool)
       then (nvFlag ())
       else (zeros (n := 5)))
     else
-      (bif ((f_is_NaN_D v1) || (f_is_NaN_D v2))
+      (if (((f_is_NaN_D v1) || (f_is_NaN_D v2)) : Bool)
       then (nvFlag ())
       else (zeros (n := 5)))
   (result, fflags)

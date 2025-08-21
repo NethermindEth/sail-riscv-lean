@@ -173,11 +173,11 @@ open ExceptionType
 open Architecture
 open AccessType
 
-def vlen_exp := 9
+def vlen_exp := 8
 
 def elen_exp := 6
 
-def vlen := (2 ^i 9)
+def vlen := (2 ^i 8)
 
 def elen := (2 ^i 6)
 

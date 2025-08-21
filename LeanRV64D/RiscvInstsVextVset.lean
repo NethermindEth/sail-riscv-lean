@@ -192,16 +192,16 @@ def sew_flag_forwards_matches (arg_ : String) : Bool :=
 
 def sew_flag_backwards_matches (arg_ : (BitVec 3)) : Bool :=
   let b__0 := arg_
-  bif (b__0 == (0b000 : (BitVec 3)))
+  if ((b__0 == (0b000 : (BitVec 3))) : Bool)
   then true
   else
-    (bif (b__0 == (0b001 : (BitVec 3)))
+    (if ((b__0 == (0b001 : (BitVec 3))) : Bool)
     then true
     else
-      (bif (b__0 == (0b010 : (BitVec 3)))
+      (if ((b__0 == (0b010 : (BitVec 3))) : Bool)
       then true
       else
-        (bif (b__0 == (0b011 : (BitVec 3)))
+        (if ((b__0 == (0b011 : (BitVec 3))) : Bool)
         then true
         else false)))
 
@@ -215,25 +215,25 @@ def maybe_lmul_flag_forwards_matches (arg_ : String) : SailM Bool := do
 
 def maybe_lmul_flag_backwards_matches (arg_ : (BitVec 3)) : Bool :=
   let b__0 := arg_
-  bif (b__0 == (0b101 : (BitVec 3)))
+  if ((b__0 == (0b101 : (BitVec 3))) : Bool)
   then true
   else
-    (bif (b__0 == (0b110 : (BitVec 3)))
+    (if ((b__0 == (0b110 : (BitVec 3))) : Bool)
     then true
     else
-      (bif (b__0 == (0b111 : (BitVec 3)))
+      (if ((b__0 == (0b111 : (BitVec 3))) : Bool)
       then true
       else
-        (bif (b__0 == (0b000 : (BitVec 3)))
+        (if ((b__0 == (0b000 : (BitVec 3))) : Bool)
         then true
         else
-          (bif (b__0 == (0b001 : (BitVec 3)))
+          (if ((b__0 == (0b001 : (BitVec 3))) : Bool)
           then true
           else
-            (bif (b__0 == (0b010 : (BitVec 3)))
+            (if ((b__0 == (0b010 : (BitVec 3))) : Bool)
             then true
             else
-              (bif (b__0 == (0b011 : (BitVec 3)))
+              (if ((b__0 == (0b011 : (BitVec 3))) : Bool)
               then true
               else false))))))
 
@@ -247,10 +247,10 @@ def ta_flag_forwards_matches (arg_ : String) : SailM Bool := do
 
 def ta_flag_backwards_matches (arg_ : (BitVec 1)) : Bool :=
   let b__0 := arg_
-  bif (b__0 == (0b1 : (BitVec 1)))
+  if ((b__0 == (0b1 : (BitVec 1))) : Bool)
   then true
   else
-    (bif (b__0 == (0b0 : (BitVec 1)))
+    (if ((b__0 == (0b0 : (BitVec 1))) : Bool)
     then true
     else false)
 
@@ -264,10 +264,10 @@ def ma_flag_forwards_matches (arg_ : String) : SailM Bool := do
 
 def ma_flag_backwards_matches (arg_ : (BitVec 1)) : Bool :=
   let b__0 := arg_
-  bif (b__0 == (0b1 : (BitVec 1)))
+  if ((b__0 == (0b1 : (BitVec 1))) : Bool)
   then true
   else
-    (bif (b__0 == (0b0 : (BitVec 1)))
+    (if ((b__0 == (0b0 : (BitVec 1))) : Bool)
     then true
     else false)
 
@@ -280,7 +280,7 @@ def vtype_assembly_forwards_matches (arg_ : String) : SailM Bool := do
 def vtype_assembly_backwards_matches (arg_ : ((BitVec 1) × (BitVec 1) × (BitVec 3) × (BitVec 3))) : Bool :=
   match arg_ with
   | (ma, ta, sew, lmul) =>
-    (bif ((bne (BitVec.access sew 2) 1#1) && (lmul != (0b100 : (BitVec 3))))
+    (if (((bne (BitVec.access sew 2) 1#1) && (lmul != (0b100 : (BitVec 3)))) : Bool)
     then true
     else true)
 
@@ -296,12 +296,12 @@ def vl_use_ceil : Bool := false
 /-- Type quantifiers: VLMAX : Int, AVL : Int -/
 def calculate_new_vl (AVL : Int) (VLMAX : Int) : (BitVec 64) :=
   let new_vl :=
-    bif (AVL ≤b VLMAX)
+    if ((AVL ≤b VLMAX) : Bool)
     then AVL
     else
-      (bif (AVL <b (2 *i VLMAX))
+      (if ((AVL <b (2 *i VLMAX)) : Bool)
       then
-        (bif vl_use_ceil
+        (if (vl_use_ceil : Bool)
         then (Int.tdiv (AVL +i 1) 2)
         else VLMAX)
       else VLMAX)

@@ -173,66 +173,17 @@ open ExceptionType
 open Architecture
 open AccessType
 
-def zba_rtypeuw_mnemonic_backwards (arg_ : String) : SailM (BitVec 2) := do
+def undefined_wrsop (_ : Unit) : SailM wrsop := do
+  (internal_pick [WRS_STO, WRS_NTO])
+
+/-- Type quantifiers: arg_ : Nat, 0 ≤ arg_ ∧ arg_ ≤ 1 -/
+def wrsop_of_num (arg_ : Nat) : wrsop :=
   match arg_ with
-  | "add.uw" => (pure (0b00 : (BitVec 2)))
-  | "sh1add.uw" => (pure (0b01 : (BitVec 2)))
-  | "sh2add.uw" => (pure (0b10 : (BitVec 2)))
-  | "sh3add.uw" => (pure (0b11 : (BitVec 2)))
-  | _ =>
-    (do
-      assert false "Pattern match failure at unknown location"
-      throw Error.Exit)
+  | 0 => WRS_STO
+  | _ => WRS_NTO
 
-def zba_rtypeuw_mnemonic_forwards_matches (arg_ : (BitVec 2)) : Bool :=
-  let b__0 := arg_
-  if ((b__0 == (0b00 : (BitVec 2))) : Bool)
-  then true
-  else
-    (if ((b__0 == (0b01 : (BitVec 2))) : Bool)
-    then true
-    else
-      (if ((b__0 == (0b10 : (BitVec 2))) : Bool)
-      then true
-      else
-        (if ((b__0 == (0b11 : (BitVec 2))) : Bool)
-        then true
-        else false)))
-
-def zba_rtypeuw_mnemonic_backwards_matches (arg_ : String) : Bool :=
+def num_of_wrsop (arg_ : wrsop) : Int :=
   match arg_ with
-  | "add.uw" => true
-  | "sh1add.uw" => true
-  | "sh2add.uw" => true
-  | "sh3add.uw" => true
-  | _ => false
-
-def zba_rtype_mnemonic_backwards (arg_ : String) : SailM (BitVec 2) := do
-  match arg_ with
-  | "sh1add" => (pure (0b01 : (BitVec 2)))
-  | "sh2add" => (pure (0b10 : (BitVec 2)))
-  | "sh3add" => (pure (0b11 : (BitVec 2)))
-  | _ =>
-    (do
-      assert false "Pattern match failure at unknown location"
-      throw Error.Exit)
-
-def zba_rtype_mnemonic_forwards_matches (arg_ : (BitVec 2)) : Bool :=
-  let b__0 := arg_
-  if ((b__0 == (0b01 : (BitVec 2))) : Bool)
-  then true
-  else
-    (if ((b__0 == (0b10 : (BitVec 2))) : Bool)
-    then true
-    else
-      (if ((b__0 == (0b11 : (BitVec 2))) : Bool)
-      then true
-      else false))
-
-def zba_rtype_mnemonic_backwards_matches (arg_ : String) : Bool :=
-  match arg_ with
-  | "sh1add" => true
-  | "sh2add" => true
-  | "sh3add" => true
-  | _ => false
+  | WRS_STO => 0
+  | WRS_NTO => 1
 

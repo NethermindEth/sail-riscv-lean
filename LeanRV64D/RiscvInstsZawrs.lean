@@ -180,11 +180,11 @@ def encdec_wrsop_forwards (arg_ : wrsop) : (BitVec 12) :=
 
 def encdec_wrsop_backwards (arg_ : (BitVec 12)) : SailM wrsop := do
   let b__0 := arg_
-  bif (b__0 == (0x01D : (BitVec 12)))
+  if ((b__0 == (0x01D : (BitVec 12))) : Bool)
   then (pure WRS_STO)
   else
     (do
-      bif (b__0 == (0x00D : (BitVec 12)))
+      if ((b__0 == (0x00D : (BitVec 12))) : Bool)
       then (pure WRS_NTO)
       else
         (do
@@ -198,10 +198,10 @@ def encdec_wrsop_forwards_matches (arg_ : wrsop) : Bool :=
 
 def encdec_wrsop_backwards_matches (arg_ : (BitVec 12)) : Bool :=
   let b__0 := arg_
-  bif (b__0 == (0x01D : (BitVec 12)))
+  if ((b__0 == (0x01D : (BitVec 12))) : Bool)
   then true
   else
-    (bif (b__0 == (0x00D : (BitVec 12)))
+    (if ((b__0 == (0x00D : (BitVec 12))) : Bool)
     then true
     else false)
 

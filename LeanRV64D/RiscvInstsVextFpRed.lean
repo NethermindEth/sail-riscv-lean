@@ -186,27 +186,27 @@ def encdec_rfvvfunct6_forwards (arg_ : rfvvfunct6) : (BitVec 6) :=
 
 def encdec_rfvvfunct6_backwards (arg_ : (BitVec 6)) : SailM rfvvfunct6 := do
   let b__0 := arg_
-  bif (b__0 == (0b000011 : (BitVec 6)))
+  if ((b__0 == (0b000011 : (BitVec 6))) : Bool)
   then (pure FVV_VFREDOSUM)
   else
     (do
-      bif (b__0 == (0b000001 : (BitVec 6)))
+      if ((b__0 == (0b000001 : (BitVec 6))) : Bool)
       then (pure FVV_VFREDUSUM)
       else
         (do
-          bif (b__0 == (0b000111 : (BitVec 6)))
+          if ((b__0 == (0b000111 : (BitVec 6))) : Bool)
           then (pure FVV_VFREDMAX)
           else
             (do
-              bif (b__0 == (0b000101 : (BitVec 6)))
+              if ((b__0 == (0b000101 : (BitVec 6))) : Bool)
               then (pure FVV_VFREDMIN)
               else
                 (do
-                  bif (b__0 == (0b110011 : (BitVec 6)))
+                  if ((b__0 == (0b110011 : (BitVec 6))) : Bool)
                   then (pure FVV_VFWREDOSUM)
                   else
                     (do
-                      bif (b__0 == (0b110001 : (BitVec 6)))
+                      if ((b__0 == (0b110001 : (BitVec 6))) : Bool)
                       then (pure FVV_VFWREDUSUM)
                       else
                         (do
@@ -224,22 +224,22 @@ def encdec_rfvvfunct6_forwards_matches (arg_ : rfvvfunct6) : Bool :=
 
 def encdec_rfvvfunct6_backwards_matches (arg_ : (BitVec 6)) : Bool :=
   let b__0 := arg_
-  bif (b__0 == (0b000011 : (BitVec 6)))
+  if ((b__0 == (0b000011 : (BitVec 6))) : Bool)
   then true
   else
-    (bif (b__0 == (0b000001 : (BitVec 6)))
+    (if ((b__0 == (0b000001 : (BitVec 6))) : Bool)
     then true
     else
-      (bif (b__0 == (0b000111 : (BitVec 6)))
+      (if ((b__0 == (0b000111 : (BitVec 6))) : Bool)
       then true
       else
-        (bif (b__0 == (0b000101 : (BitVec 6)))
+        (if ((b__0 == (0b000101 : (BitVec 6))) : Bool)
         then true
         else
-          (bif (b__0 == (0b110011 : (BitVec 6)))
+          (if ((b__0 == (0b110011 : (BitVec 6))) : Bool)
           then true
           else
-            (bif (b__0 == (0b110001 : (BitVec 6)))
+            (if ((b__0 == (0b110001 : (BitVec 6))) : Bool)
             then true
             else false)))))
 
@@ -248,12 +248,12 @@ def encdec_rfvvfunct6_backwards_matches (arg_ : (BitVec 6)) : Bool :=
 def process_rfvv_single (funct6 : rfvvfunct6) (vm : (BitVec 1)) (vs2 : vregidx) (vs1 : vregidx) (vd : vregidx) (num_elem_vs : Nat) (SEW : Nat) (LMUL_pow : Int) : SailM ExecutionResult := SailME.run do
   let rm_3b ← do (pure (_get_Fcsr_FRM (← readReg fcsr)))
   let num_elem_vd ← do (get_num_elem 0 SEW)
-  bif (← (illegal_fp_reduction SEW rm_3b))
+  if ((← (illegal_fp_reduction SEW rm_3b)) : Bool)
   then (pure (Illegal_Instruction ()))
   else
     (do
       assert (SEW != 8) "riscv_insts_vext_fp_red.sail:36.17-36.18"
-      bif ((BitVec.toNat (← readReg vl)) == 0)
+      if (((BitVec.toNat (← readReg vl)) == 0) : Bool)
       then (pure RETIRE_SUCCESS)
       else
         (do
@@ -279,7 +279,7 @@ def process_rfvv_single (funct6 : rfvvfunct6) (vm : (BitVec 1)) (vs2 : vregidx) 
             for i in [loop_i_lower:loop_i_upper:1]i do
               let sum := loop_vars
               loop_vars ← do
-                bif ((BitVec.access mask i) == 1#1)
+                if (((BitVec.access mask i) == 1#1) : Bool)
                 then
                   (do
                     match funct6 with
@@ -300,13 +300,13 @@ def process_rfvv_single (funct6 : rfvvfunct6) (vm : (BitVec 1)) (vs2 : vregidx) 
 def process_rfvv_widening_reduction (funct6 : rfvvfunct6) (vm : (BitVec 1)) (vs2 : vregidx) (vs1 : vregidx) (vd : vregidx) (num_elem_vs : Nat) (SEW : Nat) (LMUL_pow : Int) : SailM ExecutionResult := SailME.run do
   let rm_3b ← do (pure (_get_Fcsr_FRM (← readReg fcsr)))
   let SEW_widen := (SEW *i 2)
-  bif (← (illegal_fp_widening_reduction SEW rm_3b SEW_widen))
+  if ((← (illegal_fp_widening_reduction SEW rm_3b SEW_widen)) : Bool)
   then (pure (Illegal_Instruction ()))
   else
     (do
       assert ((SEW ≥b 16) && (SEW_widen ≤b 64)) "riscv_insts_vext_fp_red.sail:79.36-79.37"
       let num_elem_vd ← do (get_num_elem 0 SEW_widen)
-      bif ((BitVec.toNat (← readReg vl)) == 0)
+      if (((BitVec.toNat (← readReg vl)) == 0) : Bool)
       then (pure RETIRE_SUCCESS)
       else
         (do
@@ -334,7 +334,7 @@ def process_rfvv_widening_reduction (funct6 : rfvvfunct6) (vm : (BitVec 1)) (vs2
             for i in [loop_i_lower:loop_i_upper:1]i do
               let sum := loop_vars
               loop_vars ← do
-                bif ((BitVec.access mask i) == 1#1)
+                if (((BitVec.access mask i) == 1#1) : Bool)
                 then
                   (do
                     (fp_add rm_3b sum (← (fp_widen (GetElem?.getElem! vs2_val i)))))

@@ -173,7 +173,7 @@ open Architecture
 open AccessType
 
 def check_privs (_ : Unit) : Bool :=
-  bif ((hartSupports Ext_S) && (not (hartSupports Ext_U)))
+  if (((hartSupports Ext_S) && (not (hartSupports Ext_U))) : Bool)
   then
     (let _ : Unit :=
       (print_endline "User mode (U) should be enabled if supervisor mode (S) is enabled.")
@@ -184,28 +184,28 @@ def check_mmu_config (_ : Unit) : Bool :=
   let valid : Bool := true
   let _ : Unit :=
     let _ : Unit :=
-      bif ((not (hartSupports Ext_S)) && ((hartSupports Ext_Sv57) || ((hartSupports Ext_Sv48) || (hartSupports
-                 Ext_Sv39))))
+      if (((not (hartSupports Ext_S)) && ((hartSupports Ext_Sv57) || ((hartSupports Ext_Sv48) || (hartSupports
+                 Ext_Sv39)))) : Bool)
       then
         (let valid : Bool := false
         (print_endline
           "Supervisor mode (S) disabled but one of (Sv57, Sv48, Sv39) is enabled: cannot support address translation without supervisor mode."))
       else ()
     let _ : Unit :=
-      bif ((hartSupports Ext_Sv57) && (not (hartSupports Ext_Sv48)))
+      if (((hartSupports Ext_Sv57) && (not (hartSupports Ext_Sv48))) : Bool)
       then
         (let valid : Bool := false
         (print_endline
           "Sv57 is enabled but Sv48 is disabled: supporting Sv57 requires supporting Sv48."))
       else ()
     let _ : Unit :=
-      bif ((hartSupports Ext_Sv48) && (not (hartSupports Ext_Sv39)))
+      if (((hartSupports Ext_Sv48) && (not (hartSupports Ext_Sv39))) : Bool)
       then
         (let valid : Bool := false
         (print_endline
           "Sv48 is enabled but Sv39 is disabled: supporting Sv48 requires supporting Sv39."))
       else ()
-    bif (hartSupports Ext_Sv32)
+    if ((hartSupports Ext_Sv32) : Bool)
     then
       (let valid : Bool := false
       (print_endline "Sv32 is enabled: Sv32 is not supported on RV64."))
@@ -213,7 +213,7 @@ def check_mmu_config (_ : Unit) : Bool :=
   valid
 
 def check_vlen_elen (_ : Unit) : Bool :=
-  bif ((vlen_exp : Nat) <b (elen_exp : Nat))
+  if (((vlen_exp : Nat) <b (elen_exp : Nat)) : Bool)
   then
     (let _ : Unit :=
       (print_endline
@@ -223,7 +223,7 @@ def check_vlen_elen (_ : Unit) : Bool :=
               (HAppend.hAppend (Int.repr elen_exp) ").")))))
     false)
   else
-    (bif (((vlen_exp : Nat) <b 3) || (((vlen_exp : Nat) >b 16) : Bool))
+    (if ((((vlen_exp : Nat) <b 3) || (((vlen_exp : Nat) >b 16) : Bool)) : Bool)
     then
       (let _ : Unit :=
         (print_endline
@@ -231,7 +231,7 @@ def check_vlen_elen (_ : Unit) : Bool :=
             (HAppend.hAppend (Int.repr vlen_exp) " but must be within [2^3, 2^16].")))
       false)
     else
-      (bif (((elen_exp : Nat) <b 3) || (((elen_exp : Nat) >b 16) : Bool))
+      (if ((((elen_exp : Nat) <b 3) || (((elen_exp : Nat) >b 16) : Bool)) : Bool)
       then
         (let _ : Unit :=
           (print_endline
@@ -258,20 +258,20 @@ def check_mem_layout (_ : Unit) : SailM Bool := do
     (pure ((BitVec.toNat (← readReg plat_clint_base)) +i (BitVec.toNat
           (← readReg plat_clint_size))))
   let valid : Bool :=
-    bif (has_overlap rom_lo rom_hi ram_lo ram_hi)
+    if ((has_overlap rom_lo rom_hi ram_lo ram_hi) : Bool)
     then
       (let valid : Bool := false
       let _ : Unit := (print_endline "The RAM and ROM regions overlap.")
       valid)
     else valid
   let valid : Bool :=
-    bif (has_overlap clint_lo clint_hi rom_lo rom_hi)
+    if ((has_overlap clint_lo clint_hi rom_lo rom_hi) : Bool)
     then
       (let valid : Bool := false
       let _ : Unit := (print_endline "The Clint and ROM regions overlap.")
       valid)
     else valid
-  bif (has_overlap clint_lo clint_hi ram_lo ram_hi)
+  if ((has_overlap clint_lo clint_hi ram_lo ram_hi) : Bool)
   then
     (let valid : Bool := false
     let _ : Unit := (print_endline "The Clint and RAM regions overlap.")
@@ -280,7 +280,7 @@ def check_mem_layout (_ : Unit) : SailM Bool := do
 
 def check_pmp (_ : Unit) : Bool :=
   let valid : Bool := true
-  bif ((true : Bool) && (sys_pmp_grain != 0))
+  if (((true : Bool) && (sys_pmp_grain != 0)) : Bool)
   then
     (let valid : Bool := false
     let _ : Unit := (print_endline "NA4 is not supported if the PMP grain G is non-zero.")

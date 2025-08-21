@@ -180,11 +180,11 @@ def encdec_vaesdf_forwards (arg_ : zvk_vaesdf_funct6) : (BitVec 6) :=
 
 def encdec_vaesdf_backwards (arg_ : (BitVec 6)) : SailM zvk_vaesdf_funct6 := do
   let b__0 := arg_
-  bif (b__0 == (0b101000 : (BitVec 6)))
+  if ((b__0 == (0b101000 : (BitVec 6))) : Bool)
   then (pure ZVK_VAESDF_VV)
   else
     (do
-      bif (b__0 == (0b101001 : (BitVec 6)))
+      if ((b__0 == (0b101001 : (BitVec 6))) : Bool)
       then (pure ZVK_VAESDF_VS)
       else
         (do
@@ -198,10 +198,10 @@ def encdec_vaesdf_forwards_matches (arg_ : zvk_vaesdf_funct6) : Bool :=
 
 def encdec_vaesdf_backwards_matches (arg_ : (BitVec 6)) : Bool :=
   let b__0 := arg_
-  bif (b__0 == (0b101000 : (BitVec 6)))
+  if ((b__0 == (0b101000 : (BitVec 6))) : Bool)
   then true
   else
-    (bif (b__0 == (0b101001 : (BitVec 6)))
+    (if ((b__0 == (0b101001 : (BitVec 6))) : Bool)
     then true
     else false)
 
@@ -232,11 +232,11 @@ def encdec_vaesdm_forwards (arg_ : zvk_vaesdm_funct6) : (BitVec 6) :=
 
 def encdec_vaesdm_backwards (arg_ : (BitVec 6)) : SailM zvk_vaesdm_funct6 := do
   let b__0 := arg_
-  bif (b__0 == (0b101000 : (BitVec 6)))
+  if ((b__0 == (0b101000 : (BitVec 6))) : Bool)
   then (pure ZVK_VAESDM_VV)
   else
     (do
-      bif (b__0 == (0b101001 : (BitVec 6)))
+      if ((b__0 == (0b101001 : (BitVec 6))) : Bool)
       then (pure ZVK_VAESDM_VS)
       else
         (do
@@ -250,10 +250,10 @@ def encdec_vaesdm_forwards_matches (arg_ : zvk_vaesdm_funct6) : Bool :=
 
 def encdec_vaesdm_backwards_matches (arg_ : (BitVec 6)) : Bool :=
   let b__0 := arg_
-  bif (b__0 == (0b101000 : (BitVec 6)))
+  if ((b__0 == (0b101000 : (BitVec 6))) : Bool)
   then true
   else
-    (bif (b__0 == (0b101001 : (BitVec 6)))
+    (if ((b__0 == (0b101001 : (BitVec 6))) : Bool)
     then true
     else false)
 
@@ -284,11 +284,11 @@ def encdec_vaesef_forwards (arg_ : zvk_vaesef_funct6) : (BitVec 6) :=
 
 def encdec_vaesef_backwards (arg_ : (BitVec 6)) : SailM zvk_vaesef_funct6 := do
   let b__0 := arg_
-  bif (b__0 == (0b101000 : (BitVec 6)))
+  if ((b__0 == (0b101000 : (BitVec 6))) : Bool)
   then (pure ZVK_VAESEF_VV)
   else
     (do
-      bif (b__0 == (0b101001 : (BitVec 6)))
+      if ((b__0 == (0b101001 : (BitVec 6))) : Bool)
       then (pure ZVK_VAESEF_VS)
       else
         (do
@@ -302,10 +302,10 @@ def encdec_vaesef_forwards_matches (arg_ : zvk_vaesef_funct6) : Bool :=
 
 def encdec_vaesef_backwards_matches (arg_ : (BitVec 6)) : Bool :=
   let b__0 := arg_
-  bif (b__0 == (0b101000 : (BitVec 6)))
+  if ((b__0 == (0b101000 : (BitVec 6))) : Bool)
   then true
   else
-    (bif (b__0 == (0b101001 : (BitVec 6)))
+    (if ((b__0 == (0b101001 : (BitVec 6))) : Bool)
     then true
     else false)
 
@@ -336,11 +336,11 @@ def encdec_vaesem_forwards (arg_ : zvk_vaesem_funct6) : (BitVec 6) :=
 
 def encdec_vaesem_backwards (arg_ : (BitVec 6)) : SailM zvk_vaesem_funct6 := do
   let b__0 := arg_
-  bif (b__0 == (0b101000 : (BitVec 6)))
+  if ((b__0 == (0b101000 : (BitVec 6))) : Bool)
   then (pure ZVK_VAESEM_VV)
   else
     (do
-      bif (b__0 == (0b101001 : (BitVec 6)))
+      if ((b__0 == (0b101001 : (BitVec 6))) : Bool)
       then (pure ZVK_VAESEM_VS)
       else
         (do
@@ -354,10 +354,10 @@ def encdec_vaesem_forwards_matches (arg_ : zvk_vaesem_funct6) : Bool :=
 
 def encdec_vaesem_backwards_matches (arg_ : (BitVec 6)) : Bool :=
   let b__0 := arg_
-  bif (b__0 == (0b101000 : (BitVec 6)))
+  if ((b__0 == (0b101000 : (BitVec 6))) : Bool)
   then true
   else
-    (bif (b__0 == (0b101001 : (BitVec 6)))
+    (if ((b__0 == (0b101001 : (BitVec 6))) : Bool)
     then true
     else false)
 

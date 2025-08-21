@@ -173,13 +173,13 @@ open AccessType
 
 def mmu_type (_ : Unit) : SailM String := do
   assert (xlen == 64) "riscv_device_tree.sail:14.21-14.22"
-  bif (hartSupports Ext_Sv57)
+  if ((hartSupports Ext_Sv57) : Bool)
   then (pure "sv57")
   else
-    (bif (hartSupports Ext_Sv48)
+    (if ((hartSupports Ext_Sv48) : Bool)
     then (pure "sv48")
     else
-      (bif (hartSupports Ext_Sv39)
+      (if ((hartSupports Ext_Sv39) : Bool)
       then (pure "sv39")
       else (pure "none")))
 
@@ -201,13 +201,13 @@ def num_of_ISA_Format (arg_ : ISA_Format) : Int :=
   | DeviceTree_ISA_Extensions => 1
 
 def ext_wrap (ext : extension) (fmt : ISA_Format) : String :=
-  bif (not (hartSupports ext))
+  if ((not (hartSupports ext)) : Bool)
   then ""
   else
     (let s := (extensionName_forwards ext)
     match fmt with
     | Canonical_Lowercase =>
-      (bif ((String.length s) == 1)
+      (if (((String.length s) == 1) : Bool)
       then s
       else (HAppend.hAppend "_" s))
     | DeviceTree_ISA_Extensions => (HAppend.hAppend ", \"" (HAppend.hAppend s "\"")))

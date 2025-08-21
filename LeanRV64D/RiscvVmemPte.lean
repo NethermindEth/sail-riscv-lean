@@ -192,13 +192,13 @@ def default_sv32_ext_pte : pte_ext_bits := (zeros (n := 10))
 /-- Type quantifiers: k_pte_size : Nat, k_pte_size ≥ 0, k_pte_size ∈ {32, 64} -/
 def ext_bits_of_PTE (pte : (BitVec k_pte_size)) : (BitVec 10) :=
   (Mk_PTE_Ext
-    (bif ((Sail.BitVec.length pte) == 64)
+    (if (((Sail.BitVec.length pte) == 64) : Bool)
     then (Sail.BitVec.extractLsb pte 63 54)
     else default_sv32_ext_pte))
 
 /-- Type quantifiers: k_pte_size : Nat, k_pte_size ≥ 0, k_pte_size ∈ {32, 64} -/
-def PPN_of_PTE (pte : (BitVec k_pte_size)) : (BitVec (bif k_pte_size = 32 then 22 else 44)) :=
-  bif ((Sail.BitVec.length pte) == 32)
+def PPN_of_PTE (pte : (BitVec k_pte_size)) : (BitVec (if ( k_pte_size = 32  : Bool) then 22 else 44)) :=
+  if (((Sail.BitVec.length pte) == 32) : Bool)
   then (Sail.BitVec.extractLsb pte 31 10)
   else (Sail.BitVec.extractLsb pte 53 10)
 
@@ -219,7 +219,7 @@ def pte_is_invalid (pte_flags : (BitVec 8)) (pte_ext : (BitVec 10)) : SailM Bool
                   (n := 2))) && (not (← (currentlyEnabled Ext_Svpbmt)))) || ((_get_PTE_Ext_reserved
                 pte_ext) != (zeros (n := 7))))))))
 
-/-- Type quantifiers: k_ex377403# : Bool, k_ex377402# : Bool -/
+/-- Type quantifiers: k_ex377411# : Bool, k_ex377410# : Bool -/
 def check_PTE_permission (ac : (AccessType Unit)) (priv : Privilege) (mxr : Bool) (do_sum : Bool) (pte_flags : (BitVec 8)) (ext : (BitVec 10)) (ext_ptw : Unit) : SailM PTE_Check := do
   let pte_U := (bits_to_bool (_get_PTE_Flags_U pte_flags))
   let pte_R := (bits_to_bool (_get_PTE_Flags_R pte_flags))
@@ -238,7 +238,7 @@ def check_PTE_permission (ac : (AccessType Unit)) (priv : Privilege) (mxr : Bool
     | (.InstructionFetch (), Supervisor) => (pure ((not pte_U) && pte_X))
     | (_, Machine) => (internal_error "riscv_vmem_pte.sail" 123 "m-mode mem perm check") ) : SailM
     Bool )
-  bif success
+  if (success : Bool)
   then (pure (PTE_Check_Success ()))
   else (pure (PTE_Check_Failure ((), ())))
 
@@ -252,11 +252,11 @@ def update_PTE_Bits (pte : (BitVec k_pte_size)) (a : (AccessType Unit)) : (Optio
       | .Write _ => true
       | .ReadWrite (_, _) => true : Bool))
   let update_a := ((_get_PTE_Flags_A pte_flags) == (0b0 : (BitVec 1)))
-  bif (update_d || update_a)
+  if ((update_d || update_a) : Bool)
   then
     (let pte_flags :=
       (_update_PTE_Flags_D (_update_PTE_Flags_A pte_flags (0b1 : (BitVec 1)))
-        (bif update_d
+        (if (update_d : Bool)
         then (0b1 : (BitVec 1))
         else (_get_PTE_Flags_D pte_flags)))
     (some (Sail.BitVec.updateSubrange pte 7 0 pte_flags)))

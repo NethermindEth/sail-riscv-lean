@@ -173,66 +173,111 @@ open ExceptionType
 open Architecture
 open AccessType
 
-def zba_rtypeuw_mnemonic_backwards (arg_ : String) : SailM (BitVec 2) := do
+def undefined_brop_zbb (_ : Unit) : SailM brop_zbb := do
+  (internal_pick [ANDN, ORN, XNOR, MAX, MAXU, MIN, MINU, ROL, ROR])
+
+/-- Type quantifiers: arg_ : Nat, 0 ≤ arg_ ∧ arg_ ≤ 8 -/
+def brop_zbb_of_num (arg_ : Nat) : brop_zbb :=
   match arg_ with
-  | "add.uw" => (pure (0b00 : (BitVec 2)))
-  | "sh1add.uw" => (pure (0b01 : (BitVec 2)))
-  | "sh2add.uw" => (pure (0b10 : (BitVec 2)))
-  | "sh3add.uw" => (pure (0b11 : (BitVec 2)))
-  | _ =>
-    (do
-      assert false "Pattern match failure at unknown location"
-      throw Error.Exit)
+  | 0 => ANDN
+  | 1 => ORN
+  | 2 => XNOR
+  | 3 => MAX
+  | 4 => MAXU
+  | 5 => MIN
+  | 6 => MINU
+  | 7 => ROL
+  | _ => ROR
 
-def zba_rtypeuw_mnemonic_forwards_matches (arg_ : (BitVec 2)) : Bool :=
-  let b__0 := arg_
-  if ((b__0 == (0b00 : (BitVec 2))) : Bool)
-  then true
-  else
-    (if ((b__0 == (0b01 : (BitVec 2))) : Bool)
-    then true
-    else
-      (if ((b__0 == (0b10 : (BitVec 2))) : Bool)
-      then true
-      else
-        (if ((b__0 == (0b11 : (BitVec 2))) : Bool)
-        then true
-        else false)))
-
-def zba_rtypeuw_mnemonic_backwards_matches (arg_ : String) : Bool :=
+def num_of_brop_zbb (arg_ : brop_zbb) : Int :=
   match arg_ with
-  | "add.uw" => true
-  | "sh1add.uw" => true
-  | "sh2add.uw" => true
-  | "sh3add.uw" => true
-  | _ => false
+  | ANDN => 0
+  | ORN => 1
+  | XNOR => 2
+  | MAX => 3
+  | MAXU => 4
+  | MIN => 5
+  | MINU => 6
+  | ROL => 7
+  | ROR => 8
 
-def zba_rtype_mnemonic_backwards (arg_ : String) : SailM (BitVec 2) := do
+def undefined_brop_zbkb (_ : Unit) : SailM brop_zbkb := do
+  (internal_pick [PACK, PACKH])
+
+/-- Type quantifiers: arg_ : Nat, 0 ≤ arg_ ∧ arg_ ≤ 1 -/
+def brop_zbkb_of_num (arg_ : Nat) : brop_zbkb :=
   match arg_ with
-  | "sh1add" => (pure (0b01 : (BitVec 2)))
-  | "sh2add" => (pure (0b10 : (BitVec 2)))
-  | "sh3add" => (pure (0b11 : (BitVec 2)))
-  | _ =>
-    (do
-      assert false "Pattern match failure at unknown location"
-      throw Error.Exit)
+  | 0 => PACK
+  | _ => PACKH
 
-def zba_rtype_mnemonic_forwards_matches (arg_ : (BitVec 2)) : Bool :=
-  let b__0 := arg_
-  if ((b__0 == (0b01 : (BitVec 2))) : Bool)
-  then true
-  else
-    (if ((b__0 == (0b10 : (BitVec 2))) : Bool)
-    then true
-    else
-      (if ((b__0 == (0b11 : (BitVec 2))) : Bool)
-      then true
-      else false))
-
-def zba_rtype_mnemonic_backwards_matches (arg_ : String) : Bool :=
+def num_of_brop_zbkb (arg_ : brop_zbkb) : Int :=
   match arg_ with
-  | "sh1add" => true
-  | "sh2add" => true
-  | "sh3add" => true
-  | _ => false
+  | PACK => 0
+  | PACKH => 1
+
+def undefined_brop_zbs (_ : Unit) : SailM brop_zbs := do
+  (internal_pick [BCLR, BEXT, BINV, BSET])
+
+/-- Type quantifiers: arg_ : Nat, 0 ≤ arg_ ∧ arg_ ≤ 3 -/
+def brop_zbs_of_num (arg_ : Nat) : brop_zbs :=
+  match arg_ with
+  | 0 => BCLR
+  | 1 => BEXT
+  | 2 => BINV
+  | _ => BSET
+
+def num_of_brop_zbs (arg_ : brop_zbs) : Int :=
+  match arg_ with
+  | BCLR => 0
+  | BEXT => 1
+  | BINV => 2
+  | BSET => 3
+
+def undefined_bropw_zbb (_ : Unit) : SailM bropw_zbb := do
+  (internal_pick [ROLW, RORW])
+
+/-- Type quantifiers: arg_ : Nat, 0 ≤ arg_ ∧ arg_ ≤ 1 -/
+def bropw_zbb_of_num (arg_ : Nat) : bropw_zbb :=
+  match arg_ with
+  | 0 => ROLW
+  | _ => RORW
+
+def num_of_bropw_zbb (arg_ : bropw_zbb) : Int :=
+  match arg_ with
+  | ROLW => 0
+  | RORW => 1
+
+def undefined_biop_zbs (_ : Unit) : SailM biop_zbs := do
+  (internal_pick [BCLRI, BEXTI, BINVI, BSETI])
+
+/-- Type quantifiers: arg_ : Nat, 0 ≤ arg_ ∧ arg_ ≤ 3 -/
+def biop_zbs_of_num (arg_ : Nat) : biop_zbs :=
+  match arg_ with
+  | 0 => BCLRI
+  | 1 => BEXTI
+  | 2 => BINVI
+  | _ => BSETI
+
+def num_of_biop_zbs (arg_ : biop_zbs) : Int :=
+  match arg_ with
+  | BCLRI => 0
+  | BEXTI => 1
+  | BINVI => 2
+  | BSETI => 3
+
+def undefined_extop_zbb (_ : Unit) : SailM extop_zbb := do
+  (internal_pick [SEXTB, SEXTH, ZEXTH])
+
+/-- Type quantifiers: arg_ : Nat, 0 ≤ arg_ ∧ arg_ ≤ 2 -/
+def extop_zbb_of_num (arg_ : Nat) : extop_zbb :=
+  match arg_ with
+  | 0 => SEXTB
+  | 1 => SEXTH
+  | _ => ZEXTH
+
+def num_of_extop_zbb (arg_ : extop_zbb) : Int :=
+  match arg_ with
+  | SEXTB => 0
+  | SEXTH => 1
+  | ZEXTH => 2
 

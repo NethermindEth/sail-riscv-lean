@@ -226,19 +226,19 @@ def encdec_ntl_forwards (arg_ : ntl_type) : (BitVec 5) :=
 
 def encdec_ntl_backwards (arg_ : (BitVec 5)) : SailM ntl_type := do
   let b__0 := arg_
-  bif (b__0 == (0b00010 : (BitVec 5)))
+  if ((b__0 == (0b00010 : (BitVec 5))) : Bool)
   then (pure NTL_P1)
   else
     (do
-      bif (b__0 == (0b00011 : (BitVec 5)))
+      if ((b__0 == (0b00011 : (BitVec 5))) : Bool)
       then (pure NTL_PALL)
       else
         (do
-          bif (b__0 == (0b00100 : (BitVec 5)))
+          if ((b__0 == (0b00100 : (BitVec 5))) : Bool)
           then (pure NTL_S1)
           else
             (do
-              bif (b__0 == (0b00101 : (BitVec 5)))
+              if ((b__0 == (0b00101 : (BitVec 5))) : Bool)
               then (pure NTL_ALL)
               else
                 (do
@@ -254,16 +254,16 @@ def encdec_ntl_forwards_matches (arg_ : ntl_type) : Bool :=
 
 def encdec_ntl_backwards_matches (arg_ : (BitVec 5)) : Bool :=
   let b__0 := arg_
-  bif (b__0 == (0b00010 : (BitVec 5)))
+  if ((b__0 == (0b00010 : (BitVec 5))) : Bool)
   then true
   else
-    (bif (b__0 == (0b00011 : (BitVec 5)))
+    (if ((b__0 == (0b00011 : (BitVec 5))) : Bool)
     then true
     else
-      (bif (b__0 == (0b00100 : (BitVec 5)))
+      (if ((b__0 == (0b00100 : (BitVec 5))) : Bool)
       then true
       else
-        (bif (b__0 == (0b00101 : (BitVec 5)))
+        (if ((b__0 == (0b00101 : (BitVec 5))) : Bool)
         then true
         else false)))
 

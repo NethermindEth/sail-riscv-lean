@@ -173,7 +173,7 @@ open AccessType
 /-- Type quantifiers: emul_pow : Int -/
 def zvk_valid_reg_overlap (rs : vregidx) (rd : vregidx) (emul_pow : Int) : Bool :=
   let reg_group_size :=
-    bif (emul_pow >b 0)
+    if ((emul_pow >b 0) : Bool)
     then (2 ^i emul_pow)
     else 1
   let rs_int := (BitVec.toNat (vregidx_bits rs))
@@ -184,7 +184,7 @@ def zvk_valid_reg_overlap (rs : vregidx) (rd : vregidx) (emul_pow : Int) : Bool 
 def zvk_check_encdec (EGW : Nat) (EGS : Nat) : SailM Bool := do
   let LMUL_pow ← do (get_lmul_pow ())
   let LMUL_times_VLEN :=
-    bif (LMUL_pow <b 0)
+    if ((LMUL_pow <b 0) : Bool)
     then (Int.tdiv vlen (2 ^i (Int.natAbs LMUL_pow)))
     else ((2 ^i LMUL_pow) *i vlen)
   (pure (((Int.tmod (BitVec.toNat (← readReg vl)) EGS) == 0) && (← do
@@ -292,7 +292,7 @@ def zvk_ff2 (X : (BitVec 32)) (Y : (BitVec 32)) (Z : (BitVec 32)) : (BitVec 32) 
 
 /-- Type quantifiers: J : Nat, 0 ≤ J -/
 def zvk_ff_j (X : (BitVec 32)) (Y : (BitVec 32)) (Z : (BitVec 32)) (J : Nat) : (BitVec 32) :=
-  bif (J ≤b 15)
+  if ((J ≤b 15) : Bool)
   then (zvk_ff1 X Y Z)
   else (zvk_ff2 X Y Z)
 
@@ -304,13 +304,13 @@ def zvk_gg2 (X : (BitVec 32)) (Y : (BitVec 32)) (Z : (BitVec 32)) : (BitVec 32) 
 
 /-- Type quantifiers: J : Nat, 0 ≤ J -/
 def zvk_gg_j (X : (BitVec 32)) (Y : (BitVec 32)) (Z : (BitVec 32)) (J : Nat) : (BitVec 32) :=
-  bif (J ≤b 15)
+  if ((J ≤b 15) : Bool)
   then (zvk_gg1 X Y Z)
   else (zvk_gg2 X Y Z)
 
 /-- Type quantifiers: J : Nat, 0 ≤ J -/
 def zvk_t_j (J : Nat) : (BitVec 32) :=
-  bif (J ≤b 15)
+  if ((J ≤b 15) : Bool)
   then (0x79CC4519 : (BitVec 32))
   else (0x7A879D8A : (BitVec 32))
 

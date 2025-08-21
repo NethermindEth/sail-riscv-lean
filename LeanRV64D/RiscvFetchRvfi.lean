@@ -190,8 +190,8 @@ def rvfi_fetch (_ : Unit) : SailM FetchResult := do
   | .Ext_FetchAddr_OK use_pc =>
     (do
       let use_pc_bits := (bits_of_virtaddr use_pc)
-      bif ((bne (BitVec.access use_pc_bits 0) 0#1) || ((bne (BitVec.access use_pc_bits 1) 0#1) && (not
-               (← (currentlyEnabled Ext_Zca)))))
+      if (((bne (BitVec.access use_pc_bits 0) 0#1) || ((bne (BitVec.access use_pc_bits 1) 0#1) && (not
+               (← (currentlyEnabled Ext_Zca))))) : Bool)
       then (pure (F_Error ((E_Fetch_Addr_Align ()), (← readReg PC))))
       else
         (do
@@ -203,7 +203,7 @@ def rvfi_fetch (_ : Unit) : SailM FetchResult := do
                 (pure (_get_RVFI_DII_Instruction_Packet_rvfi_insn (← readReg rvfi_instruction)))
               writeReg rvfi_inst_data (Sail.BitVec.updateSubrange (← readReg rvfi_inst_data) 127
                 64 (zero_extend (m := 64) i))
-              bif ((Sail.BitVec.extractLsb i 1 0) != (0b11 : (BitVec 2)))
+              if (((Sail.BitVec.extractLsb i 1 0) != (0b11 : (BitVec 2))) : Bool)
               then (pure (F_RVC (Sail.BitVec.extractLsb i 15 0)))
               else
                 (do

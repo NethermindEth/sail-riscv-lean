@@ -173,66 +173,143 @@ open ExceptionType
 open Architecture
 open AccessType
 
-def zba_rtypeuw_mnemonic_backwards (arg_ : String) : SailM (BitVec 2) := do
+def undefined_uop (_ : Unit) : SailM uop := do
+  (internal_pick [LUI, AUIPC])
+
+/-- Type quantifiers: arg_ : Nat, 0 ≤ arg_ ∧ arg_ ≤ 1 -/
+def uop_of_num (arg_ : Nat) : uop :=
   match arg_ with
-  | "add.uw" => (pure (0b00 : (BitVec 2)))
-  | "sh1add.uw" => (pure (0b01 : (BitVec 2)))
-  | "sh2add.uw" => (pure (0b10 : (BitVec 2)))
-  | "sh3add.uw" => (pure (0b11 : (BitVec 2)))
-  | _ =>
-    (do
-      assert false "Pattern match failure at unknown location"
-      throw Error.Exit)
+  | 0 => LUI
+  | _ => AUIPC
 
-def zba_rtypeuw_mnemonic_forwards_matches (arg_ : (BitVec 2)) : Bool :=
-  let b__0 := arg_
-  if ((b__0 == (0b00 : (BitVec 2))) : Bool)
-  then true
-  else
-    (if ((b__0 == (0b01 : (BitVec 2))) : Bool)
-    then true
-    else
-      (if ((b__0 == (0b10 : (BitVec 2))) : Bool)
-      then true
-      else
-        (if ((b__0 == (0b11 : (BitVec 2))) : Bool)
-        then true
-        else false)))
-
-def zba_rtypeuw_mnemonic_backwards_matches (arg_ : String) : Bool :=
+def num_of_uop (arg_ : uop) : Int :=
   match arg_ with
-  | "add.uw" => true
-  | "sh1add.uw" => true
-  | "sh2add.uw" => true
-  | "sh3add.uw" => true
-  | _ => false
+  | LUI => 0
+  | AUIPC => 1
 
-def zba_rtype_mnemonic_backwards (arg_ : String) : SailM (BitVec 2) := do
+def undefined_bop (_ : Unit) : SailM bop := do
+  (internal_pick [BEQ, BNE, BLT, BGE, BLTU, BGEU])
+
+/-- Type quantifiers: arg_ : Nat, 0 ≤ arg_ ∧ arg_ ≤ 5 -/
+def bop_of_num (arg_ : Nat) : bop :=
   match arg_ with
-  | "sh1add" => (pure (0b01 : (BitVec 2)))
-  | "sh2add" => (pure (0b10 : (BitVec 2)))
-  | "sh3add" => (pure (0b11 : (BitVec 2)))
-  | _ =>
-    (do
-      assert false "Pattern match failure at unknown location"
-      throw Error.Exit)
+  | 0 => BEQ
+  | 1 => BNE
+  | 2 => BLT
+  | 3 => BGE
+  | 4 => BLTU
+  | _ => BGEU
 
-def zba_rtype_mnemonic_forwards_matches (arg_ : (BitVec 2)) : Bool :=
-  let b__0 := arg_
-  if ((b__0 == (0b01 : (BitVec 2))) : Bool)
-  then true
-  else
-    (if ((b__0 == (0b10 : (BitVec 2))) : Bool)
-    then true
-    else
-      (if ((b__0 == (0b11 : (BitVec 2))) : Bool)
-      then true
-      else false))
-
-def zba_rtype_mnemonic_backwards_matches (arg_ : String) : Bool :=
+def num_of_bop (arg_ : bop) : Int :=
   match arg_ with
-  | "sh1add" => true
-  | "sh2add" => true
-  | "sh3add" => true
-  | _ => false
+  | BEQ => 0
+  | BNE => 1
+  | BLT => 2
+  | BGE => 3
+  | BLTU => 4
+  | BGEU => 5
+
+def undefined_iop (_ : Unit) : SailM iop := do
+  (internal_pick [ADDI, SLTI, SLTIU, XORI, ORI, ANDI])
+
+/-- Type quantifiers: arg_ : Nat, 0 ≤ arg_ ∧ arg_ ≤ 5 -/
+def iop_of_num (arg_ : Nat) : iop :=
+  match arg_ with
+  | 0 => ADDI
+  | 1 => SLTI
+  | 2 => SLTIU
+  | 3 => XORI
+  | 4 => ORI
+  | _ => ANDI
+
+def num_of_iop (arg_ : iop) : Int :=
+  match arg_ with
+  | ADDI => 0
+  | SLTI => 1
+  | SLTIU => 2
+  | XORI => 3
+  | ORI => 4
+  | ANDI => 5
+
+def undefined_sop (_ : Unit) : SailM sop := do
+  (internal_pick [SLLI, SRLI, SRAI])
+
+/-- Type quantifiers: arg_ : Nat, 0 ≤ arg_ ∧ arg_ ≤ 2 -/
+def sop_of_num (arg_ : Nat) : sop :=
+  match arg_ with
+  | 0 => SLLI
+  | 1 => SRLI
+  | _ => SRAI
+
+def num_of_sop (arg_ : sop) : Int :=
+  match arg_ with
+  | SLLI => 0
+  | SRLI => 1
+  | SRAI => 2
+
+def undefined_rop (_ : Unit) : SailM rop := do
+  (internal_pick [ADD, SUB, SLL, SLT, SLTU, XOR, SRL, SRA, OR, AND])
+
+/-- Type quantifiers: arg_ : Nat, 0 ≤ arg_ ∧ arg_ ≤ 9 -/
+def rop_of_num (arg_ : Nat) : rop :=
+  match arg_ with
+  | 0 => ADD
+  | 1 => SUB
+  | 2 => SLL
+  | 3 => SLT
+  | 4 => SLTU
+  | 5 => XOR
+  | 6 => SRL
+  | 7 => SRA
+  | 8 => OR
+  | _ => AND
+
+def num_of_rop (arg_ : rop) : Int :=
+  match arg_ with
+  | ADD => 0
+  | SUB => 1
+  | SLL => 2
+  | SLT => 3
+  | SLTU => 4
+  | XOR => 5
+  | SRL => 6
+  | SRA => 7
+  | OR => 8
+  | AND => 9
+
+def undefined_ropw (_ : Unit) : SailM ropw := do
+  (internal_pick [ADDW, SUBW, SLLW, SRLW, SRAW])
+
+/-- Type quantifiers: arg_ : Nat, 0 ≤ arg_ ∧ arg_ ≤ 4 -/
+def ropw_of_num (arg_ : Nat) : ropw :=
+  match arg_ with
+  | 0 => ADDW
+  | 1 => SUBW
+  | 2 => SLLW
+  | 3 => SRLW
+  | _ => SRAW
+
+def num_of_ropw (arg_ : ropw) : Int :=
+  match arg_ with
+  | ADDW => 0
+  | SUBW => 1
+  | SLLW => 2
+  | SRLW => 3
+  | SRAW => 4
+
+def undefined_sopw (_ : Unit) : SailM sopw := do
+  (internal_pick [SLLIW, SRLIW, SRAIW])
+
+/-- Type quantifiers: arg_ : Nat, 0 ≤ arg_ ∧ arg_ ≤ 2 -/
+def sopw_of_num (arg_ : Nat) : sopw :=
+  match arg_ with
+  | 0 => SLLIW
+  | 1 => SRLIW
+  | _ => SRAIW
+
+def num_of_sopw (arg_ : sopw) : Int :=
+  match arg_ with
+  | SLLIW => 0
+  | SRLIW => 1
+  | SRAIW => 2
 

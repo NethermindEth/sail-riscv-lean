@@ -180,11 +180,11 @@ def encdec_vsha2_forwards (arg_ : zvk_vsha2_funct6) : (BitVec 6) :=
 
 def encdec_vsha2_backwards (arg_ : (BitVec 6)) : SailM zvk_vsha2_funct6 := do
   let b__0 := arg_
-  bif (b__0 == (0b101110 : (BitVec 6)))
+  if ((b__0 == (0b101110 : (BitVec 6))) : Bool)
   then (pure ZVK_VSHA2CH_VV)
   else
     (do
-      bif (b__0 == (0b101111 : (BitVec 6)))
+      if ((b__0 == (0b101111 : (BitVec 6))) : Bool)
       then (pure ZVK_VSHA2CL_VV)
       else
         (do
@@ -198,10 +198,10 @@ def encdec_vsha2_forwards_matches (arg_ : zvk_vsha2_funct6) : Bool :=
 
 def encdec_vsha2_backwards_matches (arg_ : (BitVec 6)) : Bool :=
   let b__0 := arg_
-  bif (b__0 == (0b101110 : (BitVec 6)))
+  if ((b__0 == (0b101110 : (BitVec 6))) : Bool)
   then true
   else
-    (bif (b__0 == (0b101111 : (BitVec 6)))
+    (if ((b__0 == (0b101111 : (BitVec 6))) : Bool)
     then true
     else false)
 

@@ -181,27 +181,27 @@ def encdec_rounding_mode_forwards (arg_ : rounding_mode) : (BitVec 3) :=
 
 def encdec_rounding_mode_backwards (arg_ : (BitVec 3)) : SailM rounding_mode := do
   let b__0 := arg_
-  bif (b__0 == (0b000 : (BitVec 3)))
+  if ((b__0 == (0b000 : (BitVec 3))) : Bool)
   then (pure RM_RNE)
   else
     (do
-      bif (b__0 == (0b001 : (BitVec 3)))
+      if ((b__0 == (0b001 : (BitVec 3))) : Bool)
       then (pure RM_RTZ)
       else
         (do
-          bif (b__0 == (0b010 : (BitVec 3)))
+          if ((b__0 == (0b010 : (BitVec 3))) : Bool)
           then (pure RM_RDN)
           else
             (do
-              bif (b__0 == (0b011 : (BitVec 3)))
+              if ((b__0 == (0b011 : (BitVec 3))) : Bool)
               then (pure RM_RUP)
               else
                 (do
-                  bif (b__0 == (0b100 : (BitVec 3)))
+                  if ((b__0 == (0b100 : (BitVec 3))) : Bool)
                   then (pure RM_RMM)
                   else
                     (do
-                      bif (b__0 == (0b111 : (BitVec 3)))
+                      if ((b__0 == (0b111 : (BitVec 3))) : Bool)
                       then (pure RM_DYN)
                       else
                         (do
@@ -219,22 +219,22 @@ def encdec_rounding_mode_forwards_matches (arg_ : rounding_mode) : Bool :=
 
 def encdec_rounding_mode_backwards_matches (arg_ : (BitVec 3)) : Bool :=
   let b__0 := arg_
-  bif (b__0 == (0b000 : (BitVec 3)))
+  if ((b__0 == (0b000 : (BitVec 3))) : Bool)
   then true
   else
-    (bif (b__0 == (0b001 : (BitVec 3)))
+    (if ((b__0 == (0b001 : (BitVec 3))) : Bool)
     then true
     else
-      (bif (b__0 == (0b010 : (BitVec 3)))
+      (if ((b__0 == (0b010 : (BitVec 3))) : Bool)
       then true
       else
-        (bif (b__0 == (0b011 : (BitVec 3)))
+        (if ((b__0 == (0b011 : (BitVec 3))) : Bool)
         then true
         else
-          (bif (b__0 == (0b100 : (BitVec 3)))
+          (if ((b__0 == (0b100 : (BitVec 3))) : Bool)
           then true
           else
-            (bif (b__0 == (0b111 : (BitVec 3)))
+            (if ((b__0 == (0b111 : (BitVec 3))) : Bool)
             then true
             else false)))))
 
@@ -274,11 +274,11 @@ def valid_rounding_mode (rm : (BitVec 3)) : Bool :=
   ((rm != (0b101 : (BitVec 3))) && (rm != (0b110 : (BitVec 3))))
 
 def select_instr_or_fcsr_rm (instr_rm : rounding_mode) : SailM (Option rounding_mode) := do
-  bif (instr_rm == RM_DYN)
+  if ((instr_rm == RM_DYN) : Bool)
   then
     (do
       let fcsr_rm ← do (pure (_get_Fcsr_FRM (← readReg fcsr)))
-      bif ((valid_rounding_mode fcsr_rm) && (fcsr_rm != (encdec_rounding_mode_forwards RM_DYN)))
+      if (((valid_rounding_mode fcsr_rm) && (fcsr_rm != (encdec_rounding_mode_forwards RM_DYN))) : Bool)
       then (pure (some (← (encdec_rounding_mode_backwards fcsr_rm))))
       else (pure none))
   else (pure (some instr_rm))
@@ -352,7 +352,7 @@ def f_is_NaN_S (x32 : (BitVec 32)) : Bool :=
 def negate_S (x32 : (BitVec 32)) : (BitVec 32) :=
   let (sign, exp, mant) := (fsplit_S x32)
   let new_sign :=
-    bif (sign == (0b0 : (BitVec 1)))
+    if ((sign == (0b0 : (BitVec 1))) : Bool)
     then (0b1 : (BitVec 1))
     else (0b0 : (BitVec 1))
   (fmake_S new_sign exp mant)
@@ -364,7 +364,7 @@ def feq_quiet_S (v1 : (BitVec 32)) (v2 : (BitVec 32)) : (Bool × (BitVec 5)) :=
   let v2Is0 := ((f_is_neg_zero_S v2) || (f_is_pos_zero_S v2))
   let result := ((v1 == v2) || (v1Is0 && v2Is0))
   let fflags :=
-    bif ((f_is_SNaN_S v1) || (f_is_SNaN_S v2))
+    if (((f_is_SNaN_S v1) || (f_is_SNaN_S v2)) : Bool)
     then (nvFlag ())
     else (zeros (n := 5))
   (result, fflags)
@@ -374,29 +374,29 @@ def flt_S (v1 : (BitVec 32)) (v2 : (BitVec 32)) (is_quiet : Bool) : (Bool × (Bi
   let (s1, e1, m1) := (fsplit_S v1)
   let (s2, e2, m2) := (fsplit_S v2)
   let result : Bool :=
-    bif ((s1 == (0b0 : (BitVec 1))) && (s2 == (0b0 : (BitVec 1))))
+    if (((s1 == (0b0 : (BitVec 1))) && (s2 == (0b0 : (BitVec 1)))) : Bool)
     then
-      (bif (e1 == e2)
+      (if ((e1 == e2) : Bool)
       then ((BitVec.toNat m1) <b (BitVec.toNat m2))
       else ((BitVec.toNat e1) <b (BitVec.toNat e2)))
     else
-      (bif ((s1 == (0b0 : (BitVec 1))) && (s2 == (0b1 : (BitVec 1))))
+      (if (((s1 == (0b0 : (BitVec 1))) && (s2 == (0b1 : (BitVec 1)))) : Bool)
       then false
       else
-        (bif ((s1 == (0b1 : (BitVec 1))) && (s2 == (0b0 : (BitVec 1))))
+        (if (((s1 == (0b1 : (BitVec 1))) && (s2 == (0b0 : (BitVec 1)))) : Bool)
         then true
         else
-          (bif (e1 == e2)
+          (if ((e1 == e2) : Bool)
           then ((BitVec.toNat m1) >b (BitVec.toNat m2))
           else ((BitVec.toNat e1) >b (BitVec.toNat e2)))))
   let fflags :=
-    bif is_quiet
+    if (is_quiet : Bool)
     then
-      (bif ((f_is_SNaN_S v1) || (f_is_SNaN_S v2))
+      (if (((f_is_SNaN_S v1) || (f_is_SNaN_S v2)) : Bool)
       then (nvFlag ())
       else (zeros (n := 5)))
     else
-      (bif ((f_is_NaN_S v1) || (f_is_NaN_S v2))
+      (if (((f_is_NaN_S v1) || (f_is_NaN_S v2)) : Bool)
       then (nvFlag ())
       else (zeros (n := 5)))
   (result, fflags)
@@ -408,29 +408,29 @@ def fle_S (v1 : (BitVec 32)) (v2 : (BitVec 32)) (is_quiet : Bool) : (Bool × (Bi
   let v1Is0 := ((f_is_neg_zero_S v1) || (f_is_pos_zero_S v1))
   let v2Is0 := ((f_is_neg_zero_S v2) || (f_is_pos_zero_S v2))
   let result : Bool :=
-    bif ((s1 == (0b0 : (BitVec 1))) && (s2 == (0b0 : (BitVec 1))))
+    if (((s1 == (0b0 : (BitVec 1))) && (s2 == (0b0 : (BitVec 1)))) : Bool)
     then
-      (bif (e1 == e2)
+      (if ((e1 == e2) : Bool)
       then ((BitVec.toNat m1) ≤b (BitVec.toNat m2))
       else ((BitVec.toNat e1) <b (BitVec.toNat e2)))
     else
-      (bif ((s1 == (0b0 : (BitVec 1))) && (s2 == (0b1 : (BitVec 1))))
+      (if (((s1 == (0b0 : (BitVec 1))) && (s2 == (0b1 : (BitVec 1)))) : Bool)
       then (v1Is0 && v2Is0)
       else
-        (bif ((s1 == (0b1 : (BitVec 1))) && (s2 == (0b0 : (BitVec 1))))
+        (if (((s1 == (0b1 : (BitVec 1))) && (s2 == (0b0 : (BitVec 1)))) : Bool)
         then true
         else
-          (bif (e1 == e2)
+          (if ((e1 == e2) : Bool)
           then ((BitVec.toNat m1) ≥b (BitVec.toNat m2))
           else ((BitVec.toNat e1) >b (BitVec.toNat e2)))))
   let fflags :=
-    bif is_quiet
+    if (is_quiet : Bool)
     then
-      (bif ((f_is_SNaN_S v1) || (f_is_SNaN_S v2))
+      (if (((f_is_SNaN_S v1) || (f_is_SNaN_S v2)) : Bool)
       then (nvFlag ())
       else (zeros (n := 5)))
     else
-      (bif ((f_is_NaN_S v1) || (f_is_NaN_S v2))
+      (if (((f_is_NaN_S v1) || (f_is_NaN_S v2)) : Bool)
       then (nvFlag ())
       else (zeros (n := 5)))
   (result, fflags)

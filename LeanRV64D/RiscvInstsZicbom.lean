@@ -190,15 +190,15 @@ def encdec_cbop_forwards (arg_ : cbop_zicbom) : (BitVec 12) :=
 
 def encdec_cbop_backwards (arg_ : (BitVec 12)) : SailM cbop_zicbom := do
   let b__0 := arg_
-  bif (b__0 == (0x001 : (BitVec 12)))
+  if ((b__0 == (0x001 : (BitVec 12))) : Bool)
   then (pure CBO_CLEAN)
   else
     (do
-      bif (b__0 == (0x002 : (BitVec 12)))
+      if ((b__0 == (0x002 : (BitVec 12))) : Bool)
       then (pure CBO_FLUSH)
       else
         (do
-          bif (b__0 == (0x000 : (BitVec 12)))
+          if ((b__0 == (0x000 : (BitVec 12))) : Bool)
           then (pure CBO_INVAL)
           else
             (do
@@ -213,13 +213,13 @@ def encdec_cbop_forwards_matches (arg_ : cbop_zicbom) : Bool :=
 
 def encdec_cbop_backwards_matches (arg_ : (BitVec 12)) : Bool :=
   let b__0 := arg_
-  bif (b__0 == (0x001 : (BitVec 12)))
+  if ((b__0 == (0x001 : (BitVec 12))) : Bool)
   then true
   else
-    (bif (b__0 == (0x002 : (BitVec 12)))
+    (if ((b__0 == (0x002 : (BitVec 12))) : Bool)
     then true
     else
-      (bif (b__0 == (0x000 : (BitVec 12)))
+      (if ((b__0 == (0x000 : (BitVec 12))) : Bool)
       then true
       else false))
 
@@ -270,15 +270,15 @@ def encdec_cbie_forwards (arg_ : cbie) : (BitVec 2) :=
 
 def encdec_cbie_backwards (arg_ : (BitVec 2)) : SailM cbie := do
   let b__0 := arg_
-  bif (b__0 == (0b00 : (BitVec 2)))
+  if ((b__0 == (0b00 : (BitVec 2))) : Bool)
   then (pure CBIE_ILLEGAL)
   else
     (do
-      bif (b__0 == (0b01 : (BitVec 2)))
+      if ((b__0 == (0b01 : (BitVec 2))) : Bool)
       then (pure CBIE_EXEC_FLUSH)
       else
         (do
-          bif (b__0 == (0b11 : (BitVec 2)))
+          if ((b__0 == (0b11 : (BitVec 2))) : Bool)
           then (pure CBIE_EXEC_INVAL)
           else (internal_error "riscv_insts_zicbom.sail" 44 "reserved CBIE")))
 
@@ -290,16 +290,16 @@ def encdec_cbie_forwards_matches (arg_ : cbie) : Bool :=
 
 def encdec_cbie_backwards_matches (arg_ : (BitVec 2)) : Bool :=
   let b__0 := arg_
-  bif (b__0 == (0b00 : (BitVec 2)))
+  if ((b__0 == (0b00 : (BitVec 2))) : Bool)
   then true
   else
-    (bif (b__0 == (0b01 : (BitVec 2)))
+    (if ((b__0 == (0b01 : (BitVec 2))) : Bool)
     then true
     else
-      (bif (b__0 == (0b11 : (BitVec 2)))
+      (if ((b__0 == (0b11 : (BitVec 2))) : Bool)
       then true
       else
-        (bif (b__0 == (0b10 : (BitVec 2)))
+        (if ((b__0 == (0b10 : (BitVec 2))) : Bool)
         then true
         else false)))
 
@@ -325,7 +325,7 @@ def cbop_priv_check (p : Privilege) : SailM checked_cbop := do
   let mCBIE ← (( do (encdec_cbie_backwards (_get_MEnvcfg_CBIE (← readReg menvcfg))) ) : SailM
     cbie )
   let sCBIE ← (( do
-    bif (← (currentlyEnabled Ext_S))
+    if ((← (currentlyEnabled Ext_S)) : Bool)
     then (encdec_cbie_backwards (_get_SEnvcfg_CBIE (← readReg senvcfg)))
     else (encdec_cbie_backwards (_get_MEnvcfg_CBIE (← readReg menvcfg))) ) : SailM cbie )
   match (p, mCBIE, sCBIE) with

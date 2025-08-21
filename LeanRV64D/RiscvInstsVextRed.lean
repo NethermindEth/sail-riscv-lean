@@ -180,11 +180,11 @@ def encdec_rivvfunct6_forwards (arg_ : rivvfunct6) : (BitVec 6) :=
 
 def encdec_rivvfunct6_backwards (arg_ : (BitVec 6)) : SailM rivvfunct6 := do
   let b__0 := arg_
-  bif (b__0 == (0b110000 : (BitVec 6)))
+  if ((b__0 == (0b110000 : (BitVec 6))) : Bool)
   then (pure IVV_VWREDSUMU)
   else
     (do
-      bif (b__0 == (0b110001 : (BitVec 6)))
+      if ((b__0 == (0b110001 : (BitVec 6))) : Bool)
       then (pure IVV_VWREDSUM)
       else
         (do
@@ -198,10 +198,10 @@ def encdec_rivvfunct6_forwards_matches (arg_ : rivvfunct6) : Bool :=
 
 def encdec_rivvfunct6_backwards_matches (arg_ : (BitVec 6)) : Bool :=
   let b__0 := arg_
-  bif (b__0 == (0b110000 : (BitVec 6)))
+  if ((b__0 == (0b110000 : (BitVec 6))) : Bool)
   then true
   else
-    (bif (b__0 == (0b110001 : (BitVec 6)))
+    (if ((b__0 == (0b110001 : (BitVec 6))) : Bool)
     then true
     else false)
 
@@ -238,35 +238,35 @@ def encdec_rmvvfunct6_forwards (arg_ : rmvvfunct6) : (BitVec 6) :=
 
 def encdec_rmvvfunct6_backwards (arg_ : (BitVec 6)) : SailM rmvvfunct6 := do
   let b__0 := arg_
-  bif (b__0 == (0b000000 : (BitVec 6)))
+  if ((b__0 == (0b000000 : (BitVec 6))) : Bool)
   then (pure MVV_VREDSUM)
   else
     (do
-      bif (b__0 == (0b000001 : (BitVec 6)))
+      if ((b__0 == (0b000001 : (BitVec 6))) : Bool)
       then (pure MVV_VREDAND)
       else
         (do
-          bif (b__0 == (0b000010 : (BitVec 6)))
+          if ((b__0 == (0b000010 : (BitVec 6))) : Bool)
           then (pure MVV_VREDOR)
           else
             (do
-              bif (b__0 == (0b000011 : (BitVec 6)))
+              if ((b__0 == (0b000011 : (BitVec 6))) : Bool)
               then (pure MVV_VREDXOR)
               else
                 (do
-                  bif (b__0 == (0b000100 : (BitVec 6)))
+                  if ((b__0 == (0b000100 : (BitVec 6))) : Bool)
                   then (pure MVV_VREDMINU)
                   else
                     (do
-                      bif (b__0 == (0b000101 : (BitVec 6)))
+                      if ((b__0 == (0b000101 : (BitVec 6))) : Bool)
                       then (pure MVV_VREDMIN)
                       else
                         (do
-                          bif (b__0 == (0b000110 : (BitVec 6)))
+                          if ((b__0 == (0b000110 : (BitVec 6))) : Bool)
                           then (pure MVV_VREDMAXU)
                           else
                             (do
-                              bif (b__0 == (0b000111 : (BitVec 6)))
+                              if ((b__0 == (0b000111 : (BitVec 6))) : Bool)
                               then (pure MVV_VREDMAX)
                               else
                                 (do
@@ -286,28 +286,28 @@ def encdec_rmvvfunct6_forwards_matches (arg_ : rmvvfunct6) : Bool :=
 
 def encdec_rmvvfunct6_backwards_matches (arg_ : (BitVec 6)) : Bool :=
   let b__0 := arg_
-  bif (b__0 == (0b000000 : (BitVec 6)))
+  if ((b__0 == (0b000000 : (BitVec 6))) : Bool)
   then true
   else
-    (bif (b__0 == (0b000001 : (BitVec 6)))
+    (if ((b__0 == (0b000001 : (BitVec 6))) : Bool)
     then true
     else
-      (bif (b__0 == (0b000010 : (BitVec 6)))
+      (if ((b__0 == (0b000010 : (BitVec 6))) : Bool)
       then true
       else
-        (bif (b__0 == (0b000011 : (BitVec 6)))
+        (if ((b__0 == (0b000011 : (BitVec 6))) : Bool)
         then true
         else
-          (bif (b__0 == (0b000100 : (BitVec 6)))
+          (if ((b__0 == (0b000100 : (BitVec 6))) : Bool)
           then true
           else
-            (bif (b__0 == (0b000101 : (BitVec 6)))
+            (if ((b__0 == (0b000101 : (BitVec 6))) : Bool)
             then true
             else
-              (bif (b__0 == (0b000110 : (BitVec 6)))
+              (if ((b__0 == (0b000110 : (BitVec 6))) : Bool)
               then true
               else
-                (bif (b__0 == (0b000111 : (BitVec 6)))
+                (if ((b__0 == (0b000111 : (BitVec 6))) : Bool)
                 then true
                 else false)))))))
 
