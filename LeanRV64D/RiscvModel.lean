@@ -1,3 +1,6 @@
+import LeanRV64D.Prelude
+import LeanRV64D.RiscvRegs
+import LeanRV64D.RiscvSysRegs
 import LeanRV64D.RiscvSysControl
 import LeanRV64D.RiscvPlatform
 import LeanRV64D.RiscvVmem
@@ -184,4 +187,8 @@ def init_model (config_filename : String) : SailM Unit := do
   writeReg hart_state (HART_ACTIVE ())
   (init_platform ())
   (reset ())
+
+def init_boot_requirements (_ : Unit) : SailM Unit := do
+  (wX (Regno 10) (← readReg mhartid))
+  (wX (Regno 11) (← (to_bits_checked (l := 64) (4096 : Int))))
 
