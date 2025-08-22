@@ -157,7 +157,6 @@ open InterruptType
 open ISA_Format
 open HartState
 open FetchResult
-open Ext_PhysAddr_Check
 open Ext_FetchAddr_Check
 open Ext_DataAddr_Check
 open Ext_ControlAddr_Check
@@ -173,9 +172,6 @@ def ext_fetch_check_pc (start_pc : (BitVec 64)) (pc : (BitVec 64)) : (Ext_FetchA
 def ext_handle_fetch_check_error (err : Unit) : Unit :=
   ()
 
-def ext_control_check_addr (pc : (BitVec 64)) : (Ext_ControlAddr_Check Unit) :=
-  (Ext_ControlAddr_OK (Virtaddr pc))
-
 def ext_control_check_pc (pc : (BitVec 64)) : (Ext_ControlAddr_Check Unit) :=
   (Ext_ControlAddr_OK (Virtaddr pc))
 
@@ -189,13 +185,4 @@ def ext_data_get_addr (base : regidx) (offset : (BitVec 64)) (acc : (AccessType 
 
 def ext_handle_data_check_error (err : Unit) : Unit :=
   ()
-
-/-- Type quantifiers: k_ex373790# : Bool, k_ex373789# : Bool, k_ex373788# : Bool, k_ex373787# : Bool, width
-  : Nat, 0 < width ∧ width ≤ max_mem_access -/
-def ext_check_phys_mem_read (access_type : (AccessType Unit)) (paddr : physaddr) (width : Nat) (acquire : Bool) (release : Bool) (reserved : Bool) (read_meta : Bool) : Ext_PhysAddr_Check :=
-  (Ext_PhysAddr_OK ())
-
-/-- Type quantifiers: width : Nat, width ≥ 0, 0 < width ∧ width ≤ max_mem_access -/
-def ext_check_phys_mem_write (write_kind : write_kind) (paddr : physaddr) (width : Nat) (data : (BitVec (8 * width))) (metadata : Unit) : Ext_PhysAddr_Check :=
-  (Ext_PhysAddr_OK ())
 

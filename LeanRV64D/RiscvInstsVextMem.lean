@@ -168,7 +168,6 @@ open InterruptType
 open ISA_Format
 open HartState
 open FetchResult
-open Ext_PhysAddr_Check
 open Ext_FetchAddr_Check
 open Ext_DataAddr_Check
 open Ext_ControlAddr_Check
@@ -316,22 +315,22 @@ def vlewidth_pow_backwards_matches (arg_ : Nat) : Bool :=
   | 6 => true
   | _ => false
 
-/-- Type quantifiers: nf : Nat, load_width_bytes : Nat, num_elem : Nat, EMUL_pow : Int, nfields_range(nf)
-  ∧ is_mem_width(load_width_bytes) ∧ num_elem > 0 -/
+/-- Type quantifiers: num_elem : Nat, EMUL_pow : Int, load_width_bytes : Nat, nf : Nat, nf > 0 ∧
+  nf ≤ 8, load_width_bytes ∈ {1, 2, 4, 8}, num_elem > 0 -/
 def process_vlseg (nf : Nat) (vm : (BitVec 1)) (vd : vregidx) (load_width_bytes : Nat) (rs1 : regidx) (EMUL_pow : Int) (num_elem : Nat) : SailM ExecutionResult := SailME.run do
-  let EMUL_reg : Int :=
+  let EMUL_reg :=
     if ((EMUL_pow ≤b 0) : Bool)
     then 1
     else (2 ^i EMUL_pow)
-  let vm_val ← (( do (read_vmask num_elem vm zvreg) ) : SailME ExecutionResult (BitVec num_elem) )
-  let vd_seg ← (( do (read_vreg_seg num_elem (load_width_bytes *i 8) EMUL_pow nf vd) ) : SailME
-    ExecutionResult (Vector (BitVec (nf * load_width_bytes * 8)) num_elem) )
+  let vm_val ← do (read_vmask num_elem vm zvreg)
+  let vd_seg ← do (read_vreg_seg num_elem (load_width_bytes *i 8) EMUL_pow nf vd)
   let m := ((nf *i load_width_bytes) *i 8)
+  let n := num_elem
   let (result, mask) ← (( do
     match (← (init_masked_result num_elem m EMUL_pow vd_seg vm_val)) with
     | .Ok v => (pure v)
     | .Err () => SailME.throw ((Illegal_Instruction ()) : ExecutionResult) ) : SailME
-    ExecutionResult ((Vector (BitVec m) num_elem) × (BitVec num_elem)) )
+    ExecutionResult ((Vector (BitVec m) n) × (BitVec n)) )
   let loop_i_lower := 0
   let loop_i_upper := (num_elem -i 1)
   let mut loop_vars := ()
@@ -375,23 +374,23 @@ def process_vlseg (nf : Nat) (vm : (BitVec 1)) (vd : vregidx) (load_width_bytes 
   (set_vstart (zeros (n := 16)))
   (pure RETIRE_SUCCESS)
 
-/-- Type quantifiers: nf : Nat, load_width_bytes : Nat, num_elem : Nat, EMUL_pow : Int, nfields_range(nf)
-  ∧ is_mem_width(load_width_bytes) ∧ num_elem > 0 -/
+/-- Type quantifiers: num_elem : Nat, EMUL_pow : Int, load_width_bytes : Nat, nf : Nat, nf > 0 ∧
+  nf ≤ 8, load_width_bytes ∈ {1, 2, 4, 8}, num_elem > 0 -/
 def process_vlsegff (nf : Nat) (vm : (BitVec 1)) (vd : vregidx) (load_width_bytes : Nat) (rs1 : regidx) (EMUL_pow : Int) (num_elem : Nat) : SailM ExecutionResult := SailME.run do
-  let EMUL_reg : Int :=
+  let EMUL_reg :=
     if ((EMUL_pow ≤b 0) : Bool)
     then 1
     else (2 ^i EMUL_pow)
-  let vm_val ← (( do (read_vmask num_elem vm zvreg) ) : SailME ExecutionResult (BitVec num_elem) )
-  let vd_seg ← (( do (read_vreg_seg num_elem (load_width_bytes *i 8) EMUL_pow nf vd) ) : SailME
-    ExecutionResult (Vector (BitVec (nf * load_width_bytes * 8)) num_elem) )
-  let tail_ag ← (( do (get_vtype_vta ()) ) : SailME ExecutionResult agtype )
+  let vm_val ← do (read_vmask num_elem vm zvreg)
+  let vd_seg ← do (read_vreg_seg num_elem (load_width_bytes *i 8) EMUL_pow nf vd)
+  let tail_ag ← do (get_vtype_vta ())
   let m := ((nf *i load_width_bytes) *i 8)
+  let n := num_elem
   let (result, mask) ← (( do
     match (← (init_masked_result num_elem ((nf *i load_width_bytes) *i 8) EMUL_pow vd_seg vm_val)) with
     | .Ok v => (pure v)
     | .Err () => SailME.throw ((Illegal_Instruction ()) : ExecutionResult) ) : SailME
-    ExecutionResult ((Vector (BitVec m) num_elem) × (BitVec num_elem)) )
+    ExecutionResult ((Vector (BitVec m) n) × (BitVec n)) )
   let trimmed : Bool := false
   let trimmed ← (( do
     let loop_i_lower := 0
@@ -470,21 +469,21 @@ def process_vlsegff (nf : Nat) (vm : (BitVec 1)) (vd : vregidx) (load_width_byte
   (set_vstart (zeros (n := 16)))
   (pure RETIRE_SUCCESS)
 
-/-- Type quantifiers: nf : Nat, load_width_bytes : Nat, num_elem : Nat, EMUL_pow : Int, nfields_range(nf)
-  ∧ is_mem_width(load_width_bytes) ∧ num_elem > 0 -/
+/-- Type quantifiers: num_elem : Nat, EMUL_pow : Int, load_width_bytes : Nat, nf : Nat, nf > 0 ∧
+  nf ≤ 8, load_width_bytes ∈ {1, 2, 4, 8}, num_elem > 0 -/
 def process_vsseg (nf : Nat) (vm : (BitVec 1)) (vs3 : vregidx) (load_width_bytes : Nat) (rs1 : regidx) (EMUL_pow : Int) (num_elem : Nat) : SailM ExecutionResult := SailME.run do
-  let EMUL_reg : Int :=
+  let EMUL_reg :=
     if ((EMUL_pow ≤b 0) : Bool)
     then 1
     else (2 ^i EMUL_pow)
-  let vm_val ← (( do (read_vmask num_elem vm zvreg) ) : SailME ExecutionResult (BitVec num_elem) )
-  let vs3_seg ← (( do (read_vreg_seg num_elem (load_width_bytes *i 8) EMUL_pow nf vs3) ) : SailME
-    ExecutionResult (Vector (BitVec (nf * load_width_bytes * 8)) num_elem) )
+  let vm_val ← do (read_vmask num_elem vm zvreg)
+  let vs3_seg ← do (read_vreg_seg num_elem (load_width_bytes *i 8) EMUL_pow nf vs3)
+  let n := num_elem
   let mask ← (( do
     match (← (init_masked_source num_elem EMUL_pow vm_val)) with
     | .Ok v => (pure v)
     | .Err () => SailME.throw ((Illegal_Instruction ()) : ExecutionResult) ) : SailME
-    ExecutionResult (BitVec num_elem) )
+    ExecutionResult (BitVec n) )
   let loop_i_lower := 0
   let loop_i_upper := (num_elem -i 1)
   let mut loop_vars := ()
@@ -508,7 +507,7 @@ def process_vsseg (nf : Nat) (vm : (BitVec 1)) (vs3 : vregidx) (load_width_bytes
                   data (Write Data) false false false)) with
               | .Ok true => (pure ())
               | .Ok false =>
-                (internal_error "riscv_insts_vext_mem.sail" 206 "store got false from vmem_write")
+                (internal_error "riscv_insts_vext_mem.sail" 209 "store got false from vmem_write")
               | .Err e => SailME.throw (e : ExecutionResult)
           (pure loop_vars_1))
       else (pure ())
@@ -516,24 +515,23 @@ def process_vsseg (nf : Nat) (vm : (BitVec 1)) (vs3 : vregidx) (load_width_bytes
   (set_vstart (zeros (n := 16)))
   (pure RETIRE_SUCCESS)
 
-/-- Type quantifiers: nf : Nat, load_width_bytes : Nat, num_elem : Nat, EMUL_pow : Int, nfields_range(nf)
-  ∧ is_mem_width(load_width_bytes) ∧ num_elem > 0 -/
+/-- Type quantifiers: num_elem : Nat, EMUL_pow : Int, load_width_bytes : Nat, nf : Nat, nf > 0 ∧
+  nf ≤ 8, load_width_bytes ∈ {1, 2, 4, 8}, num_elem > 0 -/
 def process_vlsseg (nf : Nat) (vm : (BitVec 1)) (vd : vregidx) (load_width_bytes : Nat) (rs1 : regidx) (rs2 : regidx) (EMUL_pow : Int) (num_elem : Nat) : SailM ExecutionResult := SailME.run do
-  let EMUL_reg : Int :=
+  let EMUL_reg :=
     if ((EMUL_pow ≤b 0) : Bool)
     then 1
     else (2 ^i EMUL_pow)
-  let vm_val ← (( do (read_vmask num_elem vm zvreg) ) : SailME ExecutionResult (BitVec num_elem) )
-  let vd_seg ← (( do (read_vreg_seg num_elem (load_width_bytes *i 8) EMUL_pow nf vd) ) : SailME
-    ExecutionResult (Vector (BitVec (nf * load_width_bytes * 8)) num_elem) )
-  let rs2_val ← (( do (pure (BitVec.toNat (← (get_scalar rs2 xlen)))) ) : SailME ExecutionResult
-    Int )
+  let vm_val ← do (read_vmask num_elem vm zvreg)
+  let vd_seg ← do (read_vreg_seg num_elem (load_width_bytes *i 8) EMUL_pow nf vd)
+  let rs2_val ← do (pure (BitVec.toNat (← (get_scalar rs2 xlen))))
   let m := ((nf *i load_width_bytes) *i 8)
+  let n := num_elem
   let (result, mask) ← (( do
     match (← (init_masked_result num_elem ((nf *i load_width_bytes) *i 8) EMUL_pow vd_seg vm_val)) with
     | .Ok v => (pure v)
     | .Err () => SailME.throw ((Illegal_Instruction ()) : ExecutionResult) ) : SailME
-    ExecutionResult ((Vector (BitVec m) num_elem) × (BitVec num_elem)) )
+    ExecutionResult ((Vector (BitVec m) n) × (BitVec n)) )
   let loop_i_lower := 0
   let loop_i_upper := (num_elem -i 1)
   let mut loop_vars := ()
@@ -577,23 +575,22 @@ def process_vlsseg (nf : Nat) (vm : (BitVec 1)) (vd : vregidx) (load_width_bytes
   (set_vstart (zeros (n := 16)))
   (pure RETIRE_SUCCESS)
 
-/-- Type quantifiers: nf : Nat, load_width_bytes : Nat, num_elem : Nat, EMUL_pow : Int, nfields_range(nf)
-  ∧ is_mem_width(load_width_bytes) ∧ num_elem > 0 -/
+/-- Type quantifiers: num_elem : Nat, EMUL_pow : Int, load_width_bytes : Nat, nf : Nat, nf > 0 ∧
+  nf ≤ 8, load_width_bytes ∈ {1, 2, 4, 8}, num_elem > 0 -/
 def process_vssseg (nf : Nat) (vm : (BitVec 1)) (vs3 : vregidx) (load_width_bytes : Nat) (rs1 : regidx) (rs2 : regidx) (EMUL_pow : Int) (num_elem : Nat) : SailM ExecutionResult := SailME.run do
-  let EMUL_reg : Int :=
+  let EMUL_reg :=
     if ((EMUL_pow ≤b 0) : Bool)
     then 1
     else (2 ^i EMUL_pow)
-  let vm_val ← (( do (read_vmask num_elem vm zvreg) ) : SailME ExecutionResult (BitVec num_elem) )
-  let vs3_seg ← (( do (read_vreg_seg num_elem (load_width_bytes *i 8) EMUL_pow nf vs3) ) : SailME
-    ExecutionResult (Vector (BitVec (nf * load_width_bytes * 8)) num_elem) )
-  let rs2_val ← (( do (pure (BitVec.toNat (← (get_scalar rs2 xlen)))) ) : SailME ExecutionResult
-    Int )
+  let vm_val ← do (read_vmask num_elem vm zvreg)
+  let vs3_seg ← do (read_vreg_seg num_elem (load_width_bytes *i 8) EMUL_pow nf vs3)
+  let rs2_val ← do (pure (BitVec.toNat (← (get_scalar rs2 xlen))))
+  let n := num_elem
   let mask ← (( do
     match (← (init_masked_source num_elem EMUL_pow vm_val)) with
     | .Ok v => (pure v)
     | .Err () => SailME.throw ((Illegal_Instruction ()) : ExecutionResult) ) : SailME
-    ExecutionResult (BitVec num_elem) )
+    ExecutionResult (BitVec n) )
   let loop_i_lower := 0
   let loop_i_upper := (num_elem -i 1)
   let mut loop_vars := ()
@@ -617,7 +614,7 @@ def process_vssseg (nf : Nat) (vm : (BitVec 1)) (vs3 : vregidx) (load_width_byte
                   data (Write Data) false false false)) with
               | .Ok true => (pure ())
               | .Ok false =>
-                (internal_error "riscv_insts_vext_mem.sail" 325 "store got false from vmem_write")
+                (internal_error "riscv_insts_vext_mem.sail" 330 "store got false from vmem_write")
               | .Err e => SailME.throw (e : ExecutionResult)
           (pure loop_vars_1))
       else (pure ())
@@ -625,26 +622,25 @@ def process_vssseg (nf : Nat) (vm : (BitVec 1)) (vs3 : vregidx) (load_width_byte
   (set_vstart (zeros (n := 16)))
   (pure RETIRE_SUCCESS)
 
-/-- Type quantifiers: mop : Int, nf : Nat, EEW_index_bytes : Nat, EEW_data_bytes : Nat, EMUL_index_pow
-  : Int, EMUL_data_pow : Int, num_elem : Nat, nfields_range(nf) ∧
-  is_mem_width(EEW_index_bytes) ∧ is_mem_width(EEW_data_bytes) ∧ num_elem > 0 -/
+/-- Type quantifiers: mop : Int, num_elem : Nat, EMUL_data_pow : Int, EMUL_index_pow : Int, EEW_data_bytes
+  : Nat, EEW_index_bytes : Nat, nf : Nat, nf > 0 ∧ nf ≤ 8, EEW_index_bytes ∈ {1, 2, 4, 8}, EEW_data_bytes
+  ∈ {1, 2, 4, 8}, num_elem > 0 -/
 def process_vlxseg (nf : Nat) (vm : (BitVec 1)) (vd : vregidx) (EEW_index_bytes : Nat) (EEW_data_bytes : Nat) (EMUL_index_pow : Int) (EMUL_data_pow : Int) (rs1 : regidx) (vs2 : vregidx) (num_elem : Nat) (mop : Int) : SailM ExecutionResult := SailME.run do
-  let EMUL_data_reg : Int :=
+  let EMUL_data_reg :=
     if ((EMUL_data_pow ≤b 0) : Bool)
     then 1
     else (2 ^i EMUL_data_pow)
-  let vm_val ← (( do (read_vmask num_elem vm zvreg) ) : SailME ExecutionResult (BitVec num_elem) )
-  let vd_seg ← (( do (read_vreg_seg num_elem (EEW_data_bytes *i 8) EMUL_data_pow nf vd) ) : SailME
-    ExecutionResult (Vector (BitVec (nf * EEW_data_bytes * 8)) num_elem) )
-  let vs2_val ← (( do (read_vreg num_elem (EEW_index_bytes *i 8) EMUL_index_pow vs2) ) : SailME
-    ExecutionResult (Vector (BitVec (EEW_index_bytes * 8)) num_elem) )
+  let vm_val ← do (read_vmask num_elem vm zvreg)
+  let vd_seg ← do (read_vreg_seg num_elem (EEW_data_bytes *i 8) EMUL_data_pow nf vd)
+  let vs2_val ← do (read_vreg num_elem (EEW_index_bytes *i 8) EMUL_index_pow vs2)
   let m := ((nf *i EEW_data_bytes) *i 8)
+  let n := num_elem
   let (result, mask) ← (( do
     match (← (init_masked_result num_elem ((nf *i EEW_data_bytes) *i 8) EMUL_data_pow vd_seg
         vm_val)) with
     | .Ok v => (pure v)
     | .Err () => SailME.throw ((Illegal_Instruction ()) : ExecutionResult) ) : SailME
-    ExecutionResult ((Vector (BitVec m) num_elem) × (BitVec num_elem)) )
+    ExecutionResult ((Vector (BitVec m) n) × (BitVec n)) )
   let loop_i_lower := 0
   let loop_i_upper := (num_elem -i 1)
   let mut loop_vars := ()
@@ -689,24 +685,23 @@ def process_vlxseg (nf : Nat) (vm : (BitVec 1)) (vd : vregidx) (EEW_index_bytes 
   (set_vstart (zeros (n := 16)))
   (pure RETIRE_SUCCESS)
 
-/-- Type quantifiers: mop : Int, nf : Nat, EEW_index_bytes : Nat, EEW_data_bytes : Nat, EMUL_index_pow
-  : Int, EMUL_data_pow : Int, num_elem : Nat, nfields_range(nf) ∧
-  is_mem_width(EEW_index_bytes) ∧ is_mem_width(EEW_data_bytes) ∧ num_elem > 0 -/
+/-- Type quantifiers: mop : Int, num_elem : Nat, EMUL_data_pow : Int, EMUL_index_pow : Int, EEW_data_bytes
+  : Nat, EEW_index_bytes : Nat, nf : Nat, nf > 0 ∧ nf ≤ 8, EEW_index_bytes ∈ {1, 2, 4, 8}, EEW_data_bytes
+  ∈ {1, 2, 4, 8}, num_elem > 0 -/
 def process_vsxseg (nf : Nat) (vm : (BitVec 1)) (vs3 : vregidx) (EEW_index_bytes : Nat) (EEW_data_bytes : Nat) (EMUL_index_pow : Int) (EMUL_data_pow : Int) (rs1 : regidx) (vs2 : vregidx) (num_elem : Nat) (mop : Int) : SailM ExecutionResult := SailME.run do
-  let EMUL_data_reg : Int :=
+  let EMUL_data_reg :=
     if ((EMUL_data_pow ≤b 0) : Bool)
     then 1
     else (2 ^i EMUL_data_pow)
-  let vm_val ← (( do (read_vmask num_elem vm zvreg) ) : SailME ExecutionResult (BitVec num_elem) )
-  let vs3_seg ← (( do (read_vreg_seg num_elem (EEW_data_bytes *i 8) EMUL_data_pow nf vs3) ) :
-    SailME ExecutionResult (Vector (BitVec (nf * EEW_data_bytes * 8)) num_elem) )
-  let vs2_val ← (( do (read_vreg num_elem (EEW_index_bytes *i 8) EMUL_index_pow vs2) ) : SailME
-    ExecutionResult (Vector (BitVec (EEW_index_bytes * 8)) num_elem) )
+  let vm_val ← do (read_vmask num_elem vm zvreg)
+  let vs3_seg ← do (read_vreg_seg num_elem (EEW_data_bytes *i 8) EMUL_data_pow nf vs3)
+  let vs2_val ← do (read_vreg num_elem (EEW_index_bytes *i 8) EMUL_index_pow vs2)
+  let n := num_elem
   let mask ← (( do
     match (← (init_masked_source num_elem EMUL_data_pow vm_val)) with
     | .Ok v => (pure v)
     | .Err () => SailME.throw ((Illegal_Instruction ()) : ExecutionResult) ) : SailME
-    ExecutionResult (BitVec num_elem) )
+    ExecutionResult (BitVec n) )
   let loop_i_lower := 0
   let loop_i_upper := (num_elem -i 1)
   let mut loop_vars := ()
@@ -731,7 +726,7 @@ def process_vsxseg (nf : Nat) (vm : (BitVec 1)) (vs3 : vregidx) (EEW_index_bytes
                   data (Write Data) false false false)) with
               | .Ok true => (pure ())
               | .Ok false =>
-                (internal_error "riscv_insts_vext_mem.sail" 474 "store got false from vmem_write")
+                (internal_error "riscv_insts_vext_mem.sail" 481 "store got false from vmem_write")
               | .Err e => SailME.throw (e : ExecutionResult)
           (pure loop_vars_1))
       else (pure ())
@@ -739,8 +734,8 @@ def process_vsxseg (nf : Nat) (vm : (BitVec 1)) (vs3 : vregidx) (EEW_index_bytes
   (set_vstart (zeros (n := 16)))
   (pure RETIRE_SUCCESS)
 
-/-- Type quantifiers: nf : Nat, load_width_bytes : Nat, elem_per_reg : Nat, nfields_range_pow2(nf)
-  ∧ is_mem_width(load_width_bytes) ∧ elem_per_reg ≥ 0 -/
+/-- Type quantifiers: elem_per_reg : Nat, load_width_bytes : Nat, nf : Nat, nf ∈ {1, 2, 4, 8}, load_width_bytes
+  ∈ {1, 2, 4, 8}, 0 ≤ elem_per_reg -/
 def process_vlre (nf : Nat) (vd : vregidx) (load_width_bytes : Nat) (rs1 : regidx) (elem_per_reg : Nat) : SailM ExecutionResult := SailME.run do
   let start_element ← (( do
     match (← (get_start_element ())) with
@@ -805,8 +800,8 @@ def process_vlre (nf : Nat) (vd : vregidx) (load_width_bytes : Nat) (rs1 : regid
       (set_vstart (zeros (n := 16)))
       (pure RETIRE_SUCCESS))
 
-/-- Type quantifiers: nf : Nat, load_width_bytes : Nat, elem_per_reg : Nat, nfields_range_pow2(nf)
-  ∧ is_mem_width(load_width_bytes) ∧ elem_per_reg ≥ 0 -/
+/-- Type quantifiers: elem_per_reg : Nat, load_width_bytes : Nat, nf : Nat, nf ∈ {1, 2, 4, 8}, load_width_bytes
+  ∈ {1, 2, 4, 8}, 0 ≤ elem_per_reg -/
 def process_vsre (nf : Nat) (load_width_bytes : Nat) (rs1 : regidx) (vs3 : vregidx) (elem_per_reg : Nat) : SailM ExecutionResult := SailME.run do
   let start_element ← (( do
     match (← (get_start_element ())) with
@@ -839,7 +834,7 @@ def process_vsre (nf : Nat) (load_width_bytes : Nat) (rs1 : regidx) (vs3 : vregi
                       load_width_bytes data (Write Data) false false false)) with
                   | .Ok true => (pure ())
                   | .Ok false =>
-                    (internal_error "riscv_insts_vext_mem.sail" 618
+                    (internal_error "riscv_insts_vext_mem.sail" 625
                       "store got false from vmem_write")
                   | .Err e => SailME.throw (e : ExecutionResult)
                   (pure (cur_elem +i 1))
@@ -854,10 +849,9 @@ def process_vsre (nf : Nat) (load_width_bytes : Nat) (rs1 : regidx) (vs3 : vregi
         for j in [loop_j_lower:loop_j_upper:1]i do
           let cur_elem := loop_vars_1
           loop_vars_1 ← do
-            let vs3_val ← (( do
+            let vs3_val ← do
               (read_vreg elem_per_reg (load_width_bytes *i 8) 0
-                (vregidx_offset vs3 (to_bits_unsafe (l := 5) j))) ) : SailME ExecutionResult
-              (Vector (BitVec (load_width_bytes * 8)) elem_per_reg) )
+                (vregidx_offset vs3 (to_bits_unsafe (l := 5) j)))
             let loop_i_lower := 0
             let loop_i_upper := (elem_per_reg -i 1)
             let mut loop_vars_2 := cur_elem
@@ -870,7 +864,7 @@ def process_vsre (nf : Nat) (load_width_bytes : Nat) (rs1 : regidx) (vs3 : vregi
                     (GetElem?.getElem! vs3_val i) (Write Data) false false false)) with
                 | .Ok true => (pure ())
                 | .Ok false =>
-                  (internal_error "riscv_insts_vext_mem.sail" 633 "store got false from vmem_write")
+                  (internal_error "riscv_insts_vext_mem.sail" 640 "store got false from vmem_write")
                 | .Err e => SailME.throw (e : ExecutionResult)
                 (pure (cur_elem +i 1))
             (pure loop_vars_2)
@@ -910,15 +904,16 @@ def encdec_lsop_backwards_matches (arg_ : (BitVec 7)) : Bool :=
     then true
     else false)
 
-/-- Type quantifiers: num_elem : Nat, evl : Nat, num_elem ≥ 0 ∧ evl ≥ 0 -/
+/-- Type quantifiers: evl : Nat, num_elem : Nat, 0 ≤ num_elem, 0 ≤ evl -/
 def process_vm (vd_or_vs3 : vregidx) (rs1 : regidx) (num_elem : Nat) (evl : Nat) (op : vmlsop) : SailM ExecutionResult := SailME.run do
   let start_element ← (( do
     match (← (get_start_element ())) with
     | .Ok v => (pure v)
     | .Err () => SailME.throw ((Illegal_Instruction ()) : ExecutionResult) ) : SailME
     ExecutionResult Nat )
+  let n := num_elem
   let vd_or_vs3_val ← (( do (read_vreg num_elem 8 0 vd_or_vs3) ) : SailME ExecutionResult
-    (Vector (BitVec 8) num_elem) )
+    (Vector (BitVec 8) n) )
   let loop_i_lower := start_element
   let loop_i_upper := (num_elem -i 1)
   let mut loop_vars := ()
@@ -945,7 +940,7 @@ def process_vm (vd_or_vs3 : vregidx) (rs1 : regidx) (num_elem : Nat) (evl : Nat)
                       (GetElem?.getElem! vd_or_vs3_val i) (Write Data) false false false)) with
                   | .Ok true => (pure ())
                   | .Ok false =>
-                    (internal_error "riscv_insts_vext_mem.sail" 688
+                    (internal_error "riscv_insts_vext_mem.sail" 696
                       "store got false from vmem_write")
                   | .Err e => SailME.throw (e : ExecutionResult))
               else (pure ())))

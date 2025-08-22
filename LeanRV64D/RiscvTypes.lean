@@ -166,7 +166,6 @@ open InterruptType
 open ISA_Format
 open HartState
 open FetchResult
-open Ext_PhysAddr_Check
 open Ext_FetchAddr_Check
 open Ext_DataAddr_Check
 open Ext_ControlAddr_Check
@@ -2776,7 +2775,7 @@ def maybe_aqrl_forwards (arg_ : (Bool × Bool)) : String :=
   | (false, true) => ".rl"
   | (false, false) => ""
 
-/-- Type quantifiers: k_ex371825# : Bool -/
+/-- Type quantifiers: k_ex369786# : Bool -/
 def maybe_u_forwards (arg_ : Bool) : String :=
   match arg_ with
   | true => "u"

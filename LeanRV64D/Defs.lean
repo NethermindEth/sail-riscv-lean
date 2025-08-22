@@ -972,11 +972,6 @@ inductive Ext_DataAddr_Check (k_a : Type) where
   | Ext_DataAddr_Error (_ : k_a)
   deriving Inhabited, BEq, Repr
 
-inductive Ext_PhysAddr_Check where
-  | Ext_PhysAddr_OK (_ : Unit)
-  | Ext_PhysAddr_Error (_ : ExceptionType)
-  deriving Inhabited, BEq, Repr
-
 abbrev ext_fetch_addr_error := Unit
 
 abbrev ext_control_addr_error := Unit
