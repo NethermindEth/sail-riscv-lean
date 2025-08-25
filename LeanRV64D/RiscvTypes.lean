@@ -2775,7 +2775,7 @@ def maybe_aqrl_forwards (arg_ : (Bool × Bool)) : String :=
   | (false, true) => ".rl"
   | (false, false) => ""
 
-/-- Type quantifiers: k_ex369800# : Bool -/
+/-- Type quantifiers: k_ex369892# : Bool -/
 def maybe_u_forwards (arg_ : Bool) : String :=
   match arg_ with
   | true => "u"
@@ -6231,6 +6231,14 @@ def wait_name_forwards (arg_ : WaitReason) : String :=
   | WAIT_WFI => "WAIT-WFI"
   | WAIT_WRS_STO => "WAIT-WRS-STO"
   | WAIT_WRS_NTO => "WAIT-WRS-NTO"
+
+/-- Type quantifiers: k_a : Type -/
+def is_load_store (ac : (AccessType k_a)) : Bool :=
+  match ac with
+  | .Read _ => true
+  | .Write _ => true
+  | .ReadWrite _ => true
+  | .InstructionFetch _ => false
 
 def undefined_InterruptType (_ : Unit) : SailM InterruptType := do
   (internal_pick

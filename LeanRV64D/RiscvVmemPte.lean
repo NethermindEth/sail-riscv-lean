@@ -1,6 +1,7 @@
 import LeanRV64D.Flow
 import LeanRV64D.Prelude
 import LeanRV64D.RiscvErrors
+import LeanRV64D.RiscvTypes
 import LeanRV64D.RiscvSysRegs
 import LeanRV64D.RiscvVextRegs
 
@@ -218,26 +219,24 @@ def pte_is_invalid (pte_flags : (BitVec 8)) (pte_ext : (BitVec 10)) : SailM Bool
                   (n := 2))) && (not (← (currentlyEnabled Ext_Svpbmt)))) || ((_get_PTE_Ext_reserved
                 pte_ext) != (zeros (n := 7))))))))
 
-/-- Type quantifiers: k_ex375381# : Bool, k_ex375380# : Bool -/
+/-- Type quantifiers: k_ex375473# : Bool, k_ex375472# : Bool -/
 def check_PTE_permission (ac : (AccessType Unit)) (priv : Privilege) (mxr : Bool) (do_sum : Bool) (pte_flags : (BitVec 8)) (ext : (BitVec 10)) (ext_ptw : Unit) : SailM PTE_Check := do
   let pte_U := (bits_to_bool (_get_PTE_Flags_U pte_flags))
   let pte_R := (bits_to_bool (_get_PTE_Flags_R pte_flags))
   let pte_W := (bits_to_bool (_get_PTE_Flags_W pte_flags))
   let pte_X := (bits_to_bool (_get_PTE_Flags_X pte_flags))
-  let success ← (( do
-    match (ac, priv) with
-    | (.Read _, User) => (pure (pte_U && (pte_R || (pte_X && mxr))))
-    | (.Write _, User) => (pure (pte_U && pte_W))
-    | (.ReadWrite (_, _), User) => (pure (pte_U && (pte_W && (pte_R || (pte_X && mxr)))))
-    | (.InstructionFetch (), User) => (pure (pte_U && pte_X))
-    | (.Read _, Supervisor) => (pure (((not pte_U) || do_sum) && (pte_R || (pte_X && mxr))))
-    | (.Write _, Supervisor) => (pure (((not pte_U) || do_sum) && pte_W))
-    | (.ReadWrite (_, _), Supervisor) =>
-      (pure (((not pte_U) || do_sum) && (pte_W && (pte_R || (pte_X && mxr)))))
-    | (.InstructionFetch (), Supervisor) => (pure ((not pte_U) && pte_X))
-    | (_, Machine) => (internal_error "riscv_vmem_pte.sail" 123 "m-mode mem perm check") ) : SailM
-    Bool )
-  if (success : Bool)
+  let access_ok : Bool :=
+    match ac with
+    | .Read _ => (pte_R || (pte_X && mxr))
+    | .Write _ => pte_W
+    | .ReadWrite (_, _) => (pte_W && (pte_R || (pte_X && mxr)))
+    | .InstructionFetch _ => pte_X
+  let priv_ok ← (( do
+    match priv with
+    | User => (pure pte_U)
+    | Supervisor => (pure ((not pte_U) || (do_sum && (is_load_store ac))))
+    | Machine => (internal_error "riscv_vmem_pte.sail" 128 "m-mode mem perm check") ) : SailM Bool )
+  if ((access_ok && priv_ok) : Bool)
   then (pure (PTE_Check_Success ()))
   else (pure (PTE_Check_Failure ((), ())))
 
