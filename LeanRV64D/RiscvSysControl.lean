@@ -899,8 +899,8 @@ def trap_handler (del_priv : Privilege) (intr : Bool) (c : (BitVec 8)) (pc : (Bi
   | User => (internal_error "riscv_sys_control.sail" 206 "Invalid privilege level")
 
 def exception_handler (cur_priv : Privilege) (ctl : ctl_result) (pc : (BitVec 64)) : SailM (BitVec 64) := do
-  match (cur_priv, ctl) with
-  | (_, .CTL_TRAP e) =>
+  match ctl with
+  | .CTL_TRAP e =>
     (do
       let del_priv ← do (exception_delegatee e.trap cur_priv)
       let _ : Unit :=
@@ -914,7 +914,7 @@ def exception_handler (cur_priv : Privilege) (ctl : ctl_result) (pc : (BitVec 64
                     (HAppend.hAppend " to handle " (exceptionType_to_str e.trap)))))))
         else ()
       (trap_handler del_priv false (exceptionType_to_bits e.trap) pc e.excinfo e.ext))
-  | (_, .CTL_MRET ()) =>
+  | .CTL_MRET () =>
     (do
       let prev_priv ← do readReg cur_privilege
       writeReg mstatus (Sail.BitVec.updateSubrange (← readReg mstatus) 3 3
@@ -940,7 +940,7 @@ def exception_handler (cur_priv : Privilege) (ctl : ctl_result) (pc : (BitVec 64
                 (HAppend.hAppend " to " (privLevel_to_str (← readReg cur_privilege)))))))
       else (pure ())
       (prepare_xret_target Machine))
-  | (_, .CTL_SRET ()) =>
+  | .CTL_SRET () =>
     (do
       let prev_priv ← do readReg cur_privilege
       writeReg mstatus (Sail.BitVec.updateSubrange (← readReg mstatus) 1 1
