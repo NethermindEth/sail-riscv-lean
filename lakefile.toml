@@ -1,6 +1,10 @@
-name = "Lean_RV64D"
-defaultTargets = ["LeanRV64D"]
+name = "LeanRV"
+defaultTargets = ["LeanRV32D", "LeanRV64D"]
 moreLeanArgs = ["--tstack=400000"]
+
+[[lean_lib]]
+name = "LeanRV32D"
+leanOptions.weak.linter.style.nameCheck = false
 
 [[lean_lib]]
 name = "LeanRV64D"
