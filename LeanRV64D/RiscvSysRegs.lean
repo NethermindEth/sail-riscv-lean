@@ -1172,7 +1172,10 @@ def legalize_mstatus (o : (BitVec 64)) (v : (BitVec 64)) : SailM (BitVec 64) := 
                   (← do
                     if ((← (currentlyEnabled Ext_S)) : Bool)
                     then (pure (_get_Mstatus_SPP v))
-                    else (pure (0b0 : (BitVec 1))))) (_get_Mstatus_VS v)) (_get_Mstatus_MPIE v))
+                    else (pure (0b0 : (BitVec 1)))))
+                (if ((hartSupports Ext_V) : Bool)
+                then (_get_Mstatus_VS v)
+                else (0b00 : (BitVec 2)))) (_get_Mstatus_MPIE v))
             (← do
               if ((← (currentlyEnabled Ext_S)) : Bool)
               then (pure (_get_Mstatus_SPIE v))

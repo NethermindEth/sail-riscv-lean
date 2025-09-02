@@ -1841,7 +1841,7 @@ def write_CSR (b__0 : (BitVec 12)) (value : (BitVec 64)) : SailM (Result (BitVec
                                                                                                                                                                                                                                                                     (BitVec.toFormatted
                                                                                                                                                                                                                                                                       b__0))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
 
-/-- Type quantifiers: k_ex381771# : Bool -/
+/-- Type quantifiers: k_ex381778# : Bool -/
 def doCSR (csr : (BitVec 12)) (rs1_val : (BitVec 64)) (rd : regidx) (op : csrop) (is_CSR_Write : Bool) : SailM ExecutionResult := do
   if ((not (← (check_CSR csr (← readReg cur_privilege) is_CSR_Write))) : Bool)
   then (pure (Illegal_Instruction ()))
