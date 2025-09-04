@@ -138,6 +138,7 @@ open csrop
 open cregidx
 open checked_cbop
 open cfregidx
+open cbop_zicbop
 open cbop_zicbom
 open cbie
 open bropw_zbb
@@ -548,17 +549,17 @@ def _get_Vtype_reserved (v : (BitVec 64)) : (BitVec (64 - 9)) :=
 def _update_Vtype_reserved (v : (BitVec 64)) (x : (BitVec (64 - 9))) : (BitVec 64) :=
   (Sail.BitVec.updateSubrange v (64 -i 2) 8 x)
 
-def _update_PTE_Ext_reserved (v : (BitVec 10)) (x : (BitVec 7)) : (BitVec 10) :=
-  (Sail.BitVec.updateSubrange v 6 0 x)
+def _update_PTE_Ext_reserved (v : (BitVec 10)) (x : (BitVec 5)) : (BitVec 10) :=
+  (Sail.BitVec.updateSubrange v 4 0 x)
 
 def _set_Vtype_reserved (r_ref : (RegisterRef (BitVec 64))) (v : (BitVec (64 - 9))) : SailM Unit := do
   let r ← do (reg_deref r_ref)
   writeRegRef r_ref (_update_Vtype_reserved r v)
 
-def _get_PTE_Ext_reserved (v : (BitVec 10)) : (BitVec 7) :=
-  (Sail.BitVec.extractLsb v 6 0)
+def _get_PTE_Ext_reserved (v : (BitVec 10)) : (BitVec 5) :=
+  (Sail.BitVec.extractLsb v 4 0)
 
-def _set_PTE_Ext_reserved (r_ref : (RegisterRef (BitVec 10))) (v : (BitVec 7)) : SailM Unit := do
+def _set_PTE_Ext_reserved (r_ref : (RegisterRef (BitVec 10))) (v : (BitVec 5)) : SailM Unit := do
   let r ← do (reg_deref r_ref)
   writeRegRef r_ref (_update_PTE_Ext_reserved r v)
 

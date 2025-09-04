@@ -1,4 +1,10 @@
-import LeanRV64D.Prelude
+import LeanRV64D.Sail.Sail
+import LeanRV64D.Sail.BitVec
+import LeanRV64D.Sail.IntRange
+import LeanRV64D.Defs
+import LeanRV64D.Specialization
+import LeanRV64D.FakeReal
+import LeanRV64D.RiscvExtras
 
 set_option maxHeartbeats 1_000_000_000
 set_option maxRecDepth 1_000_000
@@ -166,14 +172,67 @@ open ExceptionType
 open Architecture
 open AccessType
 
-def zero_reg : regtype := (zeros (n := 64))
+def encdec_cbop_zicbop_forwards (arg_ : cbop_zicbop) : (BitVec 5) :=
+  match arg_ with
+  | PREFETCH_I => (0b00000 : (BitVec 5))
+  | PREFETCH_R => (0b00001 : (BitVec 5))
+  | PREFETCH_W => (0b00011 : (BitVec 5))
 
-def RegStr (r : (BitVec 64)) : String :=
-  (BitVec.toFormatted r)
+def encdec_cbop_zicbop_backwards (arg_ : (BitVec 5)) : SailM cbop_zicbop := do
+  let b__0 := arg_
+  if ((b__0 == (0b00000 : (BitVec 5))) : Bool)
+  then (pure PREFETCH_I)
+  else
+    (do
+      if ((b__0 == (0b00001 : (BitVec 5))) : Bool)
+      then (pure PREFETCH_R)
+      else
+        (do
+          if ((b__0 == (0b00011 : (BitVec 5))) : Bool)
+          then (pure PREFETCH_W)
+          else
+            (do
+              assert false "Pattern match failure at unknown location"
+              throw Error.Exit)))
 
-def regval_from_reg (r : (BitVec 64)) : (BitVec 64) :=
-  r
+def encdec_cbop_zicbop_forwards_matches (arg_ : cbop_zicbop) : Bool :=
+  match arg_ with
+  | PREFETCH_I => true
+  | PREFETCH_R => true
+  | PREFETCH_W => true
 
-def regval_into_reg (v : (BitVec 64)) : (BitVec 64) :=
-  v
+def encdec_cbop_zicbop_backwards_matches (arg_ : (BitVec 5)) : Bool :=
+  let b__0 := arg_
+  if ((b__0 == (0b00000 : (BitVec 5))) : Bool)
+  then true
+  else
+    (if ((b__0 == (0b00001 : (BitVec 5))) : Bool)
+    then true
+    else
+      (if ((b__0 == (0b00011 : (BitVec 5))) : Bool)
+      then true
+      else false))
+
+def prefetch_mnemonic_backwards (arg_ : String) : SailM cbop_zicbop := do
+  match arg_ with
+  | "prefetch.i" => (pure PREFETCH_I)
+  | "prefetch.r" => (pure PREFETCH_R)
+  | "prefetch.w" => (pure PREFETCH_W)
+  | _ =>
+    (do
+      assert false "Pattern match failure at unknown location"
+      throw Error.Exit)
+
+def prefetch_mnemonic_forwards_matches (arg_ : cbop_zicbop) : Bool :=
+  match arg_ with
+  | PREFETCH_I => true
+  | PREFETCH_R => true
+  | PREFETCH_W => true
+
+def prefetch_mnemonic_backwards_matches (arg_ : String) : Bool :=
+  match arg_ with
+  | "prefetch.i" => true
+  | "prefetch.r" => true
+  | "prefetch.w" => true
+  | _ => false
 

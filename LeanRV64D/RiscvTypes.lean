@@ -142,6 +142,7 @@ open csrop
 open cregidx
 open checked_cbop
 open cfregidx
+open cbop_zicbop
 open cbop_zicbom
 open cbie
 open bropw_zbb
@@ -2774,7 +2775,7 @@ def maybe_aqrl_forwards (arg_ : (Bool × Bool)) : String :=
   | (false, true) => ".rl"
   | (false, false) => ""
 
-/-- Type quantifiers: k_ex370040# : Bool -/
+/-- Type quantifiers: k_ex372545# : Bool -/
 def maybe_u_forwards (arg_ : Bool) : String :=
   match arg_ with
   | true => "u"
@@ -2918,6 +2919,12 @@ def nxtype_mnemonic_forwards (arg_ : nxfunct6) : String :=
   match arg_ with
   | NX_VNCLIPU => "vnclipu.wx"
   | NX_VNCLIP => "vnclip.wx"
+
+def prefetch_mnemonic_forwards (arg_ : cbop_zicbop) : String :=
+  match arg_ with
+  | PREFETCH_I => "prefetch.i"
+  | PREFETCH_R => "prefetch.r"
+  | PREFETCH_W => "prefetch.w"
 
 def rfvvtype_mnemonic_forwards (arg_ : rfvvfunct6) : String :=
   match arg_ with
@@ -3551,6 +3558,14 @@ def zicond_mnemonic_forwards (arg_ : zicondop) : String :=
 
 def assembly_forwards (arg_ : instruction) : SailM String := do
   match arg_ with
+  | .ZICBOP (cbop, rs1, offset) =>
+    (pure (String.append (prefetch_mnemonic_forwards cbop)
+        (String.append (spc_forwards ())
+          (String.append (← (hex_bits_12_forwards offset))
+            (String.append "("
+              (String.append (opt_spc_forwards ())
+                (String.append (← (reg_name_forwards rs1))
+                  (String.append (opt_spc_forwards ()) (String.append ")" "")))))))))
   | .NTL op => (pure (String.append "ntl." (String.append (ntl_name_forwards op) "")))
   | .C_NTL op => (pure (String.append "c.ntl." (String.append (ntl_name_forwards op) "")))
   | .PAUSE () => (pure "pause")

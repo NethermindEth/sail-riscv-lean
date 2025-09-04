@@ -138,6 +138,7 @@ open csrop
 open cregidx
 open checked_cbop
 open cfregidx
+open cbop_zicbop
 open cbop_zicbom
 open cbie
 open bropw_zbb
@@ -186,6 +187,16 @@ def _set_PTE_Ext_PBMT (r_ref : (RegisterRef (BitVec 10))) (v : (BitVec 2)) : Sai
   let r ← do (reg_deref r_ref)
   writeRegRef r_ref (_update_PTE_Ext_PBMT r v)
 
+def _get_PTE_Ext_RSW_60t59b (v : (BitVec 10)) : (BitVec 2) :=
+  (Sail.BitVec.extractLsb v 6 5)
+
+def _update_PTE_Ext_RSW_60t59b (v : (BitVec 10)) (x : (BitVec 2)) : (BitVec 10) :=
+  (Sail.BitVec.updateSubrange v 6 5 x)
+
+def _set_PTE_Ext_RSW_60t59b (r_ref : (RegisterRef (BitVec 10))) (v : (BitVec 2)) : SailM Unit := do
+  let r ← do (reg_deref r_ref)
+  writeRegRef r_ref (_update_PTE_Ext_RSW_60t59b r v)
+
 def default_sv32_ext_pte : pte_ext_bits := (zeros (n := 10))
 
 /-- Type quantifiers: k_pte_size : Nat, k_pte_size ≥ 0, k_pte_size ∈ {32, 64} -/
@@ -215,10 +226,11 @@ def pte_is_invalid (pte_flags : (BitVec 8)) (pte_ext : (BitVec 10)) : SailM Bool
   (pure (((_get_PTE_Flags_V pte_flags) == (0b0 : (BitVec 1))) || ((((_get_PTE_Flags_W pte_flags) == (0b1 : (BitVec 1))) && ((_get_PTE_Flags_R
               pte_flags) == (0b0 : (BitVec 1)))) || ((((_get_PTE_Ext_N pte_ext) != (0b0 : (BitVec 1))) && (not
               (← (currentlyEnabled Ext_Svnapot)))) || ((((_get_PTE_Ext_PBMT pte_ext) != (zeros
-                  (n := 2))) && (not (← (currentlyEnabled Ext_Svpbmt)))) || ((_get_PTE_Ext_reserved
-                pte_ext) != (zeros (n := 7))))))))
+                  (n := 2))) && (not (← (currentlyEnabled Ext_Svpbmt)))) || ((((_get_PTE_Ext_RSW_60t59b
+                    pte_ext) != (zeros (n := 2))) && (not (← (currentlyEnabled Ext_Svrsw60t59b)))) || ((_get_PTE_Ext_reserved
+                  pte_ext) != (zeros (n := 5)))))))))
 
-/-- Type quantifiers: k_ex375622# : Bool, k_ex375621# : Bool -/
+/-- Type quantifiers: k_ex378501# : Bool, k_ex378500# : Bool -/
 def check_PTE_permission (ac : (AccessType Unit)) (priv : Privilege) (mxr : Bool) (do_sum : Bool) (pte_flags : (BitVec 8)) (ext : (BitVec 10)) (ext_ptw : Unit) : SailM PTE_Check := do
   let pte_U := (bits_to_bool (_get_PTE_Flags_U pte_flags))
   let pte_R := (bits_to_bool (_get_PTE_Flags_R pte_flags))
@@ -234,7 +246,7 @@ def check_PTE_permission (ac : (AccessType Unit)) (priv : Privilege) (mxr : Bool
     match priv with
     | User => (pure pte_U)
     | Supervisor => (pure ((not pte_U) || (do_sum && (is_load_store ac))))
-    | Machine => (internal_error "riscv_vmem_pte.sail" 128 "m-mode mem perm check") ) : SailM Bool )
+    | Machine => (internal_error "riscv_vmem_pte.sail" 134 "m-mode mem perm check") ) : SailM Bool )
   if ((access_ok && priv_ok) : Bool)
   then (pure (PTE_Check_Success ()))
   else (pure (PTE_Check_Failure ((), ())))

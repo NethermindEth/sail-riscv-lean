@@ -139,6 +139,7 @@ open csrop
 open cregidx
 open checked_cbop
 open cfregidx
+open cbop_zicbop
 open cbop_zicbom
 open cbie
 open bropw_zbb
@@ -684,6 +685,7 @@ def currentlyEnabled_measure (ext : extension) : Int :=
   | Ext_Zhinx => 3
   | Ext_Zvkb => 3
   | Ext_Sscofpmf => 3
+  | Ext_Svrsw60t59b => 3
   | Ext_Zhinxmin => 4
   | _ => 2
 
@@ -725,6 +727,8 @@ def currentlyEnabled (merge_var : extension) : SailM Bool := do
   | Ext_Smcntrpmf => (pure ((hartSupports Ext_Smcntrpmf) && (← (currentlyEnabled Ext_Zicntr))))
   | Ext_Svnapot => (pure false)
   | Ext_Svpbmt => (pure false)
+  | Ext_Svrsw60t59b => (pure ((hartSupports Ext_Svrsw60t59b) && (← (currentlyEnabled Ext_Sv39))))
+  | Ext_Zicbop => (pure (hartSupports Ext_Zicbop))
   | Ext_Zihintntl => (pure (hartSupports Ext_Zihintntl))
   | Ext_Zihintpause => (pure (hartSupports Ext_Zihintpause))
   | Ext_C =>

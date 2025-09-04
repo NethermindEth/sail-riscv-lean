@@ -138,6 +138,7 @@ open csrop
 open cregidx
 open checked_cbop
 open cfregidx
+open cbop_zicbop
 open cbop_zicbom
 open cbie
 open bropw_zbb
@@ -208,7 +209,14 @@ def check_mmu_config (_ : Unit) : Bool :=
       (let valid : Bool := false
       (print_endline "Sv32 is enabled: Sv32 is not supported on RV64."))
     else ()
-  valid
+  if (((hartSupports Ext_Svrsw60t59b) && (not (hartSupports Ext_Sv39))) : Bool)
+  then
+    (let valid : Bool := false
+    let _ : Unit :=
+      (print_endline
+        "Svrsw60t59b is enabled but Sv39 is disabled: supporting Svrsw60t59b requires supporting Sv39.")
+    valid)
+  else valid
 
 def check_vlen_elen (_ : Unit) : Bool :=
   if (((vlen_exp : Nat) <b (elen_exp : Nat)) : Bool)

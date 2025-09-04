@@ -1,4 +1,10 @@
-import LeanRV64D.Prelude
+import LeanRV64D.Sail.Sail
+import LeanRV64D.Sail.BitVec
+import LeanRV64D.Sail.IntRange
+import LeanRV64D.Defs
+import LeanRV64D.Specialization
+import LeanRV64D.FakeReal
+import LeanRV64D.RiscvExtras
 
 set_option maxHeartbeats 1_000_000_000
 set_option maxRecDepth 1_000_000
@@ -166,14 +172,19 @@ open ExceptionType
 open Architecture
 open AccessType
 
-def zero_reg : regtype := (zeros (n := 64))
+def undefined_cbop_zicbop (_ : Unit) : SailM cbop_zicbop := do
+  (internal_pick [PREFETCH_I, PREFETCH_R, PREFETCH_W])
 
-def RegStr (r : (BitVec 64)) : String :=
-  (BitVec.toFormatted r)
+/-- Type quantifiers: arg_ : Nat, 0 ≤ arg_ ∧ arg_ ≤ 2 -/
+def cbop_zicbop_of_num (arg_ : Nat) : cbop_zicbop :=
+  match arg_ with
+  | 0 => PREFETCH_I
+  | 1 => PREFETCH_R
+  | _ => PREFETCH_W
 
-def regval_from_reg (r : (BitVec 64)) : (BitVec 64) :=
-  r
-
-def regval_into_reg (v : (BitVec 64)) : (BitVec 64) :=
-  v
+def num_of_cbop_zicbop (arg_ : cbop_zicbop) : Int :=
+  match arg_ with
+  | PREFETCH_I => 0
+  | PREFETCH_R => 1
+  | PREFETCH_W => 2
 

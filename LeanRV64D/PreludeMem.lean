@@ -135,6 +135,7 @@ open csrop
 open cregidx
 open checked_cbop
 open cfregidx
+open cbop_zicbop
 open cbop_zicbom
 open cbie
 open bropw_zbb
@@ -294,7 +295,7 @@ def write_ram_ea (wk : write_kind) (app_1 : physaddr) (width : Nat) : Unit :=
   let .Physaddr addr := app_1
   ()
 
-/-- Type quantifiers: k_ex369194# : Bool, width : Nat, width ≥ 0, 0 < width ∧
+/-- Type quantifiers: k_ex371699# : Bool, width : Nat, width ≥ 0, 0 < width ∧
   width ≤ max_mem_access -/
 def read_ram (rk : read_kind) (app_1 : physaddr) (width : Nat) (read_meta : Bool) : SailM ((BitVec (8 * width)) × Unit) := do
   let .Physaddr addr := app_1

@@ -110,7 +110,7 @@ abbrev RVFI_DII_Execution_Packet_V1 := (BitVec 704)
 
 abbrev RVFI_DII_Execution_PacketV2 := (BitVec 512)
 
-inductive extension where | Ext_M | Ext_A | Ext_F | Ext_D | Ext_B | Ext_V | Ext_S | Ext_U | Ext_H | Ext_Zicbom | Ext_Zicboz | Ext_Zicntr | Ext_Zicond | Ext_Zicsr | Ext_Zifencei | Ext_Zihintntl | Ext_Zihintpause | Ext_Zihpm | Ext_Zimop | Ext_Zmmul | Ext_Zaamo | Ext_Zabha | Ext_Zacas | Ext_Zalrsc | Ext_Zawrs | Ext_Zfa | Ext_Zfh | Ext_Zfhmin | Ext_Zfinx | Ext_Zdinx | Ext_Zca | Ext_Zcb | Ext_Zcd | Ext_Zcf | Ext_Zcmop | Ext_C | Ext_Zba | Ext_Zbb | Ext_Zbc | Ext_Zbkb | Ext_Zbkc | Ext_Zbkx | Ext_Zbs | Ext_Zknd | Ext_Zkne | Ext_Zknh | Ext_Zkr | Ext_Zksed | Ext_Zksh | Ext_Zkt | Ext_Zhinx | Ext_Zhinxmin | Ext_Zvbb | Ext_Zvbc | Ext_Zvkb | Ext_Zvkg | Ext_Zvkned | Ext_Zvknha | Ext_Zvknhb | Ext_Zvksed | Ext_Zvksh | Ext_Zvkt | Ext_Zvkn | Ext_Zvknc | Ext_Zvkng | Ext_Zvks | Ext_Zvksc | Ext_Zvksg | Ext_Sscofpmf | Ext_Sstc | Ext_Svinval | Ext_Svnapot | Ext_Svpbmt | Ext_Svbare | Ext_Sv32 | Ext_Sv39 | Ext_Sv48 | Ext_Sv57 | Ext_Smcntrpmf
+inductive extension where | Ext_M | Ext_A | Ext_F | Ext_D | Ext_B | Ext_V | Ext_S | Ext_U | Ext_H | Ext_Zicbom | Ext_Zicbop | Ext_Zicboz | Ext_Zicntr | Ext_Zicond | Ext_Zicsr | Ext_Zifencei | Ext_Zihintntl | Ext_Zihintpause | Ext_Zihpm | Ext_Zimop | Ext_Zmmul | Ext_Zaamo | Ext_Zabha | Ext_Zacas | Ext_Zalrsc | Ext_Zawrs | Ext_Zfa | Ext_Zfh | Ext_Zfhmin | Ext_Zfinx | Ext_Zdinx | Ext_Zca | Ext_Zcb | Ext_Zcd | Ext_Zcf | Ext_Zcmop | Ext_C | Ext_Zba | Ext_Zbb | Ext_Zbc | Ext_Zbkb | Ext_Zbkc | Ext_Zbkx | Ext_Zbs | Ext_Zknd | Ext_Zkne | Ext_Zknh | Ext_Zkr | Ext_Zksed | Ext_Zksh | Ext_Zkt | Ext_Zhinx | Ext_Zhinxmin | Ext_Zvbb | Ext_Zvbc | Ext_Zvkb | Ext_Zvkg | Ext_Zvkned | Ext_Zvknha | Ext_Zvknhb | Ext_Zvksed | Ext_Zvksh | Ext_Zvkt | Ext_Zvkn | Ext_Zvknc | Ext_Zvkng | Ext_Zvks | Ext_Zvksc | Ext_Zvksg | Ext_Sscofpmf | Ext_Sstc | Ext_Svbare | Ext_Sv32 | Ext_Sv39 | Ext_Sv48 | Ext_Sv57 | Ext_Svinval | Ext_Svnapot | Ext_Svpbmt | Ext_Svrsw60t59b | Ext_Smcntrpmf
   deriving BEq, Inhabited, Repr
 
 abbrev exc_code := (BitVec 8)
@@ -361,6 +361,9 @@ inductive nxsfunct6 where | NXS_VNSRL | NXS_VNSRA
 inductive nxfunct6 where | NX_VNCLIPU | NX_VNCLIP
   deriving BEq, Inhabited, Repr
 
+inductive cbop_zicbop where | PREFETCH_I | PREFETCH_R | PREFETCH_W
+  deriving BEq, Inhabited, Repr
+
 inductive rfvvfunct6 where | FVV_VFREDOSUM | FVV_VFREDUSUM | FVV_VFREDMAX | FVV_VFREDMIN | FVV_VFWREDOSUM | FVV_VFWREDUSUM
   deriving BEq, Inhabited, Repr
 
@@ -537,6 +540,7 @@ inductive wrsop where | WRS_STO | WRS_NTO
 inductive instruction where
   | ILLEGAL (_ : word)
   | C_ILLEGAL (_ : half)
+  | ZICBOP (_ : (cbop_zicbop × regidx × (BitVec 12)))
   | NTL (_ : ntl_type)
   | C_NTL (_ : ntl_type)
   | PAUSE (_ : Unit)

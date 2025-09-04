@@ -136,6 +136,7 @@ open csrop
 open cregidx
 open checked_cbop
 open cfregidx
+open cbop_zicbop
 open cbop_zicbom
 open cbie
 open bropw_zbb
@@ -239,7 +240,7 @@ def feq_quiet_D (v1 : (BitVec 64)) (v2 : (BitVec 64)) : (Bool × (BitVec 5)) :=
     else (zeros (n := 5))
   (result, fflags)
 
-/-- Type quantifiers: k_ex376890# : Bool -/
+/-- Type quantifiers: k_ex379775# : Bool -/
 def flt_D (v1 : (BitVec 64)) (v2 : (BitVec 64)) (is_quiet : Bool) : (Bool × (BitVec 5)) :=
   let (s1, e1, m1) := (fsplit_D v1)
   let (s2, e2, m2) := (fsplit_D v2)
@@ -271,7 +272,7 @@ def flt_D (v1 : (BitVec 64)) (v2 : (BitVec 64)) (is_quiet : Bool) : (Bool × (Bi
       else (zeros (n := 5)))
   (result, fflags)
 
-/-- Type quantifiers: k_ex376958# : Bool -/
+/-- Type quantifiers: k_ex379843# : Bool -/
 def fle_D (v1 : (BitVec 64)) (v2 : (BitVec 64)) (is_quiet : Bool) : (Bool × (BitVec 5)) :=
   let (s1, e1, m1) := (fsplit_D v1)
   let (s2, e2, m2) := (fsplit_D v2)
