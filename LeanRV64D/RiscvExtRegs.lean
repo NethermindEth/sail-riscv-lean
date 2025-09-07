@@ -165,14 +165,13 @@ open ISA_Format
 open HartState
 open FetchResult
 open Ext_DataAddr_Check
-open Ext_ControlAddr_Check
 open ExtStatus
 open ExecutionResult
 open ExceptionType
 open Architecture
 open AccessType
 
-/-- Type quantifiers: k_ex374512# : Bool -/
+/-- Type quantifiers: k_ex374130# : Bool -/
 def ext_check_CSR (csrno : (BitVec 12)) (p : Privilege) (isWrite : Bool) : Bool :=
   true
 

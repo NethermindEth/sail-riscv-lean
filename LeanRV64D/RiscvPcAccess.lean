@@ -162,7 +162,6 @@ open ISA_Format
 open HartState
 open FetchResult
 open Ext_DataAddr_Check
-open Ext_ControlAddr_Check
 open ExtStatus
 open ExecutionResult
 open ExceptionType
@@ -182,7 +181,4 @@ def set_next_pc (pc : (BitVec 64)) : SailM Unit := do
 def tick_pc (_ : Unit) : SailM Unit := do
   writeReg PC (← readReg nextPC)
   (pure (pc_write_callback (← readReg PC)))
-
-def force_pc (pc : (BitVec 64)) : SailM Unit := do
-  writeReg PC (Sail.BitVec.truncate pc xlen)
 

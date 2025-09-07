@@ -1,4 +1,3 @@
-import LeanRV64D.Prelude
 import LeanRV64D.RiscvRegs
 import LeanRV64D.RiscvStep
 import LeanRV64D.RiscvModel
@@ -162,21 +161,16 @@ open ISA_Format
 open HartState
 open FetchResult
 open Ext_DataAddr_Check
-open Ext_ControlAddr_Check
 open ExtStatus
 open ExecutionResult
 open ExceptionType
 open Architecture
 open AccessType
 
-def get_entry_point (_ : Unit) : (BitVec 64) :=
-  (zero_extend (m := 64) (0x1000 : (BitVec 16)))
-
 def sail_main (_ : Unit) : SailM Unit := do
-  writeReg PC (get_entry_point ())
-  (pure (print_bits "PC = " (← readReg PC)))
   sailTryCatch ((do
       (init_model "")
+      (pure (print_bits "PC = " (← readReg PC)))
       (cycle_count ())
       (loop ()))) (fun the_exception => 
     match the_exception with

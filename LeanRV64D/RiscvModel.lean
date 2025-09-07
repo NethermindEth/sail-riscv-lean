@@ -167,7 +167,6 @@ open ISA_Format
 open HartState
 open FetchResult
 open Ext_DataAddr_Check
-open Ext_ControlAddr_Check
 open ExtStatus
 open ExecutionResult
 open ExceptionType
@@ -175,6 +174,7 @@ open Architecture
 open AccessType
 
 def reset (_ : Unit) : SailM Unit := do
+  writeReg hart_state (HART_ACTIVE ())
   (reset_sys ())
   (reset_vmem ())
   (pure (ext_reset ()))
@@ -184,7 +184,6 @@ def init_model (config_filename : String) : SailM Unit := do
     (if ((config_filename == "") : Bool)
     then "Default config"
     else (HAppend.hAppend "Config in " config_filename)) " is invalid.")
-  writeReg hart_state (HART_ACTIVE ())
   (init_platform ())
   (reset ())
 

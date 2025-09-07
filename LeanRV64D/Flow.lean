@@ -165,14 +165,13 @@ open ISA_Format
 open HartState
 open FetchResult
 open Ext_DataAddr_Check
-open Ext_ControlAddr_Check
 open ExtStatus
 open ExecutionResult
 open ExceptionType
 open Architecture
 open AccessType
 
-/-- Type quantifiers: k_ex370957# : Bool, k_ex370956# : Bool -/
+/-- Type quantifiers: k_ex370579# : Bool, k_ex370578# : Bool -/
 def neq_bool (x : Bool) (y : Bool) : Bool :=
   (! (x == y))
 

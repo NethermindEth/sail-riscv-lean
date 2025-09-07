@@ -159,7 +159,6 @@ open ISA_Format
 open HartState
 open FetchResult
 open Ext_DataAddr_Check
-open Ext_ControlAddr_Check
 open ExtStatus
 open ExecutionResult
 open ExceptionType
@@ -172,8 +171,8 @@ def ext_fetch_check_pc (start_pc : (BitVec 64)) (pc : (BitVec 64)) : (Option Uni
 def ext_handle_fetch_check_error (err : Unit) : Unit :=
   ()
 
-def ext_control_check_pc (pc : (BitVec 64)) : (Ext_ControlAddr_Check Unit) :=
-  (Ext_ControlAddr_OK (Virtaddr pc))
+def ext_control_check_pc (pc : (BitVec 64)) : (Option Unit) :=
+  none
 
 def ext_handle_control_check_error (err : Unit) : Unit :=
   ()

@@ -1,5 +1,6 @@
 import LeanRV64D.Flow
 import LeanRV64D.Prelude
+import LeanRV64D.RiscvErrors
 import LeanRV64D.RiscvXlen
 import LeanRV64D.RiscvRegs
 import LeanRV64D.RiscvPcAccess
@@ -166,7 +167,6 @@ open ISA_Format
 open HartState
 open FetchResult
 open Ext_DataAddr_Check
-open Ext_ControlAddr_Check
 open ExtStatus
 open ExecutionResult
 open ExceptionType
@@ -181,8 +181,10 @@ def plat_enable_misaligned_access : Bool := true
 
 def plat_mtval_has_illegal_inst_bits : Bool := false
 
-def htif_tohost_base (_ : Unit) : (BitVec (if ( 64 = 32  : Bool) then 34 else 64)) :=
-  (trunc (m := 64) (plat_htif_tohost ()))
+def htif_tohost_size := 8
+
+def enable_htif (tohost_addr : (BitVec 64)) : SailM Unit := do
+  writeReg htif_tohost_base (some (trunc (m := 64) tohost_addr))
 
 /-- Type quantifiers: width : Int, width ≤ max_mem_access -/
 def within_phys_mem (typ_0 : physaddr) (width : Int) : SailM Bool := do
@@ -231,16 +233,17 @@ def within_clint (typ_0 : physaddr) (width : Nat) : SailM Bool := do
   (pure ((clint_base_int ≤b addr_int) && ((addr_int +i width) ≤b (clint_base_int +i clint_size_int))))
 
 /-- Type quantifiers: width : Nat, 0 < width ∧ width ≤ max_mem_access -/
-def within_htif_writable (typ_0 : physaddr) (width : Nat) : Bool :=
+def within_htif_writable (typ_0 : physaddr) (width : Nat) : SailM Bool := do
   let .Physaddr addr : physaddr := typ_0
-  ((plat_enable_htif ()) && (((htif_tohost_base ()) == addr) || (((BitVec.addInt
-            (htif_tohost_base ()) 4) == addr) && (width == 4))))
+  match (← readReg htif_tohost_base) with
+  | none => (pure false)
+  | .some base =>
+    (pure ((zopz0zI_u addr (BitVec.addInt base htif_tohost_size)) && (zopz0zKzJ_u
+          (BitVec.addInt addr width) base)))
 
 /-- Type quantifiers: width : Nat, 0 < width ∧ width ≤ max_mem_access -/
-def within_htif_readable (typ_0 : physaddr) (width : Nat) : Bool :=
-  let .Physaddr addr : physaddr := typ_0
-  ((plat_enable_htif ()) && (((htif_tohost_base ()) == addr) || (((BitVec.addInt
-            (htif_tohost_base ()) 4) == addr) && (width == 4))))
+def within_htif_readable (addr : physaddr) (width : Nat) : SailM Bool := do
+  (within_htif_writable addr width)
 
 def plat_insns_per_tick : nat1 := 2
 
@@ -589,8 +592,8 @@ def reset_htif (_ : Unit) : SailM Unit := do
   writeReg htif_payload_writes (0x0 : (BitVec 4))
   writeReg htif_tohost (zeros (n := 64))
 
-/-- Type quantifiers: width : Nat, width ≥ 0, width > 0 -/
-def htif_load (t : (AccessType Unit)) (app_1 : physaddr) (width : Nat) : SailM (Result (BitVec (8 * width)) ExceptionType) := do
+/-- Type quantifiers: width : Nat, width ≥ 0, 0 < width ∧ width ≤ max_mem_access -/
+def htif_load (acc : (AccessType Unit)) (app_1 : physaddr) (width : Nat) : SailM (Result (BitVec (8 * width)) ExceptionType) := do
   let .Physaddr paddr := app_1
   if ((get_config_print_platform ()) : Bool)
   then
@@ -599,27 +602,32 @@ def htif_load (t : (AccessType Unit)) (app_1 : physaddr) (width : Nat) : SailM (
           (HAppend.hAppend (hex_bits_str paddr)
             (HAppend.hAppend "] -> " (BitVec.toFormatted (← readReg htif_tohost)))))))
   else (pure ())
-  if (((width == 8) && (paddr == (htif_tohost_base ()))) : Bool)
+  let base ← (( do
+    match (← readReg htif_tohost_base) with
+    | .some base => (pure base)
+    | none => (internal_error "riscv_platform.sail" 330 "HTIF load while HTIF isn't enabled") ) :
+    SailM physaddrbits )
+  if (((width == 8) && (paddr == base)) : Bool)
   then (pure (Ok (zero_extend (m := 64) (← readReg htif_tohost))))
   else
     (do
-      if (((width == 4) && (paddr == (htif_tohost_base ()))) : Bool)
+      if (((width == 4) && (paddr == base)) : Bool)
       then
         (pure (Ok (zero_extend (m := 32) (Sail.BitVec.extractLsb (← readReg htif_tohost) 31 0))))
       else
         (do
-          if (((width == 4) && (paddr == (BitVec.addInt (htif_tohost_base ()) 4))) : Bool)
+          if (((width == 4) && (paddr == (BitVec.addInt base 4))) : Bool)
           then
             (pure (Ok
                 (zero_extend (m := 32) (Sail.BitVec.extractLsb (← readReg htif_tohost) 63 32))))
           else
-            (match t with
+            (match acc with
             | .InstructionFetch () => (pure (Err (E_Fetch_Access_Fault ())))
             | .Read Data => (pure (Err (E_Load_Access_Fault ())))
             | _ => (pure (Err (E_SAMO_Access_Fault ()))))))
 
-/-- Type quantifiers: width : Nat, width ≥ 0, 0 < width ∧ width ≤ 8 -/
-def htif_store (app_0 : physaddr) (width : Nat) (data : (BitVec (8 * width))) : SailM (Result Bool ExceptionType) := do
+/-- Type quantifiers: width : Nat, width ≥ 0, 0 < width ∧ width ≤ max_mem_access -/
+def htif_store (app_0 : physaddr) (width : Nat) (data : (BitVec (8 * width))) : SailM (Result Bool ExceptionType) := SailME.run do
   let .Physaddr paddr := app_0
   let _ : Unit :=
     if ((get_config_print_platform ()) : Bool)
@@ -628,7 +636,12 @@ def htif_store (app_0 : physaddr) (width : Nat) (data : (BitVec (8 * width))) : 
         (HAppend.hAppend "htif["
           (HAppend.hAppend (hex_bits_str paddr) (HAppend.hAppend "] <- " (BitVec.toFormatted data)))))
     else ()
-  if ((width == 8) : Bool)
+  let base ← (( do
+    match (← readReg htif_tohost_base) with
+    | .some base => (pure base)
+    | none => (internal_error "riscv_platform.sail" 354 "HTIF store while HTIF isn't enabled") ) :
+    SailME (Result Bool ExceptionType) physaddrbits )
+  if (((width == 8) && (paddr == base)) : Bool)
   then
     (do
       writeReg htif_cmd_write 1#1
@@ -636,7 +649,7 @@ def htif_store (app_0 : physaddr) (width : Nat) (data : (BitVec (8 * width))) : 
       writeReg htif_tohost (zero_extend (m := 64) data))
   else
     (do
-      if (((width == 4) && (paddr == (htif_tohost_base ()))) : Bool)
+      if (((width == 4) && (paddr == base)) : Bool)
       then
         (do
           if ((data == (Sail.BitVec.extractLsb (← readReg htif_tohost) 31 0)) : Bool)
@@ -645,7 +658,7 @@ def htif_store (app_0 : physaddr) (width : Nat) (data : (BitVec (8 * width))) : 
           writeReg htif_tohost (Sail.BitVec.updateSubrange (← readReg htif_tohost) 31 0 data))
       else
         (do
-          if (((width == 4) && (paddr == (BitVec.addInt (htif_tohost_base ()) 4))) : Bool)
+          if (((width == 4) && (paddr == (BitVec.addInt base 4))) : Bool)
           then
             (do
               if (((Sail.BitVec.extractLsb data 15 0) == (Sail.BitVec.extractLsb
@@ -654,7 +667,7 @@ def htif_store (app_0 : physaddr) (width : Nat) (data : (BitVec (8 * width))) : 
               else writeReg htif_payload_writes (0x1 : (BitVec 4))
               writeReg htif_cmd_write 1#1
               writeReg htif_tohost (Sail.BitVec.updateSubrange (← readReg htif_tohost) 63 32 data))
-          else writeReg htif_tohost (zero_extend (m := 64) data)))
+          else SailME.throw ((Err (E_SAMO_Access_Fault ())) : (Result Bool ExceptionType))))
   if (((((← readReg htif_cmd_write) == 1#1) && (← do
            (pure ((BitVec.toNat (← readReg htif_payload_writes)) >b 0)))) || (← do
          (pure ((BitVec.toNat (← readReg htif_payload_writes)) >b 2)))) : Bool)
@@ -709,14 +722,14 @@ def within_mmio_readable (addr : physaddr) (width : Nat) : SailM Bool := do
   if ((get_config_rvfi ()) : Bool)
   then (pure false)
   else
-    (pure ((← (within_clint addr width)) || ((within_htif_readable addr width) && (1 ≤b width))))
+    (pure ((← (within_clint addr width)) || ((← (within_htif_readable addr width)) && (1 ≤b width))))
 
 /-- Type quantifiers: width : Nat, 0 < width ∧ width ≤ max_mem_access -/
 def within_mmio_writable (addr : physaddr) (width : Nat) : SailM Bool := do
   if ((get_config_rvfi ()) : Bool)
   then (pure false)
   else
-    (pure ((← (within_clint addr width)) || ((within_htif_writable addr width) && (width ≤b 8))))
+    (pure ((← (within_clint addr width)) || ((← (within_htif_writable addr width)) && (width ≤b 8))))
 
 /-- Type quantifiers: width : Nat, width ≥ 0, 0 < width ∧ width ≤ max_mem_access -/
 def mmio_read (t : (AccessType Unit)) (paddr : physaddr) (width : Nat) : SailM (Result (BitVec (8 * width)) ExceptionType) := do
@@ -724,7 +737,7 @@ def mmio_read (t : (AccessType Unit)) (paddr : physaddr) (width : Nat) : SailM (
   then (clint_load t paddr width)
   else
     (do
-      if (((within_htif_readable paddr width) && (1 ≤b width)) : Bool)
+      if ((← (within_htif_readable paddr width)) : Bool)
       then (htif_load t paddr width)
       else
         (match t with
@@ -738,7 +751,7 @@ def mmio_write (paddr : physaddr) (width : Nat) (data : (BitVec (8 * width))) : 
   then (clint_store paddr width data)
   else
     (do
-      if (((within_htif_writable paddr width) && (width ≤b 8)) : Bool)
+      if ((← (within_htif_writable paddr width)) : Bool)
       then (htif_store paddr width data)
       else (pure (Err (E_SAMO_Access_Fault ()))))
 

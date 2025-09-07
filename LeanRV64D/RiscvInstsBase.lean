@@ -1,6 +1,5 @@
 import LeanRV64D.Prelude
 import LeanRV64D.RiscvXlen
-import LeanRV64D.PreludeMemAddrtype
 import LeanRV64D.RiscvPcAccess
 import LeanRV64D.RiscvSysRegs
 import LeanRV64D.RiscvAddrChecks
@@ -165,7 +164,6 @@ open ISA_Format
 open HartState
 open FetchResult
 open Ext_DataAddr_Check
-open Ext_ControlAddr_Check
 open ExtStatus
 open ExecutionResult
 open ExceptionType
@@ -224,20 +222,17 @@ def utype_mnemonic_backwards_matches (arg_ : String) : Bool :=
   | "auipc" => true
   | _ => false
 
-def jump_to (target : (BitVec 64)) : SailM ExecutionResult := do
+def jump_to (target : (BitVec 64)) : SailM ExecutionResult := SailME.run do
   match (ext_control_check_pc target) with
-  | .Ext_ControlAddr_Error e => (pure (Ext_ControlAddr_Check_Failure e))
-  | .Ext_ControlAddr_OK target =>
+  | .some e => SailME.throw ((Ext_ControlAddr_Check_Failure e) : ExecutionResult)
+  | none => (pure ())
+  assert ((BitVec.access target 0) == 0#1) "riscv_insts_base.sail:58.29-58.30"
+  if (((← (bit_to_bool (BitVec.access target 1))) && (not (← (currentlyEnabled Ext_Zca)))) : Bool)
+  then (pure (Memory_Exception ((Virtaddr target), (E_Fetch_Addr_Align ()))))
+  else
     (do
-      let target_bits := (bits_of_virtaddr target)
-      assert ((BitVec.access target_bits 0) == 0#1) "riscv_insts_base.sail:57.38-57.39"
-      if (((← (bit_to_bool (BitVec.access target_bits 1))) && (not
-             (← (currentlyEnabled Ext_Zca)))) : Bool)
-      then (pure (Memory_Exception (target, (E_Fetch_Addr_Align ()))))
-      else
-        (do
-          (set_next_pc target_bits)
-          (pure RETIRE_SUCCESS)))
+      (set_next_pc target)
+      (pure RETIRE_SUCCESS))
 
 def encdec_bop_forwards (arg_ : bop) : (BitVec 3) :=
   match arg_ with
@@ -547,11 +542,11 @@ def rtype_mnemonic_backwards_matches (arg_ : String) : Bool :=
   | "sra" => true
   | _ => false
 
-/-- Type quantifiers: k_ex379080# : Bool, width : Nat, width ∈ {1, 2, 4, 8} -/
+/-- Type quantifiers: k_ex378632# : Bool, width : Nat, width ∈ {1, 2, 4, 8} -/
 def valid_load_encdec (width : Nat) (is_unsigned : Bool) : Bool :=
   ((width <b xlen_bytes) || ((not is_unsigned) && (width ≤b xlen_bytes)))
 
-/-- Type quantifiers: k_ex379083# : Bool, k_n : Nat, k_n ≥ 0, 0 < k_n ∧ k_n ≤ xlen -/
+/-- Type quantifiers: k_ex378635# : Bool, k_n : Nat, k_n ≥ 0, 0 < k_n ∧ k_n ≤ xlen -/
 def extend_value (is_unsigned : Bool) (value : (BitVec k_n)) : (BitVec 64) :=
   if (is_unsigned : Bool)
   then (zero_extend (m := 64) value)
@@ -566,7 +561,7 @@ def maybe_u_backwards (arg_ : String) : SailM Bool := do
       assert false "Pattern match failure at unknown location"
       throw Error.Exit)
 
-/-- Type quantifiers: k_ex379084# : Bool -/
+/-- Type quantifiers: k_ex378636# : Bool -/
 def maybe_u_forwards_matches (arg_ : Bool) : Bool :=
   match arg_ with
   | true => true
@@ -630,7 +625,7 @@ def shiftiwop_mnemonic_backwards_matches (arg_ : String) : Bool :=
   | "sraiw" => true
   | _ => false
 
-/-- Type quantifiers: k_ex379085# : Bool -/
+/-- Type quantifiers: k_ex378637# : Bool -/
 def effective_fence_set (set : (BitVec 4)) (fiom : Bool) : (BitVec 4) :=
   if (fiom : Bool)
   then

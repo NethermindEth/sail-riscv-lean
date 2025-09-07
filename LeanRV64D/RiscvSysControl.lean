@@ -172,7 +172,6 @@ open ISA_Format
 open HartState
 open FetchResult
 open Ext_DataAddr_Check
-open Ext_ControlAddr_Check
 open ExtStatus
 open ExecutionResult
 open ExceptionType
@@ -193,7 +192,7 @@ def csrPriv (csr : (BitVec 12)) : (BitVec 2) :=
 def check_CSR_priv (csr : (BitVec 12)) (p : Privilege) : Bool :=
   (zopz0zKzJ_u (privLevel_to_bits p) (csrPriv csr))
 
-/-- Type quantifiers: k_ex376480# : Bool -/
+/-- Type quantifiers: k_ex376098# : Bool -/
 def check_CSR_access (csr : (BitVec 12)) (isWrite : Bool) : Bool :=
   (not (isWrite && ((csrAccess csr) == (0b11 : (BitVec 2)))))
 
@@ -201,7 +200,7 @@ def sstc_CSRs_accessible (priv : Privilege) : SailM Bool := do
   (pure ((priv == Machine) || ((priv == Supervisor) && (((_get_Counteren_TM (← readReg mcounteren)) == (0b1 : (BitVec 1))) && ((_get_MEnvcfg_STCE
               (← readReg menvcfg)) == (0b1 : (BitVec 1)))))))
 
-/-- Type quantifiers: k_ex376516# : Bool -/
+/-- Type quantifiers: k_ex376134# : Bool -/
 def is_CSR_accessible (b__0 : (BitVec 12)) (g__2 : Privilege) (g__3 : Bool) : SailM Bool := do
   if ((b__0 == (0x301 : (BitVec 12))) : Bool)
   then (pure true)
@@ -754,7 +753,7 @@ def is_CSR_accessible (b__0 : (BitVec 12)) (g__2 : Privilege) (g__3 : Bool) : Sa
                                                                                                                                                                                                                                                                                                           else
                                                                                                                                                                                                                                                                                                             (pure false)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
 
-/-- Type quantifiers: k_ex377107# : Bool -/
+/-- Type quantifiers: k_ex376725# : Bool -/
 def check_CSR (csr : (BitVec 12)) (p : Privilege) (isWrite : Bool) : SailM Bool := do
   (pure ((check_CSR_priv csr p) && ((check_CSR_access csr isWrite) && (← (is_CSR_accessible csr p
             isWrite)))))
@@ -838,7 +837,7 @@ def track_trap (p : Privilege) : SailM Unit := do
       (csr_name_write_callback "sepc" (← readReg sepc)))
   | User => (internal_error "riscv_sys_control.sail" 150 "Invalid privilege level")
 
-/-- Type quantifiers: k_ex377173# : Bool -/
+/-- Type quantifiers: k_ex376791# : Bool -/
 def trap_handler (del_priv : Privilege) (intr : Bool) (c : (BitVec 8)) (pc : (BitVec 64)) (info : (Option (BitVec 64))) (ext : (Option Unit)) : SailM (BitVec 64) := do
   let _ : Unit := (trap_callback ())
   let _ : Unit :=
@@ -1011,6 +1010,9 @@ def reset_misa (_ : Unit) : SailM Unit := do
     (bool_to_bits (hartSupports Ext_D)))
   (csr_name_write_callback "misa" (← readReg misa))
 
+def set_pc_reset_address (addr : (BitVec 64)) : SailM Unit := do
+  writeReg pc_reset_address (trunc (m := 64) addr)
+
 def reset_sys (_ : Unit) : SailM Unit := do
   writeReg cur_privilege Machine
   writeReg mstatus (Sail.BitVec.updateSubrange (← readReg mstatus) 3 3 (0b0 : (BitVec 1)))
@@ -1018,6 +1020,8 @@ def reset_sys (_ : Unit) : SailM Unit := do
   (long_csr_write_callback "mstatus" "mstatush" (← readReg mstatus))
   (reset_misa ())
   (cancel_reservation ())
+  writeReg PC (← readReg pc_reset_address)
+  writeReg nextPC (← readReg pc_reset_address)
   writeReg mcause (zeros (n := 64))
   (csr_name_write_callback "mcause" (← readReg mcause))
   (reset_pmp ())

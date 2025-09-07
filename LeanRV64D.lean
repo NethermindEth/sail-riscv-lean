@@ -11,6 +11,7 @@ import LeanRV64D.RiscvPmpRegs
 import LeanRV64D.RiscvFdextRegs
 import LeanRV64D.RiscvVextRegs
 import LeanRV64D.RiscvSmcntrpmf
+import LeanRV64D.RiscvSysControl
 import LeanRV64D.RiscvPlatform
 import LeanRV64D.RiscvVmemTlb
 import LeanRV64D.RiscvVmem
@@ -178,7 +179,6 @@ open ISA_Format
 open HartState
 open FetchResult
 open Ext_DataAddr_Check
-open Ext_ControlAddr_Check
 open ExtStatus
 open ExecutionResult
 open ExceptionType
@@ -355,12 +355,14 @@ def sail_model_init (x_0 : Unit) : SailM Unit := do
   writeReg marchid (← (to_bits_checked (l := 64) (0 : Int)))
   writeReg mhartid (← (to_bits_checked (l := 64) (0 : Int)))
   writeReg mconfigptr (zeros (n := 64))
+  writeReg pc_reset_address (zeros (n := 64))
   writeReg plat_ram_base (← (to_bits_checked (l := 64) (2147483648 : Int)))
   writeReg plat_ram_size (← (to_bits_checked (l := 64) (2147483648 : Int)))
   writeReg plat_rom_base (← (to_bits_checked (l := 64) (4096 : Int)))
   writeReg plat_rom_size (← (to_bits_checked (l := 64) (4096 : Int)))
   writeReg plat_clint_base (← (to_bits_checked (l := 64) (33554432 : Int)))
   writeReg plat_clint_size (← (to_bits_checked (l := 64) (786432 : Int)))
+  writeReg htif_tohost_base none
   writeReg tlb (vectorInit none)
   writeReg hart_state (HART_ACTIVE ())
   (initialize_registers ())

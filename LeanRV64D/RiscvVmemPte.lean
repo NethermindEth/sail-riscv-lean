@@ -164,7 +164,6 @@ open ISA_Format
 open HartState
 open FetchResult
 open Ext_DataAddr_Check
-open Ext_ControlAddr_Check
 open ExtStatus
 open ExecutionResult
 open ExceptionType
@@ -230,7 +229,7 @@ def pte_is_invalid (pte_flags : (BitVec 8)) (pte_ext : (BitVec 10)) : SailM Bool
                     pte_ext) != (zeros (n := 2))) && (not (← (currentlyEnabled Ext_Svrsw60t59b)))) || ((_get_PTE_Ext_reserved
                   pte_ext) != (zeros (n := 5)))))))))
 
-/-- Type quantifiers: k_ex378501# : Bool, k_ex378500# : Bool -/
+/-- Type quantifiers: k_ex378053# : Bool, k_ex378052# : Bool -/
 def check_PTE_permission (ac : (AccessType Unit)) (priv : Privilege) (mxr : Bool) (do_sum : Bool) (pte_flags : (BitVec 8)) (ext : (BitVec 10)) (ext_ptw : Unit) : SailM PTE_Check := do
   let pte_U := (bits_to_bool (_get_PTE_Flags_U pte_flags))
   let pte_R := (bits_to_bool (_get_PTE_Flags_R pte_flags))

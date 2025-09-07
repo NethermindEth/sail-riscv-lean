@@ -959,12 +959,6 @@ abbrev Satp64 := (BitVec 64)
 abbrev Satp32 := (BitVec 32)
 
 /-- Type quantifiers: k_a : Type -/
-inductive Ext_ControlAddr_Check (k_a : Type) where
-  | Ext_ControlAddr_OK (_ : virtaddr)
-  | Ext_ControlAddr_Error (_ : k_a)
-  deriving Inhabited, BEq, Repr
-
-/-- Type quantifiers: k_a : Type -/
 inductive Ext_DataAddr_Check (k_a : Type) where
   | Ext_DataAddr_OK (_ : virtaddr)
   | Ext_DataAddr_Error (_ : k_a)
@@ -1161,12 +1155,14 @@ inductive Register : Type where
   | htif_tohost
   | stimecmp
   | mtimecmp
+  | htif_tohost_base
   | plat_clint_size
   | plat_clint_base
   | plat_rom_size
   | plat_rom_base
   | plat_ram_size
   | plat_ram_base
+  | pc_reset_address
   | minstretcfg
   | mcyclecfg
   | vcsr
@@ -1332,12 +1328,14 @@ abbrev RegisterType : Register → Type
   | .htif_tohost => (BitVec 64)
   | .stimecmp => (BitVec 64)
   | .mtimecmp => (BitVec 64)
+  | .htif_tohost_base => (Option (BitVec (if ( 64 = 32  : Bool) then 34 else 64)))
   | .plat_clint_size => (BitVec (if ( 64 = 32  : Bool) then 34 else 64))
   | .plat_clint_base => (BitVec (if ( 64 = 32  : Bool) then 34 else 64))
   | .plat_rom_size => (BitVec (if ( 64 = 32  : Bool) then 34 else 64))
   | .plat_rom_base => (BitVec (if ( 64 = 32  : Bool) then 34 else 64))
   | .plat_ram_size => (BitVec (if ( 64 = 32  : Bool) then 34 else 64))
   | .plat_ram_base => (BitVec (if ( 64 = 32  : Bool) then 34 else 64))
+  | .pc_reset_address => (BitVec 64)
   | .minstretcfg => (BitVec 64)
   | .mcyclecfg => (BitVec 64)
   | .vcsr => (BitVec 3)
@@ -1514,6 +1512,8 @@ instance : Inhabited (RegisterRef RegisterType (BitVec (2 ^ 8))) where
   default := .Reg vr0
 instance : Inhabited (RegisterRef RegisterType Bool) where
   default := .Reg rvfi_int_data_present
+instance : Inhabited (RegisterRef RegisterType (Option (BitVec (if ( 64 = 32  : Bool) then 34 else 64)))) where
+  default := .Reg htif_tohost_base
 instance : Inhabited (RegisterRef RegisterType (Vector (BitVec 64) 32)) where
   default := .Reg mhpmevent
 instance : Inhabited (RegisterRef RegisterType (Vector (BitVec 64) 64)) where
