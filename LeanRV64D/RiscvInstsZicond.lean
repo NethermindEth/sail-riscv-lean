@@ -171,6 +171,38 @@ open ExceptionType
 open Architecture
 open AccessType
 
+def encdec_zicondop_forwards (arg_ : zicondop) : (BitVec 3) :=
+  match arg_ with
+  | CZERO_EQZ => (0b101 : (BitVec 3))
+  | CZERO_NEZ => (0b111 : (BitVec 3))
+
+def encdec_zicondop_backwards (arg_ : (BitVec 3)) : SailM zicondop := do
+  let b__0 := arg_
+  if ((b__0 == (0b101 : (BitVec 3))) : Bool)
+  then (pure CZERO_EQZ)
+  else
+    (do
+      if ((b__0 == (0b111 : (BitVec 3))) : Bool)
+      then (pure CZERO_NEZ)
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+
+def encdec_zicondop_forwards_matches (arg_ : zicondop) : Bool :=
+  match arg_ with
+  | CZERO_EQZ => true
+  | CZERO_NEZ => true
+
+def encdec_zicondop_backwards_matches (arg_ : (BitVec 3)) : Bool :=
+  let b__0 := arg_
+  if ((b__0 == (0b101 : (BitVec 3))) : Bool)
+  then true
+  else
+    (if ((b__0 == (0b111 : (BitVec 3))) : Bool)
+    then true
+    else false)
+
 def zicond_mnemonic_backwards (arg_ : String) : SailM zicondop := do
   match arg_ with
   | "czero.eqz" => (pure CZERO_EQZ)
