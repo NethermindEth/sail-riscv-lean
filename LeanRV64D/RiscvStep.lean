@@ -1,4 +1,5 @@
 import LeanRV64D.Prelude
+import LeanRV64D.PreludeMemAddrtype
 import LeanRV64D.Common
 import LeanRV64D.RvfiDii
 import LeanRV64D.RiscvTypes
@@ -181,7 +182,7 @@ open ExceptionType
 open Architecture
 open AccessType
 
-/-- Type quantifiers: k_ex435958# : Bool, step_no : Int -/
+/-- Type quantifiers: k_ex435956# : Bool, step_no : Int -/
 def run_hart_waiting (step_no : Int) (wr : WaitReason) (instbits : (BitVec 32)) (exit_wait : Bool) : SailM Step := do
   if ((← (shouldWakeForInterrupt ())) : Bool)
   then
@@ -332,7 +333,7 @@ def wait_is_nop (wr : WaitReason) : Bool :=
   | WAIT_WRS_STO => false
   | WAIT_WRS_NTO => false
 
-/-- Type quantifiers: k_ex435995# : Bool, step_no : Nat, 0 ≤ step_no -/
+/-- Type quantifiers: k_ex435993# : Bool, step_no : Nat, 0 ≤ step_no -/
 def try_step (step_no : Nat) (exit_wait : Bool) : SailM Bool := do
   let _ : Unit := (ext_pre_step_hook ())
   writeReg minstret_increment (← (should_inc_minstret (← readReg cur_privilege)))
@@ -349,14 +350,15 @@ def try_step (step_no : Nat) (exit_wait : Bool) : SailM Bool := do
         else ()
       (handle_interrupt intr priv))
   | .Step_Ext_Fetch_Failure e => (pure (ext_handle_fetch_check_error e))
-  | .Step_Fetch_Failure (vaddr, e) => (handle_mem_exception vaddr e)
+  | .Step_Fetch_Failure (vaddr, e) => (handle_exception (bits_of_virtaddr vaddr) e)
   | .Step_Waiting _ =>
     assert (hart_is_waiting (← readReg hart_state)) "cannot be Waiting in a non-Wait state"
   | .Step_Execute (.Retire_Success (), _) =>
     assert (hart_is_active (← readReg hart_state)) "riscv_step.sail:190.74-190.75"
   | .Step_Execute (.Trap (priv, ctl, pc), _) => (set_next_pc (← (exception_handler priv ctl pc)))
-  | .Step_Execute (.Memory_Exception (vaddr, e), _) => (handle_mem_exception vaddr e)
-  | .Step_Execute (.Illegal_Instruction (), instbits) => (handle_illegal instbits)
+  | .Step_Execute (.Memory_Exception (vaddr, e), _) => (handle_exception (bits_of_virtaddr vaddr) e)
+  | .Step_Execute (.Illegal_Instruction (), instbits) =>
+    (handle_exception (zero_extend (m := 64) instbits) (E_Illegal_Instr ()))
   | .Step_Execute (.Enter_Wait wr, instbits) =>
     (do
       if ((wait_is_nop wr) : Bool)

@@ -1,12 +1,8 @@
 import LeanRV64D.Flow
 import LeanRV64D.Prelude
 import LeanRV64D.RiscvErrors
-import LeanRV64D.RiscvXlen
-import LeanRV64D.RiscvRegs
-import LeanRV64D.RiscvPcAccess
 import LeanRV64D.RiscvSysRegs
 import LeanRV64D.RiscvSmcntrpmf
-import LeanRV64D.RiscvSysControl
 
 set_option maxHeartbeats 1_000_000_000
 set_option maxRecDepth 1_000_000
@@ -178,8 +174,6 @@ def plat_cache_block_size_exp : Nat := 6
 def plat_enable_dirty_update : Bool := false
 
 def plat_enable_misaligned_access : Bool := true
-
-def plat_mtval_has_illegal_inst_bits : Bool := false
 
 def htif_tohost_size := 8
 
@@ -605,7 +599,7 @@ def htif_load (acc : (AccessType Unit)) (app_1 : physaddr) (width : Nat) : SailM
   let base ← (( do
     match (← readReg htif_tohost_base) with
     | .some base => (pure base)
-    | none => (internal_error "riscv_platform.sail" 330 "HTIF load while HTIF isn't enabled") ) :
+    | none => (internal_error "riscv_platform.sail" 327 "HTIF load while HTIF isn't enabled") ) :
     SailM physaddrbits )
   if (((width == 8) && (paddr == base)) : Bool)
   then (pure (Ok (zero_extend (m := 64) (← readReg htif_tohost))))
@@ -639,7 +633,7 @@ def htif_store (app_0 : physaddr) (width : Nat) (data : (BitVec (8 * width))) : 
   let base ← (( do
     match (← readReg htif_tohost_base) with
     | .some base => (pure base)
-    | none => (internal_error "riscv_platform.sail" 354 "HTIF store while HTIF isn't enabled") ) :
+    | none => (internal_error "riscv_platform.sail" 351 "HTIF store while HTIF isn't enabled") ) :
     SailME (Result Bool ExceptionType) physaddrbits )
   if (((width == 8) && (paddr == base)) : Bool)
   then
@@ -761,17 +755,6 @@ def init_platform (_ : Unit) : SailM Unit := do
   writeReg htif_exit_code (zeros (n := 64))
   writeReg htif_cmd_write 0#1
   writeReg htif_payload_writes (zeros (n := 4))
-
-def handle_illegal (instbits : (BitVec 32)) : SailM Unit := do
-  let info :=
-    if (plat_mtval_has_illegal_inst_bits : Bool)
-    then (some (zero_extend (m := xlen) instbits))
-    else none
-  let t : sync_exception :=
-    { trap := (E_Illegal_Instr ())
-      excinfo := info
-      ext := none }
-  (set_next_pc (← (exception_handler (← readReg cur_privilege) (CTL_TRAP t) (← readReg PC))))
 
 def platform_wfi (_ : Unit) : Unit :=
   ()
