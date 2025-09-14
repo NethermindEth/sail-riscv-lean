@@ -190,14 +190,14 @@ def get_xepc (p : Privilege) : SailM (BitVec 64) := do
   match p with
   | Machine => (align_pc (← readReg mepc))
   | Supervisor => (align_pc (← readReg sepc))
-  | User => (internal_error "riscv_sys_exceptions.sail" 45 "Invalid privilege level")
+  | User => (internal_error "riscv_sys_exceptions.sail" 44 "Invalid privilege level")
 
 def set_xepc (p : Privilege) (value : (BitVec 64)) : SailM (BitVec 64) := do
   let target := (legalize_xepc value)
   match p with
   | Machine => writeReg mepc target
   | Supervisor => writeReg sepc target
-  | User => (internal_error "riscv_sys_exceptions.sail" 54 "Invalid privilege level")
+  | User => (internal_error "riscv_sys_exceptions.sail" 53 "Invalid privilege level")
   (pure target)
 
 def prepare_xret_target (p : Privilege) : SailM (BitVec 64) := do

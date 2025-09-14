@@ -245,7 +245,7 @@ def check_PTE_permission (ac : (AccessType Unit)) (priv : Privilege) (mxr : Bool
     match priv with
     | User => (pure pte_U)
     | Supervisor => (pure ((not pte_U) || (do_sum && (is_load_store ac))))
-    | Machine => (internal_error "riscv_vmem_pte.sail" 134 "m-mode mem perm check") ) : SailM Bool )
+    | Machine => (internal_error "riscv_vmem_pte.sail" 133 "m-mode mem perm check") ) : SailM Bool )
   if ((access_ok && priv_ok) : Bool)
   then (pure (PTE_Check_Success ()))
   else (pure (PTE_Check_Failure ((), ())))

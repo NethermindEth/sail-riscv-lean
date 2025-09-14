@@ -599,7 +599,7 @@ def htif_load (acc : (AccessType Unit)) (app_1 : physaddr) (width : Nat) : SailM
   let base ← (( do
     match (← readReg htif_tohost_base) with
     | .some base => (pure base)
-    | none => (internal_error "riscv_platform.sail" 327 "HTIF load while HTIF isn't enabled") ) :
+    | none => (internal_error "riscv_platform.sail" 321 "HTIF load while HTIF isn't enabled") ) :
     SailM physaddrbits )
   if (((width == 8) && (paddr == base)) : Bool)
   then (pure (Ok (zero_extend (m := 64) (← readReg htif_tohost))))
@@ -633,7 +633,7 @@ def htif_store (app_0 : physaddr) (width : Nat) (data : (BitVec (8 * width))) : 
   let base ← (( do
     match (← readReg htif_tohost_base) with
     | .some base => (pure base)
-    | none => (internal_error "riscv_platform.sail" 351 "HTIF store while HTIF isn't enabled") ) :
+    | none => (internal_error "riscv_platform.sail" 345 "HTIF store while HTIF isn't enabled") ) :
     SailME (Result Bool ExceptionType) physaddrbits )
   if (((width == 8) && (paddr == base)) : Bool)
   then

@@ -791,7 +791,7 @@ def findPendingInterrupt (ip : (BitVec 64)) : (Option InterruptType) :=
             else none)))))
 
 def getPendingSet (priv : Privilege) : SailM (Option ((BitVec 64) × Privilege)) := do
-  assert ((← (currentlyEnabled Ext_S)) || ((← readReg mideleg) == (zeros (n := 64)))) "riscv_sys_control.sail:70.58-70.59"
+  assert ((← (currentlyEnabled Ext_S)) || ((← readReg mideleg) == (zeros (n := 64)))) "riscv_sys_control.sail:67.58-67.59"
   let pending_m ← do
     (pure ((← readReg mip) &&& ((← readReg mie) &&& (Complement.complement (← readReg mideleg)))))
   let pending_s ← do (pure ((← readReg mip) &&& ((← readReg mie) &&& (← readReg mideleg))))
@@ -835,7 +835,7 @@ def track_trap (p : Privilege) : SailM Unit := do
       (csr_name_write_callback "scause" (← readReg scause))
       (csr_name_write_callback "stval" (← readReg stval))
       (csr_name_write_callback "sepc" (← readReg sepc)))
-  | User => (internal_error "riscv_sys_control.sail" 150 "Invalid privilege level")
+  | User => (internal_error "riscv_sys_control.sail" 145 "Invalid privilege level")
 
 /-- Type quantifiers: k_ex376549# : Bool -/
 def trap_handler (del_priv : Privilege) (intr : Bool) (c : (BitVec 8)) (pc : (BitVec 64)) (info : (Option (BitVec 64))) (ext : (Option Unit)) : SailM (BitVec 64) := do
@@ -888,14 +888,14 @@ def trap_handler (del_priv : Privilege) (intr : Bool) (c : (BitVec 8)) (pc : (Bi
           | User => (pure (0b0 : (BitVec 1)))
           | Supervisor => (pure (0b1 : (BitVec 1)))
           | Machine =>
-            (internal_error "riscv_sys_control.sail" 193 "invalid privilege for s-mode trap")))
+            (internal_error "riscv_sys_control.sail" 188 "invalid privilege for s-mode trap")))
       writeReg stval (tval info)
       writeReg sepc pc
       writeReg cur_privilege del_priv
       let _ : Unit := (handle_trap_extension del_priv pc ext)
       (track_trap del_priv)
       (prepare_trap_vector del_priv (← readReg scause)))
-  | User => (internal_error "riscv_sys_control.sail" 206 "Invalid privilege level")
+  | User => (internal_error "riscv_sys_control.sail" 201 "Invalid privilege level")
 
 def exception_handler (cur_priv : Privilege) (ctl : ctl_result) (pc : (BitVec 64)) : SailM (BitVec 64) := do
   match ctl with
@@ -1008,7 +1008,7 @@ def reset_misa (_ : Unit) : SailM Unit := do
   writeReg misa (Sail.BitVec.updateSubrange (← readReg misa) 8 8
     (Complement.complement (_get_Misa_E (← readReg misa))))
   if (((hartSupports Ext_F) && (hartSupports Ext_Zfinx)) : Bool)
-  then (internal_error "riscv_sys_control.sail" 296 "F and Zfinx cannot both be enabled!")
+  then (internal_error "riscv_sys_control.sail" 291 "F and Zfinx cannot both be enabled!")
   else (pure ())
   writeReg misa (Sail.BitVec.updateSubrange (← readReg misa) 5 5
     (bool_to_bits (hartSupports Ext_F)))
