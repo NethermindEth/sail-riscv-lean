@@ -1,6 +1,7 @@
 import LeanRV64D.Arith
 import LeanRV64D.Prelude
 import LeanRV64D.RiscvErrors
+import LeanRV64D.RiscvTypes
 import LeanRV64D.RiscvVmemTypes
 import LeanRV64D.RiscvRegs
 import LeanRV64D.RiscvSysRegs
@@ -327,6 +328,10 @@ def cbop_priv_check (p : Privilege) : SailM checked_cbop := do
     then (encdec_cbie_backwards (_get_SEnvcfg_CBIE (← readReg senvcfg)))
     else (encdec_cbie_backwards (_get_MEnvcfg_CBIE (← readReg menvcfg))) ) : SailM cbie )
   match (p, mCBIE, sCBIE) with
+  | (VirtualUser, _, _) =>
+    (internal_error "riscv_insts_zicbom.sail" 58 "Hypervisor extension not supported")
+  | (VirtualSupervisor, _, _) =>
+    (internal_error "riscv_insts_zicbom.sail" 59 "Hypervisor extension not supported")
   | (Machine, _, _) => (pure CBOP_INVAL_INVAL)
   | (_, CBIE_ILLEGAL, _) => (pure CBOP_ILLEGAL)
   | (User, _, CBIE_ILLEGAL) => (pure CBOP_ILLEGAL)
@@ -367,7 +372,7 @@ def process_clean_inval (rs1 : regidx) (cbop : cbop_zicbom) : SailM ExecutionRes
             | .E_Load_Page_Fault () => (pure (E_SAMO_Page_Fault ()))
             | .E_SAMO_Page_Fault () => (pure (E_SAMO_Page_Fault ()))
             | _ =>
-              (internal_error "riscv_insts_zicbom.sail" 124
+              (internal_error "riscv_insts_zicbom.sail" 127
                 "unexpected exception for cmo.clean/inval") ) : SailM ExceptionType )
           (pure (Memory_Exception ((sub_virtaddr_xlenbits vaddr negative_offset), e)))))
 

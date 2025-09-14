@@ -1,10 +1,7 @@
-import LeanRV64D.Sail.Sail
-import LeanRV64D.Sail.BitVec
-import LeanRV64D.Sail.IntRange
-import LeanRV64D.Defs
-import LeanRV64D.Specialization
-import LeanRV64D.FakeReal
-import LeanRV64D.RiscvExtras
+import LeanRV64D.Flow
+import LeanRV64D.Prelude
+import LeanRV64D.RiscvFdextRegs
+import LeanRV64D.RiscvInstsFext
 
 set_option maxHeartbeats 1_000_000_000
 set_option maxRecDepth 1_000_000
@@ -171,11 +168,26 @@ open ExceptionType
 open Architecture
 open AccessType
 
-/-- Type quantifiers: k_ex371931# : Bool, k_ex371930# : Bool -/
-def neq_bool (x : Bool) (y : Bool) : Bool :=
-  (! (x == y))
+def fsplit_BF16 (v : (BitVec 16)) : ((BitVec 1) × (BitVec 8) × (BitVec 7)) :=
+  ((Sail.BitVec.extractLsb v 15 15), (Sail.BitVec.extractLsb v 14 7), (Sail.BitVec.extractLsb v 6 0))
 
-/-- Type quantifiers: x : Int -/
-def __id (x : Int) : Int :=
-  x
+def fmake_BF16 (sign : (BitVec 1)) (exp : (BitVec 8)) (mant : (BitVec 7)) : (BitVec 16) :=
+  (sign ++ (exp ++ mant))
+
+def bf16_to_f32 (v : (BitVec 16)) : ((BitVec 5) × (BitVec 32)) :=
+  let (sign, exp, mant) := (fsplit_BF16 v)
+  let is_nan := ((exp == (ones (n := 8))) && (mant != (zeros (n := 7))))
+  let is_inf := ((exp == (ones (n := 8))) && (mant == (zeros (n := 7))))
+  let fflags :=
+    if ((is_nan && (((BitVec.toInt mant) ≥b 0) : Bool)) : Bool)
+    then (nvFlag ())
+    else (zeros (n := 5))
+  let value :=
+    if (is_nan : Bool)
+    then (canonical_NaN_S ())
+    else
+      (if (is_inf : Bool)
+      then (fmake_S sign (ones (n := 8)) (zeros (n := 23)))
+      else (fmake_S sign exp (mant ++ (zeros (n := 16)))))
+  (fflags, value)
 

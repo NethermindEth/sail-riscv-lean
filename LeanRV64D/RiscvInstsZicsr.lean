@@ -266,6 +266,9 @@ def get_scountovf (priv : Privilege) : SailM (BitVec 32) := do
   | Machine => (pure overflow)
   | Supervisor => (pure (overflow &&& (← readReg mcounteren)))
   | User => (internal_error "riscv_sscofpmf.sail" 74 "scountovf not readable from User mode")
+  | VirtualUser => (internal_error "riscv_sscofpmf.sail" 75 "Hypervisor extension not supported")
+  | VirtualSupervisor =>
+    (internal_error "riscv_sscofpmf.sail" 76 "Hypervisor extension not supported")
 
 def hpmidx_from_bits (b : (BitVec 5)) : SailM Nat := do
   let index := (BitVec.toNat b)
@@ -1841,7 +1844,7 @@ def write_CSR (b__0 : (BitVec 12)) (value : (BitVec 64)) : SailM (Result (BitVec
                                                                                                                                                                                                                                                                     (BitVec.toFormatted
                                                                                                                                                                                                                                                                       b__0))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
 
-/-- Type quantifiers: k_ex383972# : Bool -/
+/-- Type quantifiers: k_ex385598# : Bool -/
 def doCSR (csr : (BitVec 12)) (rs1_val : (BitVec 64)) (rd : regidx) (op : csrop) (is_CSR_Write : Bool) : SailM ExecutionResult := do
   if ((not (← (check_CSR csr (← readReg cur_privilege) is_CSR_Write))) : Bool)
   then (pure (Illegal_Instruction ()))

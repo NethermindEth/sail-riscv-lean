@@ -387,6 +387,11 @@ def riscv_f64ToF32 (rm : (BitVec 3)) (v : (BitVec 64)) : SailM ((BitVec 5) × (B
   (pure ((Sail.BitVec.extractLsb (← readReg float_fflags) 4 0), (Sail.BitVec.extractLsb
       (← readReg float_result) 31 0)))
 
+def riscv_f32ToBF16 (rm : (BitVec 3)) (v : (BitVec 32)) : SailM ((BitVec 5) × (BitVec 16)) := do
+  let _ : Unit := (extern_f32ToBF16 rm v)
+  (pure ((Sail.BitVec.extractLsb (← readReg float_fflags) 4 0), (Sail.BitVec.extractLsb
+      (← readReg float_result) 15 0)))
+
 def riscv_f16Lt (v1 : (BitVec 16)) (v2 : (BitVec 16)) : SailM ((BitVec 5) × Bool) := do
   let _ : Unit := (extern_f16Lt v1 v2)
   (pure ((Sail.BitVec.extractLsb (← readReg float_fflags) 4 0), (← (bit_to_bool
@@ -462,19 +467,19 @@ def riscv_f64Eq (v1 : (BitVec 64)) (v2 : (BitVec 64)) : SailM ((BitVec 5) × Boo
   (pure ((Sail.BitVec.extractLsb (← readReg float_fflags) 4 0), (← (bit_to_bool
         (BitVec.access (← readReg float_result) 0)))))
 
-/-- Type quantifiers: k_ex374031# : Bool -/
+/-- Type quantifiers: k_ex375647# : Bool -/
 def riscv_f16roundToInt (rm : (BitVec 3)) (v : (BitVec 16)) (exact : Bool) : SailM ((BitVec 5) × (BitVec 16)) := do
   let _ : Unit := (extern_f16roundToInt rm v exact)
   (pure ((Sail.BitVec.extractLsb (← readReg float_fflags) 4 0), (Sail.BitVec.extractLsb
       (← readReg float_result) 15 0)))
 
-/-- Type quantifiers: k_ex374035# : Bool -/
+/-- Type quantifiers: k_ex375651# : Bool -/
 def riscv_f32roundToInt (rm : (BitVec 3)) (v : (BitVec 32)) (exact : Bool) : SailM ((BitVec 5) × (BitVec 32)) := do
   let _ : Unit := (extern_f32roundToInt rm v exact)
   (pure ((Sail.BitVec.extractLsb (← readReg float_fflags) 4 0), (Sail.BitVec.extractLsb
       (← readReg float_result) 31 0)))
 
-/-- Type quantifiers: k_ex374039# : Bool -/
+/-- Type quantifiers: k_ex375655# : Bool -/
 def riscv_f64roundToInt (rm : (BitVec 3)) (v : (BitVec 64)) (exact : Bool) : SailM ((BitVec 5) × (BitVec 64)) := do
   let _ : Unit := (extern_f64roundToInt rm v exact)
   (pure ((Sail.BitVec.extractLsb (← readReg float_fflags) 4 0), (← readReg float_result)))

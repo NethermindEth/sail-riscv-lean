@@ -1,6 +1,7 @@
 import LeanRV64D.Flow
 import LeanRV64D.Prelude
 import LeanRV64D.RiscvErrors
+import LeanRV64D.RiscvTypes
 import LeanRV64D.RiscvSysRegs
 import LeanRV64D.RiscvSmcntrpmf
 

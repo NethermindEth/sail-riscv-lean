@@ -1,6 +1,6 @@
 import LeanRV64D.Flow
 import LeanRV64D.Prelude
-import LeanRV64D.RiscvSysRegs
+import LeanRV64D.RiscvTypes
 import LeanRV64D.RiscvFdextRegs
 
 set_option maxHeartbeats 1_000_000_000
@@ -367,7 +367,7 @@ def feq_quiet_S (v1 : (BitVec 32)) (v2 : (BitVec 32)) : (Bool × (BitVec 5)) :=
     else (zeros (n := 5))
   (result, fflags)
 
-/-- Type quantifiers: k_ex378830# : Bool -/
+/-- Type quantifiers: k_ex380448# : Bool -/
 def flt_S (v1 : (BitVec 32)) (v2 : (BitVec 32)) (is_quiet : Bool) : (Bool × (BitVec 5)) :=
   let (s1, e1, m1) := (fsplit_S v1)
   let (s2, e2, m2) := (fsplit_S v2)
@@ -399,7 +399,7 @@ def flt_S (v1 : (BitVec 32)) (v2 : (BitVec 32)) (is_quiet : Bool) : (Bool × (Bi
       else (zeros (n := 5)))
   (result, fflags)
 
-/-- Type quantifiers: k_ex378898# : Bool -/
+/-- Type quantifiers: k_ex380516# : Bool -/
 def fle_S (v1 : (BitVec 32)) (v2 : (BitVec 32)) (is_quiet : Bool) : (Bool × (BitVec 5)) :=
   let (s1, e1, m1) := (fsplit_S v1)
   let (s2, e2, m2) := (fsplit_S v2)
@@ -440,7 +440,7 @@ def haveSingleFPU (_ : Unit) : SailM Bool := do
 def float_load_store_width_supported (width : Nat) : SailM Bool := do
   match width with
   | 1 => (pure false)
-  | 2 => (currentlyEnabled Ext_Zfhmin)
+  | 2 => (pure ((← (currentlyEnabled Ext_Zfhmin)) || (← (currentlyEnabled Ext_Zfbfmin))))
   | 4 => (currentlyEnabled Ext_F)
   | _ => (currentlyEnabled Ext_D)
 

@@ -180,24 +180,36 @@ def prepare_trap_vector (p : Privilege) (cause : (BitVec 64)) : SailM (BitVec 64
     match p with
     | Machine => readReg mtvec
     | Supervisor => readReg stvec
-    | User => (internal_error "riscv_sys_exceptions.sail" 25 "Invalid privilege level") ) : SailM
+    | User => (internal_error "riscv_sys_exceptions.sail" 25 "Invalid privilege level")
+    | VirtualUser =>
+      (internal_error "riscv_sys_exceptions.sail" 26 "Hypervisor extension not supported")
+    | VirtualSupervisor =>
+      (internal_error "riscv_sys_exceptions.sail" 27 "Hypervisor extension not supported") ) : SailM
     Mtvec )
   match (tvec_addr tvec cause) with
   | .some epc => (pure epc)
-  | none => (internal_error "riscv_sys_exceptions.sail" 29 "Invalid tvec mode")
+  | none => (internal_error "riscv_sys_exceptions.sail" 31 "Invalid tvec mode")
 
 def get_xepc (p : Privilege) : SailM (BitVec 64) := do
   match p with
   | Machine => (align_pc (← readReg mepc))
   | Supervisor => (align_pc (← readReg sepc))
-  | User => (internal_error "riscv_sys_exceptions.sail" 44 "Invalid privilege level")
+  | User => (internal_error "riscv_sys_exceptions.sail" 46 "Invalid privilege level")
+  | VirtualUser =>
+    (internal_error "riscv_sys_exceptions.sail" 47 "Hypervisor extension not supported")
+  | VirtualSupervisor =>
+    (internal_error "riscv_sys_exceptions.sail" 48 "Hypervisor extension not supported")
 
 def set_xepc (p : Privilege) (value : (BitVec 64)) : SailM (BitVec 64) := do
   let target := (legalize_xepc value)
   match p with
   | Machine => writeReg mepc target
   | Supervisor => writeReg sepc target
-  | User => (internal_error "riscv_sys_exceptions.sail" 53 "Invalid privilege level")
+  | User => (internal_error "riscv_sys_exceptions.sail" 57 "Invalid privilege level")
+  | VirtualUser =>
+    (internal_error "riscv_sys_exceptions.sail" 58 "Hypervisor extension not supported")
+  | VirtualSupervisor =>
+    (internal_error "riscv_sys_exceptions.sail" 59 "Hypervisor extension not supported")
   (pure target)
 
 def prepare_xret_target (p : Privilege) : SailM (BitVec 64) := do

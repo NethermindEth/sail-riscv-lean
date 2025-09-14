@@ -1,7 +1,6 @@
 import LeanRV64D.Flow
 import LeanRV64D.Prelude
-import LeanRV64D.RiscvXlen
-import LeanRV64D.RiscvFlen
+import LeanRV64D.RiscvErrors
 import LeanRV64D.RiscvExtensions
 import LeanRV64D.RiscvTypes
 import LeanRV64D.RiscvRegs
@@ -174,12 +173,6 @@ open AccessType
 def undefined_Misa (_ : Unit) : SailM (BitVec 64) := do
   (undefined_bitvector 64)
 
-def Mk_Misa (v : (BitVec 64)) : (BitVec 64) :=
-  v
-
-def _get_Misa_A (v : (BitVec 64)) : (BitVec 1) :=
-  (Sail.BitVec.extractLsb v 0 0)
-
 def _update_Misa_A (v : (BitVec 64)) (x : (BitVec 1)) : (BitVec 64) :=
   (Sail.BitVec.updateSubrange v 0 0 x)
 
@@ -207,9 +200,6 @@ def _set_Pmpcfg_ent_A (r_ref : (RegisterRef (BitVec 8))) (v : (BitVec 2)) : Sail
   let r ← do (reg_deref r_ref)
   writeRegRef r_ref (_update_Pmpcfg_ent_A r v)
 
-def _get_Misa_B (v : (BitVec 64)) : (BitVec 1) :=
-  (Sail.BitVec.extractLsb v 1 1)
-
 def _update_Misa_B (v : (BitVec 64)) (x : (BitVec 1)) : (BitVec 64) :=
   (Sail.BitVec.updateSubrange v 1 1 x)
 
@@ -217,18 +207,12 @@ def _set_Misa_B (r_ref : (RegisterRef (BitVec 64))) (v : (BitVec 1)) : SailM Uni
   let r ← do (reg_deref r_ref)
   writeRegRef r_ref (_update_Misa_B r v)
 
-def _get_Misa_C (v : (BitVec 64)) : (BitVec 1) :=
-  (Sail.BitVec.extractLsb v 2 2)
-
 def _update_Misa_C (v : (BitVec 64)) (x : (BitVec 1)) : (BitVec 64) :=
   (Sail.BitVec.updateSubrange v 2 2 x)
 
 def _set_Misa_C (r_ref : (RegisterRef (BitVec 64))) (v : (BitVec 1)) : SailM Unit := do
   let r ← do (reg_deref r_ref)
   writeRegRef r_ref (_update_Misa_C r v)
-
-def _get_Misa_D (v : (BitVec 64)) : (BitVec 1) :=
-  (Sail.BitVec.extractLsb v 3 3)
 
 def _update_Misa_D (v : (BitVec 64)) (x : (BitVec 1)) : (BitVec 64) :=
   (Sail.BitVec.updateSubrange v 3 3 x)
@@ -257,9 +241,6 @@ def _set_Misa_E (r_ref : (RegisterRef (BitVec 64))) (v : (BitVec 1)) : SailM Uni
   let r ← do (reg_deref r_ref)
   writeRegRef r_ref (_update_Misa_E r v)
 
-def _get_Misa_F (v : (BitVec 64)) : (BitVec 1) :=
-  (Sail.BitVec.extractLsb v 5 5)
-
 def _update_Misa_F (v : (BitVec 64)) (x : (BitVec 1)) : (BitVec 64) :=
   (Sail.BitVec.updateSubrange v 5 5 x)
 
@@ -286,9 +267,6 @@ def _get_PTE_Flags_G (v : (BitVec 8)) : (BitVec 1) :=
 def _set_PTE_Flags_G (r_ref : (RegisterRef (BitVec 8))) (v : (BitVec 1)) : SailM Unit := do
   let r ← do (reg_deref r_ref)
   writeRegRef r_ref (_update_PTE_Flags_G r v)
-
-def _get_Misa_H (v : (BitVec 64)) : (BitVec 1) :=
-  (Sail.BitVec.extractLsb v 7 7)
 
 def _update_Misa_H (v : (BitVec 64)) (x : (BitVec 1)) : (BitVec 64) :=
   (Sail.BitVec.updateSubrange v 7 7 x)
@@ -347,9 +325,6 @@ def _set_Pmpcfg_ent_L (r_ref : (RegisterRef (BitVec 8))) (v : (BitVec 1)) : Sail
   let r ← do (reg_deref r_ref)
   writeRegRef r_ref (_update_Pmpcfg_ent_L r v)
 
-def _get_Misa_M (v : (BitVec 64)) : (BitVec 1) :=
-  (Sail.BitVec.extractLsb v 12 12)
-
 def _update_Misa_M (v : (BitVec 64)) (x : (BitVec 1)) : (BitVec 64) :=
   (Sail.BitVec.updateSubrange v 12 12 x)
 
@@ -359,9 +334,6 @@ def _set_Misa_M (r_ref : (RegisterRef (BitVec 64))) (v : (BitVec 1)) : SailM Uni
 
 def _get_Misa_MXL (v : (BitVec 64)) : (BitVec (64 - 1 - (64 - 2) + 1)) :=
   (Sail.BitVec.extractLsb v (64 -i 1) (64 -i 2))
-
-def _update_Misa_MXL (v : (BitVec 64)) (x : (BitVec (64 - 1 - (64 - 2) + 1))) : (BitVec 64) :=
-  (Sail.BitVec.updateSubrange v (64 -i 1) (64 -i 2) x)
 
 def _set_Misa_MXL (r_ref : (RegisterRef (BitVec 64))) (v : (BitVec (64 - 1 - (64 - 2) + 1))) : SailM Unit := do
   let r ← do (reg_deref r_ref)
@@ -447,9 +419,6 @@ def _set_Pmpcfg_ent_R (r_ref : (RegisterRef (BitVec 8))) (v : (BitVec 1)) : Sail
   let r ← do (reg_deref r_ref)
   writeRegRef r_ref (_update_Pmpcfg_ent_R r v)
 
-def _get_Misa_S (v : (BitVec 64)) : (BitVec 1) :=
-  (Sail.BitVec.extractLsb v 18 18)
-
 def _update_Misa_S (v : (BitVec 64)) (x : (BitVec 1)) : (BitVec 64) :=
   (Sail.BitVec.updateSubrange v 18 18 x)
 
@@ -467,9 +436,6 @@ def _set_Misa_T (r_ref : (RegisterRef (BitVec 64))) (v : (BitVec 1)) : SailM Uni
   let r ← do (reg_deref r_ref)
   writeRegRef r_ref (_update_Misa_T r v)
 
-def _get_Misa_U (v : (BitVec 64)) : (BitVec 1) :=
-  (Sail.BitVec.extractLsb v 20 20)
-
 def _update_Misa_U (v : (BitVec 64)) (x : (BitVec 1)) : (BitVec 64) :=
   (Sail.BitVec.updateSubrange v 20 20 x)
 
@@ -486,9 +452,6 @@ def _get_PTE_Flags_U (v : (BitVec 8)) : (BitVec 1) :=
 def _set_PTE_Flags_U (r_ref : (RegisterRef (BitVec 8))) (v : (BitVec 1)) : SailM Unit := do
   let r ← do (reg_deref r_ref)
   writeRegRef r_ref (_update_PTE_Flags_U r v)
-
-def _get_Misa_V (v : (BitVec 64)) : (BitVec 1) :=
-  (Sail.BitVec.extractLsb v 21 21)
 
 def _update_Misa_V (v : (BitVec 64)) (x : (BitVec 1)) : (BitVec 64) :=
   (Sail.BitVec.updateSubrange v 21 21 x)
@@ -646,174 +609,12 @@ def legalize_misa (m : (BitVec 64)) (v : (BitVec 64)) : SailM (BitVec 64) := do
         then (_get_Misa_V v)
         else (0b0 : (BitVec 1)))))
 
-def Mk_Mstatus (v : (BitVec 64)) : (BitVec 64) :=
-  v
-
-def _update_Mstatus_SXL (v : (BitVec 64)) (x : (BitVec 2)) : (BitVec 64) :=
-  (Sail.BitVec.updateSubrange v 35 34 x)
-
-def _update_Mstatus_UXL (v : (BitVec 64)) (x : (BitVec 2)) : (BitVec 64) :=
-  (Sail.BitVec.updateSubrange v 33 32 x)
-
-def _get_Mstatus_FS (v : (BitVec 64)) : (BitVec 2) :=
-  (Sail.BitVec.extractLsb v 14 13)
-
-def _get_Mstatus_VS (v : (BitVec 64)) : (BitVec 2) :=
-  (Sail.BitVec.extractLsb v 10 9)
-
-def currentlyEnabled_measure (ext : extension) : Int :=
-  match ext with
-  | Ext_Zicsr => 0
-  | Ext_A => 1
-  | Ext_B => 1
-  | Ext_C => 1
-  | Ext_D => 1
-  | Ext_F => 1
-  | Ext_M => 1
-  | Ext_S => 1
-  | Ext_V => 1
-  | Ext_H => 4
-  | Ext_Smcntrpmf => 3
-  | Ext_Zabha => 3
-  | Ext_Zacas => 3
-  | Ext_Zcb => 3
-  | Ext_Zcd => 3
-  | Ext_Zcf => 3
-  | Ext_Zcmop => 3
-  | Ext_Zfhmin => 3
-  | Ext_Zhinx => 3
-  | Ext_Zvkb => 3
-  | Ext_Sscofpmf => 3
-  | Ext_Svrsw60t59b => 3
-  | Ext_Zhinxmin => 4
-  | _ => 2
-
-
-mutual
-def currentlyEnabled (merge_var : extension) : SailM Bool := do
-  match merge_var with
-  | Ext_Zkt => (pure (hartSupports Ext_Zkt))
-  | Ext_Zvkt => (pure (hartSupports Ext_Zvkt))
-  | Ext_Zvkn => (pure (hartSupports Ext_Zvkn))
-  | Ext_Zvknc => (pure (hartSupports Ext_Zvknc))
-  | Ext_Zvkng => (pure (hartSupports Ext_Zvkng))
-  | Ext_Zvks => (pure (hartSupports Ext_Zvks))
-  | Ext_Zvksc => (pure (hartSupports Ext_Zvksc))
-  | Ext_Zvksg => (pure (hartSupports Ext_Zvksg))
-  | Ext_Sstc => (pure (hartSupports Ext_Sstc))
-  | Ext_U =>
-    (pure ((hartSupports Ext_U) && (((_get_Misa_U (← readReg misa)) == (0b1 : (BitVec 1))) && (← (currentlyEnabled
-              Ext_Zicsr)))))
-  | Ext_S =>
-    (pure ((hartSupports Ext_S) && (((_get_Misa_S (← readReg misa)) == (0b1 : (BitVec 1))) && (← (currentlyEnabled
-              Ext_Zicsr)))))
-  | Ext_Svbare => (currentlyEnabled Ext_S)
-  | Ext_Sv32 => (pure ((hartSupports Ext_Sv32) && (← (currentlyEnabled Ext_S))))
-  | Ext_Sv39 => (pure ((hartSupports Ext_Sv39) && (← (currentlyEnabled Ext_S))))
-  | Ext_Sv48 => (pure ((hartSupports Ext_Sv48) && (← (currentlyEnabled Ext_S))))
-  | Ext_Sv57 => (pure ((hartSupports Ext_Sv57) && (← (currentlyEnabled Ext_S))))
-  | Ext_F =>
-    (pure ((hartSupports Ext_F) && (((_get_Misa_F (← readReg misa)) == (0b1 : (BitVec 1))) && (((_get_Mstatus_FS
-                (← readReg mstatus)) != (0b00 : (BitVec 2))) && (← (currentlyEnabled Ext_Zicsr))))))
-  | Ext_D =>
-    (pure ((hartSupports Ext_D) && (((_get_Misa_D (← readReg misa)) == (0b1 : (BitVec 1))) && (((_get_Mstatus_FS
-                (← readReg mstatus)) != (0b00 : (BitVec 2))) && ((flen ≥b 64) && (← (currentlyEnabled
-                  Ext_Zicsr)))))))
-  | Ext_Zfinx => (pure ((hartSupports Ext_Zfinx) && (← (currentlyEnabled Ext_Zicsr))))
-  | Ext_V =>
-    (pure ((hartSupports Ext_V) && (((_get_Misa_V (← readReg misa)) == (0b1 : (BitVec 1))) && (((_get_Mstatus_VS
-                (← readReg mstatus)) != (0b00 : (BitVec 2))) && (← (currentlyEnabled Ext_Zicsr))))))
-  | Ext_Smcntrpmf => (pure ((hartSupports Ext_Smcntrpmf) && (← (currentlyEnabled Ext_Zicntr))))
-  | Ext_Svnapot => (pure false)
-  | Ext_Svpbmt => (pure false)
-  | Ext_Svrsw60t59b => (pure ((hartSupports Ext_Svrsw60t59b) && (← (currentlyEnabled Ext_Sv39))))
-  | Ext_Zicbop => (pure (hartSupports Ext_Zicbop))
-  | Ext_Zihintntl => (pure (hartSupports Ext_Zihintntl))
-  | Ext_Zihintpause => (pure (hartSupports Ext_Zihintpause))
-  | Ext_C =>
-    (pure ((hartSupports Ext_C) && ((_get_Misa_C (← readReg misa)) == (0b1 : (BitVec 1)))))
-  | Ext_Zca =>
-    (pure ((hartSupports Ext_Zca) && ((← (currentlyEnabled Ext_C)) || (not (hartSupports Ext_C)))))
-  | Ext_A =>
-    (pure ((hartSupports Ext_A) && ((_get_Misa_A (← readReg misa)) == (0b1 : (BitVec 1)))))
-  | Ext_Zaamo => (pure ((hartSupports Ext_Zaamo) || (← (currentlyEnabled Ext_A))))
-  | Ext_Zabha => (pure ((hartSupports Ext_Zabha) && (← (currentlyEnabled Ext_Zaamo))))
-  | Ext_Zacas => (pure ((hartSupports Ext_Zacas) && (← (currentlyEnabled Ext_Zaamo))))
-  | Ext_Zalrsc => (pure ((hartSupports Ext_Zalrsc) || (← (currentlyEnabled Ext_A))))
-  | Ext_M =>
-    (pure ((hartSupports Ext_M) && ((_get_Misa_M (← readReg misa)) == (0b1 : (BitVec 1)))))
-  | Ext_Zmmul => (pure ((hartSupports Ext_Zmmul) || (← (currentlyEnabled Ext_M))))
-  | Ext_B =>
-    (pure ((hartSupports Ext_B) && ((_get_Misa_B (← readReg misa)) == (0b1 : (BitVec 1)))))
-  | Ext_Zba => (pure ((hartSupports Ext_Zba) || (← (currentlyEnabled Ext_B))))
-  | Ext_Zbb => (pure ((hartSupports Ext_Zbb) || (← (currentlyEnabled Ext_B))))
-  | Ext_Zbkb => (pure (hartSupports Ext_Zbkb))
-  | Ext_Zbc => (pure (hartSupports Ext_Zbc))
-  | Ext_Zbkc => (pure (hartSupports Ext_Zbkc))
-  | Ext_Zbs => (pure ((hartSupports Ext_Zbs) || (← (currentlyEnabled Ext_B))))
-  | Ext_Zcb => (pure ((hartSupports Ext_Zcb) && (← (currentlyEnabled Ext_Zca))))
-  | Ext_H =>
-    (pure ((hartSupports Ext_H) && (((_get_Misa_H (← readReg misa)) == (0b1 : (BitVec 1))) && (← (virtual_memory_supported
-              ())))))
-  | Ext_Zfh => (pure ((hartSupports Ext_Zfh) && (← (currentlyEnabled Ext_F))))
-  | Ext_Zfhmin =>
-    (pure (((hartSupports Ext_Zfhmin) && (← (currentlyEnabled Ext_F))) || (← (currentlyEnabled
-            Ext_Zfh))))
-  | Ext_Zcf =>
-    (pure ((hartSupports Ext_Zcf) && ((← (currentlyEnabled Ext_F)) && ((← (currentlyEnabled
-                Ext_Zca)) && ((← (currentlyEnabled Ext_C)) || (not (hartSupports Ext_C)))))))
-  | Ext_Zdinx => (pure ((hartSupports Ext_Zdinx) && (flen ≥b 64)))
-  | Ext_Zcd =>
-    (pure ((hartSupports Ext_Zcd) && ((← (currentlyEnabled Ext_D)) && ((← (currentlyEnabled
-                Ext_Zca)) && ((← (currentlyEnabled Ext_C)) || (not (hartSupports Ext_C)))))))
-  | Ext_Zhinx => (pure ((hartSupports Ext_Zhinx) && (← (currentlyEnabled Ext_Zfinx))))
-  | Ext_Zhinxmin =>
-    (pure (((hartSupports Ext_Zhinxmin) && (← (currentlyEnabled Ext_Zfinx))) || (← (currentlyEnabled
-            Ext_Zhinx))))
-  | Ext_Zfa => (pure ((hartSupports Ext_Zfa) && (← (currentlyEnabled Ext_F))))
-  | Ext_Zknh => (pure (hartSupports Ext_Zknh))
-  | Ext_Zkne => (pure (hartSupports Ext_Zkne))
-  | Ext_Zknd => (pure (hartSupports Ext_Zknd))
-  | Ext_Zksh => (pure (hartSupports Ext_Zksh))
-  | Ext_Zksed => (pure (hartSupports Ext_Zksed))
-  | Ext_Zkr => (pure (hartSupports Ext_Zkr))
-  | Ext_Zbkx => (pure (hartSupports Ext_Zbkx))
-  | Ext_Zvbb => (pure ((hartSupports Ext_Zvbb) && (← (currentlyEnabled Ext_V))))
-  | Ext_Zvkb =>
-    (pure (((hartSupports Ext_Zvkb) || (← (currentlyEnabled Ext_Zvbb))) && (← (currentlyEnabled
-            Ext_V))))
-  | Ext_Zvbc => (pure ((hartSupports Ext_Zvbc) && (← (currentlyEnabled Ext_V))))
-  | Ext_Zvkg => (pure ((hartSupports Ext_Zvkg) && (← (currentlyEnabled Ext_V))))
-  | Ext_Zvkned => (pure ((hartSupports Ext_Zvkned) && (← (currentlyEnabled Ext_V))))
-  | Ext_Zvksed => (pure ((hartSupports Ext_Zvksed) && (← (currentlyEnabled Ext_V))))
-  | Ext_Zvknha => (pure ((hartSupports Ext_Zvknha) && (← (currentlyEnabled Ext_V))))
-  | Ext_Zvknhb => (pure ((hartSupports Ext_Zvknhb) && (← (currentlyEnabled Ext_V))))
-  | Ext_Zvksh => (pure ((hartSupports Ext_Zvksh) && (← (currentlyEnabled Ext_V))))
-  | Ext_Zicsr => (pure (hartSupports Ext_Zicsr))
-  | Ext_Svinval => (pure (hartSupports Ext_Svinval))
-  | Ext_Zihpm => (pure ((hartSupports Ext_Zihpm) && (← (currentlyEnabled Ext_Zicsr))))
-  | Ext_Sscofpmf => (pure ((hartSupports Ext_Sscofpmf) && (← (currentlyEnabled Ext_Zihpm))))
-  | Ext_Zawrs => (pure (hartSupports Ext_Zawrs))
-  | Ext_Zicond => (pure (hartSupports Ext_Zicond))
-  | Ext_Zicntr => (pure ((hartSupports Ext_Zicntr) && (← (currentlyEnabled Ext_Zicsr))))
-  | Ext_Zicbom => (pure (hartSupports Ext_Zicbom))
-  | Ext_Zicboz => (pure (hartSupports Ext_Zicboz))
-  | Ext_Zifencei => (pure (hartSupports Ext_Zifencei))
-  | Ext_Zimop => (pure (hartSupports Ext_Zimop))
-  | Ext_Zcmop => (pure ((hartSupports Ext_Zcmop) && (← (currentlyEnabled Ext_Zca))))
-termination_by let ext := merge_var; ((currentlyEnabled_measure ext)).toNat
-def virtual_memory_supported (_ : Unit) : SailM Bool := do
-  (pure ((← (currentlyEnabled Ext_Sv32)) || ((← (currentlyEnabled Ext_Sv39)) || ((← (currentlyEnabled
-              Ext_Sv48)) || (← (currentlyEnabled Ext_Sv57))))))
-termination_by let _ := (); (3).toNat
-end
-
 def lowest_supported_privLevel (_ : Unit) : SailM Privilege := do
   if ((← (currentlyEnabled Ext_U)) : Bool)
   then (pure User)
   else (pure Machine)
 
-def have_privLevel (priv : (BitVec 2)) : SailM Bool := do
+def have_nominal_privLevel (priv : (BitVec 2)) : SailM Bool := do
   let b__0 := priv
   if ((b__0 == (0b00 : (BitVec 2))) : Bool)
   then (currentlyEnabled Ext_U)
@@ -1169,7 +970,7 @@ def legalize_mstatus (o : (BitVec 64)) (v : (BitVec 64)) : SailM (BitVec 64) := 
                       then (extStatus_to_bits Off)
                       else (_get_Mstatus_FS v)))
                     (← do
-                      if ((← (have_privLevel (_get_Mstatus_MPP v))) : Bool)
+                      if ((← (have_nominal_privLevel (_get_Mstatus_MPP v))) : Bool)
                       then (pure (_get_Mstatus_MPP v))
                       else (pure (privLevel_to_bits (← (lowest_supported_privLevel ()))))))
                   (← do
@@ -1197,7 +998,11 @@ def cur_architecture (_ : Unit) : SailM Architecture := do
     match (← readReg cur_privilege) with
     | Machine => (pure (_get_Misa_MXL (← readReg misa)))
     | Supervisor => (pure (get_mstatus_SXL (← readReg mstatus)))
-    | User => (pure (get_mstatus_UXL (← readReg mstatus))) ) : SailM arch_xlen )
+    | User => (pure (get_mstatus_UXL (← readReg mstatus)))
+    | VirtualUser => (internal_error "riscv_sys_regs.sail" 296 "Hypervisor extension not supported")
+    | VirtualSupervisor =>
+      (internal_error "riscv_sys_regs.sail" 297 "Hypervisor extension not supported") ) : SailM
+    arch_xlen )
   (architecture_backwards a)
 
 def in32BitMode (_ : Unit) : SailM Bool := do
@@ -1449,6 +1254,9 @@ def is_fiom_active (_ : Unit) : SailM Bool := do
   | Supervisor => (pure ((_get_MEnvcfg_FIOM (← readReg menvcfg)) == (0b1 : (BitVec 1))))
   | User =>
     (pure (((_get_MEnvcfg_FIOM (← readReg menvcfg)) ||| (_get_SEnvcfg_FIOM (← readReg senvcfg))) == (0b1 : (BitVec 1))))
+  | VirtualUser => (internal_error "riscv_sys_regs.sail" 441 "Hypervisor extension not supported")
+  | VirtualSupervisor =>
+    (internal_error "riscv_sys_regs.sail" 442 "Hypervisor extension not supported")
 
 def undefined_Minterrupts (_ : Unit) : SailM (BitVec 64) := do
   (undefined_bitvector 64)
@@ -2116,6 +1924,9 @@ def feature_enabled_for_priv (p : Privilege) (machine_enable_bit : (BitVec 1)) (
   | Supervisor => (pure (machine_enable_bit == 1#1))
   | User =>
     (pure ((machine_enable_bit == 1#1) && ((not (← (currentlyEnabled Ext_S))) || (supervisor_enable_bit == 1#1))))
+  | VirtualSupervisor =>
+    (internal_error "riscv_sys_regs.sail" 960 "Hypervisor extension not supported")
+  | VirtualUser => (internal_error "riscv_sys_regs.sail" 961 "Hypervisor extension not supported")
 
 /-- Type quantifiers: index : Nat, 0 ≤ index ∧ index ≤ 31 -/
 def counter_enabled (index : Nat) (priv : Privilege) : SailM Bool := do

@@ -110,7 +110,7 @@ abbrev RVFI_DII_Execution_Packet_V1 := (BitVec 704)
 
 abbrev RVFI_DII_Execution_PacketV2 := (BitVec 512)
 
-inductive extension where | Ext_M | Ext_A | Ext_F | Ext_D | Ext_B | Ext_V | Ext_S | Ext_U | Ext_H | Ext_Zicbom | Ext_Zicbop | Ext_Zicboz | Ext_Zicntr | Ext_Zicond | Ext_Zicsr | Ext_Zifencei | Ext_Zihintntl | Ext_Zihintpause | Ext_Zihpm | Ext_Zimop | Ext_Zmmul | Ext_Zaamo | Ext_Zabha | Ext_Zacas | Ext_Zalrsc | Ext_Zawrs | Ext_Zfa | Ext_Zfh | Ext_Zfhmin | Ext_Zfinx | Ext_Zdinx | Ext_Zca | Ext_Zcb | Ext_Zcd | Ext_Zcf | Ext_Zcmop | Ext_C | Ext_Zba | Ext_Zbb | Ext_Zbc | Ext_Zbkb | Ext_Zbkc | Ext_Zbkx | Ext_Zbs | Ext_Zknd | Ext_Zkne | Ext_Zknh | Ext_Zkr | Ext_Zksed | Ext_Zksh | Ext_Zkt | Ext_Zhinx | Ext_Zhinxmin | Ext_Zvbb | Ext_Zvbc | Ext_Zvkb | Ext_Zvkg | Ext_Zvkned | Ext_Zvknha | Ext_Zvknhb | Ext_Zvksed | Ext_Zvksh | Ext_Zvkt | Ext_Zvkn | Ext_Zvknc | Ext_Zvkng | Ext_Zvks | Ext_Zvksc | Ext_Zvksg | Ext_Sscofpmf | Ext_Sstc | Ext_Svbare | Ext_Sv32 | Ext_Sv39 | Ext_Sv48 | Ext_Sv57 | Ext_Svinval | Ext_Svnapot | Ext_Svpbmt | Ext_Svrsw60t59b | Ext_Smcntrpmf
+inductive extension where | Ext_M | Ext_A | Ext_F | Ext_D | Ext_B | Ext_V | Ext_S | Ext_U | Ext_H | Ext_Zicbom | Ext_Zicbop | Ext_Zicboz | Ext_Zicntr | Ext_Zicond | Ext_Zicsr | Ext_Zifencei | Ext_Zihintntl | Ext_Zihintpause | Ext_Zihpm | Ext_Zimop | Ext_Zmmul | Ext_Zaamo | Ext_Zabha | Ext_Zacas | Ext_Zalrsc | Ext_Zawrs | Ext_Zfa | Ext_Zfbfmin | Ext_Zfh | Ext_Zfhmin | Ext_Zfinx | Ext_Zdinx | Ext_Zca | Ext_Zcb | Ext_Zcd | Ext_Zcf | Ext_Zcmop | Ext_C | Ext_Zba | Ext_Zbb | Ext_Zbc | Ext_Zbkb | Ext_Zbkc | Ext_Zbkx | Ext_Zbs | Ext_Zknd | Ext_Zkne | Ext_Zknh | Ext_Zkr | Ext_Zksed | Ext_Zksh | Ext_Zkt | Ext_Zhinx | Ext_Zhinxmin | Ext_Zvbb | Ext_Zvbc | Ext_Zvkb | Ext_Zvkg | Ext_Zvkned | Ext_Zvknha | Ext_Zvknhb | Ext_Zvksed | Ext_Zvksh | Ext_Zvkt | Ext_Zvkn | Ext_Zvknc | Ext_Zvkng | Ext_Zvks | Ext_Zvksc | Ext_Zvksg | Ext_Sscofpmf | Ext_Sstc | Ext_Svbare | Ext_Sv32 | Ext_Sv39 | Ext_Sv48 | Ext_Sv57 | Ext_Svinval | Ext_Svnapot | Ext_Svpbmt | Ext_Svrsw60t59b | Ext_Smcntrpmf
   deriving BEq, Inhabited, Repr
 
 abbrev exc_code := (BitVec 8)
@@ -146,10 +146,16 @@ inductive Architecture where | RV32 | RV64 | RV128
 
 abbrev arch_xlen := (BitVec 2)
 
-abbrev priv_level := (BitVec 2)
+abbrev nom_priv_bits := (BitVec 2)
 
-inductive Privilege where | User | Supervisor | Machine
+abbrev virt_mode_bit := (BitVec 1)
+
+inductive Privilege where | User | VirtualUser | Supervisor | VirtualSupervisor | Machine
   deriving BEq, Inhabited, Repr
+
+abbrev Misa := (BitVec 64)
+
+abbrev Mstatus := (BitVec 64)
 
 /-- Type quantifiers: k_a : Type -/
 inductive AccessType (k_a : Type) where
@@ -874,6 +880,8 @@ inductive instruction where
   | ZICBOM (_ : (cbop_zicbom × regidx))
   | ZICBOZ (_ : regidx)
   | FENCEI (_ : Unit)
+  | FCVT_BF16_S (_ : (fregidx × rounding_mode × fregidx))
+  | FCVT_S_BF16 (_ : (fregidx × rounding_mode × fregidx))
   | ZIMOP_MOP_R (_ : ((BitVec 5) × regidx × regidx))
   | ZIMOP_MOP_RR (_ : ((BitVec 3) × regidx × regidx × regidx))
   | ZCMOP (_ : (BitVec 3))
@@ -928,10 +936,6 @@ abbrev ext_access_type := Unit
 
 abbrev regtype := xlenbits
 
-abbrev Misa := (BitVec 64)
-
-abbrev Mstatus := (BitVec 64)
-
 abbrev Seccfg := (BitVec 64)
 
 abbrev MEnvcfg := (BitVec 64)
@@ -973,6 +977,8 @@ abbrev ext_data_addr_error := Unit
 abbrev bits_rm := (BitVec 3)
 
 abbrev bits_fflags := (BitVec 5)
+
+abbrev bits_BF16 := (BitVec 16)
 
 abbrev bits_H := (BitVec 16)
 
@@ -1268,8 +1274,6 @@ inductive Register : Type where
   | senvcfg
   | menvcfg
   | mseccfg
-  | mstatus
-  | misa
   | cur_inst
   | cur_privilege
   | x31
@@ -1305,6 +1309,8 @@ inductive Register : Type where
   | x1
   | nextPC
   | PC
+  | mstatus
+  | misa
   | rvfi_mem_data_present
   | rvfi_mem_data
   | rvfi_int_data_present
@@ -1441,8 +1447,6 @@ abbrev RegisterType : Register → Type
   | .senvcfg => (BitVec 64)
   | .menvcfg => (BitVec 64)
   | .mseccfg => (BitVec 64)
-  | .mstatus => (BitVec 64)
-  | .misa => (BitVec 64)
   | .cur_inst => (BitVec 64)
   | .cur_privilege => Privilege
   | .x31 => (BitVec 64)
@@ -1478,6 +1482,8 @@ abbrev RegisterType : Register → Type
   | .x1 => (BitVec 64)
   | .nextPC => (BitVec 64)
   | .PC => (BitVec 64)
+  | .mstatus => (BitVec 64)
+  | .misa => (BitVec 64)
   | .rvfi_mem_data_present => Bool
   | .rvfi_mem_data => (BitVec 704)
   | .rvfi_int_data_present => Bool

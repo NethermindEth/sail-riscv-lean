@@ -1,7 +1,7 @@
 import LeanRV64D.Prelude
 import LeanRV64D.RiscvXlen
+import LeanRV64D.RiscvTypes
 import LeanRV64D.RiscvPcAccess
-import LeanRV64D.RiscvSysRegs
 import LeanRV64D.RiscvAddrChecks
 import LeanRV64D.RiscvInstRetire
 
@@ -226,7 +226,7 @@ def jump_to (target : (BitVec 64)) : SailM ExecutionResult := SailME.run do
   match (ext_control_check_pc target) with
   | .some e => SailME.throw ((Ext_ControlAddr_Check_Failure e) : ExecutionResult)
   | none => (pure ())
-  assert ((BitVec.access target 0) == 0#1) "riscv_insts_base.sail:58.29-58.30"
+  assert ((BitVec.access target 0) == 0#1) "riscv_insts_base.sail:59.29-59.30"
   if (((← (bit_to_bool (BitVec.access target 1))) && (not (← (currentlyEnabled Ext_Zca)))) : Bool)
   then (pure (Memory_Exception ((Virtaddr target), (E_Fetch_Addr_Align ()))))
   else
@@ -542,11 +542,11 @@ def rtype_mnemonic_backwards_matches (arg_ : String) : Bool :=
   | "sra" => true
   | _ => false
 
-/-- Type quantifiers: k_ex378389# : Bool, width : Nat, width ∈ {1, 2, 4, 8} -/
+/-- Type quantifiers: k_ex380007# : Bool, width : Nat, width ∈ {1, 2, 4, 8} -/
 def valid_load_encdec (width : Nat) (is_unsigned : Bool) : Bool :=
   ((width <b xlen_bytes) || ((not is_unsigned) && (width ≤b xlen_bytes)))
 
-/-- Type quantifiers: k_ex378392# : Bool, k_n : Nat, k_n ≥ 0, 0 < k_n ∧ k_n ≤ xlen -/
+/-- Type quantifiers: k_ex380010# : Bool, k_n : Nat, k_n ≥ 0, 0 < k_n ∧ k_n ≤ xlen -/
 def extend_value (is_unsigned : Bool) (value : (BitVec k_n)) : (BitVec 64) :=
   if (is_unsigned : Bool)
   then (zero_extend (m := 64) value)
@@ -561,7 +561,7 @@ def maybe_u_backwards (arg_ : String) : SailM Bool := do
       assert false "Pattern match failure at unknown location"
       throw Error.Exit)
 
-/-- Type quantifiers: k_ex378393# : Bool -/
+/-- Type quantifiers: k_ex380011# : Bool -/
 def maybe_u_forwards_matches (arg_ : Bool) : Bool :=
   match arg_ with
   | true => true
@@ -625,7 +625,7 @@ def shiftiwop_mnemonic_backwards_matches (arg_ : String) : Bool :=
   | "sraiw" => true
   | _ => false
 
-/-- Type quantifiers: k_ex378394# : Bool -/
+/-- Type quantifiers: k_ex380012# : Bool -/
 def effective_fence_set (set : (BitVec 4)) (fiom : Bool) : (BitVec 4) :=
   if (fiom : Bool)
   then

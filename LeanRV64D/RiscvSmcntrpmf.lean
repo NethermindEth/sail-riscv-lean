@@ -1,4 +1,4 @@
-import LeanRV64D.RiscvSysRegs
+import LeanRV64D.RiscvTypes
 
 set_option maxHeartbeats 1_000_000_000
 set_option maxRecDepth 1_000_000
@@ -273,20 +273,32 @@ def _set_HpmEvent_VUINH (r_ref : (RegisterRef (BitVec 64))) (v : (BitVec 1)) : S
 
 def legalize_smcntrpmf (c : (BitVec 64)) (value : (BitVec 64)) : SailM (BitVec 64) := do
   let v := (Mk_CountSmcntrpmf value)
-  (pure (_update_CountSmcntrpmf_UINH
-      (_update_CountSmcntrpmf_SINH (_update_CountSmcntrpmf_MINH c (_get_CountSmcntrpmf_MINH v))
+  (pure (_update_CountSmcntrpmf_VUINH
+      (_update_CountSmcntrpmf_VSINH
+        (_update_CountSmcntrpmf_UINH
+          (_update_CountSmcntrpmf_SINH (_update_CountSmcntrpmf_MINH c (_get_CountSmcntrpmf_MINH v))
+            (← do
+              if ((← (currentlyEnabled Ext_S)) : Bool)
+              then (pure (_get_CountSmcntrpmf_SINH v))
+              else (pure (0b0 : (BitVec 1)))))
+          (← do
+            if ((← (currentlyEnabled Ext_U)) : Bool)
+            then (pure (_get_CountSmcntrpmf_UINH v))
+            else (pure (0b0 : (BitVec 1)))))
         (← do
-          if ((← (currentlyEnabled Ext_S)) : Bool)
-          then (pure (_get_CountSmcntrpmf_SINH v))
+          if ((← (currentlyEnabled Ext_H)) : Bool)
+          then (pure (_get_CountSmcntrpmf_VSINH v))
           else (pure (0b0 : (BitVec 1)))))
       (← do
-        if ((← (currentlyEnabled Ext_U)) : Bool)
-        then (pure (_get_CountSmcntrpmf_UINH v))
+        if ((← (currentlyEnabled Ext_H)) : Bool)
+        then (pure (_get_CountSmcntrpmf_VUINH v))
         else (pure (0b0 : (BitVec 1))))))
 
 def counter_priv_filter_bit (reg : (BitVec 64)) (priv : Privilege) : (BitVec 1) :=
   match priv with
   | Machine => (_get_CountSmcntrpmf_MINH reg)
   | Supervisor => (_get_CountSmcntrpmf_SINH reg)
+  | VirtualSupervisor => (_get_CountSmcntrpmf_VSINH reg)
   | User => (_get_CountSmcntrpmf_UINH reg)
+  | VirtualUser => (_get_CountSmcntrpmf_VUINH reg)
 

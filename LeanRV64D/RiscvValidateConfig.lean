@@ -292,7 +292,16 @@ def check_pmp (_ : Unit) : Bool :=
     valid)
   else valid
 
+def check_bfloat16 (_ : Unit) : Bool :=
+  let valid : Bool := true
+  if (((hartSupports Ext_Zfbfmin) && (not (hartSupports Ext_F))) : Bool)
+  then
+    (let valid : Bool := false
+    let _ : Unit := (print_endline "Zfbfmin extension requires F extension")
+    valid)
+  else valid
+
 def config_is_valid (_ : Unit) : SailM Bool := do
   (pure ((check_privs ()) && ((check_mmu_config ()) && ((← (check_mem_layout ())) && ((check_vlen_elen
-              ()) && (check_pmp ()))))))
+              ()) && ((check_pmp ()) && (check_bfloat16 ())))))))
 
