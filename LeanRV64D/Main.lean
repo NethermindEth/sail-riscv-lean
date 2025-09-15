@@ -1,6 +1,6 @@
-import LeanRV64D.RiscvRegs
-import LeanRV64D.RiscvStep
-import LeanRV64D.RiscvModel
+import LeanRV64D.Regs
+import LeanRV64D.Step
+import LeanRV64D.Model
 
 set_option maxHeartbeats 1_000_000_000
 set_option maxRecDepth 1_000_000
