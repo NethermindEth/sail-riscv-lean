@@ -6,7 +6,6 @@ import LeanRV64D.Extensions
 import LeanRV64D.Types
 import LeanRV64D.Regs
 import LeanRV64D.SysRegs
-import LeanRV64D.SoftfloatInterface
 import LeanRV64D.PmpRegs
 import LeanRV64D.FdextRegs
 import LeanRV64D.VextRegs
@@ -250,8 +249,6 @@ def initialize_registers (_ : Unit) : SailM Unit := do
   writeReg scause (← (undefined_Mcause ()))
   writeReg stval (← (undefined_bitvector 64))
   writeReg tselect (← (undefined_bitvector 64))
-  writeReg float_result (← (undefined_bitvector 64))
-  writeReg float_fflags (← (undefined_bitvector 64))
   writeReg pmpcfg_n (← (undefined_vector 64 (← (undefined_Pmpcfg_ent ()))))
   writeReg pmpaddr_n (← (undefined_vector 64 (← (undefined_bitvector 64))))
   writeReg f0 (← (undefined_bitvector (8 *i 8)))

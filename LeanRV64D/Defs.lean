@@ -1242,8 +1242,6 @@ inductive Register : Type where
   | f0
   | pmpaddr_n
   | pmpcfg_n
-  | float_fflags
-  | float_result
   | tselect
   | stval
   | scause
@@ -1415,8 +1413,6 @@ abbrev RegisterType : Register → Type
   | .f0 => (BitVec (if ( true  : Bool) then 8 else 4 * 8))
   | .pmpaddr_n => (Vector (BitVec 64) 64)
   | .pmpcfg_n => (Vector (BitVec 8) 64)
-  | .float_fflags => (BitVec 64)
-  | .float_result => (BitVec 64)
   | .tselect => (BitVec 64)
   | .stval => (BitVec 64)
   | .scause => (BitVec 64)
