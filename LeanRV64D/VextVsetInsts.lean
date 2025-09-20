@@ -1,6 +1,7 @@
 import LeanRV64D.Flow
 import LeanRV64D.Prelude
 import LeanRV64D.Xlen
+import LeanRV64D.Vlen
 import LeanRV64D.Callbacks
 import LeanRV64D.VextRegs
 
@@ -291,17 +292,16 @@ def handle_illegal_vtype (_ : Unit) : SailM Unit := do
 
 def vl_use_ceil : Bool := false
 
-/-- Type quantifiers: VLMAX : Int, AVL : Int -/
-def calculate_new_vl (AVL : Int) (VLMAX : Int) : (BitVec 64) :=
-  let new_vl :=
-    if ((AVL ≤b VLMAX) : Bool)
-    then AVL
-    else
-      (if ((AVL <b (2 *i VLMAX)) : Bool)
-      then
-        (if (vl_use_ceil : Bool)
-        then (Int.tdiv (AVL +i 1) 2)
-        else VLMAX)
+/-- Type quantifiers: VLMAX : Nat, 1 ≤ VLMAX ∧ VLMAX ≤ (2 ^ 8) -/
+def calculate_new_vl (AVL : (BitVec 64)) (VLMAX : Nat) : Nat :=
+  let AVL := (BitVec.toNat AVL)
+  if ((AVL ≤b VLMAX) : Bool)
+  then AVL
+  else
+    (if ((AVL <b (2 *i VLMAX)) : Bool)
+    then
+      (if (vl_use_ceil : Bool)
+      then (Int.tdiv (AVL +i 1) 2)
       else VLMAX)
-  (to_bits_unsafe (l := xlen) new_vl)
+    else VLMAX)
 
