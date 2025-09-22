@@ -192,7 +192,7 @@ def csrPriv (csr : (BitVec 12)) : (BitVec 2) :=
 def check_CSR_priv (csr : (BitVec 12)) (p : Privilege) : Bool :=
   (zopz0zKzJ_u (privLevel_to_bits p) (csrPriv csr))
 
-/-- Type quantifiers: k_ex376462# : Bool -/
+/-- Type quantifiers: k_ex376593# : Bool -/
 def check_CSR_access (csr : (BitVec 12)) (isWrite : Bool) : Bool :=
   (not (isWrite && ((csrAccess csr) == (0b11 : (BitVec 2)))))
 
@@ -200,7 +200,7 @@ def sstc_CSRs_accessible (priv : Privilege) : SailM Bool := do
   (pure ((priv == Machine) || ((priv == Supervisor) && (((_get_Counteren_TM (← readReg mcounteren)) == (0b1 : (BitVec 1))) && ((_get_MEnvcfg_STCE
               (← readReg menvcfg)) == (0b1 : (BitVec 1)))))))
 
-/-- Type quantifiers: k_ex376498# : Bool -/
+/-- Type quantifiers: k_ex376629# : Bool -/
 def is_CSR_accessible (b__0 : (BitVec 12)) (g__2 : Privilege) (g__3 : Bool) : SailM Bool := do
   if ((b__0 == (0x301 : (BitVec 12))) : Bool)
   then (pure true)
@@ -763,13 +763,13 @@ def is_CSR_accessible (b__0 : (BitVec 12)) (g__2 : Privilege) (g__3 : Bool) : Sa
                                                                                                                                                                                                                                                                                                           else
                                                                                                                                                                                                                                                                                                             (pure false)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
 
-/-- Type quantifiers: k_ex377089# : Bool -/
+/-- Type quantifiers: k_ex377220# : Bool -/
 def check_CSR (csr : (BitVec 12)) (p : Privilege) (isWrite : Bool) : SailM Bool := do
   (pure ((check_CSR_priv csr p) && ((check_CSR_access csr isWrite) && (← (is_CSR_accessible csr p
             isWrite)))))
 
 def exception_delegatee (e : ExceptionType) (p : Privilege) : SailM Privilege := do
-  let idx := (num_of_ExceptionType e)
+  let idx := (BitVec.toNat (exceptionType_bits_forwards e))
   let super ← do (bit_to_bool (BitVec.access (← readReg medeleg) idx))
   let deleg ← do
     if (((← (currentlyEnabled Ext_S)) && super) : Bool)
@@ -850,8 +850,8 @@ def track_trap (p : Privilege) : SailM Unit := do
   | VirtualSupervisor =>
     (internal_error "sys/sys_control.sail" 150 "Hypervisor extension not supported")
 
-/-- Type quantifiers: k_ex377155# : Bool -/
-def trap_handler (del_priv : Privilege) (intr : Bool) (c : (BitVec 8)) (pc : (BitVec 64)) (info : (Option (BitVec 64))) (ext : (Option Unit)) : SailM (BitVec 64) := do
+/-- Type quantifiers: k_ex377286# : Bool -/
+def trap_handler (del_priv : Privilege) (intr : Bool) (c : (BitVec 6)) (pc : (BitVec 64)) (info : (Option (BitVec 64))) (ext : (Option Unit)) : SailM (BitVec 64) := do
   let _ : Unit := (trap_callback ())
   if ((get_config_print_platform ()) : Bool)
   then
@@ -930,7 +930,7 @@ def exception_handler (cur_priv : Privilege) (ctl : ctl_result) (pc : (BitVec 64
                   (HAppend.hAppend (← (privLevel_to_str del_priv))
                     (HAppend.hAppend " to handle " (exceptionType_to_str e.trap))))))))
       else (pure ())
-      (trap_handler del_priv false (exceptionType_to_bits e.trap) pc e.excinfo e.ext))
+      (trap_handler del_priv false (exceptionType_bits_forwards e.trap) pc e.excinfo e.ext))
   | .CTL_MRET () =>
     (do
       let prev_priv ← do readReg cur_privilege
@@ -1006,7 +1006,7 @@ def handle_exception (xtval : (BitVec 64)) (e : ExceptionType) : SailM Unit := d
 
 def handle_interrupt (i : InterruptType) (del_priv : Privilege) : SailM Unit := do
   (set_next_pc
-    (← (trap_handler del_priv true (interruptType_to_bits i) (← readReg PC) none none)))
+    (← (trap_handler del_priv true (interruptType_bits_forwards i) (← readReg PC) none none)))
 
 def reset_misa (_ : Unit) : SailM Unit := do
   writeReg misa (Sail.BitVec.updateSubrange (← readReg misa) 0 0

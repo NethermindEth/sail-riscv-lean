@@ -182,7 +182,7 @@ open ExceptionType
 open Architecture
 open AccessType
 
-/-- Type quantifiers: k_ex436450# : Bool, step_no : Int -/
+/-- Type quantifiers: k_ex436579# : Bool, step_no : Int -/
 def run_hart_waiting (step_no : Int) (wr : WaitReason) (instbits : (BitVec 32)) (exit_wait : Bool) : SailM Step := do
   if ((← (shouldWakeForInterrupt ())) : Bool)
   then
@@ -333,7 +333,7 @@ def wait_is_nop (wr : WaitReason) : Bool :=
   | WAIT_WRS_STO => false
   | WAIT_WRS_NTO => false
 
-/-- Type quantifiers: k_ex436487# : Bool, step_no : Nat, 0 ≤ step_no -/
+/-- Type quantifiers: k_ex436616# : Bool, step_no : Nat, 0 ≤ step_no -/
 def try_step (step_no : Nat) (exit_wait : Bool) : SailM Bool := do
   let _ : Unit := (ext_pre_step_hook ())
   writeReg minstret_increment (← (should_inc_minstret (← readReg cur_privilege)))
@@ -346,7 +346,7 @@ def try_step (step_no : Nat) (exit_wait : Bool) : SailM Bool := do
     (do
       let _ : Unit :=
         if ((get_config_print_instr ()) : Bool)
-        then (print_bits "Handling interrupt: " (interruptType_to_bits intr))
+        then (print_bits "Handling interrupt: " (interruptType_bits_forwards intr))
         else ()
       (handle_interrupt intr priv))
   | .Step_Ext_Fetch_Failure e => (pure (ext_handle_fetch_check_error e))

@@ -3088,7 +3088,7 @@ def maybe_aqrl_forwards (arg_ : (Bool × Bool)) : String :=
   | (false, true) => ".rl"
   | (false, false) => ""
 
-/-- Type quantifiers: k_ex373378# : Bool -/
+/-- Type quantifiers: k_ex373474# : Bool -/
 def maybe_u_forwards (arg_ : Bool) : String :=
   match arg_ with
   | true => "u"
@@ -6610,57 +6610,306 @@ def num_of_InterruptType (arg_ : InterruptType) : Int :=
   | I_S_External => 7
   | I_M_External => 8
 
-def interruptType_to_bits (i : InterruptType) : (BitVec 8) :=
-  match i with
-  | I_U_Software => (0x00 : (BitVec 8))
-  | I_S_Software => (0x01 : (BitVec 8))
-  | I_M_Software => (0x03 : (BitVec 8))
-  | I_U_Timer => (0x04 : (BitVec 8))
-  | I_S_Timer => (0x05 : (BitVec 8))
-  | I_M_Timer => (0x07 : (BitVec 8))
-  | I_U_External => (0x08 : (BitVec 8))
-  | I_S_External => (0x09 : (BitVec 8))
-  | I_M_External => (0x0B : (BitVec 8))
+def interruptType_bits_forwards (arg_ : InterruptType) : (BitVec 6) :=
+  match arg_ with
+  | I_U_Software => (0b000000 : (BitVec 6))
+  | I_S_Software => (0b000001 : (BitVec 6))
+  | I_M_Software => (0b000011 : (BitVec 6))
+  | I_U_Timer => (0b000100 : (BitVec 6))
+  | I_S_Timer => (0b000101 : (BitVec 6))
+  | I_M_Timer => (0b000111 : (BitVec 6))
+  | I_U_External => (0b001000 : (BitVec 6))
+  | I_S_External => (0b001001 : (BitVec 6))
+  | I_M_External => (0b001011 : (BitVec 6))
 
-def exceptionType_to_bits (e : ExceptionType) : (BitVec 8) :=
-  match e with
-  | .E_Fetch_Addr_Align () => (0x00 : (BitVec 8))
-  | .E_Fetch_Access_Fault () => (0x01 : (BitVec 8))
-  | .E_Illegal_Instr () => (0x02 : (BitVec 8))
-  | .E_Breakpoint () => (0x03 : (BitVec 8))
-  | .E_Load_Addr_Align () => (0x04 : (BitVec 8))
-  | .E_Load_Access_Fault () => (0x05 : (BitVec 8))
-  | .E_SAMO_Addr_Align () => (0x06 : (BitVec 8))
-  | .E_SAMO_Access_Fault () => (0x07 : (BitVec 8))
-  | .E_U_EnvCall () => (0x08 : (BitVec 8))
-  | .E_S_EnvCall () => (0x09 : (BitVec 8))
-  | .E_Reserved_10 () => (0x0A : (BitVec 8))
-  | .E_M_EnvCall () => (0x0B : (BitVec 8))
-  | .E_Fetch_Page_Fault () => (0x0C : (BitVec 8))
-  | .E_Load_Page_Fault () => (0x0D : (BitVec 8))
-  | .E_Reserved_14 () => (0x0E : (BitVec 8))
-  | .E_SAMO_Page_Fault () => (0x0F : (BitVec 8))
-  | .E_Extension e => (ext_exc_type_to_bits e)
+def interruptType_bits_backwards (arg_ : (BitVec 6)) : SailM InterruptType := do
+  let b__0 := arg_
+  if ((b__0 == (0b000000 : (BitVec 6))) : Bool)
+  then (pure I_U_Software)
+  else
+    (do
+      if ((b__0 == (0b000001 : (BitVec 6))) : Bool)
+      then (pure I_S_Software)
+      else
+        (do
+          if ((b__0 == (0b000011 : (BitVec 6))) : Bool)
+          then (pure I_M_Software)
+          else
+            (do
+              if ((b__0 == (0b000100 : (BitVec 6))) : Bool)
+              then (pure I_U_Timer)
+              else
+                (do
+                  if ((b__0 == (0b000101 : (BitVec 6))) : Bool)
+                  then (pure I_S_Timer)
+                  else
+                    (do
+                      if ((b__0 == (0b000111 : (BitVec 6))) : Bool)
+                      then (pure I_M_Timer)
+                      else
+                        (do
+                          if ((b__0 == (0b001000 : (BitVec 6))) : Bool)
+                          then (pure I_U_External)
+                          else
+                            (do
+                              if ((b__0 == (0b001001 : (BitVec 6))) : Bool)
+                              then (pure I_S_External)
+                              else
+                                (do
+                                  if ((b__0 == (0b001011 : (BitVec 6))) : Bool)
+                                  then (pure I_M_External)
+                                  else
+                                    (do
+                                      assert false "Pattern match failure at unknown location"
+                                      throw Error.Exit)))))))))
 
-def num_of_ExceptionType (e : ExceptionType) : Int :=
-  match e with
-  | .E_Fetch_Addr_Align () => 0
-  | .E_Fetch_Access_Fault () => 1
-  | .E_Illegal_Instr () => 2
-  | .E_Breakpoint () => 3
-  | .E_Load_Addr_Align () => 4
-  | .E_Load_Access_Fault () => 5
-  | .E_SAMO_Addr_Align () => 6
-  | .E_SAMO_Access_Fault () => 7
-  | .E_U_EnvCall () => 8
-  | .E_S_EnvCall () => 9
-  | .E_Reserved_10 () => 10
-  | .E_M_EnvCall () => 11
-  | .E_Fetch_Page_Fault () => 12
-  | .E_Load_Page_Fault () => 13
-  | .E_Reserved_14 () => 14
-  | .E_SAMO_Page_Fault () => 15
-  | .E_Extension e => (num_of_ext_exc_type e)
+def interruptType_bits_forwards_matches (arg_ : InterruptType) : Bool :=
+  match arg_ with
+  | I_U_Software => true
+  | I_S_Software => true
+  | I_M_Software => true
+  | I_U_Timer => true
+  | I_S_Timer => true
+  | I_M_Timer => true
+  | I_U_External => true
+  | I_S_External => true
+  | I_M_External => true
+
+def interruptType_bits_backwards_matches (arg_ : (BitVec 6)) : Bool :=
+  let b__0 := arg_
+  if ((b__0 == (0b000000 : (BitVec 6))) : Bool)
+  then true
+  else
+    (if ((b__0 == (0b000001 : (BitVec 6))) : Bool)
+    then true
+    else
+      (if ((b__0 == (0b000011 : (BitVec 6))) : Bool)
+      then true
+      else
+        (if ((b__0 == (0b000100 : (BitVec 6))) : Bool)
+        then true
+        else
+          (if ((b__0 == (0b000101 : (BitVec 6))) : Bool)
+          then true
+          else
+            (if ((b__0 == (0b000111 : (BitVec 6))) : Bool)
+            then true
+            else
+              (if ((b__0 == (0b001000 : (BitVec 6))) : Bool)
+              then true
+              else
+                (if ((b__0 == (0b001001 : (BitVec 6))) : Bool)
+                then true
+                else
+                  (if ((b__0 == (0b001011 : (BitVec 6))) : Bool)
+                  then true
+                  else false))))))))
+
+def exceptionType_bits_forwards (arg_ : ExceptionType) : (BitVec 6) :=
+  match arg_ with
+  | .E_Fetch_Addr_Align () => (0b000000 : (BitVec 6))
+  | .E_Fetch_Access_Fault () => (0b000001 : (BitVec 6))
+  | .E_Illegal_Instr () => (0b000010 : (BitVec 6))
+  | .E_Breakpoint () => (0b000011 : (BitVec 6))
+  | .E_Load_Addr_Align () => (0b000100 : (BitVec 6))
+  | .E_Load_Access_Fault () => (0b000101 : (BitVec 6))
+  | .E_SAMO_Addr_Align () => (0b000110 : (BitVec 6))
+  | .E_SAMO_Access_Fault () => (0b000111 : (BitVec 6))
+  | .E_U_EnvCall () => (0b001000 : (BitVec 6))
+  | .E_S_EnvCall () => (0b001001 : (BitVec 6))
+  | .E_Reserved_10 () => (0b001010 : (BitVec 6))
+  | .E_M_EnvCall () => (0b001011 : (BitVec 6))
+  | .E_Fetch_Page_Fault () => (0b001100 : (BitVec 6))
+  | .E_Load_Page_Fault () => (0b001101 : (BitVec 6))
+  | .E_Reserved_14 () => (0b001110 : (BitVec 6))
+  | .E_SAMO_Page_Fault () => (0b001111 : (BitVec 6))
+  | .E_Extension e => (ext_exc_type_bits_forwards e)
+
+def exceptionType_bits_backwards (arg_ : (BitVec 6)) : SailM ExceptionType := do
+  let head_exp_ := arg_
+  match (← do
+    let b__0 := head_exp_
+    if ((b__0 == (0b000000 : (BitVec 6))) : Bool)
+    then (pure (some (E_Fetch_Addr_Align ())))
+    else
+      (do
+        if ((b__0 == (0b000001 : (BitVec 6))) : Bool)
+        then (pure (some (E_Fetch_Access_Fault ())))
+        else
+          (do
+            if ((b__0 == (0b000010 : (BitVec 6))) : Bool)
+            then (pure (some (E_Illegal_Instr ())))
+            else
+              (do
+                if ((b__0 == (0b000011 : (BitVec 6))) : Bool)
+                then (pure (some (E_Breakpoint ())))
+                else
+                  (do
+                    if ((b__0 == (0b000100 : (BitVec 6))) : Bool)
+                    then (pure (some (E_Load_Addr_Align ())))
+                    else
+                      (do
+                        if ((b__0 == (0b000101 : (BitVec 6))) : Bool)
+                        then (pure (some (E_Load_Access_Fault ())))
+                        else
+                          (do
+                            if ((b__0 == (0b000110 : (BitVec 6))) : Bool)
+                            then (pure (some (E_SAMO_Addr_Align ())))
+                            else
+                              (do
+                                if ((b__0 == (0b000111 : (BitVec 6))) : Bool)
+                                then (pure (some (E_SAMO_Access_Fault ())))
+                                else
+                                  (do
+                                    if ((b__0 == (0b001000 : (BitVec 6))) : Bool)
+                                    then (pure (some (E_U_EnvCall ())))
+                                    else
+                                      (do
+                                        if ((b__0 == (0b001001 : (BitVec 6))) : Bool)
+                                        then (pure (some (E_S_EnvCall ())))
+                                        else
+                                          (do
+                                            if ((b__0 == (0b001010 : (BitVec 6))) : Bool)
+                                            then (pure (some (E_Reserved_10 ())))
+                                            else
+                                              (do
+                                                if ((b__0 == (0b001011 : (BitVec 6))) : Bool)
+                                                then (pure (some (E_M_EnvCall ())))
+                                                else
+                                                  (do
+                                                    if ((b__0 == (0b001100 : (BitVec 6))) : Bool)
+                                                    then (pure (some (E_Fetch_Page_Fault ())))
+                                                    else
+                                                      (do
+                                                        if ((b__0 == (0b001101 : (BitVec 6))) : Bool)
+                                                        then (pure (some (E_Load_Page_Fault ())))
+                                                        else
+                                                          (do
+                                                            if ((b__0 == (0b001110 : (BitVec 6))) : Bool)
+                                                            then (pure (some (E_Reserved_14 ())))
+                                                            else
+                                                              (do
+                                                                if ((b__0 == (0b001111 : (BitVec 6))) : Bool)
+                                                                then
+                                                                  (pure (some (E_SAMO_Page_Fault ())))
+                                                                else
+                                                                  (do
+                                                                    if ((ext_exc_type_bits_backwards_matches
+                                                                         b__0) : Bool)
+                                                                    then
+                                                                      (do
+                                                                        match (← (ext_exc_type_bits_backwards
+                                                                            b__0)) with
+                                                                        | e =>
+                                                                          (pure (some
+                                                                              (E_Extension e))))
+                                                                    else (pure none)))))))))))))))))) with
+  | .some result => (pure result)
+  | _ =>
+    (do
+      assert false "Pattern match failure at unknown location"
+      throw Error.Exit)
+
+def exceptionType_bits_forwards_matches (arg_ : ExceptionType) : Bool :=
+  match arg_ with
+  | .E_Fetch_Addr_Align () => true
+  | .E_Fetch_Access_Fault () => true
+  | .E_Illegal_Instr () => true
+  | .E_Breakpoint () => true
+  | .E_Load_Addr_Align () => true
+  | .E_Load_Access_Fault () => true
+  | .E_SAMO_Addr_Align () => true
+  | .E_SAMO_Access_Fault () => true
+  | .E_U_EnvCall () => true
+  | .E_S_EnvCall () => true
+  | .E_Reserved_10 () => true
+  | .E_M_EnvCall () => true
+  | .E_Fetch_Page_Fault () => true
+  | .E_Load_Page_Fault () => true
+  | .E_Reserved_14 () => true
+  | .E_SAMO_Page_Fault () => true
+  | .E_Extension e => true
+
+def exceptionType_bits_backwards_matches (arg_ : (BitVec 6)) : SailM Bool := do
+  let head_exp_ := arg_
+  match (← do
+    let b__0 := head_exp_
+    if ((b__0 == (0b000000 : (BitVec 6))) : Bool)
+    then (pure (some true))
+    else
+      (do
+        if ((b__0 == (0b000001 : (BitVec 6))) : Bool)
+        then (pure (some true))
+        else
+          (do
+            if ((b__0 == (0b000010 : (BitVec 6))) : Bool)
+            then (pure (some true))
+            else
+              (do
+                if ((b__0 == (0b000011 : (BitVec 6))) : Bool)
+                then (pure (some true))
+                else
+                  (do
+                    if ((b__0 == (0b000100 : (BitVec 6))) : Bool)
+                    then (pure (some true))
+                    else
+                      (do
+                        if ((b__0 == (0b000101 : (BitVec 6))) : Bool)
+                        then (pure (some true))
+                        else
+                          (do
+                            if ((b__0 == (0b000110 : (BitVec 6))) : Bool)
+                            then (pure (some true))
+                            else
+                              (do
+                                if ((b__0 == (0b000111 : (BitVec 6))) : Bool)
+                                then (pure (some true))
+                                else
+                                  (do
+                                    if ((b__0 == (0b001000 : (BitVec 6))) : Bool)
+                                    then (pure (some true))
+                                    else
+                                      (do
+                                        if ((b__0 == (0b001001 : (BitVec 6))) : Bool)
+                                        then (pure (some true))
+                                        else
+                                          (do
+                                            if ((b__0 == (0b001010 : (BitVec 6))) : Bool)
+                                            then (pure (some true))
+                                            else
+                                              (do
+                                                if ((b__0 == (0b001011 : (BitVec 6))) : Bool)
+                                                then (pure (some true))
+                                                else
+                                                  (do
+                                                    if ((b__0 == (0b001100 : (BitVec 6))) : Bool)
+                                                    then (pure (some true))
+                                                    else
+                                                      (do
+                                                        if ((b__0 == (0b001101 : (BitVec 6))) : Bool)
+                                                        then (pure (some true))
+                                                        else
+                                                          (do
+                                                            if ((b__0 == (0b001110 : (BitVec 6))) : Bool)
+                                                            then (pure (some true))
+                                                            else
+                                                              (do
+                                                                if ((b__0 == (0b001111 : (BitVec 6))) : Bool)
+                                                                then (pure (some true))
+                                                                else
+                                                                  (do
+                                                                    if ((ext_exc_type_bits_backwards_matches
+                                                                         b__0) : Bool)
+                                                                    then
+                                                                      (do
+                                                                        match (← (ext_exc_type_bits_backwards
+                                                                            b__0)) with
+                                                                        | e => (pure (some true)))
+                                                                    else (pure none)))))))))))))))))) with
+  | .some result => (pure result)
+  | none =>
+    (match head_exp_ with
+    | _ => (pure false))
 
 def undefined_TrapVectorMode (_ : Unit) : SailM TrapVectorMode := do
   (internal_pick [TV_Direct, TV_Vector, TV_Reserved])
