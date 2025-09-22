@@ -697,7 +697,7 @@ def lmul_pow_val_forwards (arg_ : (BitVec 3)) : SailM Int := do
                               assert false "Pattern match failure at unknown location"
                               throw Error.Exit)))))))
 
-/-- Type quantifiers: arg_ : Int, (-3) ≤ arg_ ∧ arg_ ≤ 3 -/
+/-- Type quantifiers: arg_ : Int, ((- 3)) ≤ arg_ ∧ arg_ ≤ 3 -/
 def lmul_pow_val_backwards (arg_ : Int) : (BitVec 3) :=
   match arg_ with
   | (-3) => (0b101 : (BitVec 3))
@@ -732,7 +732,7 @@ def lmul_pow_val_forwards_matches (arg_ : (BitVec 3)) : Bool :=
               then true
               else false))))))
 
-/-- Type quantifiers: arg_ : Int, (-3) ≤ arg_ ∧ arg_ ≤ 3 -/
+/-- Type quantifiers: arg_ : Int, ((- 3)) ≤ arg_ ∧ arg_ ≤ 3 -/
 def lmul_pow_val_backwards_matches (arg_ : Int) : Bool :=
   match arg_ with
   | (-3) => true

@@ -219,7 +219,7 @@ def split_misaligned (vaddr : virtaddr) (width : Nat) : SailM (Int × Int) := do
 /-- Type quantifiers: n : Int -/
 def misaligned_order (n : Int) : (Int × Int × Int) :=
   if (sys_misaligned_order_decreasing : Bool)
-  then ((n -i 1), 0, (-1))
+  then ((n -i 1), 0, (Neg.neg 1))
   else (0, (n -i 1), 1)
 
 /-- Type quantifiers: k_ex378979# : Bool, k_ex378978# : Bool, k_ex378977# : Bool, width : Nat, width

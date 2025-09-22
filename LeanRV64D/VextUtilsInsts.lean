@@ -194,7 +194,7 @@ def maybe_vmask_backwards_matches (arg_ : (BitVec 1)) : Bool :=
 
 /-- Type quantifiers: EMUL_pow : Int, EEW : Int -/
 def valid_eew_emul (EEW : Int) (EMUL_pow : Int) : Bool :=
-  ((EEW ≥b 8) && ((EEW ≤b elen) && ((EMUL_pow ≥b (-3)) && (EMUL_pow ≤b 3))))
+  ((EEW ≥b 8) && ((EEW ≤b elen) && ((EMUL_pow ≥b (Neg.neg 3)) && (EMUL_pow ≤b 3))))
 
 def valid_vtype (_ : Unit) : SailM Bool := do
   (pure ((_get_Vtype_vill (← readReg vtype)) == (0b0 : (BitVec 1))))
