@@ -334,8 +334,8 @@ def initialize_registers (_ : Unit) : SailM Unit := do
   writeReg mhpmcounter (← (undefined_vector 32 (← (undefined_bitvector 64))))
 
 def sail_model_init (x_0 : Unit) : SailM Unit := do
-  writeReg misa (_update_Misa_MXL (Mk_Misa (zeros (n := 64))) (architecture_forwards RV64))
-  writeReg mstatus (let mxl := (architecture_forwards RV64)
+  writeReg misa (_update_Misa_MXL (Mk_Misa (zeros (n := 64))) (architecture_bits_forwards RV64))
+  writeReg mstatus (let mxl := (architecture_bits_forwards RV64)
   (_update_Mstatus_UXL
     (_update_Mstatus_SXL (Mk_Mstatus (zeros (n := 64)))
       (if (((xlen != 32) && (hartSupports Ext_S)) : Bool)

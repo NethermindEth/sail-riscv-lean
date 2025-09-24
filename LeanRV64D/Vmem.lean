@@ -279,7 +279,7 @@ def translationMode (priv : Privilege) : SailM SATPMode := do
   then (pure Bare)
   else
     (do
-      let arch ← do (architecture_backwards (_get_Mstatus_SXL (← readReg mstatus)))
+      let arch ← do (architecture Supervisor)
       let mbits ← (( do
         match arch with
         | RV64 =>

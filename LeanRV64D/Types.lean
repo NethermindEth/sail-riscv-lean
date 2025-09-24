@@ -211,13 +211,13 @@ def num_of_Architecture (arg_ : Architecture) : Int :=
   | RV64 => 1
   | RV128 => 2
 
-def architecture_forwards (arg_ : Architecture) : (BitVec 2) :=
+def architecture_bits_forwards (arg_ : Architecture) : (BitVec 2) :=
   match arg_ with
   | RV32 => (0b01 : (BitVec 2))
   | RV64 => (0b10 : (BitVec 2))
   | RV128 => (0b11 : (BitVec 2))
 
-def architecture_backwards (arg_ : (BitVec 2)) : SailM Architecture := do
+def architecture_bits_backwards (arg_ : (BitVec 2)) : SailM Architecture := do
   let b__0 := arg_
   if ((b__0 == (0b01 : (BitVec 2))) : Bool)
   then (pure RV32)
@@ -231,13 +231,13 @@ def architecture_backwards (arg_ : (BitVec 2)) : SailM Architecture := do
           then (pure RV128)
           else (internal_error "core/types.sail" 61 "architecture(0b00) is invalid")))
 
-def architecture_forwards_matches (arg_ : Architecture) : Bool :=
+def architecture_bits_forwards_matches (arg_ : Architecture) : Bool :=
   match arg_ with
   | RV32 => true
   | RV64 => true
   | RV128 => true
 
-def architecture_backwards_matches (arg_ : (BitVec 2)) : Bool :=
+def architecture_bits_backwards_matches (arg_ : (BitVec 2)) : Bool :=
   let b__0 := arg_
   if ((b__0 == (0b01 : (BitVec 2))) : Bool)
   then true

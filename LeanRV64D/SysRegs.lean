@@ -987,10 +987,10 @@ def legalize_mstatus (o : (BitVec 64)) (v : (BitVec 64)) : SailM (BitVec 64) := 
             (_get_Mstatus_VS o)) == Dirty)))
   (pure (_update_Mstatus_SD o (bool_to_bits dirty)))
 
-def cur_architecture (_ : Unit) : SailM Architecture := do
-  (architecture_backwards
+def architecture (priv : Privilege) : SailM Architecture := do
+  (architecture_bits_backwards
     (← do
-      match (← readReg cur_privilege) with
+      match priv with
       | Machine => (pure (_get_Misa_MXL (← readReg misa)))
       | Supervisor => (pure (_get_Mstatus_SXL (← readReg mstatus)))
       | User => (pure (_get_Mstatus_UXL (← readReg mstatus)))
@@ -1000,7 +1000,7 @@ def cur_architecture (_ : Unit) : SailM Architecture := do
         (internal_error "core/sys_regs.sail" 287 "Hypervisor extension not supported")))
 
 def in32BitMode (_ : Unit) : SailM Bool := do
-  (pure ((← (cur_architecture ())) == RV32))
+  (pure ((← (architecture (← readReg cur_privilege))) == RV32))
 
 def undefined_Seccfg (_ : Unit) : SailM (BitVec 64) := do
   (undefined_bitvector 64)
