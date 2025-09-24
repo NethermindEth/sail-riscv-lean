@@ -1,19 +1,19 @@
 import LeanRV32D.Prelude
 import LeanRV32D.RvfiDii
-import LeanRV32D.RiscvTypes
-import LeanRV32D.RiscvRegs
-import LeanRV32D.RiscvSysRegs
-import LeanRV32D.RiscvSoftfloatInterface
-import LeanRV32D.RiscvPmpRegs
-import LeanRV32D.RiscvFdextRegs
-import LeanRV32D.RiscvVextRegs
-import LeanRV32D.RiscvSmcntrpmf
-import LeanRV32D.RiscvPlatform
-import LeanRV32D.RiscvVmemTlb
-import LeanRV32D.RiscvVmem
-import LeanRV32D.RiscvInstsZicsr
-import LeanRV32D.RiscvZihpm
-import LeanRV32D.RiscvStep
+import LeanRV32D.Types
+import LeanRV32D.Regs
+import LeanRV32D.SysRegs
+import LeanRV32D.PmpRegs
+import LeanRV32D.FdextRegs
+import LeanRV32D.VextRegs
+import LeanRV32D.Smcntrpmf
+import LeanRV32D.SysControl
+import LeanRV32D.Platform
+import LeanRV32D.VmemTlb
+import LeanRV32D.Vmem
+import LeanRV32D.ZicsrInsts
+import LeanRV32D.Zihpm
+import LeanRV32D.Step
 import LeanRV32D.Main
 
 set_option maxHeartbeats 1_000_000_000
@@ -149,6 +149,7 @@ open csrop
 open cregidx
 open checked_cbop
 open cfregidx
+open cbop_zicbop
 open cbop_zicbom
 open cbie
 open bropw_zbb
@@ -174,7 +175,6 @@ open ISA_Format
 open HartState
 open FetchResult
 open Ext_DataAddr_Check
-open Ext_ControlAddr_Check
 open ExtStatus
 open ExecutionResult
 open ExceptionType
@@ -246,8 +246,6 @@ def initialize_registers (_ : Unit) : SailM Unit := do
   writeReg scause (← (undefined_Mcause ()))
   writeReg stval (← (undefined_bitvector 32))
   writeReg tselect (← (undefined_bitvector 32))
-  writeReg float_result (← (undefined_bitvector 64))
-  writeReg float_fflags (← (undefined_bitvector 64))
   writeReg pmpcfg_n (← (undefined_vector 64 (← (undefined_Pmpcfg_ent ()))))
   writeReg pmpaddr_n (← (undefined_vector 64 (← (undefined_bitvector 32))))
   writeReg f0 (← (undefined_bitvector (8 *i 8)))
@@ -345,12 +343,14 @@ def sail_model_init (x_0 : Unit) : SailM Unit := do
   writeReg marchid (← (to_bits_checked (l := 32) (0 : Int)))
   writeReg mhartid (← (to_bits_checked (l := 32) (0 : Int)))
   writeReg mconfigptr (zeros (n := 32))
+  writeReg pc_reset_address (zeros (n := 32))
   writeReg plat_ram_base (← (to_bits_checked (l := 34) (2147483648 : Int)))
   writeReg plat_ram_size (← (to_bits_checked (l := 34) (2147483648 : Int)))
   writeReg plat_rom_base (← (to_bits_checked (l := 34) (4096 : Int)))
   writeReg plat_rom_size (← (to_bits_checked (l := 34) (4096 : Int)))
   writeReg plat_clint_base (← (to_bits_checked (l := 34) (33554432 : Int)))
   writeReg plat_clint_size (← (to_bits_checked (l := 34) (786432 : Int)))
+  writeReg htif_tohost_base none
   writeReg tlb (vectorInit none)
   writeReg hart_state (HART_ACTIVE ())
   (initialize_registers ())
