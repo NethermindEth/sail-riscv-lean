@@ -21,6 +21,7 @@ open zvk_vaesef_funct6
 open zvk_vaesdm_funct6
 open zvk_vaesdf_funct6
 open zicondop
+open xRET_type
 open wxfunct6
 open wvxfunct6
 open wvvfunct6
@@ -85,6 +86,7 @@ open mvvmafunct6
 open mvvfunct6
 open mmfunct6
 open maskfunct3
+open landing_pad_expectation
 open iop
 open instruction
 open fwvvmafunct6
@@ -151,6 +153,8 @@ open agtype
 open WaitReason
 open TrapVectorMode
 open Step
+open Software_Check_Code
+open SWCheckCodes
 open SATPMode
 open Register
 open Privilege

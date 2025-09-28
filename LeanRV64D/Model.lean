@@ -1,6 +1,7 @@
 import LeanRV64D.Prelude
 import LeanRV64D.Regs
 import LeanRV64D.SysRegs
+import LeanRV64D.ZicfilpRegs
 import LeanRV64D.SysControl
 import LeanRV64D.Platform
 import LeanRV64D.Vmem
@@ -26,6 +27,7 @@ open zvk_vaesef_funct6
 open zvk_vaesdm_funct6
 open zvk_vaesdf_funct6
 open zicondop
+open xRET_type
 open wxfunct6
 open wvxfunct6
 open wvvfunct6
@@ -90,6 +92,7 @@ open mvvmafunct6
 open mvvfunct6
 open mmfunct6
 open maskfunct3
+open landing_pad_expectation
 open iop
 open instruction
 open fwvvmafunct6
@@ -156,6 +159,8 @@ open agtype
 open WaitReason
 open TrapVectorMode
 open Step
+open Software_Check_Code
+open SWCheckCodes
 open SATPMode
 open Register
 open Privilege
@@ -177,6 +182,7 @@ def reset (_ : Unit) : SailM Unit := do
   writeReg hart_state (HART_ACTIVE ())
   (reset_sys ())
   (reset_vmem ())
+  (reset_elp ())
   (pure (ext_reset ()))
 
 def init_model (config_filename : String) : SailM Unit := do

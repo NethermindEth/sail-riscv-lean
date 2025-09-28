@@ -110,7 +110,7 @@ abbrev RVFI_DII_Execution_Packet_V1 := (BitVec 704)
 
 abbrev RVFI_DII_Execution_PacketV2 := (BitVec 512)
 
-inductive extension where | Ext_M | Ext_A | Ext_F | Ext_D | Ext_B | Ext_V | Ext_S | Ext_U | Ext_H | Ext_Zicbom | Ext_Zicbop | Ext_Zicboz | Ext_Zicntr | Ext_Zicond | Ext_Zicsr | Ext_Zifencei | Ext_Zihintntl | Ext_Zihintpause | Ext_Zihpm | Ext_Zimop | Ext_Zmmul | Ext_Zaamo | Ext_Zabha | Ext_Zacas | Ext_Zalrsc | Ext_Zawrs | Ext_Zfa | Ext_Zfbfmin | Ext_Zfh | Ext_Zfhmin | Ext_Zfinx | Ext_Zdinx | Ext_Zca | Ext_Zcb | Ext_Zcd | Ext_Zcf | Ext_Zcmop | Ext_C | Ext_Zba | Ext_Zbb | Ext_Zbc | Ext_Zbkb | Ext_Zbkc | Ext_Zbkx | Ext_Zbs | Ext_Zknd | Ext_Zkne | Ext_Zknh | Ext_Zkr | Ext_Zksed | Ext_Zksh | Ext_Zkt | Ext_Zhinx | Ext_Zhinxmin | Ext_Zvbb | Ext_Zvbc | Ext_Zvkb | Ext_Zvkg | Ext_Zvkned | Ext_Zvknha | Ext_Zvknhb | Ext_Zvksed | Ext_Zvksh | Ext_Zvkt | Ext_Zvkn | Ext_Zvknc | Ext_Zvkng | Ext_Zvks | Ext_Zvksc | Ext_Zvksg | Ext_Sscofpmf | Ext_Sstc | Ext_Svbare | Ext_Sv32 | Ext_Sv39 | Ext_Sv48 | Ext_Sv57 | Ext_Svinval | Ext_Svnapot | Ext_Svpbmt | Ext_Svrsw60t59b | Ext_Smcntrpmf
+inductive extension where | Ext_M | Ext_A | Ext_F | Ext_D | Ext_B | Ext_V | Ext_S | Ext_U | Ext_H | Ext_Zicbom | Ext_Zicbop | Ext_Zicboz | Ext_Zicfilp | Ext_Zicntr | Ext_Zicond | Ext_Zicsr | Ext_Zifencei | Ext_Zihintntl | Ext_Zihintpause | Ext_Zihpm | Ext_Zimop | Ext_Zmmul | Ext_Zaamo | Ext_Zabha | Ext_Zacas | Ext_Zalrsc | Ext_Zawrs | Ext_Zfa | Ext_Zfbfmin | Ext_Zfh | Ext_Zfhmin | Ext_Zfinx | Ext_Zdinx | Ext_Zca | Ext_Zcb | Ext_Zcd | Ext_Zcf | Ext_Zcmop | Ext_C | Ext_Zba | Ext_Zbb | Ext_Zbc | Ext_Zbkb | Ext_Zbkc | Ext_Zbkx | Ext_Zbs | Ext_Zknd | Ext_Zkne | Ext_Zknh | Ext_Zkr | Ext_Zksed | Ext_Zksh | Ext_Zkt | Ext_Zhinx | Ext_Zhinxmin | Ext_Zvbb | Ext_Zvbc | Ext_Zvkb | Ext_Zvkg | Ext_Zvkned | Ext_Zvknha | Ext_Zvknhb | Ext_Zvksed | Ext_Zvksh | Ext_Zvkt | Ext_Zvkn | Ext_Zvknc | Ext_Zvkng | Ext_Zvks | Ext_Zvksc | Ext_Zvksg | Ext_Sscofpmf | Ext_Sstc | Ext_Svbare | Ext_Sv32 | Ext_Sv39 | Ext_Sv48 | Ext_Sv57 | Ext_Svinval | Ext_Svnapot | Ext_Svpbmt | Ext_Svrsw60t59b | Ext_Smcntrpmf
   deriving BEq, Inhabited, Repr
 
 abbrev exc_code := (BitVec 6)
@@ -157,6 +157,12 @@ abbrev Misa := (BitVec 64)
 
 abbrev Mstatus := (BitVec 64)
 
+abbrev MEnvcfg := (BitVec 64)
+
+abbrev Seccfg := (BitVec 64)
+
+abbrev SEnvcfg := (BitVec 64)
+
 /-- Type quantifiers: k_a : Type -/
 inductive AccessType (k_a : Type) where
   | Read (_ : k_a)
@@ -182,6 +188,9 @@ inductive ExceptionType where
   | E_Load_Page_Fault (_ : Unit)
   | E_Reserved_14 (_ : Unit)
   | E_SAMO_Page_Fault (_ : Unit)
+  | E_Reserved_16 (_ : Unit)
+  | E_Reserved_17 (_ : Unit)
+  | E_Software_Check (_ : Unit)
   | E_Extension (_ : ext_exc_type)
   deriving Inhabited, BEq, Repr
 
@@ -526,6 +535,8 @@ inductive zicondop where | CZERO_EQZ | CZERO_NEZ
 inductive f_un_rm_ff_op_S where | FSQRT_S
   deriving BEq, Inhabited, Repr
 
+abbrev landing_pad_label := (BitVec 20)
+
 
 
 abbrev nfields := Int
@@ -550,6 +561,7 @@ inductive instruction where
   | NTL (_ : ntl_type)
   | C_NTL (_ : ntl_type)
   | PAUSE (_ : Unit)
+  | LPAD (_ : landing_pad_label)
   | UTYPE (_ : ((BitVec 20) × regidx × uop))
   | JAL (_ : ((BitVec 21) × regidx))
   | JALR (_ : ((BitVec 12) × regidx × regidx))
@@ -905,9 +917,15 @@ inductive WaitReason where | WAIT_WFI | WAIT_WRS_STO | WAIT_WRS_NTO
 inductive InterruptType where | I_U_Software | I_S_Software | I_M_Software | I_U_Timer | I_S_Timer | I_M_Timer | I_U_External | I_S_External | I_M_External
   deriving BEq, Inhabited, Repr
 
+inductive SWCheckCodes where | LANDING_PAD_FAULT
+  deriving BEq, Inhabited, Repr
+
 abbrev tv_mode := (BitVec 2)
 
 inductive TrapVectorMode where | TV_Direct | TV_Vector | TV_Reserved
+  deriving BEq, Inhabited, Repr
+
+inductive xRET_type where | mRET | sRET
   deriving BEq, Inhabited, Repr
 
 abbrev ext_status := (BitVec 2)
@@ -935,12 +953,6 @@ abbrev vpn_bits k_v := (BitVec (k_v - 12))
 abbrev ext_access_type := Unit
 
 abbrev regtype := xlenbits
-
-abbrev Seccfg := (BitVec 64)
-
-abbrev MEnvcfg := (BitVec 64)
-
-abbrev SEnvcfg := (BitVec 64)
 
 abbrev Minterrupts := (BitVec 64)
 
@@ -1043,6 +1055,12 @@ inductive agtype where | UNDISTURBED | AGNOSTIC
 abbrev Vcsr := (BitVec 3)
 
 abbrev CountSmcntrpmf := (BitVec 64)
+
+inductive Software_Check_Code where | SWC_NO_INFO | SWC_LANDING_PAD_FAULT
+  deriving BEq, Inhabited, Repr
+
+inductive landing_pad_expectation where | NO_LP_EXPECTED | LP_EXPECTED
+  deriving BEq, Inhabited, Repr
 
 inductive ctl_result where
   | CTL_TRAP (_ : sync_exception)
@@ -1169,6 +1187,7 @@ inductive Register : Type where
   | plat_ram_size
   | plat_ram_base
   | pc_reset_address
+  | elp
   | minstretcfg
   | mcyclecfg
   | vcsr
@@ -1269,11 +1288,7 @@ inductive Register : Type where
   | medeleg
   | mip
   | mie
-  | senvcfg
-  | menvcfg
-  | mseccfg
   | cur_inst
-  | cur_privilege
   | x31
   | x30
   | x29
@@ -1307,8 +1322,12 @@ inductive Register : Type where
   | x1
   | nextPC
   | PC
+  | menvcfg
+  | mseccfg
+  | senvcfg
   | mstatus
   | misa
+  | cur_privilege
   | rvfi_mem_data_present
   | rvfi_mem_data
   | rvfi_int_data_present
@@ -1340,6 +1359,7 @@ abbrev RegisterType : Register → Type
   | .plat_ram_size => (BitVec (if ( 64 = 32  : Bool) then 34 else 64))
   | .plat_ram_base => (BitVec (if ( 64 = 32  : Bool) then 34 else 64))
   | .pc_reset_address => (BitVec 64)
+  | .elp => (BitVec 1)
   | .minstretcfg => (BitVec 64)
   | .mcyclecfg => (BitVec 64)
   | .vcsr => (BitVec 3)
@@ -1440,11 +1460,7 @@ abbrev RegisterType : Register → Type
   | .medeleg => (BitVec 64)
   | .mip => (BitVec 64)
   | .mie => (BitVec 64)
-  | .senvcfg => (BitVec 64)
-  | .menvcfg => (BitVec 64)
-  | .mseccfg => (BitVec 64)
   | .cur_inst => (BitVec 64)
-  | .cur_privilege => Privilege
   | .x31 => (BitVec 64)
   | .x30 => (BitVec 64)
   | .x29 => (BitVec 64)
@@ -1478,8 +1494,12 @@ abbrev RegisterType : Register → Type
   | .x1 => (BitVec 64)
   | .nextPC => (BitVec 64)
   | .PC => (BitVec 64)
+  | .menvcfg => (BitVec 64)
+  | .mseccfg => (BitVec 64)
+  | .senvcfg => (BitVec 64)
   | .mstatus => (BitVec 64)
   | .misa => (BitVec 64)
+  | .cur_privilege => Privilege
   | .rvfi_mem_data_present => Bool
   | .rvfi_mem_data => (BitVec 704)
   | .rvfi_int_data_present => Bool
@@ -1494,6 +1514,8 @@ instance : Inhabited (RegisterRef RegisterType Privilege) where
   default := .Reg cur_privilege
 instance : Inhabited (RegisterRef RegisterType (BitVec 1)) where
   default := .Reg htif_cmd_write
+instance : Inhabited (RegisterRef RegisterType (BitVec 1)) where
+  default := .Reg elp
 instance : Inhabited (RegisterRef RegisterType (BitVec 128)) where
   default := .Reg rvfi_pc_data
 instance : Inhabited (RegisterRef RegisterType (BitVec 192)) where

@@ -20,6 +20,7 @@ open zvk_vaesef_funct6
 open zvk_vaesdm_funct6
 open zvk_vaesdf_funct6
 open zicondop
+open xRET_type
 open wxfunct6
 open wvxfunct6
 open wvvfunct6
@@ -84,6 +85,7 @@ open mvvmafunct6
 open mvvfunct6
 open mmfunct6
 open maskfunct3
+open landing_pad_expectation
 open iop
 open instruction
 open fwvvmafunct6
@@ -150,6 +152,8 @@ open agtype
 open WaitReason
 open TrapVectorMode
 open Step
+open Software_Check_Code
+open SWCheckCodes
 open SATPMode
 open Register
 open Privilege
@@ -181,6 +185,7 @@ def extensionName_forwards (arg_ : extension) : String :=
   | Ext_Zicbom => "zicbom"
   | Ext_Zicbop => "zicbop"
   | Ext_Zicboz => "zicboz"
+  | Ext_Zicfilp => "zicfilp"
   | Ext_Zicntr => "zicntr"
   | Ext_Zicond => "zicond"
   | Ext_Zicsr => "zicsr"
@@ -266,6 +271,7 @@ def extensionName_backwards (arg_ : String) : SailM extension := do
   | "zicbom" => (pure Ext_Zicbom)
   | "zicbop" => (pure Ext_Zicbop)
   | "zicboz" => (pure Ext_Zicboz)
+  | "zicfilp" => (pure Ext_Zicfilp)
   | "zicntr" => (pure Ext_Zicntr)
   | "zicond" => (pure Ext_Zicond)
   | "zicsr" => (pure Ext_Zicsr)
@@ -355,6 +361,7 @@ def extensionName_forwards_matches (arg_ : extension) : Bool :=
   | Ext_Zicbom => true
   | Ext_Zicbop => true
   | Ext_Zicboz => true
+  | Ext_Zicfilp => true
   | Ext_Zicntr => true
   | Ext_Zicond => true
   | Ext_Zicsr => true
@@ -440,6 +447,7 @@ def extensionName_backwards_matches (arg_ : String) : Bool :=
   | "zicbom" => true
   | "zicbop" => true
   | "zicboz" => true
+  | "zicfilp" => true
   | "zicntr" => true
   | "zicond" => true
   | "zicsr" => true
@@ -538,6 +546,7 @@ def hartSupports (merge_var : extension) : Bool :=
   | Ext_Zicbom => true
   | Ext_Zicbop => true
   | Ext_Zicboz => true
+  | Ext_Zicfilp => true
   | Ext_Zicntr => true
   | Ext_Zicond => true
   | Ext_Zicsr => true
@@ -617,5 +626,5 @@ def hartSupports (merge_var : extension) : Bool :=
 termination_by let ext := merge_var; ((hartSupports_measure ext)).toNat
 
 def extensions_ordered_for_isa_string :=
-  #v[Ext_Smcntrpmf, Ext_Svrsw60t59b, Ext_Svpbmt, Ext_Svnapot, Ext_Svinval, Ext_Sstc, Ext_Sscofpmf, Ext_Zvkt, Ext_Zvksh, Ext_Zvksg, Ext_Zvksed, Ext_Zvksc, Ext_Zvks, Ext_Zvknhb, Ext_Zvknha, Ext_Zvkng, Ext_Zvkned, Ext_Zvknc, Ext_Zvkn, Ext_Zvkg, Ext_Zvkb, Ext_Zvbc, Ext_Zvbb, Ext_Zkt, Ext_Zksh, Ext_Zksed, Ext_Zkr, Ext_Zknh, Ext_Zkne, Ext_Zknd, Ext_Zbs, Ext_Zbkx, Ext_Zbkc, Ext_Zbkb, Ext_Zbc, Ext_Zbb, Ext_Zba, Ext_Zcmop, Ext_Zcf, Ext_Zcd, Ext_Zcb, Ext_Zca, Ext_Zhinxmin, Ext_Zhinx, Ext_Zdinx, Ext_Zfinx, Ext_Zfhmin, Ext_Zfh, Ext_Zfbfmin, Ext_Zfa, Ext_Zawrs, Ext_Zalrsc, Ext_Zacas, Ext_Zabha, Ext_Zaamo, Ext_Zmmul, Ext_Zimop, Ext_Zihpm, Ext_Zihintpause, Ext_Zihintntl, Ext_Zifencei, Ext_Zicsr, Ext_Zicond, Ext_Zicntr, Ext_Zicboz, Ext_Zicbop, Ext_Zicbom, Ext_H, Ext_V, Ext_B, Ext_C, Ext_D, Ext_F, Ext_A, Ext_M]
+  #v[Ext_Smcntrpmf, Ext_Svrsw60t59b, Ext_Svpbmt, Ext_Svnapot, Ext_Svinval, Ext_Sstc, Ext_Sscofpmf, Ext_Zvkt, Ext_Zvksh, Ext_Zvksg, Ext_Zvksed, Ext_Zvksc, Ext_Zvks, Ext_Zvknhb, Ext_Zvknha, Ext_Zvkng, Ext_Zvkned, Ext_Zvknc, Ext_Zvkn, Ext_Zvkg, Ext_Zvkb, Ext_Zvbc, Ext_Zvbb, Ext_Zkt, Ext_Zksh, Ext_Zksed, Ext_Zkr, Ext_Zknh, Ext_Zkne, Ext_Zknd, Ext_Zbs, Ext_Zbkx, Ext_Zbkc, Ext_Zbkb, Ext_Zbc, Ext_Zbb, Ext_Zba, Ext_Zcmop, Ext_Zcf, Ext_Zcd, Ext_Zcb, Ext_Zca, Ext_Zhinxmin, Ext_Zhinx, Ext_Zdinx, Ext_Zfinx, Ext_Zfhmin, Ext_Zfh, Ext_Zfbfmin, Ext_Zfa, Ext_Zawrs, Ext_Zalrsc, Ext_Zacas, Ext_Zabha, Ext_Zaamo, Ext_Zmmul, Ext_Zimop, Ext_Zihpm, Ext_Zihintpause, Ext_Zihintntl, Ext_Zifencei, Ext_Zicsr, Ext_Zicond, Ext_Zicntr, Ext_Zicfilp, Ext_Zicboz, Ext_Zicbop, Ext_Zicbom, Ext_H, Ext_V, Ext_B, Ext_C, Ext_D, Ext_F, Ext_A, Ext_M]
 

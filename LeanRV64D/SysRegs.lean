@@ -1,4 +1,3 @@
-import LeanRV64D.Flow
 import LeanRV64D.Prelude
 import LeanRV64D.Errors
 import LeanRV64D.Extensions
@@ -23,6 +22,7 @@ open zvk_vaesef_funct6
 open zvk_vaesdm_funct6
 open zvk_vaesdf_funct6
 open zicondop
+open xRET_type
 open wxfunct6
 open wvxfunct6
 open wvvfunct6
@@ -87,6 +87,7 @@ open mvvmafunct6
 open mvvfunct6
 open mmfunct6
 open maskfunct3
+open landing_pad_expectation
 open iop
 open instruction
 open fwvvmafunct6
@@ -153,6 +154,8 @@ open agtype
 open WaitReason
 open TrapVectorMode
 open Step
+open Software_Check_Code
+open SWCheckCodes
 open SATPMode
 open Register
 open Privilege
@@ -552,8 +555,6 @@ def _set_Misa_Z (r_ref : (RegisterRef (BitVec 64))) (v : (BitVec 1)) : SailM Uni
 
 def sys_enable_writable_misa : Bool := true
 
-def sys_enable_writable_fiom : Bool := true
-
 def sys_writable_hpm_counters : (BitVec 32) := (0xFFFFFFFF : (BitVec 32))
 
 def ext_veto_disable_C (_ : Unit) : Bool :=
@@ -667,6 +668,16 @@ def _set_Mstatus_MIE (r_ref : (RegisterRef (BitVec 64))) (v : (BitVec 1)) : Sail
   let r ← do (reg_deref r_ref)
   writeRegRef r_ref (_update_Mstatus_MIE r v)
 
+def _get_Mstatus_MPELP (v : (BitVec 64)) : (BitVec 1) :=
+  (Sail.BitVec.extractLsb v 41 41)
+
+def _update_Mstatus_MPELP (v : (BitVec 64)) (x : (BitVec 1)) : (BitVec 64) :=
+  (Sail.BitVec.updateSubrange v 41 41 x)
+
+def _set_Mstatus_MPELP (r_ref : (RegisterRef (BitVec 64))) (v : (BitVec 1)) : SailM Unit := do
+  let r ← do (reg_deref r_ref)
+  writeRegRef r_ref (_update_Mstatus_MPELP r v)
+
 def _get_Mstatus_MPIE (v : (BitVec 64)) : (BitVec 1) :=
   (Sail.BitVec.extractLsb v 7 7)
 
@@ -766,6 +777,26 @@ def _get_Sstatus_SIE (v : (BitVec 64)) : (BitVec 1) :=
 def _set_Sstatus_SIE (r_ref : (RegisterRef (BitVec 64))) (v : (BitVec 1)) : SailM Unit := do
   let r ← do (reg_deref r_ref)
   writeRegRef r_ref (_update_Sstatus_SIE r v)
+
+def _get_Mstatus_SPELP (v : (BitVec 64)) : (BitVec 1) :=
+  (Sail.BitVec.extractLsb v 23 23)
+
+def _update_Mstatus_SPELP (v : (BitVec 64)) (x : (BitVec 1)) : (BitVec 64) :=
+  (Sail.BitVec.updateSubrange v 23 23 x)
+
+def _update_Sstatus_SPELP (v : (BitVec 64)) (x : (BitVec 1)) : (BitVec 64) :=
+  (Sail.BitVec.updateSubrange v 23 23 x)
+
+def _set_Mstatus_SPELP (r_ref : (RegisterRef (BitVec 64))) (v : (BitVec 1)) : SailM Unit := do
+  let r ← do (reg_deref r_ref)
+  writeRegRef r_ref (_update_Mstatus_SPELP r v)
+
+def _get_Sstatus_SPELP (v : (BitVec 64)) : (BitVec 1) :=
+  (Sail.BitVec.extractLsb v 23 23)
+
+def _set_Sstatus_SPELP (r_ref : (RegisterRef (BitVec 64))) (v : (BitVec 1)) : SailM Unit := do
+  let r ← do (reg_deref r_ref)
+  writeRegRef r_ref (_update_Sstatus_SPELP r v)
 
 def _get_Mstatus_SPIE (v : (BitVec 64)) : (BitVec 1) :=
   (Sail.BitVec.extractLsb v 5 5)
@@ -935,7 +966,15 @@ def legalize_mstatus (o : (BitVec 64)) (v : (BitVec 64)) : SailM (BitVec 64) := 
                             (_update_Mstatus_MXR
                               (_update_Mstatus_TVM
                                 (_update_Mstatus_TW
-                                  (_update_Mstatus_TSR o
+                                  (_update_Mstatus_TSR
+                                    (_update_Mstatus_SPELP
+                                      (_update_Mstatus_MPELP o
+                                        (if ((hartSupports Ext_Zicfilp) : Bool)
+                                        then (_get_Mstatus_MPELP v)
+                                        else (0b0 : (BitVec 1))))
+                                      (if ((hartSupports Ext_Zicfilp) : Bool)
+                                      then (_get_Mstatus_SPELP v)
+                                      else (0b0 : (BitVec 1))))
                                     (← do
                                       if ((← (currentlyEnabled Ext_S)) : Bool)
                                       then (pure (_get_Mstatus_TSR v))
@@ -1005,131 +1044,60 @@ def in32BitMode (_ : Unit) : SailM Bool := do
 def undefined_Seccfg (_ : Unit) : SailM (BitVec 64) := do
   (undefined_bitvector 64)
 
-def Mk_Seccfg (v : (BitVec 64)) : (BitVec 64) :=
-  v
-
-def _get_Seccfg_SSEED (v : (BitVec 64)) : (BitVec 1) :=
-  (Sail.BitVec.extractLsb v 9 9)
-
-def _update_Seccfg_SSEED (v : (BitVec 64)) (x : (BitVec 1)) : (BitVec 64) :=
-  (Sail.BitVec.updateSubrange v 9 9 x)
+def _set_Seccfg_MLPE (r_ref : (RegisterRef (BitVec 64))) (v : (BitVec 1)) : SailM Unit := do
+  let r ← do (reg_deref r_ref)
+  writeRegRef r_ref (_update_Seccfg_MLPE r v)
 
 def _set_Seccfg_SSEED (r_ref : (RegisterRef (BitVec 64))) (v : (BitVec 1)) : SailM Unit := do
   let r ← do (reg_deref r_ref)
   writeRegRef r_ref (_update_Seccfg_SSEED r v)
 
-def _get_Seccfg_USEED (v : (BitVec 64)) : (BitVec 1) :=
-  (Sail.BitVec.extractLsb v 8 8)
-
-def _update_Seccfg_USEED (v : (BitVec 64)) (x : (BitVec 1)) : (BitVec 64) :=
-  (Sail.BitVec.updateSubrange v 8 8 x)
-
 def _set_Seccfg_USEED (r_ref : (RegisterRef (BitVec 64))) (v : (BitVec 1)) : SailM Unit := do
   let r ← do (reg_deref r_ref)
   writeRegRef r_ref (_update_Seccfg_USEED r v)
 
-def legalize_mseccfg (o : (BitVec 64)) (v : (BitVec 64)) : SailM (BitVec 64) := do
-  let sseed_read_only_zero ← do
-    (pure ((false : Bool) || ((not (← (currentlyEnabled Ext_S))) || (not
-            (← (currentlyEnabled Ext_Zkr))))))
-  let useed_read_only_zero ← do
-    (pure ((false : Bool) || ((not (← (currentlyEnabled Ext_U))) || (not
-            (← (currentlyEnabled Ext_Zkr))))))
-  let v := (Mk_Seccfg v)
-  (pure (_update_Seccfg_USEED
-      (_update_Seccfg_SSEED o
-        (if (sseed_read_only_zero : Bool)
-        then (0b0 : (BitVec 1))
-        else (_get_Seccfg_SSEED v)))
-      (if (useed_read_only_zero : Bool)
-      then (0b0 : (BitVec 1))
-      else (_get_Seccfg_USEED v))))
-
 def undefined_MEnvcfg (_ : Unit) : SailM (BitVec 64) := do
   (undefined_bitvector 64)
-
-def Mk_MEnvcfg (v : (BitVec 64)) : (BitVec 64) :=
-  v
-
-def _get_MEnvcfg_CBCFE (v : (BitVec 64)) : (BitVec 1) :=
-  (Sail.BitVec.extractLsb v 6 6)
-
-def _update_MEnvcfg_CBCFE (v : (BitVec 64)) (x : (BitVec 1)) : (BitVec 64) :=
-  (Sail.BitVec.updateSubrange v 6 6 x)
-
-def _update_SEnvcfg_CBCFE (v : (BitVec 64)) (x : (BitVec 1)) : (BitVec 64) :=
-  (Sail.BitVec.updateSubrange v 6 6 x)
 
 def _set_MEnvcfg_CBCFE (r_ref : (RegisterRef (BitVec 64))) (v : (BitVec 1)) : SailM Unit := do
   let r ← do (reg_deref r_ref)
   writeRegRef r_ref (_update_MEnvcfg_CBCFE r v)
 
-def _get_SEnvcfg_CBCFE (v : (BitVec 64)) : (BitVec 1) :=
-  (Sail.BitVec.extractLsb v 6 6)
-
 def _set_SEnvcfg_CBCFE (r_ref : (RegisterRef (BitVec 64))) (v : (BitVec 1)) : SailM Unit := do
   let r ← do (reg_deref r_ref)
   writeRegRef r_ref (_update_SEnvcfg_CBCFE r v)
-
-def _get_MEnvcfg_CBIE (v : (BitVec 64)) : (BitVec 2) :=
-  (Sail.BitVec.extractLsb v 5 4)
-
-def _update_MEnvcfg_CBIE (v : (BitVec 64)) (x : (BitVec 2)) : (BitVec 64) :=
-  (Sail.BitVec.updateSubrange v 5 4 x)
-
-def _update_SEnvcfg_CBIE (v : (BitVec 64)) (x : (BitVec 2)) : (BitVec 64) :=
-  (Sail.BitVec.updateSubrange v 5 4 x)
 
 def _set_MEnvcfg_CBIE (r_ref : (RegisterRef (BitVec 64))) (v : (BitVec 2)) : SailM Unit := do
   let r ← do (reg_deref r_ref)
   writeRegRef r_ref (_update_MEnvcfg_CBIE r v)
 
-def _get_SEnvcfg_CBIE (v : (BitVec 64)) : (BitVec 2) :=
-  (Sail.BitVec.extractLsb v 5 4)
-
 def _set_SEnvcfg_CBIE (r_ref : (RegisterRef (BitVec 64))) (v : (BitVec 2)) : SailM Unit := do
   let r ← do (reg_deref r_ref)
   writeRegRef r_ref (_update_SEnvcfg_CBIE r v)
-
-def _get_MEnvcfg_CBZE (v : (BitVec 64)) : (BitVec 1) :=
-  (Sail.BitVec.extractLsb v 7 7)
-
-def _update_MEnvcfg_CBZE (v : (BitVec 64)) (x : (BitVec 1)) : (BitVec 64) :=
-  (Sail.BitVec.updateSubrange v 7 7 x)
-
-def _update_SEnvcfg_CBZE (v : (BitVec 64)) (x : (BitVec 1)) : (BitVec 64) :=
-  (Sail.BitVec.updateSubrange v 7 7 x)
 
 def _set_MEnvcfg_CBZE (r_ref : (RegisterRef (BitVec 64))) (v : (BitVec 1)) : SailM Unit := do
   let r ← do (reg_deref r_ref)
   writeRegRef r_ref (_update_MEnvcfg_CBZE r v)
 
-def _get_SEnvcfg_CBZE (v : (BitVec 64)) : (BitVec 1) :=
-  (Sail.BitVec.extractLsb v 7 7)
-
 def _set_SEnvcfg_CBZE (r_ref : (RegisterRef (BitVec 64))) (v : (BitVec 1)) : SailM Unit := do
   let r ← do (reg_deref r_ref)
   writeRegRef r_ref (_update_SEnvcfg_CBZE r v)
-
-def _get_MEnvcfg_FIOM (v : (BitVec 64)) : (BitVec 1) :=
-  (Sail.BitVec.extractLsb v 0 0)
-
-def _update_MEnvcfg_FIOM (v : (BitVec 64)) (x : (BitVec 1)) : (BitVec 64) :=
-  (Sail.BitVec.updateSubrange v 0 0 x)
-
-def _update_SEnvcfg_FIOM (v : (BitVec 64)) (x : (BitVec 1)) : (BitVec 64) :=
-  (Sail.BitVec.updateSubrange v 0 0 x)
 
 def _set_MEnvcfg_FIOM (r_ref : (RegisterRef (BitVec 64))) (v : (BitVec 1)) : SailM Unit := do
   let r ← do (reg_deref r_ref)
   writeRegRef r_ref (_update_MEnvcfg_FIOM r v)
 
-def _get_SEnvcfg_FIOM (v : (BitVec 64)) : (BitVec 1) :=
-  (Sail.BitVec.extractLsb v 0 0)
-
 def _set_SEnvcfg_FIOM (r_ref : (RegisterRef (BitVec 64))) (v : (BitVec 1)) : SailM Unit := do
   let r ← do (reg_deref r_ref)
   writeRegRef r_ref (_update_SEnvcfg_FIOM r v)
+
+def _set_MEnvcfg_LPE (r_ref : (RegisterRef (BitVec 64))) (v : (BitVec 1)) : SailM Unit := do
+  let r ← do (reg_deref r_ref)
+  writeRegRef r_ref (_update_MEnvcfg_LPE r v)
+
+def _set_SEnvcfg_LPE (r_ref : (RegisterRef (BitVec 64))) (v : (BitVec 1)) : SailM Unit := do
+  let r ← do (reg_deref r_ref)
+  writeRegRef r_ref (_update_SEnvcfg_LPE r v)
 
 def _get_MEnvcfg_PBMTE (v : (BitVec 64)) : (BitVec 1) :=
   (Sail.BitVec.extractLsb v 62 62)
@@ -1141,106 +1109,12 @@ def _set_MEnvcfg_PBMTE (r_ref : (RegisterRef (BitVec 64))) (v : (BitVec 1)) : Sa
   let r ← do (reg_deref r_ref)
   writeRegRef r_ref (_update_MEnvcfg_PBMTE r v)
 
-def _get_MEnvcfg_STCE (v : (BitVec 64)) : (BitVec 1) :=
-  (Sail.BitVec.extractLsb v 63 63)
-
-def _update_MEnvcfg_STCE (v : (BitVec 64)) (x : (BitVec 1)) : (BitVec 64) :=
-  (Sail.BitVec.updateSubrange v 63 63 x)
-
 def _set_MEnvcfg_STCE (r_ref : (RegisterRef (BitVec 64))) (v : (BitVec 1)) : SailM Unit := do
   let r ← do (reg_deref r_ref)
   writeRegRef r_ref (_update_MEnvcfg_STCE r v)
 
-def _get_MEnvcfg_wpri_0 (v : (BitVec 64)) : (BitVec 3) :=
-  (Sail.BitVec.extractLsb v 3 1)
-
-def _update_MEnvcfg_wpri_0 (v : (BitVec 64)) (x : (BitVec 3)) : (BitVec 64) :=
-  (Sail.BitVec.updateSubrange v 3 1 x)
-
-def _update_SEnvcfg_wpri_0 (v : (BitVec 64)) (x : (BitVec 3)) : (BitVec 64) :=
-  (Sail.BitVec.updateSubrange v 3 1 x)
-
-def _set_MEnvcfg_wpri_0 (r_ref : (RegisterRef (BitVec 64))) (v : (BitVec 3)) : SailM Unit := do
-  let r ← do (reg_deref r_ref)
-  writeRegRef r_ref (_update_MEnvcfg_wpri_0 r v)
-
-def _get_SEnvcfg_wpri_0 (v : (BitVec 64)) : (BitVec 3) :=
-  (Sail.BitVec.extractLsb v 3 1)
-
-def _set_SEnvcfg_wpri_0 (r_ref : (RegisterRef (BitVec 64))) (v : (BitVec 3)) : SailM Unit := do
-  let r ← do (reg_deref r_ref)
-  writeRegRef r_ref (_update_SEnvcfg_wpri_0 r v)
-
-def _get_MEnvcfg_wpri_1 (v : (BitVec 64)) : (BitVec 54) :=
-  (Sail.BitVec.extractLsb v 61 8)
-
-def _update_MEnvcfg_wpri_1 (v : (BitVec 64)) (x : (BitVec 54)) : (BitVec 64) :=
-  (Sail.BitVec.updateSubrange v 61 8 x)
-
-def _set_MEnvcfg_wpri_1 (r_ref : (RegisterRef (BitVec 64))) (v : (BitVec 54)) : SailM Unit := do
-  let r ← do (reg_deref r_ref)
-  writeRegRef r_ref (_update_MEnvcfg_wpri_1 r v)
-
 def undefined_SEnvcfg (_ : Unit) : SailM (BitVec 64) := do
   (undefined_bitvector 64)
-
-def Mk_SEnvcfg (v : (BitVec 64)) : (BitVec 64) :=
-  v
-
-def legalize_menvcfg (o : (BitVec 64)) (v : (BitVec 64)) : SailM (BitVec 64) := do
-  let v := (Mk_MEnvcfg v)
-  (pure (_update_MEnvcfg_STCE
-      (_update_MEnvcfg_CBIE
-        (_update_MEnvcfg_CBCFE
-          (_update_MEnvcfg_CBZE
-            (_update_MEnvcfg_FIOM o
-              (if (sys_enable_writable_fiom : Bool)
-              then (_get_MEnvcfg_FIOM v)
-              else (0b0 : (BitVec 1))))
-            (← do
-              if ((← (currentlyEnabled Ext_Zicboz)) : Bool)
-              then (pure (_get_MEnvcfg_CBZE v))
-              else (pure (0b0 : (BitVec 1)))))
-          (← do
-            if ((← (currentlyEnabled Ext_Zicbom)) : Bool)
-            then (pure (_get_MEnvcfg_CBCFE v))
-            else (pure (0b0 : (BitVec 1)))))
-        (← do
-          if ((← (currentlyEnabled Ext_Zicbom)) : Bool)
-          then
-            (if (((_get_MEnvcfg_CBIE v) != (0b10 : (BitVec 2))) : Bool)
-            then (pure (_get_MEnvcfg_CBIE v))
-            else (pure (0b00 : (BitVec 2))))
-          else (pure (0b00 : (BitVec 2)))))
-      (← do
-        if ((← (currentlyEnabled Ext_Sstc)) : Bool)
-        then (pure (_get_MEnvcfg_STCE v))
-        else (pure (0b0 : (BitVec 1))))))
-
-def legalize_senvcfg (o : (BitVec 64)) (v : (BitVec 64)) : SailM (BitVec 64) := do
-  let v := (Mk_SEnvcfg v)
-  (pure (_update_SEnvcfg_CBIE
-      (_update_SEnvcfg_CBCFE
-        (_update_SEnvcfg_CBZE
-          (_update_SEnvcfg_FIOM o
-            (if (sys_enable_writable_fiom : Bool)
-            then (_get_SEnvcfg_FIOM v)
-            else (0b0 : (BitVec 1))))
-          (← do
-            if ((← (currentlyEnabled Ext_Zicboz)) : Bool)
-            then (pure (_get_SEnvcfg_CBZE v))
-            else (pure (0b0 : (BitVec 1)))))
-        (← do
-          if ((← (currentlyEnabled Ext_Zicbom)) : Bool)
-          then (pure (_get_SEnvcfg_CBCFE v))
-          else (pure (0b0 : (BitVec 1)))))
-      (← do
-        if ((← (currentlyEnabled Ext_Zicbom)) : Bool)
-        then
-          (if (((_get_SEnvcfg_CBIE v) != (0b10 : (BitVec 2))) : Bool)
-          then (pure (_get_SEnvcfg_CBIE v))
-          else (pure (0b00 : (BitVec 2))))
-        else (pure (0b00 : (BitVec 2))))))
 
 def is_fiom_active (_ : Unit) : SailM Bool := do
   match (← readReg cur_privilege) with
@@ -1248,9 +1122,9 @@ def is_fiom_active (_ : Unit) : SailM Bool := do
   | Supervisor => (pure ((_get_MEnvcfg_FIOM (← readReg menvcfg)) == (0b1 : (BitVec 1))))
   | User =>
     (pure (((_get_MEnvcfg_FIOM (← readReg menvcfg)) ||| (_get_SEnvcfg_FIOM (← readReg senvcfg))) == (0b1 : (BitVec 1))))
-  | VirtualUser => (internal_error "core/sys_regs.sail" 430 "Hypervisor extension not supported")
+  | VirtualUser => (internal_error "core/sys_regs.sail" 433 "Hypervisor extension not supported")
   | VirtualSupervisor =>
-    (internal_error "core/sys_regs.sail" 431 "Hypervisor extension not supported")
+    (internal_error "core/sys_regs.sail" 434 "Hypervisor extension not supported")
 
 def undefined_Minterrupts (_ : Unit) : SailM (BitVec 64) := do
   (undefined_bitvector 64)
@@ -1757,10 +1631,11 @@ def lower_mstatus (m : (BitVec 64)) : (BitVec 64) :=
             (_update_Sstatus_XS
               (_update_Sstatus_SUM
                 (_update_Sstatus_MXR
-                  (_update_Sstatus_UXL (_update_Sstatus_SD s (_get_Mstatus_SD m))
-                    (_get_Mstatus_UXL m)) (_get_Mstatus_MXR m)) (_get_Mstatus_SUM m))
-              (_get_Mstatus_XS m)) (_get_Mstatus_FS m)) (_get_Mstatus_VS m)) (_get_Mstatus_SPP m))
-      (_get_Mstatus_SPIE m)) (_get_Mstatus_SIE m))
+                  (_update_Sstatus_SPELP
+                    (_update_Sstatus_UXL (_update_Sstatus_SD s (_get_Mstatus_SD m))
+                      (_get_Mstatus_UXL m)) (_get_Mstatus_SPELP m)) (_get_Mstatus_MXR m))
+                (_get_Mstatus_SUM m)) (_get_Mstatus_XS m)) (_get_Mstatus_FS m)) (_get_Mstatus_VS m))
+        (_get_Mstatus_SPP m)) (_get_Mstatus_SPIE m)) (_get_Mstatus_SIE m))
 
 def lift_sstatus (m : (BitVec 64)) (s : (BitVec 64)) : (BitVec 64) :=
   let dirty :=
@@ -1774,10 +1649,11 @@ def lift_sstatus (m : (BitVec 64)) (s : (BitVec 64)) : (BitVec 64) :=
             (_update_Mstatus_XS
               (_update_Mstatus_SUM
                 (_update_Mstatus_MXR
-                  (_update_Mstatus_UXL (_update_Mstatus_SD m (bool_to_bits dirty))
-                    (_get_Sstatus_UXL s)) (_get_Sstatus_MXR s)) (_get_Sstatus_SUM s))
-              (_get_Sstatus_XS s)) (_get_Sstatus_FS s)) (_get_Sstatus_VS s)) (_get_Sstatus_SPP s))
-      (_get_Sstatus_SPIE s)) (_get_Sstatus_SIE s))
+                  (_update_Mstatus_SPELP
+                    (_update_Mstatus_UXL (_update_Mstatus_SD m (bool_to_bits dirty))
+                      (_get_Sstatus_UXL s)) (_get_Sstatus_SPELP s)) (_get_Sstatus_MXR s))
+                (_get_Sstatus_SUM s)) (_get_Sstatus_XS s)) (_get_Sstatus_FS s)) (_get_Sstatus_VS s))
+        (_get_Sstatus_SPP s)) (_get_Sstatus_SPIE s)) (_get_Sstatus_SIE s))
 
 def legalize_sstatus (m : (BitVec 64)) (v : (BitVec 64)) : SailM (BitVec 64) := do
   (legalize_mstatus m (lift_sstatus m (Mk_Sstatus (zero_extend (m := 64) v))))
@@ -1919,8 +1795,8 @@ def feature_enabled_for_priv (p : Privilege) (machine_enable_bit : (BitVec 1)) (
   | User =>
     (pure ((machine_enable_bit == 1#1) && ((not (← (currentlyEnabled Ext_S))) || (supervisor_enable_bit == 1#1))))
   | VirtualSupervisor =>
-    (internal_error "core/sys_regs.sail" 949 "Hypervisor extension not supported")
-  | VirtualUser => (internal_error "core/sys_regs.sail" 950 "Hypervisor extension not supported")
+    (internal_error "core/sys_regs.sail" 952 "Hypervisor extension not supported")
+  | VirtualUser => (internal_error "core/sys_regs.sail" 953 "Hypervisor extension not supported")
 
 /-- Type quantifiers: index : Nat, 0 ≤ index ∧ index ≤ 31 -/
 def counter_enabled (index : Nat) (priv : Privilege) : SailM Bool := do

@@ -23,6 +23,7 @@ open zvk_vaesef_funct6
 open zvk_vaesdm_funct6
 open zvk_vaesdf_funct6
 open zicondop
+open xRET_type
 open wxfunct6
 open wvxfunct6
 open wvvfunct6
@@ -87,6 +88,7 @@ open mvvmafunct6
 open mvvfunct6
 open mmfunct6
 open maskfunct3
+open landing_pad_expectation
 open iop
 open instruction
 open fwvvmafunct6
@@ -153,6 +155,8 @@ open agtype
 open WaitReason
 open TrapVectorMode
 open Step
+open Software_Check_Code
+open SWCheckCodes
 open SATPMode
 open Register
 open Privilege
@@ -292,16 +296,27 @@ def check_pmp (_ : Unit) : Bool :=
     valid)
   else valid
 
-def check_bfloat16 (_ : Unit) : Bool :=
+def check_misc_extension_dependencies (_ : Unit) : Bool :=
   let valid : Bool := true
-  if (((hartSupports Ext_Zfbfmin) && (not (hartSupports Ext_F))) : Bool)
+  let valid : Bool :=
+    if (((hartSupports Ext_Zfbfmin) && (not (hartSupports Ext_F))) : Bool)
+    then
+      (let valid : Bool := false
+      let _ : Unit :=
+        (print_endline
+          "The Zfbfmin extension is enabled but F is disabled: supporting Zfbfmin requires F.")
+      valid)
+    else valid
+  if (((hartSupports Ext_Zicfilp) && (not (hartSupports Ext_Zicsr))) : Bool)
   then
     (let valid : Bool := false
-    let _ : Unit := (print_endline "Zfbfmin extension requires F extension")
+    let _ : Unit :=
+      (print_endline
+        "The Zicfilp extension is enabled but Zicsr is disabled: supporting Zicfilp requires Zicsr.")
     valid)
   else valid
 
 def config_is_valid (_ : Unit) : SailM Bool := do
   (pure ((check_privs ()) && ((check_mmu_config ()) && ((← (check_mem_layout ())) && ((check_vlen_elen
-              ()) && ((check_pmp ()) && (check_bfloat16 ())))))))
+              ()) && ((check_pmp ()) && (check_misc_extension_dependencies ())))))))
 

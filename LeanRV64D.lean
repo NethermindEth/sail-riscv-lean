@@ -10,6 +10,7 @@ import LeanRV64D.PmpRegs
 import LeanRV64D.FdextRegs
 import LeanRV64D.VextRegs
 import LeanRV64D.Smcntrpmf
+import LeanRV64D.ZicfilpRegs
 import LeanRV64D.SysControl
 import LeanRV64D.Platform
 import LeanRV64D.VmemTlb
@@ -37,6 +38,7 @@ open zvk_vaesef_funct6
 open zvk_vaesdm_funct6
 open zvk_vaesdf_funct6
 open zicondop
+open xRET_type
 open wxfunct6
 open wvxfunct6
 open wvvfunct6
@@ -101,6 +103,7 @@ open mvvmafunct6
 open mvvfunct6
 open mmfunct6
 open maskfunct3
+open landing_pad_expectation
 open iop
 open instruction
 open fwvvmafunct6
@@ -167,6 +170,8 @@ open agtype
 open WaitReason
 open TrapVectorMode
 open Step
+open Software_Check_Code
+open SWCheckCodes
 open SATPMode
 open Register
 open Privilege
@@ -322,6 +327,7 @@ def initialize_registers (_ : Unit) : SailM Unit := do
   writeReg vcsr (← (undefined_Vcsr ()))
   writeReg mcyclecfg (← (undefined_CountSmcntrpmf ()))
   writeReg minstretcfg (← (undefined_CountSmcntrpmf ()))
+  writeReg elp (← (undefined_bitvector 1))
   writeReg mtimecmp (← (undefined_bitvector 64))
   writeReg stimecmp (← (undefined_bitvector 64))
   writeReg htif_tohost (← (undefined_bitvector 64))
@@ -344,9 +350,9 @@ def sail_model_init (x_0 : Unit) : SailM Unit := do
     (if (((xlen != 32) && (hartSupports Ext_U)) : Bool)
     then mxl
     else (zeros (n := 2)))))
+  writeReg senvcfg (← (legalize_senvcfg (Mk_SEnvcfg (zeros (n := 64))) (zeros (n := 64))))
   writeReg mseccfg (← (legalize_mseccfg (Mk_Seccfg (zeros (n := 64))) (zeros (n := 64))))
   writeReg menvcfg (← (legalize_menvcfg (Mk_MEnvcfg (zeros (n := 64))) (zeros (n := 64))))
-  writeReg senvcfg (← (legalize_senvcfg (Mk_SEnvcfg (zeros (n := 64))) (zeros (n := 64))))
   writeReg mvendorid (← (to_bits_checked (l := 32) (0 : Int)))
   writeReg mimpid (← (to_bits_checked (l := 64) (0 : Int)))
   writeReg marchid (← (to_bits_checked (l := 64) (0 : Int)))

@@ -28,6 +28,7 @@ open zvk_vaesef_funct6
 open zvk_vaesdm_funct6
 open zvk_vaesdf_funct6
 open zicondop
+open xRET_type
 open wxfunct6
 open wvxfunct6
 open wvvfunct6
@@ -92,6 +93,7 @@ open mvvmafunct6
 open mvvfunct6
 open mmfunct6
 open maskfunct3
+open landing_pad_expectation
 open iop
 open instruction
 open fwvvmafunct6
@@ -158,6 +160,8 @@ open agtype
 open WaitReason
 open TrapVectorMode
 open Step
+open Software_Check_Code
+open SWCheckCodes
 open SATPMode
 open Register
 open Privilege
@@ -497,11 +501,107 @@ def currentlyEnabled_measure (ext : extension) : Int :=
   | Ext_Zcmop => 3
   | Ext_Zfhmin => 3
   | Ext_Zhinx => 3
+  | Ext_Zicfilp => 3
   | Ext_Zvkb => 3
   | Ext_Sscofpmf => 3
   | Ext_Svrsw60t59b => 3
   | Ext_Zhinxmin => 4
   | _ => 2
+
+def Mk_MEnvcfg (v : (BitVec 64)) : (BitVec 64) :=
+  v
+
+def _get_MEnvcfg_CBCFE (v : (BitVec 64)) : (BitVec 1) :=
+  (Sail.BitVec.extractLsb v 6 6)
+
+def _get_MEnvcfg_CBIE (v : (BitVec 64)) : (BitVec 2) :=
+  (Sail.BitVec.extractLsb v 5 4)
+
+def _get_MEnvcfg_CBZE (v : (BitVec 64)) : (BitVec 1) :=
+  (Sail.BitVec.extractLsb v 7 7)
+
+def _get_MEnvcfg_FIOM (v : (BitVec 64)) : (BitVec 1) :=
+  (Sail.BitVec.extractLsb v 0 0)
+
+def _get_MEnvcfg_LPE (v : (BitVec 64)) : (BitVec 1) :=
+  (Sail.BitVec.extractLsb v 2 2)
+
+def _get_MEnvcfg_STCE (v : (BitVec 64)) : (BitVec 1) :=
+  (Sail.BitVec.extractLsb v 63 63)
+
+def _update_MEnvcfg_CBCFE (v : (BitVec 64)) (x : (BitVec 1)) : (BitVec 64) :=
+  (Sail.BitVec.updateSubrange v 6 6 x)
+
+def _update_MEnvcfg_CBIE (v : (BitVec 64)) (x : (BitVec 2)) : (BitVec 64) :=
+  (Sail.BitVec.updateSubrange v 5 4 x)
+
+def _update_MEnvcfg_CBZE (v : (BitVec 64)) (x : (BitVec 1)) : (BitVec 64) :=
+  (Sail.BitVec.updateSubrange v 7 7 x)
+
+def _update_MEnvcfg_FIOM (v : (BitVec 64)) (x : (BitVec 1)) : (BitVec 64) :=
+  (Sail.BitVec.updateSubrange v 0 0 x)
+
+def _update_MEnvcfg_LPE (v : (BitVec 64)) (x : (BitVec 1)) : (BitVec 64) :=
+  (Sail.BitVec.updateSubrange v 2 2 x)
+
+def _update_MEnvcfg_STCE (v : (BitVec 64)) (x : (BitVec 1)) : (BitVec 64) :=
+  (Sail.BitVec.updateSubrange v 63 63 x)
+
+def sys_enable_writable_fiom : Bool := true
+
+def Mk_Seccfg (v : (BitVec 64)) : (BitVec 64) :=
+  v
+
+def _get_Seccfg_MLPE (v : (BitVec 64)) : (BitVec 1) :=
+  (Sail.BitVec.extractLsb v 10 10)
+
+def _get_Seccfg_SSEED (v : (BitVec 64)) : (BitVec 1) :=
+  (Sail.BitVec.extractLsb v 9 9)
+
+def _get_Seccfg_USEED (v : (BitVec 64)) : (BitVec 1) :=
+  (Sail.BitVec.extractLsb v 8 8)
+
+def _update_Seccfg_MLPE (v : (BitVec 64)) (x : (BitVec 1)) : (BitVec 64) :=
+  (Sail.BitVec.updateSubrange v 10 10 x)
+
+def _update_Seccfg_SSEED (v : (BitVec 64)) (x : (BitVec 1)) : (BitVec 64) :=
+  (Sail.BitVec.updateSubrange v 9 9 x)
+
+def _update_Seccfg_USEED (v : (BitVec 64)) (x : (BitVec 1)) : (BitVec 64) :=
+  (Sail.BitVec.updateSubrange v 8 8 x)
+
+def Mk_SEnvcfg (v : (BitVec 64)) : (BitVec 64) :=
+  v
+
+def _get_SEnvcfg_CBCFE (v : (BitVec 64)) : (BitVec 1) :=
+  (Sail.BitVec.extractLsb v 6 6)
+
+def _get_SEnvcfg_CBIE (v : (BitVec 64)) : (BitVec 2) :=
+  (Sail.BitVec.extractLsb v 5 4)
+
+def _get_SEnvcfg_CBZE (v : (BitVec 64)) : (BitVec 1) :=
+  (Sail.BitVec.extractLsb v 7 7)
+
+def _get_SEnvcfg_FIOM (v : (BitVec 64)) : (BitVec 1) :=
+  (Sail.BitVec.extractLsb v 0 0)
+
+def _get_SEnvcfg_LPE (v : (BitVec 64)) : (BitVec 1) :=
+  (Sail.BitVec.extractLsb v 2 2)
+
+def _update_SEnvcfg_CBCFE (v : (BitVec 64)) (x : (BitVec 1)) : (BitVec 64) :=
+  (Sail.BitVec.updateSubrange v 6 6 x)
+
+def _update_SEnvcfg_CBIE (v : (BitVec 64)) (x : (BitVec 2)) : (BitVec 64) :=
+  (Sail.BitVec.updateSubrange v 5 4 x)
+
+def _update_SEnvcfg_CBZE (v : (BitVec 64)) (x : (BitVec 1)) : (BitVec 64) :=
+  (Sail.BitVec.updateSubrange v 7 7 x)
+
+def _update_SEnvcfg_FIOM (v : (BitVec 64)) (x : (BitVec 1)) : (BitVec 64) :=
+  (Sail.BitVec.updateSubrange v 0 0 x)
+
+def _update_SEnvcfg_LPE (v : (BitVec 64)) (x : (BitVec 1)) : (BitVec 64) :=
+  (Sail.BitVec.updateSubrange v 2 2 x)
 
 
 mutual
@@ -539,6 +639,9 @@ def currentlyEnabled (merge_var : extension) : SailM Bool := do
     (pure ((hartSupports Ext_V) && (((_get_Misa_V (← readReg misa)) == (0b1 : (BitVec 1))) && (((_get_Mstatus_VS
                 (← readReg mstatus)) != (0b00 : (BitVec 2))) && (← (currentlyEnabled Ext_Zicsr))))))
   | Ext_Smcntrpmf => (pure ((hartSupports Ext_Smcntrpmf) && (← (currentlyEnabled Ext_Zicntr))))
+  | Ext_Zicfilp =>
+    (pure ((← (currentlyEnabled Ext_Zicsr)) && ((hartSupports Ext_Zicfilp) && (← (get_xLPE
+              (← readReg cur_privilege))))))
   | Ext_Svnapot => (pure false)
   | Ext_Svpbmt => (pure false)
   | Ext_Svrsw60t59b => (pure ((hartSupports Ext_Svrsw60t59b) && (← (currentlyEnabled Ext_Sv39))))
@@ -618,6 +721,101 @@ def currentlyEnabled (merge_var : extension) : SailM Bool := do
   | Ext_Zimop => (pure (hartSupports Ext_Zimop))
   | Ext_Zcmop => (pure ((hartSupports Ext_Zcmop) && (← (currentlyEnabled Ext_Zca))))
 termination_by let ext := merge_var; ((currentlyEnabled_measure ext)).toNat
+def get_xLPE (p : Privilege) : SailM Bool := do
+  match p with
+  | Machine => (pure (bool_bits_backwards (_get_Seccfg_MLPE (← readReg mseccfg))))
+  | Supervisor => (pure (bool_bits_backwards (_get_MEnvcfg_LPE (← readReg menvcfg))))
+  | User =>
+    (do
+      if ((← (currentlyEnabled Ext_S)) : Bool)
+      then (pure (bool_bits_backwards (_get_SEnvcfg_LPE (← readReg senvcfg))))
+      else (pure (bool_bits_backwards (_get_MEnvcfg_LPE (← readReg menvcfg)))))
+  | VirtualSupervisor =>
+    (internal_error "extensions/cfi/zicfilp_regs.sail" 31 "Hypervisor extension not supported")
+  | VirtualUser =>
+    (internal_error "extensions/cfi/zicfilp_regs.sail" 32 "Hypervisor extension not supported")
+termination_by let _ := p; (2).toNat
+def legalize_menvcfg (o : (BitVec 64)) (v : (BitVec 64)) : SailM (BitVec 64) := do
+  let v := (Mk_MEnvcfg v)
+  (pure (_update_MEnvcfg_STCE
+      (_update_MEnvcfg_CBIE
+        (_update_MEnvcfg_CBCFE
+          (_update_MEnvcfg_CBZE
+            (_update_MEnvcfg_LPE
+              (_update_MEnvcfg_FIOM o
+                (if (sys_enable_writable_fiom : Bool)
+                then (_get_MEnvcfg_FIOM v)
+                else (0b0 : (BitVec 1))))
+              (if ((hartSupports Ext_Zicfilp) : Bool)
+              then (_get_MEnvcfg_LPE v)
+              else (0b0 : (BitVec 1))))
+            (← do
+              if ((← (currentlyEnabled Ext_Zicboz)) : Bool)
+              then (pure (_get_MEnvcfg_CBZE v))
+              else (pure (0b0 : (BitVec 1)))))
+          (← do
+            if ((← (currentlyEnabled Ext_Zicbom)) : Bool)
+            then (pure (_get_MEnvcfg_CBCFE v))
+            else (pure (0b0 : (BitVec 1)))))
+        (← do
+          if ((← (currentlyEnabled Ext_Zicbom)) : Bool)
+          then
+            (if (((_get_MEnvcfg_CBIE v) != (0b10 : (BitVec 2))) : Bool)
+            then (pure (_get_MEnvcfg_CBIE v))
+            else (pure (0b00 : (BitVec 2))))
+          else (pure (0b00 : (BitVec 2)))))
+      (← do
+        if ((← (currentlyEnabled Ext_Sstc)) : Bool)
+        then (pure (_get_MEnvcfg_STCE v))
+        else (pure (0b0 : (BitVec 1))))))
+def legalize_mseccfg (o : (BitVec 64)) (v : (BitVec 64)) : SailM (BitVec 64) := do
+  let sseed_read_only_zero ← do
+    (pure ((false : Bool) || ((not (← (currentlyEnabled Ext_S))) || (not
+            (← (currentlyEnabled Ext_Zkr))))))
+  let useed_read_only_zero ← do
+    (pure ((false : Bool) || ((not (← (currentlyEnabled Ext_U))) || (not
+            (← (currentlyEnabled Ext_Zkr))))))
+  let v := (Mk_Seccfg v)
+  (pure (_update_Seccfg_USEED
+      (_update_Seccfg_SSEED
+        (_update_Seccfg_MLPE o
+          (if ((hartSupports Ext_Zicfilp) : Bool)
+          then (_get_Seccfg_MLPE v)
+          else (0b0 : (BitVec 1))))
+        (if (sseed_read_only_zero : Bool)
+        then (0b0 : (BitVec 1))
+        else (_get_Seccfg_SSEED v)))
+      (if (useed_read_only_zero : Bool)
+      then (0b0 : (BitVec 1))
+      else (_get_Seccfg_USEED v))))
+def legalize_senvcfg (o : (BitVec 64)) (v : (BitVec 64)) : SailM (BitVec 64) := do
+  let v := (Mk_SEnvcfg v)
+  (pure (_update_SEnvcfg_CBIE
+      (_update_SEnvcfg_CBCFE
+        (_update_SEnvcfg_CBZE
+          (_update_SEnvcfg_LPE
+            (_update_SEnvcfg_FIOM o
+              (if (sys_enable_writable_fiom : Bool)
+              then (_get_SEnvcfg_FIOM v)
+              else (0b0 : (BitVec 1))))
+            (if ((hartSupports Ext_Zicfilp) : Bool)
+            then (_get_SEnvcfg_LPE v)
+            else (0b0 : (BitVec 1))))
+          (← do
+            if ((← (currentlyEnabled Ext_Zicboz)) : Bool)
+            then (pure (_get_SEnvcfg_CBZE v))
+            else (pure (0b0 : (BitVec 1)))))
+        (← do
+          if ((← (currentlyEnabled Ext_Zicbom)) : Bool)
+          then (pure (_get_SEnvcfg_CBCFE v))
+          else (pure (0b0 : (BitVec 1)))))
+      (← do
+        if ((← (currentlyEnabled Ext_Zicbom)) : Bool)
+        then
+          (if (((_get_SEnvcfg_CBIE v) != (0b10 : (BitVec 2))) : Bool)
+          then (pure (_get_SEnvcfg_CBIE v))
+          else (pure (0b00 : (BitVec 2))))
+        else (pure (0b00 : (BitVec 2))))))
 def virtual_memory_supported (_ : Unit) : SailM Bool := do
   (pure ((← (currentlyEnabled Ext_Sv32)) || ((← (currentlyEnabled Ext_Sv39)) || ((← (currentlyEnabled
               Ext_Sv48)) || (← (currentlyEnabled Ext_Sv57))))))
@@ -2255,6 +2453,9 @@ def exceptionType_to_str (e : ExceptionType) : String :=
   | .E_Load_Page_Fault () => "load-page-fault"
   | .E_Reserved_14 () => "reserved-1"
   | .E_SAMO_Page_Fault () => "store/amo-page-fault"
+  | .E_Reserved_16 () => "reserved-2"
+  | .E_Reserved_17 () => "reserved-3"
+  | .E_Software_Check () => "software-check-fault"
   | .E_Extension e => (ext_exc_type_to_str e)
 
 def amo_mnemonic_forwards (arg_ : amoop) : String :=
@@ -3088,7 +3289,7 @@ def maybe_aqrl_forwards (arg_ : (Bool × Bool)) : String :=
   | (false, true) => ".rl"
   | (false, false) => ""
 
-/-- Type quantifiers: k_ex373474# : Bool -/
+/-- Type quantifiers: k_ex374449# : Bool -/
 def maybe_u_forwards (arg_ : Bool) : String :=
   match arg_ with
   | true => "u"
@@ -3882,6 +4083,9 @@ def assembly_forwards (arg_ : instruction) : SailM String := do
   | .NTL op => (pure (String.append "ntl." (String.append (ntl_name_forwards op) "")))
   | .C_NTL op => (pure (String.append "c.ntl." (String.append (ntl_name_forwards op) "")))
   | .PAUSE () => (pure "pause")
+  | .LPAD lpl =>
+    (pure (String.append "lpad"
+        (String.append (spc_forwards ()) (String.append (← (hex_bits_20_forwards lpl)) ""))))
   | .UTYPE (imm, rd, op) =>
     (pure (String.append (utype_mnemonic_forwards op)
         (String.append (spc_forwards ())
@@ -6723,6 +6927,9 @@ def exceptionType_bits_forwards (arg_ : ExceptionType) : (BitVec 6) :=
   | .E_Load_Page_Fault () => (0b001101 : (BitVec 6))
   | .E_Reserved_14 () => (0b001110 : (BitVec 6))
   | .E_SAMO_Page_Fault () => (0b001111 : (BitVec 6))
+  | .E_Reserved_16 () => (0b010000 : (BitVec 6))
+  | .E_Reserved_17 () => (0b010001 : (BitVec 6))
+  | .E_Software_Check () => (0b010010 : (BitVec 6))
   | .E_Extension e => (ext_exc_type_bits_forwards e)
 
 def exceptionType_bits_backwards (arg_ : (BitVec 6)) : SailM ExceptionType := do
@@ -6794,16 +7001,35 @@ def exceptionType_bits_backwards (arg_ : (BitVec 6)) : SailM ExceptionType := do
                                                                   (pure (some (E_SAMO_Page_Fault ())))
                                                                 else
                                                                   (do
-                                                                    if ((ext_exc_type_bits_backwards_matches
-                                                                         b__0) : Bool)
+                                                                    if ((b__0 == (0b010000 : (BitVec 6))) : Bool)
                                                                     then
+                                                                      (pure (some (E_Reserved_16 ())))
+                                                                    else
                                                                       (do
-                                                                        match (← (ext_exc_type_bits_backwards
-                                                                            b__0)) with
-                                                                        | e =>
+                                                                        if ((b__0 == (0b010001 : (BitVec 6))) : Bool)
+                                                                        then
                                                                           (pure (some
-                                                                              (E_Extension e))))
-                                                                    else (pure none)))))))))))))))))) with
+                                                                              (E_Reserved_17 ())))
+                                                                        else
+                                                                          (do
+                                                                            if ((b__0 == (0b010010 : (BitVec 6))) : Bool)
+                                                                            then
+                                                                              (pure (some
+                                                                                  (E_Software_Check
+                                                                                    ())))
+                                                                            else
+                                                                              (do
+                                                                                if ((ext_exc_type_bits_backwards_matches
+                                                                                     b__0) : Bool)
+                                                                                then
+                                                                                  (do
+                                                                                    match (← (ext_exc_type_bits_backwards
+                                                                                        b__0)) with
+                                                                                    | e =>
+                                                                                      (pure (some
+                                                                                          (E_Extension
+                                                                                            e))))
+                                                                                else (pure none))))))))))))))))))))) with
   | .some result => (pure result)
   | _ =>
     (do
@@ -6828,6 +7054,9 @@ def exceptionType_bits_forwards_matches (arg_ : ExceptionType) : Bool :=
   | .E_Load_Page_Fault () => true
   | .E_Reserved_14 () => true
   | .E_SAMO_Page_Fault () => true
+  | .E_Reserved_16 () => true
+  | .E_Reserved_17 () => true
+  | .E_Software_Check () => true
   | .E_Extension e => true
 
 def exceptionType_bits_backwards_matches (arg_ : (BitVec 6)) : SailM Bool := do
@@ -6898,18 +7127,48 @@ def exceptionType_bits_backwards_matches (arg_ : (BitVec 6)) : SailM Bool := do
                                                                 then (pure (some true))
                                                                 else
                                                                   (do
-                                                                    if ((ext_exc_type_bits_backwards_matches
-                                                                         b__0) : Bool)
-                                                                    then
+                                                                    if ((b__0 == (0b010000 : (BitVec 6))) : Bool)
+                                                                    then (pure (some true))
+                                                                    else
                                                                       (do
-                                                                        match (← (ext_exc_type_bits_backwards
-                                                                            b__0)) with
-                                                                        | e => (pure (some true)))
-                                                                    else (pure none)))))))))))))))))) with
+                                                                        if ((b__0 == (0b010001 : (BitVec 6))) : Bool)
+                                                                        then (pure (some true))
+                                                                        else
+                                                                          (do
+                                                                            if ((b__0 == (0b010010 : (BitVec 6))) : Bool)
+                                                                            then (pure (some true))
+                                                                            else
+                                                                              (do
+                                                                                if ((ext_exc_type_bits_backwards_matches
+                                                                                     b__0) : Bool)
+                                                                                then
+                                                                                  (do
+                                                                                    match (← (ext_exc_type_bits_backwards
+                                                                                        b__0)) with
+                                                                                    | e =>
+                                                                                      (pure (some
+                                                                                          true)))
+                                                                                else (pure none))))))))))))))))))))) with
   | .some result => (pure result)
   | none =>
     (match head_exp_ with
     | _ => (pure false))
+
+def undefined_SWCheckCodes (_ : Unit) : SailM SWCheckCodes := do
+  (internal_pick [LANDING_PAD_FAULT])
+
+/-- Type quantifiers: arg_ : Nat, 0 ≤ arg_ ∧ arg_ ≤ 0 -/
+def SWCheckCodes_of_num (arg_ : Nat) : SWCheckCodes :=
+  match arg_ with
+  | _ => LANDING_PAD_FAULT
+
+def num_of_SWCheckCodes (arg_ : SWCheckCodes) : Int :=
+  match arg_ with
+  | LANDING_PAD_FAULT => 0
+
+def sw_check_code_to_bits (c : SWCheckCodes) : (BitVec 64) :=
+  match c with
+  | LANDING_PAD_FAULT => (zero_extend (m := 64) (0b010 : (BitVec 3)))
 
 def undefined_TrapVectorMode (_ : Unit) : SailM TrapVectorMode := do
   (internal_pick [TV_Direct, TV_Vector, TV_Reserved])
@@ -6935,6 +7194,20 @@ def trapVectorMode_of_bits (m : (BitVec 2)) : TrapVectorMode :=
     (if ((b__0 == (0b01 : (BitVec 2))) : Bool)
     then TV_Vector
     else TV_Reserved)
+
+def undefined_xRET_type (_ : Unit) : SailM xRET_type := do
+  (internal_pick [mRET, sRET])
+
+/-- Type quantifiers: arg_ : Nat, 0 ≤ arg_ ∧ arg_ ≤ 1 -/
+def xRET_type_of_num (arg_ : Nat) : xRET_type :=
+  match arg_ with
+  | 0 => mRET
+  | _ => sRET
+
+def num_of_xRET_type (arg_ : xRET_type) : Int :=
+  match arg_ with
+  | mRET => 0
+  | sRET => 1
 
 def undefined_ExtStatus (_ : Unit) : SailM ExtStatus := do
   (internal_pick [Off, Initial, Clean, Dirty])
