@@ -234,11 +234,11 @@ def zicfilp_preserve_elp_on_trap (x : Privilege) : SailM Unit := do
     writeReg mstatus (Sail.BitVec.updateSubrange (← readReg mstatus) 41 41 (← readReg elp))
   | Supervisor =>
     writeReg mstatus (Sail.BitVec.updateSubrange (← readReg mstatus) 23 23 (← readReg elp))
-  | User => (internal_error "extensions/cfi/zicfilp_regs.sail" 70 "Invalid privilege level")
+  | User => (internal_error "extensions/cfi/zicfilp_regs.sail" 71 "Invalid privilege level")
   | VirtualSupervisor =>
-    (internal_error "extensions/cfi/zicfilp_regs.sail" 71 "Hypervisor extension not supported")
-  | VirtualUser =>
     (internal_error "extensions/cfi/zicfilp_regs.sail" 72 "Hypervisor extension not supported")
+  | VirtualUser =>
+    (internal_error "extensions/cfi/zicfilp_regs.sail" 73 "Hypervisor extension not supported")
   (reset_elp ())
 
 def zicfilp_restore_elp_on_xret (xret : xRET_type) (y : Privilege) : SailM Unit := do
