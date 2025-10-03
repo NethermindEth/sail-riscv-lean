@@ -284,65 +284,22 @@ def privLevel_bits_forwards (arg_ : ((BitVec 2) × (BitVec 1))) : SailM Privileg
       then (pure User)
       else
         (do
-          match (b__0, 0#1) with
-          | (b__2, 0#1) =>
+          if ((b__0 == (0b01 : (BitVec 2))) : Bool)
+          then (pure Supervisor)
+          else
             (do
-              if ((b__2 == (0b01 : (BitVec 2))) : Bool)
-              then (pure Supervisor)
-              else
-                (do
-                  match (b__2, 0#1) with
-                  | (b__4, 0#1) =>
-                    (do
-                      if ((b__4 == (0b11 : (BitVec 2))) : Bool)
-                      then (pure Machine)
-                      else
-                        (internal_error "core/types.sail" 78
-                          "Invalid privilege level or virtual mode"))
-                  | _ =>
-                    (internal_error "core/types.sail" 78 "Invalid privilege level or virtual mode")))
-          | (b__4, 0#1) =>
-            (do
-              if ((b__4 == (0b11 : (BitVec 2))) : Bool)
+              if ((b__0 == (0b11 : (BitVec 2))) : Bool)
               then (pure Machine)
-              else (internal_error "core/types.sail" 78 "Invalid privilege level or virtual mode"))
-          | _ => (internal_error "core/types.sail" 78 "Invalid privilege level or virtual mode")))
+              else (internal_error "core/types.sail" 78 "Invalid privilege level or virtual mode"))))
   | (b__1, 1#1) =>
     (do
       if ((b__1 == (0b00 : (BitVec 2))) : Bool)
       then (pure VirtualUser)
       else
         (do
-          match (b__1, 1#1) with
-          | (b__3, 1#1) =>
-            (do
-              if ((b__3 == (0b01 : (BitVec 2))) : Bool)
-              then (pure VirtualSupervisor)
-              else (internal_error "core/types.sail" 78 "Invalid privilege level or virtual mode"))
-          | _ => (internal_error "core/types.sail" 78 "Invalid privilege level or virtual mode")))
-  | (b__2, 0#1) =>
-    (do
-      if ((b__2 == (0b01 : (BitVec 2))) : Bool)
-      then (pure Supervisor)
-      else
-        (do
-          match (b__2, 0#1) with
-          | (b__4, 0#1) =>
-            (do
-              if ((b__4 == (0b11 : (BitVec 2))) : Bool)
-              then (pure Machine)
-              else (internal_error "core/types.sail" 78 "Invalid privilege level or virtual mode"))
-          | _ => (internal_error "core/types.sail" 78 "Invalid privilege level or virtual mode")))
-  | (b__3, 1#1) =>
-    (do
-      if ((b__3 == (0b01 : (BitVec 2))) : Bool)
-      then (pure VirtualSupervisor)
-      else (internal_error "core/types.sail" 78 "Invalid privilege level or virtual mode"))
-  | (b__4, 0#1) =>
-    (do
-      if ((b__4 == (0b11 : (BitVec 2))) : Bool)
-      then (pure Machine)
-      else (internal_error "core/types.sail" 78 "Invalid privilege level or virtual mode"))
+          if ((b__1 == (0b01 : (BitVec 2))) : Bool)
+          then (pure VirtualSupervisor)
+          else (internal_error "core/types.sail" 78 "Invalid privilege level or virtual mode")))
   | _ => (internal_error "core/types.sail" 78 "Invalid privilege level or virtual mode")
 
 def privLevel_bits_backwards (arg_ : Privilege) : ((BitVec 2) × (BitVec 1)) :=
@@ -359,62 +316,23 @@ def privLevel_bits_forwards_matches (arg_ : ((BitVec 2) × (BitVec 1))) : Bool :
     (if ((b__0 == (0b00 : (BitVec 2))) : Bool)
     then true
     else
-      (match (b__0, 0#1) with
-      | (b__2, 0#1) =>
-        (if ((b__2 == (0b01 : (BitVec 2))) : Bool)
+      (if ((b__0 == (0b01 : (BitVec 2))) : Bool)
+      then true
+      else
+        (if ((b__0 == (0b11 : (BitVec 2))) : Bool)
         then true
         else
-          (match (b__2, 0#1) with
-          | (b__4, 0#1) =>
-            (if ((b__4 == (0b11 : (BitVec 2))) : Bool)
-            then true
-            else
-              (let g__10 := (b__4, 0#1)
-              true))
-          | g__10 => true))
-      | (b__4, 0#1) =>
-        (if ((b__4 == (0b11 : (BitVec 2))) : Bool)
-        then true
-        else
-          (let g__10 := (b__4, 0#1)
-          true))
-      | g__10 => true))
+          (let g__10 := (b__0, 0#1)
+          true))))
   | (b__1, 1#1) =>
     (if ((b__1 == (0b00 : (BitVec 2))) : Bool)
     then true
     else
-      (match (b__1, 1#1) with
-      | (b__3, 1#1) =>
-        (if ((b__3 == (0b01 : (BitVec 2))) : Bool)
-        then true
-        else
-          (let g__10 := (b__3, 1#1)
-          true))
-      | g__10 => true))
-  | (b__2, 0#1) =>
-    (if ((b__2 == (0b01 : (BitVec 2))) : Bool)
-    then true
-    else
-      (match (b__2, 0#1) with
-      | (b__4, 0#1) =>
-        (if ((b__4 == (0b11 : (BitVec 2))) : Bool)
-        then true
-        else
-          (let g__10 := (b__4, 0#1)
-          true))
-      | g__10 => true))
-  | (b__3, 1#1) =>
-    (if ((b__3 == (0b01 : (BitVec 2))) : Bool)
-    then true
-    else
-      (let g__10 := (b__3, 1#1)
-      true))
-  | (b__4, 0#1) =>
-    (if ((b__4 == (0b11 : (BitVec 2))) : Bool)
-    then true
-    else
-      (let g__10 := (b__4, 0#1)
-      true))
+      (if ((b__1 == (0b01 : (BitVec 2))) : Bool)
+      then true
+      else
+        (let g__10 := (b__1, 1#1)
+        true)))
   | g__10 => true
 
 def privLevel_bits_backwards_matches (arg_ : Privilege) : Bool :=
@@ -3289,7 +3207,7 @@ def maybe_aqrl_forwards (arg_ : (Bool × Bool)) : String :=
   | (false, true) => ".rl"
   | (false, false) => ""
 
-/-- Type quantifiers: k_ex374449# : Bool -/
+/-- Type quantifiers: k_ex374399# : Bool -/
 def maybe_u_forwards (arg_ : Bool) : String :=
   match arg_ with
   | true => "u"
