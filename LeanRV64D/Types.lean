@@ -653,6 +653,12 @@ def get_xLPE (p : Privilege) : SailM Bool := do
   | VirtualUser =>
     (internal_error "extensions/cfi/zicfilp_regs.sail" 32 "Hypervisor extension not supported")
 termination_by let _ := p; (2).toNat
+def virtual_memory_supported (_ : Unit) : SailM Bool := do
+  (pure ((← (currentlyEnabled Ext_Sv32)) || ((← (currentlyEnabled Ext_Sv39)) || ((← (currentlyEnabled
+              Ext_Sv48)) || (← (currentlyEnabled Ext_Sv57))))))
+termination_by let _ := (); (3).toNat
+end
+
 def legalize_menvcfg (o : (BitVec 64)) (v : (BitVec 64)) : SailM (BitVec 64) := do
   let v := (Mk_MEnvcfg v)
   (pure (_update_MEnvcfg_STCE
@@ -686,6 +692,7 @@ def legalize_menvcfg (o : (BitVec 64)) (v : (BitVec 64)) : SailM (BitVec 64) := 
         if ((← (currentlyEnabled Ext_Sstc)) : Bool)
         then (pure (_get_MEnvcfg_STCE v))
         else (pure (0b0 : (BitVec 1))))))
+
 def legalize_mseccfg (o : (BitVec 64)) (v : (BitVec 64)) : SailM (BitVec 64) := do
   let sseed_read_only_zero ← do
     (pure ((false : Bool) || ((not (← (currentlyEnabled Ext_S))) || (not
@@ -706,6 +713,7 @@ def legalize_mseccfg (o : (BitVec 64)) (v : (BitVec 64)) : SailM (BitVec 64) := 
       (if (useed_read_only_zero : Bool)
       then (0b0 : (BitVec 1))
       else (_get_Seccfg_USEED v))))
+
 def legalize_senvcfg (o : (BitVec 64)) (v : (BitVec 64)) : SailM (BitVec 64) := do
   let v := (Mk_SEnvcfg v)
   (pure (_update_SEnvcfg_CBIE
@@ -734,11 +742,6 @@ def legalize_senvcfg (o : (BitVec 64)) (v : (BitVec 64)) : SailM (BitVec 64) := 
           then (pure (_get_SEnvcfg_CBIE v))
           else (pure (0b00 : (BitVec 2))))
         else (pure (0b00 : (BitVec 2))))))
-def virtual_memory_supported (_ : Unit) : SailM Bool := do
-  (pure ((← (currentlyEnabled Ext_Sv32)) || ((← (currentlyEnabled Ext_Sv39)) || ((← (currentlyEnabled
-              Ext_Sv48)) || (← (currentlyEnabled Ext_Sv57))))))
-termination_by let _ := (); (3).toNat
-end
 
 def privLevel_to_str (p : Privilege) : SailM String := do
   match p with
@@ -3207,7 +3210,7 @@ def maybe_aqrl_forwards (arg_ : (Bool × Bool)) : String :=
   | (false, true) => ".rl"
   | (false, false) => ""
 
-/-- Type quantifiers: k_ex374399# : Bool -/
+/-- Type quantifiers: k_ex374284# : Bool -/
 def maybe_u_forwards (arg_ : Bool) : String :=
   match arg_ with
   | true => "u"
