@@ -64,6 +64,7 @@ open vfunary1
 open vfunary0
 open vfnunary0
 open vextfunct6
+open vector_support
 open uop
 open sopw
 open sop
@@ -408,7 +409,7 @@ def currentlyEnabled_measure (ext : extension) : Int :=
   | Ext_F => 1
   | Ext_M => 1
   | Ext_S => 1
-  | Ext_V => 1
+  | Ext_V => 5
   | Ext_H => 4
   | Ext_Smcntrpmf => 3
   | Ext_Zabha => 3
@@ -420,7 +421,26 @@ def currentlyEnabled_measure (ext : extension) : Int :=
   | Ext_Zfhmin => 3
   | Ext_Zhinx => 3
   | Ext_Zicfilp => 3
-  | Ext_Zvkb => 3
+  | Ext_Zvl32b => 0
+  | Ext_Zvl64b => 0
+  | Ext_Zvl128b => 0
+  | Ext_Zvl256b => 0
+  | Ext_Zvl512b => 0
+  | Ext_Zvl1024b => 0
+  | Ext_Zve32x => 1
+  | Ext_Zve64f => 3
+  | Ext_Zve64d => 4
+  | Ext_Zvfh => 4
+  | Ext_Zvfhmin => 5
+  | Ext_Zvbb => 6
+  | Ext_Zvbc => 6
+  | Ext_Zvkb => 7
+  | Ext_Zvkg => 6
+  | Ext_Zvkned => 6
+  | Ext_Zvknha => 6
+  | Ext_Zvknhb => 6
+  | Ext_Zvksed => 6
+  | Ext_Zvksh => 6
   | Ext_Sscofpmf => 3
   | Ext_Svrsw60t59b => 3
   | Ext_Zhinxmin => 4
@@ -553,9 +573,36 @@ def currentlyEnabled (merge_var : extension) : SailM Bool := do
                 (← readReg mstatus)) != (0b00 : (BitVec 2))) && ((flen ≥b 64) && (← (currentlyEnabled
                   Ext_Zicsr)))))))
   | Ext_Zfinx => (pure ((hartSupports Ext_Zfinx) && (← (currentlyEnabled Ext_Zicsr))))
-  | Ext_V =>
-    (pure ((hartSupports Ext_V) && (((_get_Misa_V (← readReg misa)) == (0b1 : (BitVec 1))) && (((_get_Mstatus_VS
+  | Ext_Zvl32b => (pure (hartSupports Ext_Zvl32b))
+  | Ext_Zvl64b => (pure (hartSupports Ext_Zvl64b))
+  | Ext_Zvl128b => (pure (hartSupports Ext_Zvl128b))
+  | Ext_Zvl256b => (pure (hartSupports Ext_Zvl256b))
+  | Ext_Zvl512b => (pure (hartSupports Ext_Zvl512b))
+  | Ext_Zvl1024b => (pure (hartSupports Ext_Zvl1024b))
+  | Ext_Zve32x =>
+    (pure ((hartSupports Ext_Zve32x) && ((← (currentlyEnabled Ext_Zvl32b)) && (((_get_Mstatus_VS
                 (← readReg mstatus)) != (0b00 : (BitVec 2))) && (← (currentlyEnabled Ext_Zicsr))))))
+  | Ext_Zve32f =>
+    (pure ((hartSupports Ext_Zve32f) && ((← (currentlyEnabled Ext_Zve32x)) && (← (currentlyEnabled
+              Ext_F)))))
+  | Ext_Zve64x =>
+    (pure ((hartSupports Ext_Zve64x) && ((← (currentlyEnabled Ext_Zvl64b)) && (← (currentlyEnabled
+              Ext_Zve32x)))))
+  | Ext_Zve64f =>
+    (pure ((hartSupports Ext_Zve64f) && ((← (currentlyEnabled Ext_Zve64x)) && (← (currentlyEnabled
+              Ext_Zve32f)))))
+  | Ext_Zve64d =>
+    (pure ((hartSupports Ext_Zve64d) && ((← (currentlyEnabled Ext_Zve64f)) && (← (currentlyEnabled
+              Ext_D)))))
+  | Ext_V =>
+    (pure ((hartSupports Ext_V) && (((_get_Misa_V (← readReg misa)) == (0b1 : (BitVec 1))) && ((← (currentlyEnabled
+                Ext_Zvl128b)) && (← (currentlyEnabled Ext_Zve64d))))))
+  | Ext_Zvfh =>
+    (pure ((hartSupports Ext_Zvfh) && ((← (currentlyEnabled Ext_Zve32f)) && (← (currentlyEnabled
+              Ext_Zfhmin)))))
+  | Ext_Zvfhmin =>
+    (pure (((hartSupports Ext_Zvfhmin) && (← (currentlyEnabled Ext_Zve32f))) || (← (currentlyEnabled
+            Ext_Zvfh))))
   | Ext_Smcntrpmf => (pure ((hartSupports Ext_Smcntrpmf) && (← (currentlyEnabled Ext_Zicntr))))
   | Ext_Zicfilp =>
     (pure ((← (currentlyEnabled Ext_Zicsr)) && ((hartSupports Ext_Zicfilp) && (← (get_xLPE
@@ -614,17 +661,17 @@ def currentlyEnabled (merge_var : extension) : SailM Bool := do
   | Ext_Zksed => (pure (hartSupports Ext_Zksed))
   | Ext_Zkr => (pure (hartSupports Ext_Zkr))
   | Ext_Zbkx => (pure (hartSupports Ext_Zbkx))
-  | Ext_Zvbb => (pure ((hartSupports Ext_Zvbb) && (← (currentlyEnabled Ext_V))))
+  | Ext_Zvbb => (pure ((hartSupports Ext_Zvbb) && (← (currentlyEnabled Ext_Zve32x))))
   | Ext_Zvkb =>
-    (pure (((hartSupports Ext_Zvkb) || (← (currentlyEnabled Ext_Zvbb))) && (← (currentlyEnabled
-            Ext_V))))
-  | Ext_Zvbc => (pure ((hartSupports Ext_Zvbc) && (← (currentlyEnabled Ext_V))))
-  | Ext_Zvkg => (pure ((hartSupports Ext_Zvkg) && (← (currentlyEnabled Ext_V))))
-  | Ext_Zvkned => (pure ((hartSupports Ext_Zvkned) && (← (currentlyEnabled Ext_V))))
-  | Ext_Zvksed => (pure ((hartSupports Ext_Zvksed) && (← (currentlyEnabled Ext_V))))
-  | Ext_Zvknha => (pure ((hartSupports Ext_Zvknha) && (← (currentlyEnabled Ext_V))))
-  | Ext_Zvknhb => (pure ((hartSupports Ext_Zvknhb) && (← (currentlyEnabled Ext_V))))
-  | Ext_Zvksh => (pure ((hartSupports Ext_Zvksh) && (← (currentlyEnabled Ext_V))))
+    (pure (((hartSupports Ext_Zvkb) && (← (currentlyEnabled Ext_Zve32x))) || (← (currentlyEnabled
+            Ext_Zvbb))))
+  | Ext_Zvbc => (pure ((hartSupports Ext_Zvbc) && (← (currentlyEnabled Ext_Zve64x))))
+  | Ext_Zvkg => (pure ((hartSupports Ext_Zvkg) && (← (currentlyEnabled Ext_Zve32x))))
+  | Ext_Zvkned => (pure ((hartSupports Ext_Zvkned) && (← (currentlyEnabled Ext_Zve32x))))
+  | Ext_Zvksed => (pure ((hartSupports Ext_Zvksed) && (← (currentlyEnabled Ext_Zve32x))))
+  | Ext_Zvknha => (pure ((hartSupports Ext_Zvknha) && (← (currentlyEnabled Ext_Zve32x))))
+  | Ext_Zvknhb => (pure ((hartSupports Ext_Zvknhb) && (← (currentlyEnabled Ext_Zve64x))))
+  | Ext_Zvksh => (pure ((hartSupports Ext_Zvksh) && (← (currentlyEnabled Ext_Zve32x))))
   | Ext_Zicsr => (pure (hartSupports Ext_Zicsr))
   | Ext_Svinval => (pure (hartSupports Ext_Svinval))
   | Ext_Zihpm => (pure ((hartSupports Ext_Zihpm) && (← (currentlyEnabled Ext_Zicsr))))
@@ -3210,7 +3257,7 @@ def maybe_aqrl_forwards (arg_ : (Bool × Bool)) : String :=
   | (false, true) => ".rl"
   | (false, false) => ""
 
-/-- Type quantifiers: k_ex374331# : Bool -/
+/-- Type quantifiers: k_ex378442# : Bool -/
 def maybe_u_forwards (arg_ : Bool) : String :=
   match arg_ with
   | true => "u"

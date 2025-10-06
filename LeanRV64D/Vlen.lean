@@ -60,6 +60,7 @@ open vfunary1
 open vfunary0
 open vfnunary0
 open vextfunct6
+open vector_support
 open uop
 open sopw
 open sop
@@ -174,6 +175,70 @@ open ExecutionResult
 open ExceptionType
 open Architecture
 open AccessType
+
+def undefined_vector_support (_ : Unit) : SailM vector_support := do
+  (internal_pick [Disabled, Integer, Float_single, Float_double, Full])
+
+/-- Type quantifiers: arg_ : Nat, 0 ≤ arg_ ∧ arg_ ≤ 4 -/
+def vector_support_of_num (arg_ : Nat) : vector_support :=
+  match arg_ with
+  | 0 => Disabled
+  | 1 => Integer
+  | 2 => Float_single
+  | 3 => Float_double
+  | _ => Full
+
+def num_of_vector_support (arg_ : vector_support) : Int :=
+  match arg_ with
+  | Disabled => 0
+  | Integer => 1
+  | Float_single => 2
+  | Float_double => 3
+  | Full => 4
+
+def vector_support_level_forwards (arg_ : vector_support) : Nat :=
+  match arg_ with
+  | Disabled => 0
+  | Integer => 1
+  | Float_single => 2
+  | Float_double => 3
+  | Full => 4
+
+/-- Type quantifiers: arg_ : Nat, 0 ≤ arg_ -/
+def vector_support_level_backwards (arg_ : Nat) : SailM vector_support := do
+  match arg_ with
+  | 0 => (pure Disabled)
+  | 1 => (pure Integer)
+  | 2 => (pure Float_single)
+  | 3 => (pure Float_double)
+  | 4 => (pure Full)
+  | _ =>
+    (do
+      assert false "Pattern match failure at unknown location"
+      throw Error.Exit)
+
+def vector_support_level_forwards_matches (arg_ : vector_support) : Bool :=
+  match arg_ with
+  | Disabled => true
+  | Integer => true
+  | Float_single => true
+  | Float_double => true
+  | Full => true
+
+/-- Type quantifiers: arg_ : Nat, 0 ≤ arg_ -/
+def vector_support_level_backwards_matches (arg_ : Nat) : Bool :=
+  match arg_ with
+  | 0 => true
+  | 1 => true
+  | 2 => true
+  | 3 => true
+  | 4 => true
+  | _ => false
+
+def vector_support_config := (Float_single : vector_support)
+
+def vector_support_config_level (_ : Unit) : Nat :=
+  (vector_support_level_forwards vector_support_config)
 
 def vlen_exp := 8
 

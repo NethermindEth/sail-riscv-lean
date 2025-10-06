@@ -58,6 +58,7 @@ open vfunary1
 open vfunary0
 open vfnunary0
 open vextfunct6
+open vector_support
 open uop
 open sopw
 open sop
@@ -1010,7 +1011,7 @@ def legalize_mstatus (o : (BitVec 64)) (v : (BitVec 64)) : SailM (BitVec 64) := 
                     if ((← (currentlyEnabled Ext_S)) : Bool)
                     then (pure (_get_Mstatus_SPP v))
                     else (pure (0b0 : (BitVec 1)))))
-                (if ((hartSupports Ext_V) : Bool)
+                (if ((hartSupports Ext_Zve32x) : Bool)
                 then (_get_Mstatus_VS v)
                 else (0b00 : (BitVec 2)))) (_get_Mstatus_MPIE v))
             (← do

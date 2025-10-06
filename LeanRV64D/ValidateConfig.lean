@@ -59,6 +59,7 @@ open vfunary1
 open vfunary0
 open vfnunary0
 open vextfunct6
+open vector_support
 open uop
 open sopw
 open sop
@@ -249,6 +250,188 @@ def check_vlen_elen (_ : Unit) : Bool :=
         false)
       else true))
 
+def check_vext_config (_ : Unit) : Bool :=
+  let valid : Bool := true
+  let valid : Bool :=
+    if ((((vector_support_config_level ()) ≥b (vector_support_level_forwards Integer)) && (((elen_exp : Nat) <b 5) : Bool)) : Bool)
+    then
+      (let valid : Bool := false
+      let _ : Unit :=
+        (print_endline
+          (HAppend.hAppend "Zve*x is enabled but ELEN is 2^"
+            (HAppend.hAppend (Int.repr elen_exp) ": ELEN must be >= 2^5")))
+      valid)
+    else valid
+  let valid : Bool :=
+    if ((((vector_support_config_level ()) ≥b (vector_support_level_forwards Float_single)) && (not
+           (hartSupports Ext_F))) : Bool)
+    then
+      (let valid : Bool := false
+      let _ : Unit :=
+        (print_endline "Zve*f is enabled but F is disabled: supporting Zve*f requires F.")
+      valid)
+    else valid
+  let valid : Bool :=
+    if (((vector_support_config_level ()) ≥b (vector_support_level_forwards Float_double)) : Bool)
+    then
+      (let valid : Bool :=
+        if (((elen_exp : Nat) <b 6) : Bool)
+        then
+          (let valid : Bool := false
+          let _ : Unit :=
+            (print_endline
+              (HAppend.hAppend "Zve*d is enabled but ELEN is 2^"
+                (HAppend.hAppend (Int.repr elen_exp) ": ELEN must be >= 2^6")))
+          valid)
+        else valid
+      if ((not (hartSupports Ext_D)) : Bool)
+      then
+        (let valid : Bool := false
+        let _ : Unit :=
+          (print_endline "Zve*d is enabled but D is disabled: supporting Zve*d requires D.")
+        valid)
+      else valid)
+    else valid
+  let valid : Bool :=
+    if (((hartSupports Ext_Zve32x) && (not (hartSupports Ext_Zicsr))) : Bool)
+    then
+      (let valid : Bool := false
+      let _ : Unit :=
+        (print_endline "Zve32x is enabled but Zicsr is disabled: supporting Zve32x requires Zicsr.")
+      valid)
+    else valid
+  let valid : Bool :=
+    if (((hartSupports Ext_Zve32x) && (not (hartSupports Ext_Zvl32b))) : Bool)
+    then
+      (let valid : Bool := false
+      let _ : Unit :=
+        (print_endline
+          (HAppend.hAppend "VLEN (set to 2^"
+            (HAppend.hAppend (Int.repr vlen_exp)
+              ") is below the minimum required for Zve32x (need Zvl32b).")))
+      valid)
+    else valid
+  let valid : Bool :=
+    if (((hartSupports Ext_Zve64x) && (not (hartSupports Ext_Zvl64b))) : Bool)
+    then
+      (let valid : Bool := false
+      let _ : Unit :=
+        (print_endline
+          (HAppend.hAppend "VLEN (set to 2^"
+            (HAppend.hAppend (Int.repr vlen_exp)
+              ") is below the minimum required for Zve64x (need Zvl64b).")))
+      valid)
+    else valid
+  let valid : Bool :=
+    if ((((vector_support_config_level ()) ≥b (vector_support_level_forwards Full)) && (not
+           (hartSupports Ext_Zvl128b))) : Bool)
+    then
+      (let valid : Bool := false
+      let _ : Unit :=
+        (print_endline
+          (HAppend.hAppend "VLEN (set to 2^"
+            (HAppend.hAppend (Int.repr vlen_exp)
+              ") is below the minimum required for V (need Zvl128b).")))
+      valid)
+    else valid
+  let valid : Bool :=
+    if (((hartSupports Ext_Zvfhmin) && (not (hartSupports Ext_Zve32f))) : Bool)
+    then
+      (let valid : Bool := false
+      let _ : Unit :=
+        (print_endline "Zvfhmin is enabled but Zve32f is disabled: Zvfhmin requires Zve32f.")
+      valid)
+    else valid
+  let valid : Bool :=
+    if (((hartSupports Ext_Zvfh) && ((not (hartSupports Ext_Zve32f)) || (not
+             (hartSupports Ext_Zfhmin)))) : Bool)
+    then
+      (let valid : Bool := false
+      let _ : Unit :=
+        (print_endline
+          "Zvfh is enabled but Zve32f and/or Zfhmin are disabled: Zvfh requires Zve32f and Zfhmin.")
+      valid)
+    else valid
+  let valid : Bool :=
+    if (((hartSupports Ext_Zvbb) && (not (hartSupports Ext_Zve32x))) : Bool)
+    then
+      (let valid : Bool := false
+      let _ : Unit :=
+        (print_endline "Zvbb is enabled but Zve32x is disabled: Zvbb requires Zve32x.")
+      valid)
+    else valid
+  let valid : Bool :=
+    if (((hartSupports Ext_Zvbc) && (not ((hartSupports Ext_Zve64x) || (hartSupports Ext_V)))) : Bool)
+    then
+      (let valid : Bool := false
+      let _ : Unit :=
+        (print_endline "Zvbc is enabled but Zve64x and V are disabled: Zvbc requires Zve64x or V.")
+      valid)
+    else valid
+  let valid : Bool :=
+    if (((hartSupports Ext_Zvkb) && (not (hartSupports Ext_Zve32x))) : Bool)
+    then
+      (let valid : Bool := false
+      let _ : Unit :=
+        (print_endline "Zvkb is enabled but Zve32x is disabled: Zvkb requires Zve32x.")
+      valid)
+    else valid
+  let valid : Bool :=
+    if (((hartSupports Ext_Zvkg) && (not (hartSupports Ext_Zve32x))) : Bool)
+    then
+      (let valid : Bool := false
+      let _ : Unit :=
+        (print_endline "Zvkg is enabled but Zve32x is disabled: Zvkg requires Zve32x.")
+      valid)
+    else valid
+  let valid : Bool :=
+    if (((hartSupports Ext_Zvkned) && (not (hartSupports Ext_Zve32x))) : Bool)
+    then
+      (let valid : Bool := false
+      let _ : Unit :=
+        (print_endline "Zvkned is enabled but Zve32x is disabled: Zvkned requires Zve32x.")
+      valid)
+    else valid
+  let valid : Bool :=
+    if (((hartSupports Ext_Zvknha) && (not (hartSupports Ext_Zve32x))) : Bool)
+    then
+      (let valid : Bool := false
+      let _ : Unit :=
+        (print_endline "Zvknha is enabled but Zve32x is disabled: Zvknha requires Zve32x.")
+      valid)
+    else valid
+  let valid : Bool :=
+    if (((hartSupports Ext_Zvknhb) && (not ((hartSupports Ext_Zve64x) || (hartSupports Ext_V)))) : Bool)
+    then
+      (let valid : Bool := false
+      let _ : Unit :=
+        (print_endline
+          "Zvknhb is enabled but Zve64x and V are disabled: Zvknhb requires Zve64x or V.")
+      valid)
+    else valid
+  let valid : Bool :=
+    if (((hartSupports Ext_Zvksed) && (not (hartSupports Ext_Zve32x))) : Bool)
+    then
+      (let valid : Bool := false
+      let _ : Unit :=
+        (print_endline "Zvksed is enabled but Zve32x is disabled: Zvksed requires Zve32x.")
+      valid)
+    else valid
+  let valid : Bool :=
+    if (((hartSupports Ext_Zvksh) && (not (hartSupports Ext_Zve32x))) : Bool)
+    then
+      (let valid : Bool := false
+      let _ : Unit :=
+        (print_endline "Zvksh is enabled but Zve32x is disabled: Zvksh requires Zve32x.")
+      valid)
+    else valid
+  if (((hartSupports Ext_Zvkt) && (not (hartSupports Ext_Zve32x))) : Bool)
+  then
+    (let valid : Bool := false
+    let _ : Unit := (print_endline "Zvkt is enabled but Zve32x is disabled: Zvkt requires Zve32x.")
+    valid)
+  else valid
+
 /-- Type quantifiers: b_hi : Nat, b_lo : Nat, a_hi : Nat, a_lo : Nat, 0 ≤ a_lo, 0 ≤ a_hi, 0 ≤
   b_lo, 0 ≤ b_hi -/
 def has_overlap (a_lo : Nat) (a_hi : Nat) (b_lo : Nat) (b_hi : Nat) : Bool :=
@@ -318,5 +501,6 @@ def check_misc_extension_dependencies (_ : Unit) : Bool :=
 
 def config_is_valid (_ : Unit) : SailM Bool := do
   (pure ((check_privs ()) && ((check_mmu_config ()) && ((← (check_mem_layout ())) && ((check_vlen_elen
-              ()) && ((check_pmp ()) && (check_misc_extension_dependencies ())))))))
+              ()) && ((check_vext_config ()) && ((check_pmp ()) && (check_misc_extension_dependencies
+                  ()))))))))
 

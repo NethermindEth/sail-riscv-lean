@@ -1,6 +1,7 @@
 import LeanRV64D.Flow
 import LeanRV64D.Prelude
 import LeanRV64D.Xlen
+import LeanRV64D.Vlen
 
 set_option maxHeartbeats 1_000_000_000
 set_option maxRecDepth 1_000_000
@@ -56,6 +57,7 @@ open vfunary1
 open vfunary0
 open vfnunary0
 open vextfunct6
+open vector_support
 open uop
 open sopw
 open sop
@@ -228,6 +230,19 @@ def extensionName_forwards (arg_ : extension) : String :=
   | Ext_Zkt => "zkt"
   | Ext_Zhinx => "zhinx"
   | Ext_Zhinxmin => "zhinxmin"
+  | Ext_Zvl32b => "zvl32b"
+  | Ext_Zvl64b => "zvl64b"
+  | Ext_Zvl128b => "zvl128b"
+  | Ext_Zvl256b => "zvl256b"
+  | Ext_Zvl512b => "zvl512b"
+  | Ext_Zvl1024b => "zvl1024b"
+  | Ext_Zve32f => "zve32f"
+  | Ext_Zve32x => "zve32x"
+  | Ext_Zve64d => "zve64d"
+  | Ext_Zve64f => "zve64f"
+  | Ext_Zve64x => "zve64x"
+  | Ext_Zvfh => "zvfh"
+  | Ext_Zvfhmin => "zvfhmin"
   | Ext_Zvbb => "zvbb"
   | Ext_Zvbc => "zvbc"
   | Ext_Zvkb => "zvkb"
@@ -314,6 +329,19 @@ def extensionName_backwards (arg_ : String) : SailM extension := do
   | "zkt" => (pure Ext_Zkt)
   | "zhinx" => (pure Ext_Zhinx)
   | "zhinxmin" => (pure Ext_Zhinxmin)
+  | "zvl32b" => (pure Ext_Zvl32b)
+  | "zvl64b" => (pure Ext_Zvl64b)
+  | "zvl128b" => (pure Ext_Zvl128b)
+  | "zvl256b" => (pure Ext_Zvl256b)
+  | "zvl512b" => (pure Ext_Zvl512b)
+  | "zvl1024b" => (pure Ext_Zvl1024b)
+  | "zve32f" => (pure Ext_Zve32f)
+  | "zve32x" => (pure Ext_Zve32x)
+  | "zve64d" => (pure Ext_Zve64d)
+  | "zve64f" => (pure Ext_Zve64f)
+  | "zve64x" => (pure Ext_Zve64x)
+  | "zvfh" => (pure Ext_Zvfh)
+  | "zvfhmin" => (pure Ext_Zvfhmin)
   | "zvbb" => (pure Ext_Zvbb)
   | "zvbc" => (pure Ext_Zvbc)
   | "zvkb" => (pure Ext_Zvkb)
@@ -404,6 +432,19 @@ def extensionName_forwards_matches (arg_ : extension) : Bool :=
   | Ext_Zkt => true
   | Ext_Zhinx => true
   | Ext_Zhinxmin => true
+  | Ext_Zvl32b => true
+  | Ext_Zvl64b => true
+  | Ext_Zvl128b => true
+  | Ext_Zvl256b => true
+  | Ext_Zvl512b => true
+  | Ext_Zvl1024b => true
+  | Ext_Zve32f => true
+  | Ext_Zve32x => true
+  | Ext_Zve64d => true
+  | Ext_Zve64f => true
+  | Ext_Zve64x => true
+  | Ext_Zvfh => true
+  | Ext_Zvfhmin => true
   | Ext_Zvbb => true
   | Ext_Zvbc => true
   | Ext_Zvkb => true
@@ -490,6 +531,19 @@ def extensionName_backwards_matches (arg_ : String) : Bool :=
   | "zkt" => true
   | "zhinx" => true
   | "zhinxmin" => true
+  | "zvl32b" => true
+  | "zvl64b" => true
+  | "zvl128b" => true
+  | "zvl256b" => true
+  | "zvl512b" => true
+  | "zvl1024b" => true
+  | "zve32f" => true
+  | "zve32x" => true
+  | "zve64d" => true
+  | "zve64f" => true
+  | "zve64x" => true
+  | "zvfh" => true
+  | "zvfhmin" => true
   | "zvbb" => true
   | "zvbc" => true
   | "zvkb" => true
@@ -523,6 +577,7 @@ def extensionName_backwards_matches (arg_ : String) : Bool :=
 def hartSupports_measure (ext : extension) : Int :=
   match ext with
   | Ext_D => 1
+  | Ext_V => 1
   | Ext_Zvkn => 1
   | Ext_Zvks => 1
   | Ext_C => 2
@@ -539,7 +594,8 @@ def hartSupports (merge_var : extension) : Bool :=
   | Ext_F => true
   | Ext_D => (true && (hartSupports Ext_F))
   | Ext_B => true
-  | Ext_V => true
+  | Ext_V =>
+    ((8 ≥b 7) && (((vector_support_config_level ()) ≥b (vector_support_level_forwards Full)) : Bool))
   | Ext_S => true
   | Ext_U => true
   | Ext_H => false
@@ -564,7 +620,7 @@ def hartSupports (merge_var : extension) : Bool :=
   | Ext_Zfa => true
   | Ext_Zfbfmin => true
   | Ext_Zfh => true
-  | Ext_Zfhmin => false
+  | Ext_Zfhmin => true
   | Ext_Zfinx => false
   | Ext_Zdinx => false
   | Ext_Zca => true
@@ -591,6 +647,27 @@ def hartSupports (merge_var : extension) : Bool :=
   | Ext_Zkt => true
   | Ext_Zhinx => false
   | Ext_Zhinxmin => false
+  | Ext_Zvl32b => (8 ≥b 5)
+  | Ext_Zvl64b => (8 ≥b 6)
+  | Ext_Zvl128b => (8 ≥b 7)
+  | Ext_Zvl256b => (8 ≥b 8)
+  | Ext_Zvl512b => (8 ≥b 9)
+  | Ext_Zvl1024b => (8 ≥b 10)
+  | Ext_Zve32f =>
+    ((6 ≥b 5) && (((vector_support_config_level ()) ≥b (vector_support_level_forwards
+          Float_single)) : Bool))
+  | Ext_Zve32x =>
+    ((6 ≥b 5) && (((vector_support_config_level ()) ≥b (vector_support_level_forwards Integer)) : Bool))
+  | Ext_Zve64d =>
+    ((6 ≥b 6) && (((vector_support_config_level ()) ≥b (vector_support_level_forwards
+          Float_double)) : Bool))
+  | Ext_Zve64f =>
+    ((6 ≥b 6) && (((vector_support_config_level ()) ≥b (vector_support_level_forwards
+          Float_single)) : Bool))
+  | Ext_Zve64x =>
+    ((6 ≥b 6) && (((vector_support_config_level ()) ≥b (vector_support_level_forwards Integer)) : Bool))
+  | Ext_Zvfh => true
+  | Ext_Zvfhmin => true
   | Ext_Zvbb => true
   | Ext_Zvbc => true
   | Ext_Zvkb => false
@@ -626,5 +703,5 @@ def hartSupports (merge_var : extension) : Bool :=
 termination_by let ext := merge_var; ((hartSupports_measure ext)).toNat
 
 def extensions_ordered_for_isa_string :=
-  #v[Ext_Smcntrpmf, Ext_Svrsw60t59b, Ext_Svpbmt, Ext_Svnapot, Ext_Svinval, Ext_Sstc, Ext_Sscofpmf, Ext_Zvkt, Ext_Zvksh, Ext_Zvksg, Ext_Zvksed, Ext_Zvksc, Ext_Zvks, Ext_Zvknhb, Ext_Zvknha, Ext_Zvkng, Ext_Zvkned, Ext_Zvknc, Ext_Zvkn, Ext_Zvkg, Ext_Zvkb, Ext_Zvbc, Ext_Zvbb, Ext_Zkt, Ext_Zksh, Ext_Zksed, Ext_Zkr, Ext_Zknh, Ext_Zkne, Ext_Zknd, Ext_Zbs, Ext_Zbkx, Ext_Zbkc, Ext_Zbkb, Ext_Zbc, Ext_Zbb, Ext_Zba, Ext_Zcmop, Ext_Zcf, Ext_Zcd, Ext_Zcb, Ext_Zca, Ext_Zhinxmin, Ext_Zhinx, Ext_Zdinx, Ext_Zfinx, Ext_Zfhmin, Ext_Zfh, Ext_Zfbfmin, Ext_Zfa, Ext_Zawrs, Ext_Zalrsc, Ext_Zacas, Ext_Zabha, Ext_Zaamo, Ext_Zmmul, Ext_Zimop, Ext_Zihpm, Ext_Zihintpause, Ext_Zihintntl, Ext_Zifencei, Ext_Zicsr, Ext_Zicond, Ext_Zicntr, Ext_Zicfilp, Ext_Zicboz, Ext_Zicbop, Ext_Zicbom, Ext_H, Ext_V, Ext_B, Ext_C, Ext_D, Ext_F, Ext_A, Ext_M]
+  #v[Ext_Smcntrpmf, Ext_Svrsw60t59b, Ext_Svpbmt, Ext_Svnapot, Ext_Svinval, Ext_Sstc, Ext_Sscofpmf, Ext_Zvl1024b, Ext_Zvl512b, Ext_Zvl256b, Ext_Zvl128b, Ext_Zvl64b, Ext_Zvl32b, Ext_Zvkt, Ext_Zvksh, Ext_Zvksg, Ext_Zvksed, Ext_Zvksc, Ext_Zvks, Ext_Zvknhb, Ext_Zvknha, Ext_Zvkng, Ext_Zvkned, Ext_Zvknc, Ext_Zvkn, Ext_Zvkg, Ext_Zvkb, Ext_Zvfhmin, Ext_Zvfh, Ext_Zve64x, Ext_Zve64f, Ext_Zve64d, Ext_Zve32x, Ext_Zve32f, Ext_Zvbc, Ext_Zvbb, Ext_Zkt, Ext_Zksh, Ext_Zksed, Ext_Zkr, Ext_Zknh, Ext_Zkne, Ext_Zknd, Ext_Zbs, Ext_Zbkx, Ext_Zbkc, Ext_Zbkb, Ext_Zbc, Ext_Zbb, Ext_Zba, Ext_Zcmop, Ext_Zcf, Ext_Zcd, Ext_Zcb, Ext_Zca, Ext_Zhinxmin, Ext_Zhinx, Ext_Zdinx, Ext_Zfinx, Ext_Zfhmin, Ext_Zfh, Ext_Zfbfmin, Ext_Zfa, Ext_Zawrs, Ext_Zalrsc, Ext_Zacas, Ext_Zabha, Ext_Zaamo, Ext_Zmmul, Ext_Zimop, Ext_Zihpm, Ext_Zihintpause, Ext_Zihintntl, Ext_Zifencei, Ext_Zicsr, Ext_Zicond, Ext_Zicntr, Ext_Zicfilp, Ext_Zicboz, Ext_Zicbop, Ext_Zicbom, Ext_H, Ext_V, Ext_B, Ext_C, Ext_D, Ext_F, Ext_A, Ext_M]
 
