@@ -243,7 +243,7 @@ def bool_bit_backwards_matches (arg_ : (BitVec 1)) : Bool :=
   match arg_ with
   | 1#1 => true
   | 0#1 => true
-  | g__11 => false
+  | _ => false
 
 /-- Type quantifiers: k_ex376411# : Bool -/
 def bool_bits_forwards (arg_ : Bool) : (BitVec 1) :=
