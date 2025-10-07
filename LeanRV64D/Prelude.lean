@@ -84,6 +84,7 @@ open mvxfunct6
 open mvvmafunct6
 open mvvfunct6
 open mmfunct6
+open misaligned_fault
 open maskfunct3
 open landing_pad_expectation
 open iop
@@ -155,6 +156,7 @@ open Step
 open Software_Check_Code
 open SWCheckCodes
 open SATPMode
+open Reservability
 open Register
 open Privilege
 open PmpAddrMatchType
@@ -168,6 +170,7 @@ open Ext_DataAddr_Check
 open ExtStatus
 open ExecutionResult
 open ExceptionType
+open AtomicSupport
 open Architecture
 open AccessType
 
@@ -218,7 +221,7 @@ def ones {n : _} : (BitVec n) :=
 def trunc {m : _} (v : (BitVec k_n)) : (BitVec m) :=
   (Sail.BitVec.truncate v m)
 
-/-- Type quantifiers: k_ex376409# : Bool -/
+/-- Type quantifiers: k_ex377900# : Bool -/
 def bool_bit_forwards (arg_ : Bool) : (BitVec 1) :=
   match arg_ with
   | true => 1#1
@@ -233,7 +236,7 @@ def bool_bit_backwards (arg_ : (BitVec 1)) : SailM Bool := do
       assert false "Pattern match failure at unknown location"
       throw Error.Exit)
 
-/-- Type quantifiers: k_ex376410# : Bool -/
+/-- Type quantifiers: k_ex377901# : Bool -/
 def bool_bit_forwards_matches (arg_ : Bool) : Bool :=
   match arg_ with
   | true => true
@@ -245,7 +248,7 @@ def bool_bit_backwards_matches (arg_ : (BitVec 1)) : Bool :=
   | 0#1 => true
   | _ => false
 
-/-- Type quantifiers: k_ex376411# : Bool -/
+/-- Type quantifiers: k_ex377902# : Bool -/
 def bool_bits_forwards (arg_ : Bool) : (BitVec 1) :=
   match arg_ with
   | true => (0b1 : (BitVec 1))
@@ -257,7 +260,7 @@ def bool_bits_backwards (arg_ : (BitVec 1)) : Bool :=
   then true
   else false
 
-/-- Type quantifiers: k_ex376413# : Bool -/
+/-- Type quantifiers: k_ex377904# : Bool -/
 def bool_bits_forwards_matches (arg_ : Bool) : Bool :=
   match arg_ with
   | true => true
@@ -272,14 +275,14 @@ def bool_bits_backwards_matches (arg_ : (BitVec 1)) : Bool :=
     then true
     else false)
 
-/-- Type quantifiers: k_ex376416# : Bool -/
+/-- Type quantifiers: k_ex377907# : Bool -/
 def bool_to_bit (x : Bool) : (BitVec 1) :=
   (bool_bit_forwards x)
 
 def bit_to_bool (x : (BitVec 1)) : SailM Bool := do
   (bool_bit_backwards x)
 
-/-- Type quantifiers: k_ex376418# : Bool -/
+/-- Type quantifiers: k_ex377909# : Bool -/
 def bool_to_bits (x : Bool) : (BitVec 1) :=
   (bool_bits_forwards x)
 
@@ -343,6 +346,10 @@ def zopz0zIzJ_u (x : (BitVec k_n)) (y : (BitVec k_n)) : Bool :=
 /-- Type quantifiers: k_n : Nat, k_n ≥ 0 -/
 def zopz0zKzJ_u (x : (BitVec k_n)) (y : (BitVec k_n)) : Bool :=
   ((BitVec.toNat x) ≥b (BitVec.toNat y))
+
+/-- Type quantifiers: k_ex377985# : Bool, k_ex377984# : Bool -/
+def zopz0zJzJzK (x : Bool) (y : Bool) : Bool :=
+  ((not x) || y)
 
 /-- Type quantifiers: shift : Nat, k_n : Nat, k_n ≥ 0, k_n ≥ 1 ∧ shift ≥ 0 -/
 def shift_right_arith (value : (BitVec k_n)) (shift : Nat) : (BitVec k_n) :=

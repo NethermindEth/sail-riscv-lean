@@ -85,6 +85,7 @@ open mvxfunct6
 open mvvmafunct6
 open mvvfunct6
 open mmfunct6
+open misaligned_fault
 open maskfunct3
 open landing_pad_expectation
 open iop
@@ -156,6 +157,7 @@ open Step
 open Software_Check_Code
 open SWCheckCodes
 open SATPMode
+open Reservability
 open Register
 open Privilege
 open PmpAddrMatchType
@@ -169,6 +171,7 @@ open Ext_DataAddr_Check
 open ExtStatus
 open ExecutionResult
 open ExceptionType
+open AtomicSupport
 open Architecture
 open AccessType
 
@@ -233,7 +236,7 @@ def lookup_TLB (sv_width : Nat) (asid : (BitVec (if ( 64 = 32  : Bool) then 9 el
     then (pure (some (index, entry)))
     else (pure none))
 
-/-- Type quantifiers: k_ex383663# : Bool, level : Nat, sv_width : Nat, is_sv_mode(sv_width), 0 ≤
+/-- Type quantifiers: k_ex385417# : Bool, level : Nat, sv_width : Nat, is_sv_mode(sv_width), 0 ≤
   level ∧
   level ≤
   (if ( sv_width = 32  : Bool) then 1 else (if ( sv_width = 39  : Bool) then 2 else (if ( sv_width =

@@ -174,6 +174,9 @@ inductive AccessType (k_a : Type) where
   | InstructionFetch (_ : Unit)
   deriving Inhabited, BEq, Repr
 
+inductive AtomicSupport where | AMONone | AMOSwap | AMOLogical | AMOArithmetic | AMOCASW | AMOCASD | AMOCASQ
+  deriving BEq, Inhabited, Repr
+
 inductive ExceptionType where
   | E_Fetch_Addr_Align (_ : Unit)
   | E_Fetch_Access_Fault (_ : Unit)
@@ -196,6 +199,32 @@ inductive ExceptionType where
   | E_Software_Check (_ : Unit)
   | E_Extension (_ : ext_exc_type)
   deriving Inhabited, BEq, Repr
+
+inductive misaligned_fault where | NoFault | AccessFault | AlignmentFault
+  deriving BEq, Inhabited, Repr
+
+inductive Reservability where | RsrvNone | RsrvNonEventual | RsrvEventual
+  deriving BEq, Inhabited, Repr
+
+structure PMA where
+  cacheable : Bool
+  coherent : Bool
+  executable : Bool
+  readable : Bool
+  writable : Bool
+  read_idempotent : Bool
+  write_idempotent : Bool
+  misaligned_fault : misaligned_fault
+  reservability : Reservability
+  supports_cbo_zero : Bool
+  deriving BEq, Inhabited, Repr
+
+structure PMA_Region where
+  base : (BitVec 64)
+  size : (BitVec 64)
+  attributes : PMA
+  include_in_device_tree : Bool
+  deriving BEq, Inhabited, Repr
 
 inductive amoop where | AMOSWAP | AMOADD | AMOXOR | AMOAND | AMOOR | AMOMIN | AMOMAX | AMOMINU | AMOMAXU | AMOCAS
   deriving BEq, Inhabited, Repr
@@ -1175,6 +1204,7 @@ inductive Register : Type where
   | mhpmevent
   | satp
   | tlb
+  | pma_regions
   | htif_payload_writes
   | htif_cmd_write
   | htif_exit_code
@@ -1185,10 +1215,6 @@ inductive Register : Type where
   | htif_tohost_base
   | plat_clint_size
   | plat_clint_base
-  | plat_rom_size
-  | plat_rom_base
-  | plat_ram_size
-  | plat_ram_base
   | pc_reset_address
   | elp
   | minstretcfg
@@ -1347,6 +1373,7 @@ abbrev RegisterType : Register → Type
   | .mhpmevent => (Vector (BitVec 64) 32)
   | .satp => (BitVec 64)
   | .tlb => (Vector (Option TLB_Entry) 64)
+  | .pma_regions => (List PMA_Region)
   | .htif_payload_writes => (BitVec 4)
   | .htif_cmd_write => (BitVec 1)
   | .htif_exit_code => (BitVec 64)
@@ -1357,10 +1384,6 @@ abbrev RegisterType : Register → Type
   | .htif_tohost_base => (Option (BitVec (if ( 64 = 32  : Bool) then 34 else 64)))
   | .plat_clint_size => (BitVec (if ( 64 = 32  : Bool) then 34 else 64))
   | .plat_clint_base => (BitVec (if ( 64 = 32  : Bool) then 34 else 64))
-  | .plat_rom_size => (BitVec (if ( 64 = 32  : Bool) then 34 else 64))
-  | .plat_rom_base => (BitVec (if ( 64 = 32  : Bool) then 34 else 64))
-  | .plat_ram_size => (BitVec (if ( 64 = 32  : Bool) then 34 else 64))
-  | .plat_ram_base => (BitVec (if ( 64 = 32  : Bool) then 34 else 64))
   | .pc_reset_address => (BitVec 64)
   | .elp => (BitVec 1)
   | .minstretcfg => (BitVec 64)
@@ -1539,6 +1562,8 @@ instance : Inhabited (RegisterRef RegisterType (BitVec (2 ^ 8))) where
   default := .Reg vr0
 instance : Inhabited (RegisterRef RegisterType Bool) where
   default := .Reg rvfi_int_data_present
+instance : Inhabited (RegisterRef RegisterType (List PMA_Region)) where
+  default := .Reg pma_regions
 instance : Inhabited (RegisterRef RegisterType (Option (BitVec (if ( 64 = 32  : Bool) then 34 else 64)))) where
   default := .Reg htif_tohost_base
 instance : Inhabited (RegisterRef RegisterType (Vector (BitVec 64) 32)) where

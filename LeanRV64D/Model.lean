@@ -92,6 +92,7 @@ open mvxfunct6
 open mvvmafunct6
 open mvvfunct6
 open mmfunct6
+open misaligned_fault
 open maskfunct3
 open landing_pad_expectation
 open iop
@@ -163,6 +164,7 @@ open Step
 open Software_Check_Code
 open SWCheckCodes
 open SATPMode
+open Reservability
 open Register
 open Privilege
 open PmpAddrMatchType
@@ -176,6 +178,7 @@ open Ext_DataAddr_Check
 open ExtStatus
 open ExecutionResult
 open ExceptionType
+open AtomicSupport
 open Architecture
 open AccessType
 
@@ -196,5 +199,5 @@ def init_model (config_filename : String) : SailM Unit := do
 
 def init_boot_requirements (_ : Unit) : SailM Unit := do
   (wX (Regno 10) (← readReg mhartid))
-  (wX (Regno 11) (← (to_bits_checked (l := 64) (4096 : Int))))
+  (wX (Regno 11) (trunc (m := 64) (0x0000000000001000 : (BitVec 64))))
 

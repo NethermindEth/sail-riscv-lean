@@ -102,6 +102,7 @@ open mvxfunct6
 open mvvmafunct6
 open mvvfunct6
 open mmfunct6
+open misaligned_fault
 open maskfunct3
 open landing_pad_expectation
 open iop
@@ -173,6 +174,7 @@ open Step
 open Software_Check_Code
 open SWCheckCodes
 open SATPMode
+open Reservability
 open Register
 open Privilege
 open PmpAddrMatchType
@@ -186,10 +188,11 @@ open Ext_DataAddr_Check
 open ExtStatus
 open ExecutionResult
 open ExceptionType
+open AtomicSupport
 open Architecture
 open AccessType
 
-/-- Type quantifiers: k_ex441557# : Bool, step_no : Int -/
+/-- Type quantifiers: k_ex443311# : Bool, step_no : Int -/
 def run_hart_waiting (step_no : Int) (wr : WaitReason) (instbits : (BitVec 32)) (exit_wait : Bool) : SailM Step := do
   if ((← (shouldWakeForInterrupt ())) : Bool)
   then
@@ -358,7 +361,7 @@ def wait_is_nop (wr : WaitReason) : Bool :=
   | WAIT_WRS_STO => false
   | WAIT_WRS_NTO => false
 
-/-- Type quantifiers: k_ex441607# : Bool, step_no : Nat, 0 ≤ step_no -/
+/-- Type quantifiers: k_ex443361# : Bool, step_no : Nat, 0 ≤ step_no -/
 def try_step (step_no : Nat) (exit_wait : Bool) : SailM Bool := do
   let _ : Unit := (ext_pre_step_hook ())
   writeReg minstret_increment (← (should_inc_minstret (← readReg cur_privilege)))

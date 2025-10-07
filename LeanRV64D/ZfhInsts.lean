@@ -86,6 +86,7 @@ open mvxfunct6
 open mvvmafunct6
 open mvvfunct6
 open mmfunct6
+open misaligned_fault
 open maskfunct3
 open landing_pad_expectation
 open iop
@@ -157,6 +158,7 @@ open Step
 open Software_Check_Code
 open SWCheckCodes
 open SATPMode
+open Reservability
 open Register
 open Privilege
 open PmpAddrMatchType
@@ -170,6 +172,7 @@ open Ext_DataAddr_Check
 open ExtStatus
 open ExecutionResult
 open ExceptionType
+open AtomicSupport
 open Architecture
 open AccessType
 
@@ -232,7 +235,7 @@ def f_is_NaN_H (xf16 : (BitVec 16)) : Bool :=
   let (sign, exp, mant) := (fsplit_H xf16)
   ((exp == (ones (n := 5))) && (mant != (zeros (n := 10))))
 
-/-- Type quantifiers: k_ex385026# : Bool -/
+/-- Type quantifiers: k_ex386780# : Bool -/
 def fle_H (v1 : (BitVec 16)) (v2 : (BitVec 16)) (is_quiet : Bool) : (Bool × (BitVec 5)) :=
   let (s1, e1, m1) := (fsplit_H v1)
   let (s2, e2, m2) := (fsplit_H v2)

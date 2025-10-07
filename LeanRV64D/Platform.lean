@@ -88,6 +88,7 @@ open mvxfunct6
 open mvvmafunct6
 open mvvfunct6
 open mmfunct6
+open misaligned_fault
 open maskfunct3
 open landing_pad_expectation
 open iop
@@ -159,6 +160,7 @@ open Step
 open Software_Check_Code
 open SWCheckCodes
 open SATPMode
+open Reservability
 open Register
 open Privilege
 open PmpAddrMatchType
@@ -172,6 +174,7 @@ open Ext_DataAddr_Check
 open ExtStatus
 open ExecutionResult
 open ExceptionType
+open AtomicSupport
 open Architecture
 open AccessType
 
@@ -185,44 +188,6 @@ def htif_tohost_size := 8
 
 def enable_htif (tohost_addr : (BitVec 64)) : SailM Unit := do
   writeReg htif_tohost_base (some (trunc (m := 64) tohost_addr))
-
-/-- Type quantifiers: width : Int, width ≤ max_mem_access -/
-def within_phys_mem (typ_0 : physaddr) (width : Int) : SailM Bool := do
-  let .Physaddr addr : physaddr := typ_0
-  let addr_int := (BitVec.toNat addr)
-  let ram_base_int ← do (pure (BitVec.toNat (← readReg plat_ram_base)))
-  let rom_base_int ← do (pure (BitVec.toNat (← readReg plat_rom_base)))
-  let ram_size_int ← do (pure (BitVec.toNat (← readReg plat_ram_size)))
-  let rom_size_int ← do (pure (BitVec.toNat (← readReg plat_rom_size)))
-  if (((ram_base_int ≤b addr_int) && ((addr_int +i width) ≤b (ram_base_int +i ram_size_int))) : Bool)
-  then (pure true)
-  else
-    (do
-      if (((rom_base_int ≤b addr_int) && ((addr_int +i width) ≤b (rom_base_int +i rom_size_int))) : Bool)
-      then (pure true)
-      else
-        (do
-          if ((get_config_print_platform ()) : Bool)
-          then
-            (do
-              let _ : Unit :=
-                (print_endline
-                  (HAppend.hAppend "within_phys_mem: "
-                    (HAppend.hAppend (BitVec.toFormatted addr) " not within phys-mem:")))
-              (pure (print_endline
-                  (HAppend.hAppend "  plat_rom_base: "
-                    (BitVec.toFormatted (← readReg plat_rom_base)))))
-              (pure (print_endline
-                  (HAppend.hAppend "  plat_rom_size: "
-                    (BitVec.toFormatted (← readReg plat_rom_size)))))
-              (pure (print_endline
-                  (HAppend.hAppend "  plat_ram_base: "
-                    (BitVec.toFormatted (← readReg plat_ram_base)))))
-              (pure (print_endline
-                  (HAppend.hAppend "  plat_ram_size: "
-                    (BitVec.toFormatted (← readReg plat_ram_size))))))
-          else (pure ())
-          (pure false)))
 
 /-- Type quantifiers: width : Nat, 0 < width ∧ width ≤ max_mem_access -/
 def within_clint (typ_0 : physaddr) (width : Nat) : SailM Bool := do
@@ -605,7 +570,7 @@ def htif_load (acc : (AccessType Unit)) (app_1 : physaddr) (width : Nat) : SailM
   let base ← (( do
     match (← readReg htif_tohost_base) with
     | .some base => (pure base)
-    | none => (internal_error "sys/platform.sail" 321 "HTIF load while HTIF isn't enabled") ) :
+    | none => (internal_error "sys/platform.sail" 278 "HTIF load while HTIF isn't enabled") ) :
     SailM physaddrbits )
   if (((width == 8) && (paddr == base)) : Bool)
   then (pure (Ok (zero_extend (m := 64) (← readReg htif_tohost))))
@@ -639,7 +604,7 @@ def htif_store (app_0 : physaddr) (width : Nat) (data : (BitVec (8 * width))) : 
   let base ← (( do
     match (← readReg htif_tohost_base) with
     | .some base => (pure base)
-    | none => (internal_error "sys/platform.sail" 345 "HTIF store while HTIF isn't enabled") ) :
+    | none => (internal_error "sys/platform.sail" 302 "HTIF store while HTIF isn't enabled") ) :
     SailME (Result Bool ExceptionType) physaddrbits )
   if (((width == 8) && (paddr == base)) : Bool)
   then

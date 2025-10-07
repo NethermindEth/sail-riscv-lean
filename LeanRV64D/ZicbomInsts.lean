@@ -95,6 +95,7 @@ open mvxfunct6
 open mvvmafunct6
 open mvvfunct6
 open mmfunct6
+open misaligned_fault
 open maskfunct3
 open landing_pad_expectation
 open iop
@@ -166,6 +167,7 @@ open Step
 open Software_Check_Code
 open SWCheckCodes
 open SATPMode
+open Reservability
 open Register
 open Privilege
 open PmpAddrMatchType
@@ -179,6 +181,7 @@ open Ext_DataAddr_Check
 open ExtStatus
 open ExecutionResult
 open ExceptionType
+open AtomicSupport
 open Architecture
 open AccessType
 
@@ -360,8 +363,8 @@ def process_clean_inval (rs1 : regidx) (cbop : cbop_zicbom) : SailM ExecutionRes
           (do
             let ep ← do
               (effectivePrivilege (Read Data) (← readReg mstatus) (← readReg cur_privilege))
-            let exc_read ← do (phys_access_check (Read Data) ep paddr cache_block_size)
-            let exc_write ← do (phys_access_check (Write Data) ep paddr cache_block_size)
+            let exc_read ← do (phys_access_check (Read Data) ep paddr cache_block_size false)
+            let exc_write ← do (phys_access_check (Write Data) ep paddr cache_block_size false)
             match (exc_read, exc_write) with
             | (.some exc_read, .some exc_write) => (pure (some exc_write))
             | _ => (pure none))

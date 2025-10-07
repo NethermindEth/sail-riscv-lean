@@ -3,7 +3,7 @@ import LeanRV64D.Prelude
 import LeanRV64D.Vlen
 import LeanRV64D.Extensions
 import LeanRV64D.PmpRegs
-import LeanRV64D.Platform
+import LeanRV64D.Pma
 
 set_option maxHeartbeats 1_000_000_000
 set_option maxRecDepth 1_000_000
@@ -88,6 +88,7 @@ open mvxfunct6
 open mvvmafunct6
 open mvvfunct6
 open mmfunct6
+open misaligned_fault
 open maskfunct3
 open landing_pad_expectation
 open iop
@@ -159,6 +160,7 @@ open Step
 open Software_Check_Code
 open SWCheckCodes
 open SATPMode
+open Reservability
 open Register
 open Privilege
 open PmpAddrMatchType
@@ -172,6 +174,7 @@ open Ext_DataAddr_Check
 open ExtStatus
 open ExecutionResult
 open ExceptionType
+open AtomicSupport
 open Architecture
 open AccessType
 
@@ -432,43 +435,29 @@ def check_vext_config (_ : Unit) : Bool :=
     valid)
   else valid
 
-/-- Type quantifiers: b_hi : Nat, b_lo : Nat, a_hi : Nat, a_lo : Nat, 0 ≤ a_lo, 0 ≤ a_hi, 0 ≤
-  b_lo, 0 ≤ b_hi -/
-def has_overlap (a_lo : Nat) (a_hi : Nat) (b_lo : Nat) (b_hi : Nat) : Bool :=
-  (not (((a_lo <b b_lo) && (a_hi <b b_lo)) || ((b_lo <b a_lo) && (b_hi <b a_lo))))
+def check_pma_regions (pmas : (List PMA_Region)) (prev_base : (BitVec 64)) (prev_size : (BitVec 64)) : Bool :=
+  match pmas with
+  | [] => true
+  | (pma :: rest) =>
+    (if ((zopz0zI_u pma.base (prev_base + prev_size)) : Bool)
+    then
+      (let _ : Unit :=
+        (print_endline
+          (HAppend.hAppend "Memory region starting at "
+            (HAppend.hAppend (BitVec.toFormatted pma.base)
+              (HAppend.hAppend " is not above the end of the previous region starting at "
+                (HAppend.hAppend (BitVec.toFormatted prev_base)
+                  (HAppend.hAppend " and ending at "
+                    (HAppend.hAppend (BitVec.toFormatted (prev_base + prev_size)) ".")))))))
+      false)
+    else (check_pma_regions rest pma.base pma.size))
 
 def check_mem_layout (_ : Unit) : SailM Bool := do
-  let valid : Bool := true
-  let ram_lo ← do (pure (BitVec.toNat (← readReg plat_ram_base)))
-  let ram_hi ← do
-    (pure ((BitVec.toNat (← readReg plat_ram_base)) +i (BitVec.toNat (← readReg plat_ram_size))))
-  let rom_lo ← do (pure (BitVec.toNat (← readReg plat_rom_base)))
-  let rom_hi ← do
-    (pure ((BitVec.toNat (← readReg plat_rom_base)) +i (BitVec.toNat (← readReg plat_rom_size))))
-  let clint_lo ← do (pure (BitVec.toNat (← readReg plat_clint_base)))
-  let clint_hi ← do
-    (pure ((BitVec.toNat (← readReg plat_clint_base)) +i (BitVec.toNat
-          (← readReg plat_clint_size))))
-  let valid : Bool :=
-    if ((has_overlap rom_lo rom_hi ram_lo ram_hi) : Bool)
-    then
-      (let valid : Bool := false
-      let _ : Unit := (print_endline "The RAM and ROM regions overlap.")
-      valid)
-    else valid
-  let valid : Bool :=
-    if ((has_overlap clint_lo clint_hi rom_lo rom_hi) : Bool)
-    then
-      (let valid : Bool := false
-      let _ : Unit := (print_endline "The Clint and ROM regions overlap.")
-      valid)
-    else valid
-  if ((has_overlap clint_lo clint_hi ram_lo ram_hi) : Bool)
+  if (((← readReg pma_regions) == []) : Bool)
   then
-    (let valid : Bool := false
-    let _ : Unit := (print_endline "The Clint and RAM regions overlap.")
-    (pure valid))
-  else (pure valid)
+    (let _ : Unit := (print_endline "No memory regions specified.")
+    (pure false))
+  else (pure (check_pma_regions (← readReg pma_regions) (zeros (n := 64)) (zeros (n := 64))))
 
 def check_pmp (_ : Unit) : Bool :=
   let valid : Bool := true

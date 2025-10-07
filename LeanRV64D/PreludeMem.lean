@@ -85,6 +85,7 @@ open mvxfunct6
 open mvvmafunct6
 open mvvfunct6
 open mmfunct6
+open misaligned_fault
 open maskfunct3
 open landing_pad_expectation
 open iop
@@ -156,6 +157,7 @@ open Step
 open Software_Check_Code
 open SWCheckCodes
 open SATPMode
+open Reservability
 open Register
 open Privilege
 open PmpAddrMatchType
@@ -169,6 +171,7 @@ open Ext_DataAddr_Check
 open ExtStatus
 open ExecutionResult
 open ExceptionType
+open AtomicSupport
 open Architecture
 open AccessType
 
@@ -299,7 +302,7 @@ def write_ram_ea (wk : write_kind) (app_1 : physaddr) (width : Nat) : Unit :=
   let .Physaddr addr := app_1
   ()
 
-/-- Type quantifiers: k_ex376586# : Bool, width : Nat, width ≥ 0, 0 < width ∧
+/-- Type quantifiers: k_ex378081# : Bool, width : Nat, width ≥ 0, 0 < width ∧
   width ≤ max_mem_access -/
 def read_ram (rk : read_kind) (app_1 : physaddr) (width : Nat) (read_meta : Bool) : SailM ((BitVec (8 * width)) × Unit) := do
   let .Physaddr addr := app_1

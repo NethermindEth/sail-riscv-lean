@@ -86,6 +86,7 @@ open mvxfunct6
 open mvvmafunct6
 open mvvfunct6
 open mmfunct6
+open misaligned_fault
 open maskfunct3
 open landing_pad_expectation
 open iop
@@ -157,6 +158,7 @@ open Step
 open Software_Check_Code
 open SWCheckCodes
 open SATPMode
+open Reservability
 open Register
 open Privilege
 open PmpAddrMatchType
@@ -170,6 +172,7 @@ open Ext_DataAddr_Check
 open ExtStatus
 open ExecutionResult
 open ExceptionType
+open AtomicSupport
 open Architecture
 open AccessType
 
@@ -318,7 +321,7 @@ def pmpWriteCfgReg (n : Nat) (v : (BitVec 64)) : SailM Unit := do
           (Sail.BitVec.extractLsb v ((8 *i i) +i 7) (8 *i i))))
   (pure loop_vars)
 
-/-- Type quantifiers: k_ex379721# : Bool, k_ex379720# : Bool -/
+/-- Type quantifiers: k_ex381340# : Bool, k_ex381339# : Bool -/
 def pmpWriteAddr (locked : Bool) (tor_locked : Bool) (reg : (BitVec 64)) (v : (BitVec 64)) : (BitVec 64) :=
   if ((locked || tor_locked) : Bool)
   then reg

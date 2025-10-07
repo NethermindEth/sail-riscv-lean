@@ -13,6 +13,7 @@ import LeanRV64D.Smcntrpmf
 import LeanRV64D.ZicfilpRegs
 import LeanRV64D.SysControl
 import LeanRV64D.Platform
+import LeanRV64D.Pma
 import LeanRV64D.VmemTlb
 import LeanRV64D.Vmem
 import LeanRV64D.ZicsrInsts
@@ -103,6 +104,7 @@ open mvxfunct6
 open mvvmafunct6
 open mvvfunct6
 open mmfunct6
+open misaligned_fault
 open maskfunct3
 open landing_pad_expectation
 open iop
@@ -174,6 +176,7 @@ open Step
 open Software_Check_Code
 open SWCheckCodes
 open SATPMode
+open Reservability
 open Register
 open Privilege
 open PmpAddrMatchType
@@ -187,6 +190,7 @@ open Ext_DataAddr_Check
 open ExtStatus
 open ExecutionResult
 open ExceptionType
+open AtomicSupport
 open Architecture
 open AccessType
 
@@ -360,13 +364,46 @@ def sail_model_init (x_0 : Unit) : SailM Unit := do
   writeReg mhartid (← (to_bits_checked (l := 64) (0 : Int)))
   writeReg mconfigptr (zeros (n := 64))
   writeReg pc_reset_address (zeros (n := 64))
-  writeReg plat_ram_base (← (to_bits_checked (l := 64) (2147483648 : Int)))
-  writeReg plat_ram_size (← (to_bits_checked (l := 64) (2147483648 : Int)))
-  writeReg plat_rom_base (← (to_bits_checked (l := 64) (4096 : Int)))
-  writeReg plat_rom_size (← (to_bits_checked (l := 64) (4096 : Int)))
   writeReg plat_clint_base (← (to_bits_checked (l := 64) (33554432 : Int)))
   writeReg plat_clint_size (← (to_bits_checked (l := 64) (786432 : Int)))
   writeReg htif_tohost_base none
+  writeReg pma_regions [{ base := (0x0000000000001000 : (BitVec 64))
+                          size := (0x0000000000001000 : (BitVec 64))
+                          attributes := { cacheable := true
+                                          coherent := true
+                                          executable := false
+                                          readable := true
+                                          writable := false
+                                          read_idempotent := true
+                                          write_idempotent := true
+                                          misaligned_fault := NoFault
+                                          reservability := RsrvNone
+                                          supports_cbo_zero := false }
+                          include_in_device_tree := false }, { base := (0x0000000002000000 : (BitVec 64))
+                                                               size := (0x0000000002000000 : (BitVec 64))
+                                                               attributes := { cacheable := false
+                                                                               coherent := true
+                                                                               executable := false
+                                                                               readable := true
+                                                                               writable := true
+                                                                               read_idempotent := false
+                                                                               write_idempotent := false
+                                                                               misaligned_fault := AlignmentFault
+                                                                               reservability := RsrvNone
+                                                                               supports_cbo_zero := false }
+                                                               include_in_device_tree := false }, { base := (0x0000000080000000 : (BitVec 64))
+                                                                                                    size := (0x0000000080000000 : (BitVec 64))
+                                                                                                    attributes := { cacheable := true
+                                                                                                                    coherent := true
+                                                                                                                    executable := true
+                                                                                                                    readable := true
+                                                                                                                    writable := true
+                                                                                                                    read_idempotent := true
+                                                                                                                    write_idempotent := true
+                                                                                                                    misaligned_fault := NoFault
+                                                                                                                    reservability := RsrvEventual
+                                                                                                                    supports_cbo_zero := true }
+                                                                                                    include_in_device_tree := true }]
   writeReg tlb (vectorInit none)
   writeReg hart_state (HART_ACTIVE ())
   (initialize_registers ())

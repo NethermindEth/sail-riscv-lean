@@ -100,6 +100,7 @@ open mvxfunct6
 open mvvmafunct6
 open mvvfunct6
 open mmfunct6
+open misaligned_fault
 open maskfunct3
 open landing_pad_expectation
 open iop
@@ -171,6 +172,7 @@ open Step
 open Software_Check_Code
 open SWCheckCodes
 open SATPMode
+open Reservability
 open Register
 open Privilege
 open PmpAddrMatchType
@@ -184,6 +186,7 @@ open Ext_DataAddr_Check
 open ExtStatus
 open ExecutionResult
 open ExceptionType
+open AtomicSupport
 open Architecture
 open AccessType
 
@@ -1851,7 +1854,7 @@ def write_CSR (b__0 : (BitVec 12)) (value : (BitVec 64)) : SailM (Result (BitVec
                                                                                                                                                                                                                                                                     (BitVec.toFormatted
                                                                                                                                                                                                                                                                       b__0))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
 
-/-- Type quantifiers: k_ex389679# : Bool -/
+/-- Type quantifiers: k_ex391433# : Bool -/
 def doCSR (csr : (BitVec 12)) (rs1_val : (BitVec 64)) (rd : regidx) (op : csrop) (is_CSR_Write : Bool) : SailM ExecutionResult := do
   if ((not (← (check_CSR csr (← readReg cur_privilege) is_CSR_Write))) : Bool)
   then (pure (Illegal_Instruction ()))

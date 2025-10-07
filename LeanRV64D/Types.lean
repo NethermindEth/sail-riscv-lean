@@ -93,6 +93,7 @@ open mvxfunct6
 open mvvmafunct6
 open mvvfunct6
 open mmfunct6
+open misaligned_fault
 open maskfunct3
 open landing_pad_expectation
 open iop
@@ -164,6 +165,7 @@ open Step
 open Software_Check_Code
 open SWCheckCodes
 open SATPMode
+open Reservability
 open Register
 open Privilege
 open PmpAddrMatchType
@@ -177,6 +179,7 @@ open Ext_DataAddr_Check
 open ExtStatus
 open ExecutionResult
 open ExceptionType
+open AtomicSupport
 open Architecture
 open AccessType
 
@@ -808,6 +811,30 @@ def accessType_to_str (a : (AccessType Unit)) : String :=
   | .Write _ => "W"
   | .ReadWrite (_, _) => "RW"
   | .InstructionFetch () => "X"
+
+def atomic_support_str_backwards (arg_ : String) : SailM AtomicSupport := do
+  match arg_ with
+  | "AMONone" => (pure AMONone)
+  | "AMOSwap" => (pure AMOSwap)
+  | "AMOLogical" => (pure AMOLogical)
+  | "AMOArithmetic" => (pure AMOArithmetic)
+  | "AMOCASW" => (pure AMOCASW)
+  | "AMOCASD" => (pure AMOCASD)
+  | "AMOCASQ" => (pure AMOCASQ)
+  | _ =>
+    (do
+      assert false "Pattern match failure at unknown location"
+      throw Error.Exit)
+
+def atomic_support_str_forwards (arg_ : AtomicSupport) : String :=
+  match arg_ with
+  | AMONone => "AMONone"
+  | AMOSwap => "AMOSwap"
+  | AMOLogical => "AMOLogical"
+  | AMOArithmetic => "AMOArithmetic"
+  | AMOCASW => "AMOCASW"
+  | AMOCASD => "AMOCASD"
+  | AMOCASQ => "AMOCASQ"
 
 def csr_name_map_forwards (arg_ : (BitVec 12)) : SailM String := do
   let b__0 := arg_
@@ -2426,6 +2453,71 @@ def exceptionType_to_str (e : ExceptionType) : String :=
   | .E_Software_Check () => "software-check-fault"
   | .E_Extension e => (ext_exc_type_to_str e)
 
+def misaligned_fault_str_backwards (arg_ : String) : SailM misaligned_fault := do
+  match arg_ with
+  | "NoFault" => (pure NoFault)
+  | "AccessFault" => (pure AccessFault)
+  | "AlignmentFault" => (pure AlignmentFault)
+  | _ =>
+    (do
+      assert false "Pattern match failure at unknown location"
+      throw Error.Exit)
+
+def misaligned_fault_str_forwards (arg_ : misaligned_fault) : String :=
+  match arg_ with
+  | NoFault => "NoFault"
+  | AccessFault => "AccessFault"
+  | AlignmentFault => "AlignmentFault"
+
+def reservability_str_forwards (arg_ : Reservability) : String :=
+  match arg_ with
+  | RsrvNone => "RsrvNone"
+  | RsrvNonEventual => "RsrvNonEventual"
+  | RsrvEventual => "RsrvEventual"
+
+def pma_attributes_to_str (attr : PMA) : String :=
+  (HAppend.hAppend
+    (if (attr.cacheable : Bool)
+    then " cacheable"
+    else "")
+    (HAppend.hAppend
+      (if (attr.coherent : Bool)
+      then " coherent"
+      else "")
+      (HAppend.hAppend
+        (if (attr.executable : Bool)
+        then " executable"
+        else "")
+        (HAppend.hAppend
+          (if (attr.readable : Bool)
+          then " readable"
+          else "")
+          (HAppend.hAppend
+            (if (attr.writable : Bool)
+            then " writable"
+            else "")
+            (HAppend.hAppend
+              (if (attr.read_idempotent : Bool)
+              then " read-idempotent"
+              else "")
+              (HAppend.hAppend
+                (if (attr.write_idempotent : Bool)
+                then " write-idempotent"
+                else "")
+                (HAppend.hAppend " misaligned_fault:"
+                  (HAppend.hAppend (misaligned_fault_str_forwards attr.misaligned_fault)
+                    (HAppend.hAppend " "
+                      (HAppend.hAppend (reservability_str_forwards attr.reservability)
+                        (if (attr.supports_cbo_zero : Bool)
+                        then " supports_cbo_zero"
+                        else ""))))))))))))
+
+def pma_region_to_str (region : PMA_Region) : String :=
+  (HAppend.hAppend "base: "
+    (HAppend.hAppend (BitVec.toFormatted region.base)
+      (HAppend.hAppend " size: "
+        (HAppend.hAppend (BitVec.toFormatted region.size) (pma_attributes_to_str region.attributes)))))
+
 def amo_mnemonic_forwards (arg_ : amoop) : String :=
   match arg_ with
   | AMOSWAP => "amoswap"
@@ -3257,7 +3349,7 @@ def maybe_aqrl_forwards (arg_ : (Bool × Bool)) : String :=
   | (false, true) => ".rl"
   | (false, false) => ""
 
-/-- Type quantifiers: k_ex378442# : Bool -/
+/-- Type quantifiers: k_ex380061# : Bool -/
 def maybe_u_forwards (arg_ : Bool) : String :=
   match arg_ with
   | true => "u"
@@ -6728,6 +6820,16 @@ def ptw_error_to_str (e : PTW_Error) : String :=
   | .PTW_Misaligned () => "misaligned-superpage"
   | .PTW_PTE_Update () => "pte-update-needed"
   | .PTW_Ext_Error e => "extension-error"
+
+def reservability_str_backwards (arg_ : String) : SailM Reservability := do
+  match arg_ with
+  | "RsrvNone" => (pure RsrvNone)
+  | "RsrvNonEventual" => (pure RsrvNonEventual)
+  | "RsrvEventual" => (pure RsrvEventual)
+  | _ =>
+    (do
+      assert false "Pattern match failure at unknown location"
+      throw Error.Exit)
 
 def wait_name_backwards (arg_ : String) : SailM WaitReason := do
   match arg_ with
