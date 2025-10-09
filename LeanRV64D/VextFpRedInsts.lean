@@ -258,7 +258,7 @@ def process_rfvv_single (funct6 : rfvvfunct6) (vm : (BitVec 1)) (vs2 : vregidx) 
   then (pure (Illegal_Instruction ()))
   else
     (do
-      assert (SEW != 8) "extensions/V/vext_fp_red_insts.sail:36.17-36.18"
+      assert (SEW != 8) "extensions/V/vext_fp_red_insts.sail:35.17-35.18"
       if (((BitVec.toNat (← readReg vl)) == 0) : Bool)
       then (pure RETIRE_SUCCESS)
       else
@@ -294,7 +294,7 @@ def process_rfvv_single (funct6 : rfvvfunct6) (vm : (BitVec 1)) (vs2 : vregidx) 
                     | FVV_VFREDMAX => (fp_max sum (GetElem?.getElem! vs2_val i))
                     | FVV_VFREDMIN => (fp_min sum (GetElem?.getElem! vs2_val i))
                     | _ =>
-                      (internal_error "extensions/V/vext_fp_red_insts.sail" 61
+                      (internal_error "extensions/V/vext_fp_red_insts.sail" 60
                         "Widening op unexpected"))
                 else (pure sum)
             (pure loop_vars) ) : SailME ExecutionResult (BitVec m) )
@@ -311,7 +311,7 @@ def process_rfvv_widening_reduction (funct6 : rfvvfunct6) (vm : (BitVec 1)) (vs2
   then (pure (Illegal_Instruction ()))
   else
     (do
-      assert ((SEW ≥b 16) && (SEW_widen ≤b 64)) "extensions/V/vext_fp_red_insts.sail:79.36-79.37"
+      assert ((SEW ≥b 16) && (SEW_widen ≤b 64)) "extensions/V/vext_fp_red_insts.sail:77.36-77.37"
       let num_elem_vd ← do (get_num_elem 0 SEW_widen)
       if (((BitVec.toNat (← readReg vl)) == 0) : Bool)
       then (pure RETIRE_SUCCESS)

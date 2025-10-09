@@ -174,6 +174,8 @@ inductive AccessType (k_a : Type) where
   | InstructionFetch (_ : Unit)
   deriving Inhabited, BEq, Repr
 
+abbrev ext_access_type := Unit
+
 inductive AtomicSupport where | AMONone | AMOSwap | AMOLogical | AMOArithmetic | AMOCASW | AMOCASD | AMOCASQ
   deriving BEq, Inhabited, Repr
 
@@ -981,8 +983,6 @@ abbrev pte_bits k_v := (BitVec (if ( k_v = 32  : Bool) then 32 else 64))
 abbrev ppn_bits k_v := (BitVec (if ( k_v = 32  : Bool) then 22 else 44))
 
 abbrev vpn_bits k_v := (BitVec (k_v - 12))
-
-abbrev ext_access_type := Unit
 
 abbrev regtype := xlenbits
 

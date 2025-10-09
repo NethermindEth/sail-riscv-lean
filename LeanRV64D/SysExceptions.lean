@@ -202,22 +202,22 @@ def get_xepc (p : Privilege) : SailM (BitVec 64) := do
   match p with
   | Machine => (align_pc (← readReg mepc))
   | Supervisor => (align_pc (← readReg sepc))
-  | User => (internal_error "exceptions/sys_exceptions.sail" 46 "Invalid privilege level")
+  | User => (internal_error "exceptions/sys_exceptions.sail" 45 "Invalid privilege level")
   | VirtualUser =>
-    (internal_error "exceptions/sys_exceptions.sail" 47 "Hypervisor extension not supported")
+    (internal_error "exceptions/sys_exceptions.sail" 46 "Hypervisor extension not supported")
   | VirtualSupervisor =>
-    (internal_error "exceptions/sys_exceptions.sail" 48 "Hypervisor extension not supported")
+    (internal_error "exceptions/sys_exceptions.sail" 47 "Hypervisor extension not supported")
 
 def set_xepc (p : Privilege) (value : (BitVec 64)) : SailM (BitVec 64) := do
   let target := (legalize_xepc value)
   match p with
   | Machine => writeReg mepc target
   | Supervisor => writeReg sepc target
-  | User => (internal_error "exceptions/sys_exceptions.sail" 57 "Invalid privilege level")
+  | User => (internal_error "exceptions/sys_exceptions.sail" 55 "Invalid privilege level")
   | VirtualUser =>
-    (internal_error "exceptions/sys_exceptions.sail" 58 "Hypervisor extension not supported")
+    (internal_error "exceptions/sys_exceptions.sail" 56 "Hypervisor extension not supported")
   | VirtualSupervisor =>
-    (internal_error "exceptions/sys_exceptions.sail" 59 "Hypervisor extension not supported")
+    (internal_error "exceptions/sys_exceptions.sail" 57 "Hypervisor extension not supported")
   (pure target)
 
 def prepare_xret_target (p : Privilege) : SailM (BitVec 64) := do

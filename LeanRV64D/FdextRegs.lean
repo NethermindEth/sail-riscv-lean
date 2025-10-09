@@ -368,73 +368,73 @@ def wF_BF16 (i : fregidx) (data : (BitVec 16)) : SailM Unit := do
   (wF_bits i (nan_box (n := (8 *i 8)) data))
 
 def rF_H (i : fregidx) : SailM (BitVec 16) := do
-  assert (flen ≥b 16) "extensions/FD/fdext_regs.sail:224.19-224.20"
-  assert ((hartSupports Ext_F) && (not (hartSupports Ext_Zfinx))) "extensions/FD/fdext_regs.sail:225.59-225.60"
+  assert (flen ≥b 16) "extensions/FD/fdext_regs.sail:221.19-221.20"
+  assert ((hartSupports Ext_F) && (not (hartSupports Ext_Zfinx))) "extensions/FD/fdext_regs.sail:222.59-222.60"
   (pure (nan_unbox (m := 16) (← (rF_bits i))))
 
 def wF_H (i : fregidx) (data : (BitVec 16)) : SailM Unit := do
-  assert (flen ≥b 16) "extensions/FD/fdext_regs.sail:231.19-231.20"
-  assert ((hartSupports Ext_F) && (not (hartSupports Ext_Zfinx))) "extensions/FD/fdext_regs.sail:232.59-232.60"
+  assert (flen ≥b 16) "extensions/FD/fdext_regs.sail:227.19-227.20"
+  assert ((hartSupports Ext_F) && (not (hartSupports Ext_Zfinx))) "extensions/FD/fdext_regs.sail:228.59-228.60"
   (wF_bits i (nan_box (n := (8 *i 8)) data))
 
 def rF_S (i : fregidx) : SailM (BitVec 32) := do
-  assert (flen ≥b 32) "extensions/FD/fdext_regs.sail:238.19-238.20"
-  assert ((hartSupports Ext_F) && (not (hartSupports Ext_Zfinx))) "extensions/FD/fdext_regs.sail:239.59-239.60"
+  assert (flen ≥b 32) "extensions/FD/fdext_regs.sail:233.19-233.20"
+  assert ((hartSupports Ext_F) && (not (hartSupports Ext_Zfinx))) "extensions/FD/fdext_regs.sail:234.59-234.60"
   (pure (nan_unbox (m := 32) (← (rF_bits i))))
 
 def wF_S (i : fregidx) (data : (BitVec 32)) : SailM Unit := do
-  assert (flen ≥b 32) "extensions/FD/fdext_regs.sail:245.19-245.20"
-  assert ((hartSupports Ext_F) && (not (hartSupports Ext_Zfinx))) "extensions/FD/fdext_regs.sail:246.59-246.60"
+  assert (flen ≥b 32) "extensions/FD/fdext_regs.sail:239.19-239.20"
+  assert ((hartSupports Ext_F) && (not (hartSupports Ext_Zfinx))) "extensions/FD/fdext_regs.sail:240.59-240.60"
   (wF_bits i (nan_box (n := (8 *i 8)) data))
 
 def rF_D (i : fregidx) : SailM (BitVec 64) := do
-  assert (flen ≥b 64) "extensions/FD/fdext_regs.sail:252.19-252.20"
-  assert ((hartSupports Ext_F) && (not (hartSupports Ext_Zfinx))) "extensions/FD/fdext_regs.sail:253.59-253.60"
+  assert (flen ≥b 64) "extensions/FD/fdext_regs.sail:245.19-245.20"
+  assert ((hartSupports Ext_F) && (not (hartSupports Ext_Zfinx))) "extensions/FD/fdext_regs.sail:246.59-246.60"
   (rF_bits i)
 
 def wF_D (i : fregidx) (data : (BitVec 64)) : SailM Unit := do
-  assert (flen ≥b 64) "extensions/FD/fdext_regs.sail:259.19-259.20"
-  assert ((hartSupports Ext_F) && (not (hartSupports Ext_Zfinx))) "extensions/FD/fdext_regs.sail:260.59-260.60"
+  assert (flen ≥b 64) "extensions/FD/fdext_regs.sail:251.19-251.20"
+  assert ((hartSupports Ext_F) && (not (hartSupports Ext_Zfinx))) "extensions/FD/fdext_regs.sail:252.59-252.60"
   (wF_bits i data)
 
 def rF_or_X_H (i : fregidx) : SailM (BitVec 16) := do
-  assert (flen ≥b 16) "extensions/FD/fdext_regs.sail:271.19-271.20"
-  assert (neq_bool (hartSupports Ext_F) (hartSupports Ext_Zfinx)) "extensions/FD/fdext_regs.sail:272.55-272.56"
+  assert (flen ≥b 16) "extensions/FD/fdext_regs.sail:262.19-262.20"
+  assert (neq_bool (hartSupports Ext_F) (hartSupports Ext_Zfinx)) "extensions/FD/fdext_regs.sail:263.55-263.56"
   if ((hartSupports Ext_F) : Bool)
   then (rF_H i)
   else (pure (Sail.BitVec.extractLsb (← (rX_bits (fregidx_to_regidx i))) 15 0))
 
 def rF_or_X_S (i : fregidx) : SailM (BitVec 32) := do
-  assert (flen ≥b 32) "extensions/FD/fdext_regs.sail:280.19-280.20"
-  assert (neq_bool (hartSupports Ext_F) (hartSupports Ext_Zfinx)) "extensions/FD/fdext_regs.sail:281.55-281.56"
+  assert (flen ≥b 32) "extensions/FD/fdext_regs.sail:270.19-270.20"
+  assert (neq_bool (hartSupports Ext_F) (hartSupports Ext_Zfinx)) "extensions/FD/fdext_regs.sail:271.55-271.56"
   if ((hartSupports Ext_F) : Bool)
   then (rF_S i)
   else (pure (Sail.BitVec.extractLsb (← (rX_bits (fregidx_to_regidx i))) 31 0))
 
 def rF_or_X_D (i : fregidx) : SailM (BitVec 64) := do
-  assert (flen ≥b 64) "extensions/FD/fdext_regs.sail:289.19-289.20"
-  assert (neq_bool (hartSupports Ext_F) (hartSupports Ext_Zfinx)) "extensions/FD/fdext_regs.sail:290.55-290.56"
+  assert (flen ≥b 64) "extensions/FD/fdext_regs.sail:278.19-278.20"
+  assert (neq_bool (hartSupports Ext_F) (hartSupports Ext_Zfinx)) "extensions/FD/fdext_regs.sail:279.55-279.56"
   if ((hartSupports Ext_F) : Bool)
   then (rF_D i)
   else (pure (Sail.BitVec.extractLsb (← (rX_bits (fregidx_to_regidx i))) 63 0))
 
 def wF_or_X_H (i : fregidx) (data : (BitVec 16)) : SailM Unit := do
-  assert (flen ≥b 16) "extensions/FD/fdext_regs.sail:304.19-304.20"
-  assert (neq_bool (hartSupports Ext_F) (hartSupports Ext_Zfinx)) "extensions/FD/fdext_regs.sail:305.55-305.56"
+  assert (flen ≥b 16) "extensions/FD/fdext_regs.sail:292.19-292.20"
+  assert (neq_bool (hartSupports Ext_F) (hartSupports Ext_Zfinx)) "extensions/FD/fdext_regs.sail:293.55-293.56"
   if ((hartSupports Ext_F) : Bool)
   then (wF_H i data)
   else (wX_bits (fregidx_to_regidx i) (sign_extend (m := 64) data))
 
 def wF_or_X_S (i : fregidx) (data : (BitVec 32)) : SailM Unit := do
-  assert (flen ≥b 32) "extensions/FD/fdext_regs.sail:313.19-313.20"
-  assert (neq_bool (hartSupports Ext_F) (hartSupports Ext_Zfinx)) "extensions/FD/fdext_regs.sail:314.55-314.56"
+  assert (flen ≥b 32) "extensions/FD/fdext_regs.sail:300.19-300.20"
+  assert (neq_bool (hartSupports Ext_F) (hartSupports Ext_Zfinx)) "extensions/FD/fdext_regs.sail:301.55-301.56"
   if ((hartSupports Ext_F) : Bool)
   then (wF_S i data)
   else (wX_bits (fregidx_to_regidx i) (sign_extend (m := 64) data))
 
 def wF_or_X_D (i : fregidx) (data : (BitVec 64)) : SailM Unit := do
-  assert (flen ≥b 64) "extensions/FD/fdext_regs.sail:322.20-322.21"
-  assert (neq_bool (hartSupports Ext_F) (hartSupports Ext_Zfinx)) "extensions/FD/fdext_regs.sail:323.55-323.56"
+  assert (flen ≥b 64) "extensions/FD/fdext_regs.sail:308.20-308.21"
+  assert (neq_bool (hartSupports Ext_F) (hartSupports Ext_Zfinx)) "extensions/FD/fdext_regs.sail:309.55-309.56"
   if ((hartSupports Ext_F) : Bool)
   then (wF_D i data)
   else (wX_bits (fregidx_to_regidx i) (sign_extend (m := 64) data))

@@ -380,7 +380,7 @@ def process_clean_inval (rs1 : regidx) (cbop : cbop_zicbom) : SailM ExecutionRes
             | .E_Load_Page_Fault () => (pure (E_SAMO_Page_Fault ()))
             | .E_SAMO_Page_Fault () => (pure (E_SAMO_Page_Fault ()))
             | _ =>
-              (internal_error "extensions/Zicbom/zicbom_insts.sail" 127
+              (internal_error "extensions/Zicbom/zicbom_insts.sail" 126
                 "unexpected exception for cmo.clean/inval") ) : SailM ExceptionType )
           (pure (Memory_Exception ((sub_virtaddr_xlenbits vaddr negative_offset), e)))))
 
