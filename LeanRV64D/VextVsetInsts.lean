@@ -3,7 +3,10 @@ import LeanRV64D.Prelude
 import LeanRV64D.Xlen
 import LeanRV64D.Vlen
 import LeanRV64D.Callbacks
+import LeanRV64D.Regs
 import LeanRV64D.VextRegs
+import LeanRV64D.InstRetire
+import LeanRV64D.VextUtilsInsts
 
 set_option maxHeartbeats 1_000_000_000
 set_option maxRecDepth 1_000_000
@@ -312,4 +315,40 @@ def calculate_new_vl (AVL : (BitVec 64)) (VLMAX : Nat) : Nat :=
       then (Int.tdiv (AVL +i 1) 2)
       else VLMAX)
     else VLMAX)
+
+/-- Type quantifiers: k_ex399243# : Bool -/
+def execute_vsetvl_type (ma : (BitVec 1)) (ta : (BitVec 1)) (sew : (BitVec 3)) (lmul : (BitVec 3)) (avl : (BitVec 64)) (requires_fixed_vlmax : Bool) (rd : regidx) : SailM ExecutionResult := do
+  if (((is_invalid_lmul_pow lmul) || (is_invalid_sew_pow sew)) : Bool)
+  then
+    (do
+      (handle_illegal_vtype ())
+      (pure RETIRE_SUCCESS))
+  else
+    (do
+      let LMUL_pow_new ← do (lmul_pow_val_forwards lmul)
+      let SEW_pow_new ← do (sew_pow_val_forwards sew)
+      let lmul_sew_ratio ← do (pure ((← (get_lmul_pow ())) -i (← (get_sew_pow ()))))
+      let lmul_sew_ratio_new := (LMUL_pow_new -i SEW_pow_new)
+      if (((SEW_pow_new >b (LMUL_pow_new +i elen_exp)) || (requires_fixed_vlmax && ((lmul_sew_ratio != lmul_sew_ratio_new) || (not
+                 (← (valid_vtype ())))))) : Bool)
+      then
+        (do
+          (handle_illegal_vtype ())
+          (pure RETIRE_SUCCESS))
+      else
+        (do
+          let VLMAX := (2 ^i ((LMUL_pow_new +i vlen_exp) -i SEW_pow_new))
+          writeReg vl (to_bits (l := 64) (calculate_new_vl avl VLMAX))
+          (wX_bits rd (← readReg vl))
+          writeReg vtype (_update_Vtype_vlmul
+            (_update_Vtype_vsew
+              (_update_Vtype_vta
+                (_update_Vtype_vma
+                  (_update_Vtype_vill (Mk_Vtype (zeros (n := 64))) (0b0 : (BitVec 1))) ma) ta) sew)
+            lmul)
+          (set_vstart (zeros (n := 16)))
+          (csr_name_write_callback "vtype" (← readReg vtype))
+          (csr_name_write_callback "vl" (← readReg vl))
+          (csr_name_write_callback "vstart" (← readReg vstart))
+          (pure RETIRE_SUCCESS)))
 

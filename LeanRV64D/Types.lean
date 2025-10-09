@@ -431,6 +431,7 @@ def currentlyEnabled_measure (ext : extension) : Int :=
   | Ext_Zvl512b => 0
   | Ext_Zvl1024b => 0
   | Ext_Zve32x => 1
+  | Ext_Zvfbfmin => 3
   | Ext_Zve64f => 3
   | Ext_Zve64d => 4
   | Ext_Zvfh => 4
@@ -686,6 +687,7 @@ def currentlyEnabled (merge_var : extension) : SailM Bool := do
   | Ext_Zicboz => (pure (hartSupports Ext_Zicboz))
   | Ext_Zifencei => (pure (hartSupports Ext_Zifencei))
   | Ext_Zfbfmin => (pure ((hartSupports Ext_Zfbfmin) && (← (currentlyEnabled Ext_F))))
+  | Ext_Zvfbfmin => (pure ((hartSupports Ext_Zvfbfmin) && (← (currentlyEnabled Ext_Zve32f))))
   | Ext_Zimop => (pure (hartSupports Ext_Zimop))
   | Ext_Zcmop => (pure ((hartSupports Ext_Zcmop) && (← (currentlyEnabled Ext_Zca))))
 termination_by let ext := merge_var; ((currentlyEnabled_measure ext)).toNat
@@ -3349,7 +3351,7 @@ def maybe_aqrl_forwards (arg_ : (Bool × Bool)) : String :=
   | (false, true) => ".rl"
   | (false, false) => ""
 
-/-- Type quantifiers: k_ex386732# : Bool -/
+/-- Type quantifiers: k_ex389340# : Bool -/
 def maybe_u_forwards (arg_ : Bool) : String :=
   match arg_ with
   | true => "u"
@@ -6784,6 +6786,20 @@ def assembly_forwards (arg_ : instruction) : SailM String := do
             (String.append (sep_forwards ())
               (String.append (← (freg_name_forwards rs1))
                 (String.append (sep_forwards ()) (String.append (frm_mnemonic_forwards rm) ""))))))))
+  | .VFNCVTBF16_F_F_W (vm, vs2, vd) =>
+    (pure (String.append "vfncvtbf16.f.f.w"
+        (String.append (spc_forwards ())
+          (String.append (vreg_name_forwards vd)
+            (String.append (sep_forwards ())
+              (String.append (vreg_name_forwards vs2)
+                (String.append (sep_forwards ()) (String.append (maybe_vmask_backwards vm) ""))))))))
+  | .VFWCVTBF16_F_F_V (vm, vs2, vd) =>
+    (pure (String.append "vfwcvtbf16.f.f.v"
+        (String.append (spc_forwards ())
+          (String.append (vreg_name_forwards vd)
+            (String.append (sep_forwards ())
+              (String.append (vreg_name_forwards vs2)
+                (String.append (sep_forwards ()) (String.append (maybe_vmask_backwards vm) ""))))))))
   | .ZIMOP_MOP_R (mop, rs1, rd) =>
     (pure (String.append "mop.r."
         (String.append (← (dec_bits_5_forwards mop))

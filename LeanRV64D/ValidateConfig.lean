@@ -471,6 +471,15 @@ def check_pmp (_ : Unit) : Bool :=
 def check_misc_extension_dependencies (_ : Unit) : Bool :=
   let valid : Bool := true
   let valid : Bool :=
+    if (((hartSupports Ext_Zicfilp) && (not (hartSupports Ext_Zicsr))) : Bool)
+    then
+      (let valid : Bool := false
+      let _ : Unit :=
+        (print_endline
+          "The Zicfilp extension is enabled but Zicsr is disabled: supporting Zicfilp requires Zicsr.")
+      valid)
+    else valid
+  let valid : Bool :=
     if (((hartSupports Ext_Zfbfmin) && (not (hartSupports Ext_F))) : Bool)
     then
       (let valid : Bool := false
@@ -479,12 +488,12 @@ def check_misc_extension_dependencies (_ : Unit) : Bool :=
           "The Zfbfmin extension is enabled but F is disabled: supporting Zfbfmin requires F.")
       valid)
     else valid
-  if (((hartSupports Ext_Zicfilp) && (not (hartSupports Ext_Zicsr))) : Bool)
+  if (((hartSupports Ext_Zvfbfmin) && (not (hartSupports Ext_Zve32f))) : Bool)
   then
     (let valid : Bool := false
     let _ : Unit :=
       (print_endline
-        "The Zicfilp extension is enabled but Zicsr is disabled: supporting Zicfilp requires Zicsr.")
+        "The Zvfbfmin extension is enabled but Zve32f is disabled: supporting Zvfbfmin requires Zve32f.")
     valid)
   else valid
 
