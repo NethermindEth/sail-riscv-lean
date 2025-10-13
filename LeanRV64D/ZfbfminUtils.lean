@@ -199,3 +199,8 @@ def bf16_to_f32 (v : (BitVec 16)) : ((BitVec 5) × (BitVec 32)) :=
       else (fmake_S sign exp (mant ++ (zeros (n := 16)))))
   (fflags, value)
 
+def bf16_to_f32_set_flags (nval : (BitVec 16)) : SailM (BitVec 32) := do
+  let (fflags, wval) := (bf16_to_f32 nval)
+  (accrue_fflags fflags)
+  (pure wval)
+

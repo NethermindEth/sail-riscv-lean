@@ -488,12 +488,22 @@ def check_misc_extension_dependencies (_ : Unit) : Bool :=
           "The Zfbfmin extension is enabled but F is disabled: supporting Zfbfmin requires F.")
       valid)
     else valid
-  if (((hartSupports Ext_Zvfbfmin) && (not (hartSupports Ext_Zve32f))) : Bool)
+  let valid : Bool :=
+    if (((hartSupports Ext_Zvfbfmin) && (not (hartSupports Ext_Zve32f))) : Bool)
+    then
+      (let valid : Bool := false
+      let _ : Unit :=
+        (print_endline
+          "The Zvfbfmin extension is enabled but Zve32f is disabled: supporting Zvfbfmin requires Zve32f.")
+      valid)
+    else valid
+  if (((hartSupports Ext_Zvfbfwma) && ((not (hartSupports Ext_Zfbfmin)) || (not
+           (hartSupports Ext_Zvfbfmin)))) : Bool)
   then
     (let valid : Bool := false
     let _ : Unit :=
       (print_endline
-        "The Zvfbfmin extension is enabled but Zve32f is disabled: supporting Zvfbfmin requires Zve32f.")
+        "The Zvfbfwma extension is enabled but either Zfbfmin or Zvfbfmin is disabled: supporting Zvfbfwma requires Zfbfmin and Zvfbfmin.")
     valid)
   else valid
 
