@@ -619,139 +619,6 @@ def _set_Vtype_vta (r_ref : (RegisterRef (BitVec 64))) (v : (BitVec 1)) : SailM 
   let r ← do (reg_deref r_ref)
   writeRegRef r_ref (_update_Vtype_vta r v)
 
-def sew_pow_val_forwards (arg_ : (BitVec 3)) : SailM Nat := do
-  let b__0 := arg_
-  if ((b__0 == (0b000 : (BitVec 3))) : Bool)
-  then (pure 3)
-  else
-    (do
-      if ((b__0 == (0b001 : (BitVec 3))) : Bool)
-      then (pure 4)
-      else
-        (do
-          if ((b__0 == (0b010 : (BitVec 3))) : Bool)
-          then (pure 5)
-          else
-            (do
-              if ((b__0 == (0b011 : (BitVec 3))) : Bool)
-              then (pure 6)
-              else
-                (do
-                  assert false "Pattern match failure at unknown location"
-                  throw Error.Exit))))
-
-/-- Type quantifiers: arg_ : Nat, 3 ≤ arg_ ∧ arg_ ≤ 6 -/
-def sew_pow_val_backwards (arg_ : Nat) : (BitVec 3) :=
-  match arg_ with
-  | 3 => (0b000 : (BitVec 3))
-  | 4 => (0b001 : (BitVec 3))
-  | 5 => (0b010 : (BitVec 3))
-  | _ => (0b011 : (BitVec 3))
-
-def sew_pow_val_forwards_matches (arg_ : (BitVec 3)) : Bool :=
-  let b__0 := arg_
-  if ((b__0 == (0b000 : (BitVec 3))) : Bool)
-  then true
-  else
-    (if ((b__0 == (0b001 : (BitVec 3))) : Bool)
-    then true
-    else
-      (if ((b__0 == (0b010 : (BitVec 3))) : Bool)
-      then true
-      else
-        (if ((b__0 == (0b011 : (BitVec 3))) : Bool)
-        then true
-        else false)))
-
-/-- Type quantifiers: arg_ : Nat, 3 ≤ arg_ ∧ arg_ ≤ 6 -/
-def sew_pow_val_backwards_matches (arg_ : Nat) : Bool :=
-  match arg_ with
-  | 3 => true
-  | 4 => true
-  | 5 => true
-  | 6 => true
-  | _ => false
-
-def lmul_pow_val_forwards (arg_ : (BitVec 3)) : SailM Int := do
-  let b__0 := arg_
-  if ((b__0 == (0b101 : (BitVec 3))) : Bool)
-  then (pure (-3))
-  else
-    (do
-      if ((b__0 == (0b110 : (BitVec 3))) : Bool)
-      then (pure (-2))
-      else
-        (do
-          if ((b__0 == (0b111 : (BitVec 3))) : Bool)
-          then (pure (-1))
-          else
-            (do
-              if ((b__0 == (0b000 : (BitVec 3))) : Bool)
-              then (pure 0)
-              else
-                (do
-                  if ((b__0 == (0b001 : (BitVec 3))) : Bool)
-                  then (pure 1)
-                  else
-                    (do
-                      if ((b__0 == (0b010 : (BitVec 3))) : Bool)
-                      then (pure 2)
-                      else
-                        (do
-                          if ((b__0 == (0b011 : (BitVec 3))) : Bool)
-                          then (pure 3)
-                          else
-                            (do
-                              assert false "Pattern match failure at unknown location"
-                              throw Error.Exit)))))))
-
-/-- Type quantifiers: arg_ : Int, ((- 3)) ≤ arg_ ∧ arg_ ≤ 3 -/
-def lmul_pow_val_backwards (arg_ : Int) : (BitVec 3) :=
-  match arg_ with
-  | (-3) => (0b101 : (BitVec 3))
-  | (-2) => (0b110 : (BitVec 3))
-  | (-1) => (0b111 : (BitVec 3))
-  | 0 => (0b000 : (BitVec 3))
-  | 1 => (0b001 : (BitVec 3))
-  | 2 => (0b010 : (BitVec 3))
-  | _ => (0b011 : (BitVec 3))
-
-def lmul_pow_val_forwards_matches (arg_ : (BitVec 3)) : Bool :=
-  let b__0 := arg_
-  if ((b__0 == (0b101 : (BitVec 3))) : Bool)
-  then true
-  else
-    (if ((b__0 == (0b110 : (BitVec 3))) : Bool)
-    then true
-    else
-      (if ((b__0 == (0b111 : (BitVec 3))) : Bool)
-      then true
-      else
-        (if ((b__0 == (0b000 : (BitVec 3))) : Bool)
-        then true
-        else
-          (if ((b__0 == (0b001 : (BitVec 3))) : Bool)
-          then true
-          else
-            (if ((b__0 == (0b010 : (BitVec 3))) : Bool)
-            then true
-            else
-              (if ((b__0 == (0b011 : (BitVec 3))) : Bool)
-              then true
-              else false))))))
-
-/-- Type quantifiers: arg_ : Int, ((- 3)) ≤ arg_ ∧ arg_ ≤ 3 -/
-def lmul_pow_val_backwards_matches (arg_ : Int) : Bool :=
-  match arg_ with
-  | (-3) => true
-  | (-2) => true
-  | (-1) => true
-  | 0 => true
-  | 1 => true
-  | 2 => true
-  | 3 => true
-  | _ => false
-
 def is_invalid_sew_pow (v : (BitVec 3)) : Bool :=
   (zopz0zK_u v (0b011 : (BitVec 3)))
 
@@ -759,8 +626,9 @@ def is_invalid_lmul_pow (v : (BitVec 3)) : Bool :=
   (v == (0b100 : (BitVec 3)))
 
 def get_sew_pow (_ : Unit) : SailM Nat := do
-  let sew_pow ← do (pure (_get_Vtype_vsew (← readReg vtype)))
-  (sew_pow_val_forwards sew_pow)
+  let sew_pow ← do (pure (BitVec.toNat (_get_Vtype_vsew (← readReg vtype))))
+  assert (sew_pow <b 4) "Reserved SEW stored in vtype register. This should be impossible."
+  (pure (sew_pow +i 3))
 
 def get_sew (_ : Unit) : SailM Int := do
   (pure (2 ^i (← (get_sew_pow ()))))
@@ -769,8 +637,9 @@ def get_sew_bytes (_ : Unit) : SailM Int := do
   (pure (Int.tdiv (← (get_sew ())) 8))
 
 def get_lmul_pow (_ : Unit) : SailM Int := do
-  let lmul_pow ← do (pure (_get_Vtype_vlmul (← readReg vtype)))
-  (lmul_pow_val_forwards lmul_pow)
+  let lmul_pow ← do (pure (BitVec.toInt (_get_Vtype_vlmul (← readReg vtype))))
+  assert (lmul_pow >b (Neg.neg 4)) "Reserved LMUL stored in vtype register. This should be impossible."
+  (pure lmul_pow)
 
 def undefined_agtype (_ : Unit) : SailM agtype := do
   (internal_pick [UNDISTURBED, AGNOSTIC])

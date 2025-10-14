@@ -221,7 +221,7 @@ def ones {n : _} : (BitVec n) :=
 def trunc {m : _} (v : (BitVec k_n)) : (BitVec m) :=
   (Sail.BitVec.truncate v m)
 
-/-- Type quantifiers: k_ex390017# : Bool -/
+/-- Type quantifiers: k_ex389737# : Bool -/
 def bool_bit_forwards (arg_ : Bool) : (BitVec 1) :=
   match arg_ with
   | true => 1#1
@@ -236,7 +236,7 @@ def bool_bit_backwards (arg_ : (BitVec 1)) : SailM Bool := do
       assert false "Pattern match failure at unknown location"
       throw Error.Exit)
 
-/-- Type quantifiers: k_ex390018# : Bool -/
+/-- Type quantifiers: k_ex389738# : Bool -/
 def bool_bit_forwards_matches (arg_ : Bool) : Bool :=
   match arg_ with
   | true => true
@@ -248,7 +248,7 @@ def bool_bit_backwards_matches (arg_ : (BitVec 1)) : Bool :=
   | 0#1 => true
   | _ => false
 
-/-- Type quantifiers: k_ex390019# : Bool -/
+/-- Type quantifiers: k_ex389739# : Bool -/
 def bool_bits_forwards (arg_ : Bool) : (BitVec 1) :=
   match arg_ with
   | true => (0b1 : (BitVec 1))
@@ -260,7 +260,7 @@ def bool_bits_backwards (arg_ : (BitVec 1)) : Bool :=
   then true
   else false
 
-/-- Type quantifiers: k_ex390021# : Bool -/
+/-- Type quantifiers: k_ex389741# : Bool -/
 def bool_bits_forwards_matches (arg_ : Bool) : Bool :=
   match arg_ with
   | true => true
@@ -275,14 +275,14 @@ def bool_bits_backwards_matches (arg_ : (BitVec 1)) : Bool :=
     then true
     else false)
 
-/-- Type quantifiers: k_ex390024# : Bool -/
+/-- Type quantifiers: k_ex389744# : Bool -/
 def bool_to_bit (x : Bool) : (BitVec 1) :=
   (bool_bit_forwards x)
 
 def bit_to_bool (x : (BitVec 1)) : SailM Bool := do
   (bool_bit_backwards x)
 
-/-- Type quantifiers: k_ex390026# : Bool -/
+/-- Type quantifiers: k_ex389746# : Bool -/
 def bool_to_bits (x : Bool) : (BitVec 1) :=
   (bool_bits_forwards x)
 
@@ -347,7 +347,7 @@ def zopz0zIzJ_u (x : (BitVec k_n)) (y : (BitVec k_n)) : Bool :=
 def zopz0zKzJ_u (x : (BitVec k_n)) (y : (BitVec k_n)) : Bool :=
   ((BitVec.toNat x) ≥b (BitVec.toNat y))
 
-/-- Type quantifiers: k_ex390102# : Bool, k_ex390101# : Bool -/
+/-- Type quantifiers: k_ex389822# : Bool, k_ex389821# : Bool -/
 def zopz0zJzJzK (x : Bool) (y : Bool) : Bool :=
   ((not x) || y)
 
