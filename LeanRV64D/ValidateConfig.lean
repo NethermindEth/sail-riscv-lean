@@ -256,7 +256,7 @@ def check_vlen_elen (_ : Unit) : Bool :=
 def check_vext_config (_ : Unit) : Bool :=
   let valid : Bool := true
   let valid : Bool :=
-    if ((((vector_support_config_level ()) ≥b (vector_support_level_forwards Integer)) && (((elen_exp : Nat) <b 5) : Bool)) : Bool)
+    if (((vector_support_config_level ≥b (vector_support_level_forwards Integer)) && (((elen_exp : Nat) <b 5) : Bool)) : Bool)
     then
       (let valid : Bool := false
       let _ : Unit :=
@@ -266,7 +266,7 @@ def check_vext_config (_ : Unit) : Bool :=
       valid)
     else valid
   let valid : Bool :=
-    if ((((vector_support_config_level ()) ≥b (vector_support_level_forwards Float_single)) && (not
+    if (((vector_support_config_level ≥b (vector_support_level_forwards Float_single)) && (not
            (hartSupports Ext_F))) : Bool)
     then
       (let valid : Bool := false
@@ -275,7 +275,7 @@ def check_vext_config (_ : Unit) : Bool :=
       valid)
     else valid
   let valid : Bool :=
-    if (((vector_support_config_level ()) ≥b (vector_support_level_forwards Float_double)) : Bool)
+    if ((vector_support_config_level ≥b (vector_support_level_forwards Float_double)) : Bool)
     then
       (let valid : Bool :=
         if (((elen_exp : Nat) <b 6) : Bool)
@@ -326,7 +326,7 @@ def check_vext_config (_ : Unit) : Bool :=
       valid)
     else valid
   let valid : Bool :=
-    if ((((vector_support_config_level ()) ≥b (vector_support_level_forwards Full)) && (not
+    if (((vector_support_config_level ≥b (vector_support_level_forwards Full)) && (not
            (hartSupports Ext_Zvl128b))) : Bool)
     then
       (let valid : Bool := false

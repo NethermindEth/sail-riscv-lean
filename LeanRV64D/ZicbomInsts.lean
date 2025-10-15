@@ -287,7 +287,7 @@ def encdec_cbie_backwards (arg_ : (BitVec 2)) : SailM cbie := do
         (do
           if ((b__0 == (0b11 : (BitVec 2))) : Bool)
           then (pure CBIE_EXEC_INVAL)
-          else (internal_error "extensions/Zicbom/zicbom_insts.sail" 44 "reserved CBIE")))
+          else (internal_error "extensions/Zicbom/zicbom_insts.sail" 45 "reserved CBIE")))
 
 def encdec_cbie_forwards_matches (arg_ : cbie) : Bool :=
   match arg_ with
@@ -337,9 +337,9 @@ def cbop_priv_check (p : Privilege) : SailM checked_cbop := do
     else (encdec_cbie_backwards (_get_MEnvcfg_CBIE (← readReg menvcfg))) ) : SailM cbie )
   match (p, mCBIE, sCBIE) with
   | (VirtualUser, _, _) =>
-    (internal_error "extensions/Zicbom/zicbom_insts.sail" 58 "Hypervisor extension not supported")
-  | (VirtualSupervisor, _, _) =>
     (internal_error "extensions/Zicbom/zicbom_insts.sail" 59 "Hypervisor extension not supported")
+  | (VirtualSupervisor, _, _) =>
+    (internal_error "extensions/Zicbom/zicbom_insts.sail" 60 "Hypervisor extension not supported")
   | (Machine, _, _) => (pure CBOP_INVAL_INVAL)
   | (_, CBIE_ILLEGAL, _) => (pure CBOP_ILLEGAL)
   | (User, _, CBIE_ILLEGAL) => (pure CBOP_ILLEGAL)
@@ -380,7 +380,7 @@ def process_clean_inval (rs1 : regidx) (cbop : cbop_zicbom) : SailM ExecutionRes
             | .E_Load_Page_Fault () => (pure (E_SAMO_Page_Fault ()))
             | .E_SAMO_Page_Fault () => (pure (E_SAMO_Page_Fault ()))
             | _ =>
-              (internal_error "extensions/Zicbom/zicbom_insts.sail" 126
+              (internal_error "extensions/Zicbom/zicbom_insts.sail" 127
                 "unexpected exception for cmo.clean/inval") ) : SailM ExceptionType )
           (pure (Memory_Exception ((sub_virtaddr_xlenbits vaddr negative_offset), e)))))
 

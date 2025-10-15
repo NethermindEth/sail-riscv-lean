@@ -240,8 +240,7 @@ def vector_support_level_backwards_matches (arg_ : Nat) : Bool :=
 
 def vector_support_config := (Float_single : vector_support)
 
-def vector_support_config_level (_ : Unit) : Nat :=
-  (vector_support_level_forwards vector_support_config)
+def vector_support_config_level := (vector_support_level_forwards vector_support_config)
 
 def vlen_exp := 8
 

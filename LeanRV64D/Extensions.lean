@@ -606,7 +606,7 @@ def hartSupports (merge_var : extension) : Bool :=
   | Ext_D => (true && (hartSupports Ext_F))
   | Ext_B => true
   | Ext_V =>
-    ((8 ≥b 7) && (((vector_support_config_level ()) ≥b (vector_support_level_forwards Full)) : Bool))
+    ((8 ≥b 7) && ((vector_support_config_level ≥b (vector_support_level_forwards Full)) : Bool))
   | Ext_S => true
   | Ext_U => true
   | Ext_H => false
@@ -665,18 +665,15 @@ def hartSupports (merge_var : extension) : Bool :=
   | Ext_Zvl512b => (8 ≥b 9)
   | Ext_Zvl1024b => (8 ≥b 10)
   | Ext_Zve32f =>
-    ((6 ≥b 5) && (((vector_support_config_level ()) ≥b (vector_support_level_forwards
-          Float_single)) : Bool))
+    ((6 ≥b 5) && ((vector_support_config_level ≥b (vector_support_level_forwards Float_single)) : Bool))
   | Ext_Zve32x =>
-    ((6 ≥b 5) && (((vector_support_config_level ()) ≥b (vector_support_level_forwards Integer)) : Bool))
+    ((6 ≥b 5) && ((vector_support_config_level ≥b (vector_support_level_forwards Integer)) : Bool))
   | Ext_Zve64d =>
-    ((6 ≥b 6) && (((vector_support_config_level ()) ≥b (vector_support_level_forwards
-          Float_double)) : Bool))
+    ((6 ≥b 6) && ((vector_support_config_level ≥b (vector_support_level_forwards Float_double)) : Bool))
   | Ext_Zve64f =>
-    ((6 ≥b 6) && (((vector_support_config_level ()) ≥b (vector_support_level_forwards
-          Float_single)) : Bool))
+    ((6 ≥b 6) && ((vector_support_config_level ≥b (vector_support_level_forwards Float_single)) : Bool))
   | Ext_Zve64x =>
-    ((6 ≥b 6) && (((vector_support_config_level ()) ≥b (vector_support_level_forwards Integer)) : Bool))
+    ((6 ≥b 6) && ((vector_support_config_level ≥b (vector_support_level_forwards Integer)) : Bool))
   | Ext_Zvfbfmin => true
   | Ext_Zvfbfwma => true
   | Ext_Zvfh => true
