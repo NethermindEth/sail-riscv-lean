@@ -157,6 +157,7 @@ open amoop
 open agtype
 open WaitReason
 open TrapVectorMode
+open TrapCause
 open Step
 open Software_Check_Code
 open SWCheckCodes
@@ -179,7 +180,7 @@ open AtomicSupport
 open Architecture
 open AccessType
 
-/-- Type quantifiers: k_ex388664# : Bool, k_ex388663# : Bool -/
+/-- Type quantifiers: k_ex388681# : Bool, k_ex388680# : Bool -/
 def neq_bool (x : Bool) (y : Bool) : Bool :=
   (! (x == y))
 

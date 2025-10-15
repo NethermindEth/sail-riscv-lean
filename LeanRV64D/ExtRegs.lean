@@ -157,6 +157,7 @@ open amoop
 open agtype
 open WaitReason
 open TrapVectorMode
+open TrapCause
 open Step
 open Software_Check_Code
 open SWCheckCodes
@@ -179,7 +180,7 @@ open AtomicSupport
 open Architecture
 open AccessType
 
-/-- Type quantifiers: k_ex392613# : Bool -/
+/-- Type quantifiers: k_ex392636# : Bool -/
 def ext_check_CSR (csrno : (BitVec 12)) (p : Privilege) (isWrite : Bool) : Bool :=
   true
 

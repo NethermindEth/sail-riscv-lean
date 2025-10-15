@@ -161,6 +161,7 @@ open amoop
 open agtype
 open WaitReason
 open TrapVectorMode
+open TrapCause
 open Step
 open Software_Check_Code
 open SWCheckCodes
@@ -2459,6 +2460,18 @@ def exceptionType_to_str (e : ExceptionType) : String :=
   | .E_Software_Check () => "software-check-fault"
   | .E_Extension e => (ext_exc_type_to_str e)
 
+def interruptType_to_str (i : InterruptType) : String :=
+  match i with
+  | I_U_Software => "user-software-interrupt"
+  | I_S_Software => "supervisor-software-interrupt"
+  | I_M_Software => "machine-software-interrupt"
+  | I_U_Timer => "user-timer-interrupt"
+  | I_S_Timer => "supervisor-timer-interrupt"
+  | I_M_Timer => "machine-timer-interrupt"
+  | I_U_External => "user-external-interrupt"
+  | I_S_External => "supervisor-external-interrupt"
+  | I_M_External => "machine-external-interrupt"
+
 def misaligned_fault_str_backwards (arg_ : String) : SailM misaligned_fault := do
   match arg_ with
   | "NoFault" => (pure NoFault)
@@ -3355,7 +3368,7 @@ def maybe_aqrl_forwards (arg_ : (Bool × Bool)) : String :=
   | (false, true) => ".rl"
   | (false, false) => ""
 
-/-- Type quantifiers: k_ex391388# : Bool -/
+/-- Type quantifiers: k_ex391405# : Bool -/
 def maybe_u_forwards (arg_ : Bool) : String :=
   match arg_ with
   | true => "u"
@@ -6869,6 +6882,11 @@ def reservability_str_backwards (arg_ : String) : SailM Reservability := do
       assert false "Pattern match failure at unknown location"
       throw Error.Exit)
 
+def trapCause_to_str (t : TrapCause) : String :=
+  match t with
+  | .Interrupt i => (HAppend.hAppend "int#" (interruptType_to_str i))
+  | .Exception e => (HAppend.hAppend "exc#" (exceptionType_to_str e))
+
 def wait_name_backwards (arg_ : String) : SailM WaitReason := do
   match arg_ with
   | "WAIT-WFI" => (pure WAIT_WFI)
@@ -7277,6 +7295,82 @@ def num_of_SWCheckCodes (arg_ : SWCheckCodes) : Int :=
 def sw_check_code_to_bits (c : SWCheckCodes) : (BitVec 64) :=
   match c with
   | LANDING_PAD_FAULT => (zero_extend (m := 64) (0b010 : (BitVec 3)))
+
+def trapCause_bits_forwards (arg_ : TrapCause) : (BitVec 6) :=
+  match arg_ with
+  | .Interrupt i => (interruptType_bits_forwards i)
+  | .Exception e => (exceptionType_bits_forwards e)
+
+def trapCause_bits_backwards (arg_ : (BitVec 6)) : SailM TrapCause := do
+  let head_exp_ := arg_
+  match (← do
+    match head_exp_ with
+    | mapping0_ =>
+      (do
+        if ((interruptType_bits_backwards_matches mapping0_) : Bool)
+        then
+          (do
+            match (← (interruptType_bits_backwards mapping0_)) with
+            | i => (pure (some (Interrupt i))))
+        else (pure none))) with
+  | .some result => (pure result)
+  | none =>
+    (do
+      match (← do
+        match head_exp_ with
+        | mapping1_ =>
+          (do
+            if ((← (exceptionType_bits_backwards_matches mapping1_)) : Bool)
+            then
+              (do
+                match (← (exceptionType_bits_backwards mapping1_)) with
+                | e => (pure (some (Exception e))))
+            else (pure none))) with
+      | .some result => (pure result)
+      | _ =>
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+
+def trapCause_bits_forwards_matches (arg_ : TrapCause) : Bool :=
+  match arg_ with
+  | .Interrupt i => true
+  | .Exception e => true
+
+def trapCause_bits_backwards_matches (arg_ : (BitVec 6)) : SailM Bool := do
+  let head_exp_ := arg_
+  match (← do
+    match head_exp_ with
+    | mapping0_ =>
+      (do
+        if ((interruptType_bits_backwards_matches mapping0_) : Bool)
+        then
+          (do
+            match (← (interruptType_bits_backwards mapping0_)) with
+            | i => (pure (some true)))
+        else (pure none))) with
+  | .some result => (pure result)
+  | none =>
+    (do
+      match (← do
+        match head_exp_ with
+        | mapping1_ =>
+          (do
+            if ((← (exceptionType_bits_backwards_matches mapping1_)) : Bool)
+            then
+              (do
+                match (← (exceptionType_bits_backwards mapping1_)) with
+                | e => (pure (some true)))
+            else (pure none))) with
+      | .some result => (pure result)
+      | none =>
+        (match head_exp_ with
+        | _ => (pure false)))
+
+def trapCause_is_interrupt (t : TrapCause) : Bool :=
+  match t with
+  | .Interrupt _ => true
+  | .Exception _ => false
 
 def undefined_TrapVectorMode (_ : Unit) : SailM TrapVectorMode := do
   (internal_pick [TV_Direct, TV_Vector, TV_Reserved])

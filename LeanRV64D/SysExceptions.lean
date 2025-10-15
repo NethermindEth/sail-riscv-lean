@@ -152,6 +152,7 @@ open amoop
 open agtype
 open WaitReason
 open TrapVectorMode
+open TrapCause
 open Step
 open Software_Check_Code
 open SWCheckCodes

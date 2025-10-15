@@ -202,6 +202,9 @@ inductive ExceptionType where
   | E_Extension (_ : ext_exc_type)
   deriving Inhabited, BEq, Repr
 
+inductive InterruptType where | I_U_Software | I_S_Software | I_M_Software | I_U_Timer | I_S_Timer | I_M_Timer | I_U_External | I_S_External | I_M_External
+  deriving BEq, Inhabited, Repr
+
 inductive misaligned_fault where | NoFault | AccessFault | AlignmentFault
   deriving BEq, Inhabited, Repr
 
@@ -947,13 +950,15 @@ inductive PTW_Error where
   | PTW_Ext_Error (_ : ext_ptw_error)
   deriving Inhabited, BEq, Repr
 
+inductive TrapCause where
+  | Interrupt (_ : InterruptType)
+  | Exception (_ : ExceptionType)
+  deriving Inhabited, BEq, Repr
+
 inductive WaitReason where | WAIT_WFI | WAIT_WRS_STO | WAIT_WRS_NTO
   deriving BEq, Inhabited, Repr
 
 
-
-inductive InterruptType where | I_U_Software | I_S_Software | I_M_Software | I_U_Timer | I_S_Timer | I_M_Timer | I_U_External | I_S_External | I_M_External
-  deriving BEq, Inhabited, Repr
 
 inductive SWCheckCodes where | LANDING_PAD_FAULT
   deriving BEq, Inhabited, Repr
