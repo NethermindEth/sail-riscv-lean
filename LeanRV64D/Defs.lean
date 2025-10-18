@@ -16,6 +16,9 @@ inductive option (k_a : Type) where
   | None (_ : Unit)
   deriving Inhabited, BEq, Repr
 
+inductive vector_support where | Disabled | Integer | Float_single | Float_double | Full
+  deriving BEq, Inhabited, Repr
+
 abbrev bits k_n := (BitVec k_n)
 
 inductive regidx where
@@ -35,6 +38,26 @@ abbrev xlenbits := (BitVec 64)
 inductive virtaddr where
   | Virtaddr (_ : xlenbits)
   deriving Inhabited, BEq, Repr
+
+abbrev fp_exception_flags := (BitVec 5)
+
+abbrev fp_rounding_modes := (BitVec 5)
+
+
+
+abbrev fp_bits := (BitVec _)
+
+/-- Type quantifiers: k_n : Int -/
+structure float_bits (k_n : Int) where
+  sign : (BitVec 1)
+  exp :
+  (BitVec (if ( k_n = 16  : Bool) then 5 else (if ( k_n = 32  : Bool) then 8 else (if ( k_n = 64  : Bool) then 11 else 15))))
+  mantissa :
+  (BitVec (if ( k_n = 16  : Bool) then 10 else (if ( k_n = 32  : Bool) then 23 else (if ( k_n = 64  : Bool) then 52 else 112))))
+  deriving BEq, Inhabited, Repr
+
+inductive float_class where | float_class_negative_inf | float_class_negative_normal | float_class_negative_subnormal | float_class_negative_zero | float_class_positive_zero | float_class_positive_subnormal | float_class_positive_normal | float_class_positive_inf | float_class_snan | float_class_qnan
+  deriving BEq, Inhabited, Repr
 
 abbrev nat1 := Int
 
@@ -66,9 +89,6 @@ abbrev flen_bytes : Int := (if ( ext_d_supported  : Bool) then 8 else 4)
 abbrev flen : Int := (if ( true  : Bool) then 8 else 4 * 8)
 
 abbrev flenbits := (BitVec (if ( true  : Bool) then 8 else 4 * 8))
-
-inductive vector_support where | Disabled | Integer | Float_single | Float_double | Full
-  deriving BEq, Inhabited, Repr
 
 abbrev vlen_exp : Int := 8
 
@@ -113,7 +133,7 @@ abbrev RVFI_DII_Execution_Packet_V1 := (BitVec 704)
 
 abbrev RVFI_DII_Execution_PacketV2 := (BitVec 512)
 
-inductive extension where | Ext_M | Ext_A | Ext_F | Ext_D | Ext_B | Ext_V | Ext_S | Ext_U | Ext_H | Ext_Zicbom | Ext_Zicbop | Ext_Zicboz | Ext_Zicfilp | Ext_Zicntr | Ext_Zicond | Ext_Zicsr | Ext_Zifencei | Ext_Zihintntl | Ext_Zihintpause | Ext_Zihpm | Ext_Zimop | Ext_Zmmul | Ext_Zaamo | Ext_Zabha | Ext_Zacas | Ext_Zalrsc | Ext_Zawrs | Ext_Zfa | Ext_Zfbfmin | Ext_Zfh | Ext_Zfhmin | Ext_Zfinx | Ext_Zdinx | Ext_Zca | Ext_Zcb | Ext_Zcd | Ext_Zcf | Ext_Zcmop | Ext_C | Ext_Zba | Ext_Zbb | Ext_Zbc | Ext_Zbkb | Ext_Zbkc | Ext_Zbkx | Ext_Zbs | Ext_Zknd | Ext_Zkne | Ext_Zknh | Ext_Zkr | Ext_Zksed | Ext_Zksh | Ext_Zkt | Ext_Zhinx | Ext_Zhinxmin | Ext_Zvl32b | Ext_Zvl64b | Ext_Zvl128b | Ext_Zvl256b | Ext_Zvl512b | Ext_Zvl1024b | Ext_Zve32f | Ext_Zve32x | Ext_Zve64d | Ext_Zve64f | Ext_Zve64x | Ext_Zvfbfmin | Ext_Zvfbfwma | Ext_Zvfh | Ext_Zvfhmin | Ext_Zvbb | Ext_Zvbc | Ext_Zvkb | Ext_Zvkg | Ext_Zvkned | Ext_Zvknha | Ext_Zvknhb | Ext_Zvksed | Ext_Zvksh | Ext_Zvkt | Ext_Zvkn | Ext_Zvknc | Ext_Zvkng | Ext_Zvks | Ext_Zvksc | Ext_Zvksg | Ext_Sscofpmf | Ext_Sstc | Ext_Svbare | Ext_Sv32 | Ext_Sv39 | Ext_Sv48 | Ext_Sv57 | Ext_Svinval | Ext_Svnapot | Ext_Svpbmt | Ext_Svrsw60t59b | Ext_Smcntrpmf
+inductive extension where | Ext_M | Ext_A | Ext_F | Ext_D | Ext_B | Ext_V | Ext_S | Ext_U | Ext_H | Ext_Zic64b | Ext_Zicbom | Ext_Zicbop | Ext_Zicboz | Ext_Zicfilp | Ext_Zicntr | Ext_Zicond | Ext_Zicsr | Ext_Zifencei | Ext_Zihintntl | Ext_Zihintpause | Ext_Zihpm | Ext_Zimop | Ext_Zmmul | Ext_Zaamo | Ext_Zabha | Ext_Zacas | Ext_Zalrsc | Ext_Zawrs | Ext_Zfa | Ext_Zfbfmin | Ext_Zfh | Ext_Zfhmin | Ext_Zfinx | Ext_Zdinx | Ext_Zca | Ext_Zcb | Ext_Zcd | Ext_Zcf | Ext_Zcmop | Ext_C | Ext_Zba | Ext_Zbb | Ext_Zbc | Ext_Zbkb | Ext_Zbkc | Ext_Zbkx | Ext_Zbs | Ext_Zknd | Ext_Zkne | Ext_Zknh | Ext_Zkr | Ext_Zksed | Ext_Zksh | Ext_Zkt | Ext_Zhinx | Ext_Zhinxmin | Ext_Zvl32b | Ext_Zvl64b | Ext_Zvl128b | Ext_Zvl256b | Ext_Zvl512b | Ext_Zvl1024b | Ext_Zve32f | Ext_Zve32x | Ext_Zve64d | Ext_Zve64f | Ext_Zve64x | Ext_Zvfbfmin | Ext_Zvfbfwma | Ext_Zvfh | Ext_Zvfhmin | Ext_Zvbb | Ext_Zvbc | Ext_Zvkb | Ext_Zvkg | Ext_Zvkned | Ext_Zvknha | Ext_Zvknhb | Ext_Zvksed | Ext_Zvksh | Ext_Zvkt | Ext_Zvkn | Ext_Zvknc | Ext_Zvkng | Ext_Zvks | Ext_Zvksc | Ext_Zvksg | Ext_Sscofpmf | Ext_Sstc | Ext_Svbare | Ext_Sv32 | Ext_Sv39 | Ext_Sv48 | Ext_Sv57 | Ext_Svinval | Ext_Svnapot | Ext_Svpbmt | Ext_Svrsw60t59b | Ext_Smcntrpmf
   deriving BEq, Inhabited, Repr
 
 abbrev exc_code := (BitVec 6)
@@ -1222,8 +1242,6 @@ inductive Register : Type where
   | stimecmp
   | mtimecmp
   | htif_tohost_base
-  | plat_clint_size
-  | plat_clint_base
   | pc_reset_address
   | elp
   | minstretcfg
@@ -1373,6 +1391,7 @@ inductive Register : Type where
   | rvfi_pc_data
   | rvfi_inst_data
   | rvfi_instruction
+  | fp_rounding_global
   deriving DecidableEq, Hashable, Repr
 open Register
 
@@ -1391,8 +1410,6 @@ abbrev RegisterType : Register → Type
   | .stimecmp => (BitVec 64)
   | .mtimecmp => (BitVec 64)
   | .htif_tohost_base => (Option (BitVec (if ( 64 = 32  : Bool) then 34 else 64)))
-  | .plat_clint_size => (BitVec (if ( 64 = 32  : Bool) then 34 else 64))
-  | .plat_clint_base => (BitVec (if ( 64 = 32  : Bool) then 34 else 64))
   | .pc_reset_address => (BitVec 64)
   | .elp => (BitVec 1)
   | .minstretcfg => (BitVec 64)
@@ -1542,6 +1559,7 @@ abbrev RegisterType : Register → Type
   | .rvfi_pc_data => (BitVec 128)
   | .rvfi_inst_data => (BitVec 192)
   | .rvfi_instruction => (BitVec 64)
+  | .fp_rounding_global => (BitVec 5)
 
 instance : Inhabited (RegisterRef RegisterType HartState) where
   default := .Reg hart_state
@@ -1563,6 +1581,8 @@ instance : Inhabited (RegisterRef RegisterType (BitVec 320)) where
   default := .Reg rvfi_int_data
 instance : Inhabited (RegisterRef RegisterType (BitVec 4)) where
   default := .Reg htif_payload_writes
+instance : Inhabited (RegisterRef RegisterType (BitVec 5)) where
+  default := .Reg fp_rounding_global
 instance : Inhabited (RegisterRef RegisterType (BitVec 64)) where
   default := .Reg rvfi_instruction
 instance : Inhabited (RegisterRef RegisterType (BitVec 704)) where

@@ -1,4 +1,5 @@
 import LeanRV64D.Flow
+import LeanRV64D.Common
 import LeanRV64D.Prelude
 import LeanRV64D.Xlen
 import LeanRV64D.RvfiDii
@@ -123,6 +124,7 @@ open fvfmafunct6
 open fvffunct6
 open fregno
 open fregidx
+open float_class
 open f_un_x_op_H
 open f_un_x_op_D
 open f_un_rm_xf_op_S
@@ -346,6 +348,7 @@ def initialize_registers (_ : Unit) : SailM Unit := do
   writeReg mhpmcounter (← (undefined_vector 32 (← (undefined_bitvector 64))))
 
 def sail_model_init (x_0 : Unit) : SailM Unit := do
+  writeReg fp_rounding_global fp_rounding_default
   writeReg misa (_update_Misa_MXL (Mk_Misa (zeros (n := 64))) (architecture_bits_forwards RV64))
   writeReg mstatus (let mxl := (architecture_bits_forwards RV64)
   (_update_Mstatus_UXL
@@ -365,8 +368,6 @@ def sail_model_init (x_0 : Unit) : SailM Unit := do
   writeReg mhartid (← (to_bits_checked (l := 64) (0 : Int)))
   writeReg mconfigptr (zeros (n := 64))
   writeReg pc_reset_address (zeros (n := 64))
-  writeReg plat_clint_base (← (to_bits_checked (l := 64) (33554432 : Int)))
-  writeReg plat_clint_size (← (to_bits_checked (l := 64) (786432 : Int)))
   writeReg htif_tohost_base none
   writeReg pma_regions [{ base := (0x0000000000001000 : (BitVec 64))
                           size := (0x0000000000001000 : (BitVec 64))

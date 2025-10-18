@@ -110,6 +110,7 @@ open fvfmafunct6
 open fvffunct6
 open fregno
 open fregidx
+open float_class
 open f_un_x_op_H
 open f_un_x_op_D
 open f_un_rm_xf_op_S
@@ -317,7 +318,7 @@ def calculate_new_vl (AVL : (BitVec 64)) (VLMAX : Nat) : Nat :=
       else VLMAX)
     else VLMAX)
 
-/-- Type quantifiers: k_ex401280# : Bool -/
+/-- Type quantifiers: k_ex406010# : Bool -/
 def execute_vsetvl_type (ma : (BitVec 1)) (ta : (BitVec 1)) (sew : (BitVec 3)) (lmul : (BitVec 3)) (avl : (BitVec 64)) (requires_fixed_vlmax : Bool) (rd : regidx) : SailM ExecutionResult := do
   if (((is_invalid_lmul_pow lmul) || (is_invalid_sew_pow sew)) : Bool)
   then

@@ -1,5 +1,5 @@
 import LeanRV64D.Xlen
-import LeanRV64D.Common
+import LeanRV64D.Common0
 import LeanRV64D.Callbacks
 import LeanRV64D.Regs
 
@@ -105,6 +105,7 @@ open fvfmafunct6
 open fvffunct6
 open fregno
 open fregidx
+open float_class
 open f_un_x_op_H
 open f_un_x_op_D
 open f_un_rm_xf_op_S

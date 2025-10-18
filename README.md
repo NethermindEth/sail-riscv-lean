@@ -100,12 +100,17 @@ This work was funded by a grant provided by the [Ethereum Foundation](https://et
 
 # Statistics
 
-Lines: 138,963  
-Definitions: 4,075  
-Inductive definitions: 169  
-Abbreviations: 160  
+Lines: 143,126  
+Definitions: 4,152  
+Inductive definitions: 170  
+Abbreviations: 163  
 
 ## Warnings and Errors
 
-Errors found: 0  
+Errors found: 2  
 Warnings found: 0  
+
+### Error Classes
+
+- 1x don't know how to synthesize placeholder for argument 'w'
+- 1x Lean exited with code 1

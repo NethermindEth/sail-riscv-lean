@@ -107,6 +107,7 @@ open fvfmafunct6
 open fvffunct6
 open fregno
 open fregidx
+open float_class
 open f_un_x_op_H
 open f_un_x_op_D
 open f_un_rm_xf_op_S
@@ -185,18 +186,22 @@ def plat_enable_dirty_update : Bool := false
 
 def plat_enable_misaligned_access : Bool := true
 
+def plat_clint_base : physaddrbits := (← (to_bits_checked (l := 64) (33554432 : Int)))
+
+def plat_clint_size : physaddrbits := (← (to_bits_checked (l := 64) (786432 : Int)))
+
 def htif_tohost_size := 8
 
 def enable_htif (tohost_addr : (BitVec 64)) : SailM Unit := do
   writeReg htif_tohost_base (some (trunc (m := 64) tohost_addr))
 
 /-- Type quantifiers: width : Nat, 0 < width ∧ width ≤ max_mem_access -/
-def within_clint (typ_0 : physaddr) (width : Nat) : SailM Bool := do
+def within_clint (typ_0 : physaddr) (width : Nat) : Bool :=
   let .Physaddr addr : physaddr := typ_0
   let addr_int := (BitVec.toNat addr)
-  let clint_base_int ← do (pure (BitVec.toNat (← readReg plat_clint_base)))
-  let clint_size_int ← do (pure (BitVec.toNat (← readReg plat_clint_size)))
-  (pure ((clint_base_int ≤b addr_int) && ((addr_int +i width) ≤b (clint_base_int +i clint_size_int))))
+  let clint_base_int := (BitVec.toNat plat_clint_base)
+  let clint_size_int := (BitVec.toNat plat_clint_size)
+  ((clint_base_int ≤b addr_int) && ((addr_int +i width) ≤b (clint_base_int +i clint_size_int)))
 
 /-- Type quantifiers: width : Nat, 0 < width ∧ width ≤ max_mem_access -/
 def within_htif_writable (typ_0 : physaddr) (width : Nat) : SailM Bool := do
@@ -226,7 +231,7 @@ def MTIME_BASE_HI : physaddrbits := (zero_extend (m := 64) (0x0BFFC : (BitVec 20
 /-- Type quantifiers: width : Nat, width ≥ 0, width > 0 -/
 def clint_load (t : (AccessType Unit)) (app_1 : physaddr) (width : Nat) : SailM (Result (BitVec (8 * width)) ExceptionType) := do
   let .Physaddr addr := app_1
-  let addr ← do (pure (addr - (← readReg plat_clint_base)))
+  let addr := (addr - plat_clint_base)
   if (((addr == MSIP_BASE) && ((width == 8) || (width == 4))) : Bool)
   then
     (do
@@ -366,7 +371,7 @@ def clint_dispatch (_ : Unit) : SailM Unit := do
 /-- Type quantifiers: width : Nat, width ≥ 0, width > 0 -/
 def clint_store (app_0 : physaddr) (width : Nat) (data : (BitVec (8 * width))) : SailM (Result Bool ExceptionType) := do
   let .Physaddr addr := app_0
-  let addr ← do (pure (addr - (← readReg plat_clint_base)))
+  let addr := (addr - plat_clint_base)
   if (((addr == MSIP_BASE) && ((width == 8) || (width == 4))) : Bool)
   then
     (do
@@ -571,7 +576,7 @@ def htif_load (acc : (AccessType Unit)) (app_1 : physaddr) (width : Nat) : SailM
   let base ← (( do
     match (← readReg htif_tohost_base) with
     | .some base => (pure base)
-    | none => (internal_error "sys/platform.sail" 277 "HTIF load while HTIF isn't enabled") ) :
+    | none => (internal_error "sys/platform.sail" 275 "HTIF load while HTIF isn't enabled") ) :
     SailM physaddrbits )
   if (((width == 8) && (paddr == base)) : Bool)
   then (pure (Ok (zero_extend (m := 64) (← readReg htif_tohost))))
@@ -605,7 +610,7 @@ def htif_store (app_0 : physaddr) (width : Nat) (data : (BitVec (8 * width))) : 
   let base ← (( do
     match (← readReg htif_tohost_base) with
     | .some base => (pure base)
-    | none => (internal_error "sys/platform.sail" 301 "HTIF store while HTIF isn't enabled") ) :
+    | none => (internal_error "sys/platform.sail" 299 "HTIF store while HTIF isn't enabled") ) :
     SailME (Result Bool ExceptionType) physaddrbits )
   if (((width == 8) && (paddr == base)) : Bool)
   then

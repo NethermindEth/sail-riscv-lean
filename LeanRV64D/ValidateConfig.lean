@@ -3,6 +3,7 @@ import LeanRV64D.Prelude
 import LeanRV64D.Vlen
 import LeanRV64D.Extensions
 import LeanRV64D.PmpRegs
+import LeanRV64D.Platform
 import LeanRV64D.Pma
 
 set_option maxHeartbeats 1_000_000_000
@@ -107,6 +108,7 @@ open fvfmafunct6
 open fvffunct6
 open fregno
 open fregidx
+open float_class
 open f_un_x_op_H
 open f_un_x_op_D
 open f_un_rm_xf_op_S
@@ -257,7 +259,7 @@ def check_vlen_elen (_ : Unit) : Bool :=
 def check_vext_config (_ : Unit) : Bool :=
   let valid : Bool := true
   let valid : Bool :=
-    if (((vector_support_config_level ≥b (vector_support_level_forwards Integer)) && (((elen_exp : Nat) <b 5) : Bool)) : Bool)
+    if (((vector_support_ge vector_support_level Integer) && (((elen_exp : Nat) <b 5) : Bool)) : Bool)
     then
       (let valid : Bool := false
       let _ : Unit :=
@@ -267,8 +269,7 @@ def check_vext_config (_ : Unit) : Bool :=
       valid)
     else valid
   let valid : Bool :=
-    if (((vector_support_config_level ≥b (vector_support_level_forwards Float_single)) && (not
-           (hartSupports Ext_F))) : Bool)
+    if (((vector_support_ge vector_support_level Float_single) && (not (hartSupports Ext_F))) : Bool)
     then
       (let valid : Bool := false
       let _ : Unit :=
@@ -276,7 +277,7 @@ def check_vext_config (_ : Unit) : Bool :=
       valid)
     else valid
   let valid : Bool :=
-    if ((vector_support_config_level ≥b (vector_support_level_forwards Float_double)) : Bool)
+    if ((vector_support_ge vector_support_level Float_double) : Bool)
     then
       (let valid : Bool :=
         if (((elen_exp : Nat) <b 6) : Bool)
@@ -327,8 +328,7 @@ def check_vext_config (_ : Unit) : Bool :=
       valid)
     else valid
   let valid : Bool :=
-    if (((vector_support_config_level ≥b (vector_support_level_forwards Full)) && (not
-           (hartSupports Ext_Zvl128b))) : Bool)
+    if (((vector_support_ge vector_support_level Full) && (not (hartSupports Ext_Zvl128b))) : Bool)
     then
       (let valid : Bool := false
       let _ : Unit :=
@@ -508,8 +508,18 @@ def check_misc_extension_dependencies (_ : Unit) : Bool :=
     valid)
   else valid
 
+def check_extension_param_constraints (_ : Unit) : Bool :=
+  let valid : Bool := true
+  if (((hartSupports Ext_Zic64b) && (plat_cache_block_size_exp != 6)) : Bool)
+  then
+    (let valid : Bool := false
+    let _ : Unit :=
+      (print_endline "The Zic64b extension is enabled but the cache block size is not 64 bytes.")
+    valid)
+  else valid
+
 def config_is_valid (_ : Unit) : SailM Bool := do
   (pure ((check_privs ()) && ((check_mmu_config ()) && ((← (check_mem_layout ())) && ((check_vlen_elen
-              ()) && ((check_vext_config ()) && ((check_pmp ()) && (check_misc_extension_dependencies
-                  ()))))))))
+              ()) && ((check_vext_config ()) && ((check_pmp ()) && ((check_misc_extension_dependencies
+                    ()) && (check_extension_param_constraints ())))))))))
 

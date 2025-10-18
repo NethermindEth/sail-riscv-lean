@@ -105,6 +105,7 @@ open fvfmafunct6
 open fvffunct6
 open fregno
 open fregidx
+open float_class
 open f_un_x_op_H
 open f_un_x_op_D
 open f_un_rm_xf_op_S
@@ -188,6 +189,7 @@ def extensionName_forwards (arg_ : extension) : String :=
   | Ext_S => "s"
   | Ext_U => "u"
   | Ext_H => "h"
+  | Ext_Zic64b => "zic64b"
   | Ext_Zicbom => "zicbom"
   | Ext_Zicbop => "zicbop"
   | Ext_Zicboz => "zicboz"
@@ -289,6 +291,7 @@ def extensionName_backwards (arg_ : String) : SailM extension := do
   | "s" => (pure Ext_S)
   | "u" => (pure Ext_U)
   | "h" => (pure Ext_H)
+  | "zic64b" => (pure Ext_Zic64b)
   | "zicbom" => (pure Ext_Zicbom)
   | "zicbop" => (pure Ext_Zicbop)
   | "zicboz" => (pure Ext_Zicboz)
@@ -394,6 +397,7 @@ def extensionName_forwards_matches (arg_ : extension) : Bool :=
   | Ext_S => true
   | Ext_U => true
   | Ext_H => true
+  | Ext_Zic64b => true
   | Ext_Zicbom => true
   | Ext_Zicbop => true
   | Ext_Zicboz => true
@@ -495,6 +499,7 @@ def extensionName_backwards_matches (arg_ : String) : Bool :=
   | "s" => true
   | "u" => true
   | "h" => true
+  | "zic64b" => true
   | "zicbom" => true
   | "zicbop" => true
   | "zicboz" => true
@@ -606,11 +611,11 @@ def hartSupports (merge_var : extension) : Bool :=
   | Ext_F => true
   | Ext_D => (true && (hartSupports Ext_F))
   | Ext_B => true
-  | Ext_V =>
-    ((8 ≥b 7) && ((vector_support_config_level ≥b (vector_support_level_forwards Full)) : Bool))
+  | Ext_V => ((8 ≥b 7) && (vector_support_ge vector_support_level Full))
   | Ext_S => true
   | Ext_U => true
   | Ext_H => false
+  | Ext_Zic64b => true
   | Ext_Zicbom => true
   | Ext_Zicbop => true
   | Ext_Zicboz => true
@@ -665,16 +670,11 @@ def hartSupports (merge_var : extension) : Bool :=
   | Ext_Zvl256b => (8 ≥b 8)
   | Ext_Zvl512b => (8 ≥b 9)
   | Ext_Zvl1024b => (8 ≥b 10)
-  | Ext_Zve32f =>
-    ((6 ≥b 5) && ((vector_support_config_level ≥b (vector_support_level_forwards Float_single)) : Bool))
-  | Ext_Zve32x =>
-    ((6 ≥b 5) && ((vector_support_config_level ≥b (vector_support_level_forwards Integer)) : Bool))
-  | Ext_Zve64d =>
-    ((6 ≥b 6) && ((vector_support_config_level ≥b (vector_support_level_forwards Float_double)) : Bool))
-  | Ext_Zve64f =>
-    ((6 ≥b 6) && ((vector_support_config_level ≥b (vector_support_level_forwards Float_single)) : Bool))
-  | Ext_Zve64x =>
-    ((6 ≥b 6) && ((vector_support_config_level ≥b (vector_support_level_forwards Integer)) : Bool))
+  | Ext_Zve32f => ((6 ≥b 5) && (vector_support_ge vector_support_level Float_single))
+  | Ext_Zve32x => ((6 ≥b 5) && (vector_support_ge vector_support_level Integer))
+  | Ext_Zve64d => ((6 ≥b 6) && (vector_support_ge vector_support_level Float_double))
+  | Ext_Zve64f => ((6 ≥b 6) && (vector_support_ge vector_support_level Float_single))
+  | Ext_Zve64x => ((6 ≥b 6) && (vector_support_ge vector_support_level Integer))
   | Ext_Zvfbfmin => true
   | Ext_Zvfbfwma => true
   | Ext_Zvfh => true

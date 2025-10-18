@@ -112,6 +112,7 @@ open fvfmafunct6
 open fvffunct6
 open fregno
 open fregidx
+open float_class
 open f_un_x_op_H
 open f_un_x_op_D
 open f_un_rm_xf_op_S
@@ -551,6 +552,7 @@ def _update_SEnvcfg_LPE (v : (BitVec 64)) (x : (BitVec 1)) : (BitVec 64) :=
 mutual
 def currentlyEnabled (merge_var : extension) : SailM Bool := do
   match merge_var with
+  | Ext_Zic64b => (pure (hartSupports Ext_Zic64b))
   | Ext_Zkt => (pure (hartSupports Ext_Zkt))
   | Ext_Zvkt => (pure (hartSupports Ext_Zvkt))
   | Ext_Zvkn => (pure (hartSupports Ext_Zvkn))
@@ -3368,7 +3370,7 @@ def maybe_aqrl_forwards (arg_ : (Bool × Bool)) : String :=
   | (false, true) => ".rl"
   | (false, false) => ""
 
-/-- Type quantifiers: k_ex391405# : Bool -/
+/-- Type quantifiers: k_ex396223# : Bool -/
 def maybe_u_forwards (arg_ : Bool) : String :=
   match arg_ with
   | true => "u"

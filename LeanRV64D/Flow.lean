@@ -108,6 +108,7 @@ open fvfmafunct6
 open fvffunct6
 open fregno
 open fregidx
+open float_class
 open f_un_x_op_H
 open f_un_x_op_D
 open f_un_rm_xf_op_S
@@ -180,9 +181,29 @@ open AtomicSupport
 open Architecture
 open AccessType
 
-/-- Type quantifiers: k_ex388681# : Bool, k_ex388680# : Bool -/
+/-- Type quantifiers: k_ex392808# : Bool, k_ex392807# : Bool -/
 def neq_bool (x : Bool) (y : Bool) : Bool :=
   (! (x == y))
+
+def num_of_vector_support (arg_ : vector_support) : Int :=
+  match arg_ with
+  | Disabled => 0
+  | Integer => 1
+  | Float_single => 2
+  | Float_double => 3
+  | Full => 4
+
+def vector_support_le (x : vector_support) (y : vector_support) : Bool :=
+  ((num_of_vector_support x) ≤b (num_of_vector_support y))
+
+def vector_support_lt (x : vector_support) (y : vector_support) : Bool :=
+  ((num_of_vector_support x) <b (num_of_vector_support y))
+
+def vector_support_ge (x : vector_support) (y : vector_support) : Bool :=
+  ((num_of_vector_support x) ≥b (num_of_vector_support y))
+
+def vector_support_gt (x : vector_support) (y : vector_support) : Bool :=
+  ((num_of_vector_support x) >b (num_of_vector_support y))
 
 /-- Type quantifiers: x : Int -/
 def __id (x : Int) : Int :=

@@ -107,6 +107,7 @@ open fvfmafunct6
 open fvffunct6
 open fregno
 open fregidx
+open float_class
 open f_un_x_op_H
 open f_un_x_op_D
 open f_un_rm_xf_op_S
@@ -267,12 +268,10 @@ def generate_dts_memories (pmas : (List PMA_Region)) : String :=
 
 def generate_dts (_ : Unit) : SailM String := do
   let clock_freq : Nat := 1000000000
-  let clint_base_hi ← do (pure (BitVec.toNat (shiftr (← readReg plat_clint_base) 32)))
-  let clint_base_lo ← do
-    (pure (BitVec.toNat (Sail.BitVec.extractLsb (← readReg plat_clint_base) 31 0)))
-  let clint_size_hi ← do (pure (BitVec.toNat (shiftr (← readReg plat_clint_size) 32)))
-  let clint_size_lo ← do
-    (pure (BitVec.toNat (Sail.BitVec.extractLsb (← readReg plat_clint_size) 31 0)))
+  let clint_base_hi := (BitVec.toNat (shiftr plat_clint_base 32))
+  let clint_base_lo := (BitVec.toNat (Sail.BitVec.extractLsb plat_clint_base 31 0))
+  let clint_size_hi := (BitVec.toNat (shiftr plat_clint_size 32))
+  let clint_size_lo := (BitVec.toNat (Sail.BitVec.extractLsb plat_clint_size 31 0))
   (pure (HAppend.hAppend "/dts-v1/;
 "
       (HAppend.hAppend "
@@ -390,7 +389,7 @@ def generate_dts (_ : Unit) : SailM String := do
                                                                                                             (String.drop
                                                                                                               (Int.toHex
                                                                                                                 (BitVec.toNat
-                                                                                                                  (← readReg plat_clint_base)))
+                                                                                                                  plat_clint_base))
                                                                                                               2)
                                                                                                             (HAppend.hAppend
                                                                                                               " {
