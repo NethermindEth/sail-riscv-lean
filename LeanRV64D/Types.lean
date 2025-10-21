@@ -74,6 +74,7 @@ open ropw
 open rop
 open rmvvfunct6
 open rivvfunct6
+open rfwvvfunct6
 open rfvvfunct6
 open regno
 open regidx
@@ -3370,7 +3371,7 @@ def maybe_aqrl_forwards (arg_ : (Bool × Bool)) : String :=
   | (false, true) => ".rl"
   | (false, false) => ""
 
-/-- Type quantifiers: k_ex396223# : Bool -/
+/-- Type quantifiers: k_ex536997# : Bool -/
 def maybe_u_forwards (arg_ : Bool) : String :=
   match arg_ with
   | true => "u"
@@ -3527,6 +3528,9 @@ def rfvvtype_mnemonic_forwards (arg_ : rfvvfunct6) : String :=
   | FVV_VFREDUSUM => "vfredusum.vs"
   | FVV_VFREDMAX => "vfredmax.vs"
   | FVV_VFREDMIN => "vfredmin.vs"
+
+def rfwvvtype_mnemonic_forwards (arg_ : rfwvvfunct6) : String :=
+  match arg_ with
   | FVV_VFWREDOSUM => "vfwredosum.vs"
   | FVV_VFWREDUSUM => "vfwredusum.vs"
 
@@ -6242,6 +6246,15 @@ def assembly_forwards (arg_ : instruction) : SailM String := do
                     (String.append (maybe_vmask_backwards vm) "")))))))))
   | .RFVVTYPE (funct6, vm, vs2, vs1, vd) =>
     (pure (String.append (rfvvtype_mnemonic_forwards funct6)
+        (String.append (spc_forwards ())
+          (String.append (vreg_name_forwards vd)
+            (String.append (sep_forwards ())
+              (String.append (vreg_name_forwards vs2)
+                (String.append (sep_forwards ())
+                  (String.append (vreg_name_forwards vs1)
+                    (String.append (maybe_vmask_backwards vm) "")))))))))
+  | .RFWVVTYPE (funct6, vm, vs2, vs1, vd) =>
+    (pure (String.append (rfwvvtype_mnemonic_forwards funct6)
         (String.append (spc_forwards ())
           (String.append (vreg_name_forwards vd)
             (String.append (sep_forwards ())

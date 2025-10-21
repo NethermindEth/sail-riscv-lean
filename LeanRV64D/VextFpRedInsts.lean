@@ -1,12 +1,10 @@
-import LeanRV64D.Flow
-import LeanRV64D.Prelude
-import LeanRV64D.Errors
-import LeanRV64D.FdextRegs
-import LeanRV64D.VextRegs
-import LeanRV64D.VextControl
-import LeanRV64D.InstRetire
-import LeanRV64D.VextUtilsInsts
-import LeanRV64D.VextFpUtilsInsts
+import LeanRV64D.Sail.Sail
+import LeanRV64D.Sail.BitVec
+import LeanRV64D.Sail.IntRange
+import LeanRV64D.Defs
+import LeanRV64D.Specialization
+import LeanRV64D.FakeReal
+import LeanRV64D.RiscvExtras
 
 set_option maxHeartbeats 1_000_000_000
 set_option maxRecDepth 1_000_000
@@ -72,6 +70,7 @@ open ropw
 open rop
 open rmvvfunct6
 open rivvfunct6
+open rfwvvfunct6
 open rfvvfunct6
 open regno
 open regidx
@@ -189,8 +188,6 @@ def encdec_rfvvfunct6_forwards (arg_ : rfvvfunct6) : (BitVec 6) :=
   | FVV_VFREDUSUM => (0b000001 : (BitVec 6))
   | FVV_VFREDMAX => (0b000111 : (BitVec 6))
   | FVV_VFREDMIN => (0b000101 : (BitVec 6))
-  | FVV_VFWREDOSUM => (0b110011 : (BitVec 6))
-  | FVV_VFWREDUSUM => (0b110001 : (BitVec 6))
 
 def encdec_rfvvfunct6_backwards (arg_ : (BitVec 6)) : SailM rfvvfunct6 := do
   let b__0 := arg_
@@ -210,16 +207,8 @@ def encdec_rfvvfunct6_backwards (arg_ : (BitVec 6)) : SailM rfvvfunct6 := do
               then (pure FVV_VFREDMIN)
               else
                 (do
-                  if ((b__0 == (0b110011 : (BitVec 6))) : Bool)
-                  then (pure FVV_VFWREDOSUM)
-                  else
-                    (do
-                      if ((b__0 == (0b110001 : (BitVec 6))) : Bool)
-                      then (pure FVV_VFWREDUSUM)
-                      else
-                        (do
-                          assert false "Pattern match failure at unknown location"
-                          throw Error.Exit))))))
+                  assert false "Pattern match failure at unknown location"
+                  throw Error.Exit))))
 
 def encdec_rfvvfunct6_forwards_matches (arg_ : rfvvfunct6) : Bool :=
   match arg_ with
@@ -227,8 +216,6 @@ def encdec_rfvvfunct6_forwards_matches (arg_ : rfvvfunct6) : Bool :=
   | FVV_VFREDUSUM => true
   | FVV_VFREDMAX => true
   | FVV_VFREDMIN => true
-  | FVV_VFWREDOSUM => true
-  | FVV_VFWREDUSUM => true
 
 def encdec_rfvvfunct6_backwards_matches (arg_ : (BitVec 6)) : Bool :=
   let b__0 := arg_
@@ -243,115 +230,7 @@ def encdec_rfvvfunct6_backwards_matches (arg_ : (BitVec 6)) : Bool :=
       else
         (if ((b__0 == (0b000101 : (BitVec 6))) : Bool)
         then true
-        else
-          (if ((b__0 == (0b110011 : (BitVec 6))) : Bool)
-          then true
-          else
-            (if ((b__0 == (0b110001 : (BitVec 6))) : Bool)
-            then true
-            else false)))))
-
-/-- Type quantifiers: LMUL_pow : Int, SEW : Nat, num_elem_vs : Nat, num_elem_vs > 0, SEW ∈
-  {8, 16, 32, 64}, ((- 3)) ≤ LMUL_pow ∧ LMUL_pow ≤ 3 -/
-def process_rfvv_single (funct6 : rfvvfunct6) (vm : (BitVec 1)) (vs2 : vregidx) (vs1 : vregidx) (vd : vregidx) (num_elem_vs : Nat) (SEW : Nat) (LMUL_pow : Int) : SailM ExecutionResult := SailME.run do
-  let rm_3b ← do (pure (_get_Fcsr_FRM (← readReg fcsr)))
-  let num_elem_vd ← do (get_num_elem 0 SEW)
-  if ((← (illegal_fp_reduction SEW rm_3b)) : Bool)
-  then (pure (Illegal_Instruction ()))
-  else
-    (do
-      assert (SEW != 8) "extensions/V/vext_fp_red_insts.sail:35.17-35.18"
-      if (((BitVec.toNat (← readReg vl)) == 0) : Bool)
-      then (pure RETIRE_SUCCESS)
-      else
-        (do
-          let n := num_elem_vs
-          let d := num_elem_vd
-          let m := SEW
-          let vm_val ← (( do (read_vmask num_elem_vs vm zvreg) ) : SailME ExecutionResult
-            (BitVec n) )
-          let vd_val ← (( do (read_vreg num_elem_vd SEW 0 vd) ) : SailME ExecutionResult
-            (Vector (BitVec m) d) )
-          let vs2_val ← (( do (read_vreg num_elem_vs SEW LMUL_pow vs2) ) : SailME ExecutionResult
-            (Vector (BitVec m) n) )
-          let mask ← (( do
-            match (← (init_masked_source num_elem_vs LMUL_pow vm_val)) with
-            | .Ok v => (pure v)
-            | .Err () => SailME.throw ((Illegal_Instruction ()) : ExecutionResult) ) : SailME
-            ExecutionResult (BitVec n) )
-          let sum ← (( do (read_single_element SEW 0 vs1) ) : SailME ExecutionResult (BitVec m) )
-          let sum ← (( do
-            let loop_i_lower := 0
-            let loop_i_upper := (num_elem_vs -i 1)
-            let mut loop_vars := sum
-            for i in [loop_i_lower:loop_i_upper:1]i do
-              let sum := loop_vars
-              loop_vars ← do
-                if (((BitVec.access mask i) == 1#1) : Bool)
-                then
-                  (do
-                    match funct6 with
-                    | FVV_VFREDOSUM => (fp_add rm_3b sum (GetElem?.getElem! vs2_val i))
-                    | FVV_VFREDUSUM => (fp_add rm_3b sum (GetElem?.getElem! vs2_val i))
-                    | FVV_VFREDMAX => (fp_max sum (GetElem?.getElem! vs2_val i))
-                    | FVV_VFREDMIN => (fp_min sum (GetElem?.getElem! vs2_val i))
-                    | _ =>
-                      (internal_error "extensions/V/vext_fp_red_insts.sail" 60
-                        "Widening op unexpected"))
-                else (pure sum)
-            (pure loop_vars) ) : SailME ExecutionResult (BitVec m) )
-          (write_single_element SEW 0 vd sum)
-          (set_vstart (zeros (n := 16)))
-          (pure RETIRE_SUCCESS)))
-
-/-- Type quantifiers: LMUL_pow : Int, SEW : Nat, num_elem_vs : Nat, num_elem_vs > 0, SEW ∈
-  {8, 16, 32, 64}, ((- 3)) ≤ LMUL_pow ∧ LMUL_pow ≤ 3 -/
-def process_rfvv_widening_reduction (funct6 : rfvvfunct6) (vm : (BitVec 1)) (vs2 : vregidx) (vs1 : vregidx) (vd : vregidx) (num_elem_vs : Nat) (SEW : Nat) (LMUL_pow : Int) : SailM ExecutionResult := SailME.run do
-  let rm_3b ← do (pure (_get_Fcsr_FRM (← readReg fcsr)))
-  let SEW_widen := (SEW *i 2)
-  if ((← (illegal_fp_widening_reduction SEW rm_3b SEW_widen)) : Bool)
-  then (pure (Illegal_Instruction ()))
-  else
-    (do
-      assert ((SEW ≥b 16) && (SEW_widen ≤b 64)) "extensions/V/vext_fp_red_insts.sail:77.36-77.37"
-      let num_elem_vd ← do (get_num_elem 0 SEW_widen)
-      if (((BitVec.toNat (← readReg vl)) == 0) : Bool)
-      then (pure RETIRE_SUCCESS)
-      else
-        (do
-          let n := num_elem_vs
-          let d := num_elem_vd
-          let m := SEW
-          let o := SEW_widen
-          let vm_val ← (( do (read_vmask num_elem_vs vm zvreg) ) : SailME ExecutionResult
-            (BitVec n) )
-          let vd_val ← (( do (read_vreg num_elem_vd SEW_widen 0 vd) ) : SailME ExecutionResult
-            (Vector (BitVec o) d) )
-          let vs2_val ← (( do (read_vreg num_elem_vs SEW LMUL_pow vs2) ) : SailME ExecutionResult
-            (Vector (BitVec m) n) )
-          let mask ← (( do
-            match (← (init_masked_source num_elem_vs LMUL_pow vm_val)) with
-            | .Ok v => (pure v)
-            | .Err () => SailME.throw ((Illegal_Instruction ()) : ExecutionResult) ) : SailME
-            ExecutionResult (BitVec n) )
-          let sum ← (( do (read_single_element SEW_widen 0 vs1) ) : SailME ExecutionResult
-            (BitVec o) )
-          let sum ← (( do
-            let loop_i_lower := 0
-            let loop_i_upper := (num_elem_vs -i 1)
-            let mut loop_vars := sum
-            for i in [loop_i_lower:loop_i_upper:1]i do
-              let sum := loop_vars
-              loop_vars ← do
-                if (((BitVec.access mask i) == 1#1) : Bool)
-                then
-                  (do
-                    (fp_add rm_3b sum (← (fp_widen (GetElem?.getElem! vs2_val i)))))
-                else (pure sum)
-            (pure loop_vars) ) : SailME ExecutionResult (BitVec o) )
-          (write_single_element SEW_widen 0 vd sum)
-          (set_vstart (zeros (n := 16)))
-          (pure RETIRE_SUCCESS)))
+        else false)))
 
 def rfvvtype_mnemonic_backwards (arg_ : String) : SailM rfvvfunct6 := do
   match arg_ with
@@ -359,8 +238,6 @@ def rfvvtype_mnemonic_backwards (arg_ : String) : SailM rfvvfunct6 := do
   | "vfredusum.vs" => (pure FVV_VFREDUSUM)
   | "vfredmax.vs" => (pure FVV_VFREDMAX)
   | "vfredmin.vs" => (pure FVV_VFREDMIN)
-  | "vfwredosum.vs" => (pure FVV_VFWREDOSUM)
-  | "vfwredusum.vs" => (pure FVV_VFWREDUSUM)
   | _ =>
     (do
       assert false "Pattern match failure at unknown location"
@@ -372,8 +249,6 @@ def rfvvtype_mnemonic_forwards_matches (arg_ : rfvvfunct6) : Bool :=
   | FVV_VFREDUSUM => true
   | FVV_VFREDMAX => true
   | FVV_VFREDMIN => true
-  | FVV_VFWREDOSUM => true
-  | FVV_VFWREDUSUM => true
 
 def rfvvtype_mnemonic_backwards_matches (arg_ : String) : Bool :=
   match arg_ with
@@ -381,6 +256,56 @@ def rfvvtype_mnemonic_backwards_matches (arg_ : String) : Bool :=
   | "vfredusum.vs" => true
   | "vfredmax.vs" => true
   | "vfredmin.vs" => true
+  | _ => false
+
+def encdec_rfwvvfunct6_forwards (arg_ : rfwvvfunct6) : (BitVec 6) :=
+  match arg_ with
+  | FVV_VFWREDOSUM => (0b110011 : (BitVec 6))
+  | FVV_VFWREDUSUM => (0b110001 : (BitVec 6))
+
+def encdec_rfwvvfunct6_backwards (arg_ : (BitVec 6)) : SailM rfwvvfunct6 := do
+  let b__0 := arg_
+  if ((b__0 == (0b110011 : (BitVec 6))) : Bool)
+  then (pure FVV_VFWREDOSUM)
+  else
+    (do
+      if ((b__0 == (0b110001 : (BitVec 6))) : Bool)
+      then (pure FVV_VFWREDUSUM)
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+
+def encdec_rfwvvfunct6_forwards_matches (arg_ : rfwvvfunct6) : Bool :=
+  match arg_ with
+  | FVV_VFWREDOSUM => true
+  | FVV_VFWREDUSUM => true
+
+def encdec_rfwvvfunct6_backwards_matches (arg_ : (BitVec 6)) : Bool :=
+  let b__0 := arg_
+  if ((b__0 == (0b110011 : (BitVec 6))) : Bool)
+  then true
+  else
+    (if ((b__0 == (0b110001 : (BitVec 6))) : Bool)
+    then true
+    else false)
+
+def rfwvvtype_mnemonic_backwards (arg_ : String) : SailM rfwvvfunct6 := do
+  match arg_ with
+  | "vfwredosum.vs" => (pure FVV_VFWREDOSUM)
+  | "vfwredusum.vs" => (pure FVV_VFWREDUSUM)
+  | _ =>
+    (do
+      assert false "Pattern match failure at unknown location"
+      throw Error.Exit)
+
+def rfwvvtype_mnemonic_forwards_matches (arg_ : rfwvvfunct6) : Bool :=
+  match arg_ with
+  | FVV_VFWREDOSUM => true
+  | FVV_VFWREDUSUM => true
+
+def rfwvvtype_mnemonic_backwards_matches (arg_ : String) : Bool :=
+  match arg_ with
   | "vfwredosum.vs" => true
   | "vfwredusum.vs" => true
   | _ => false

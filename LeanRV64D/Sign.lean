@@ -64,6 +64,7 @@ open ropw
 open rop
 open rmvvfunct6
 open rivvfunct6
+open rfwvvfunct6
 open rfvvfunct6
 open regno
 open regidx
@@ -175,11 +176,11 @@ open AtomicSupport
 open Architecture
 open AccessType
 
-/-- Type quantifiers: k_ex393481# : Nat, k_ex393481# ∈ {16, 32, 64, 128} -/
-def float_is_positive (op : (BitVec k_ex393481#)) : Bool :=
+/-- Type quantifiers: k_ex534255# : Nat, k_ex534255# ∈ {16, 32, 64, 128} -/
+def float_is_positive (op : (BitVec k_ex534255#)) : Bool :=
   (is_highest_zero op)
 
-/-- Type quantifiers: k_ex393483# : Nat, k_ex393483# ∈ {16, 32, 64, 128} -/
-def float_is_negative (op : (BitVec k_ex393483#)) : Bool :=
+/-- Type quantifiers: k_ex534257# : Nat, k_ex534257# ∈ {16, 32, 64, 128} -/
+def float_is_negative (op : (BitVec k_ex534257#)) : Bool :=
   (is_highest_one op)
 

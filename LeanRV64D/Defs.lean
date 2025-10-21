@@ -436,7 +436,10 @@ inductive nxfunct6 where | NX_VNCLIPU | NX_VNCLIP
 inductive cbop_zicbop where | PREFETCH_I | PREFETCH_R | PREFETCH_W
   deriving BEq, Inhabited, Repr
 
-inductive rfvvfunct6 where | FVV_VFREDOSUM | FVV_VFREDUSUM | FVV_VFREDMAX | FVV_VFREDMIN | FVV_VFWREDOSUM | FVV_VFWREDUSUM
+inductive rfvvfunct6 where | FVV_VFREDOSUM | FVV_VFREDUSUM | FVV_VFREDMAX | FVV_VFREDMIN
+  deriving BEq, Inhabited, Repr
+
+inductive rfwvvfunct6 where | FVV_VFWREDOSUM | FVV_VFWREDUSUM
   deriving BEq, Inhabited, Repr
 
 inductive rivvfunct6 where | IVV_VWREDSUMU | IVV_VWREDSUM
@@ -868,6 +871,7 @@ inductive instruction where
   | RIVVTYPE (_ : (rivvfunct6 × (BitVec 1) × vregidx × vregidx × vregidx))
   | RMVVTYPE (_ : (rmvvfunct6 × (BitVec 1) × vregidx × vregidx × vregidx))
   | RFVVTYPE (_ : (rfvvfunct6 × (BitVec 1) × vregidx × vregidx × vregidx))
+  | RFWVVTYPE (_ : (rfwvvfunct6 × (BitVec 1) × vregidx × vregidx × vregidx))
   | SHA256SIG0 (_ : (regidx × regidx))
   | SHA256SIG1 (_ : (regidx × regidx))
   | SHA256SUM0 (_ : (regidx × regidx))

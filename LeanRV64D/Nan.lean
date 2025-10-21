@@ -64,6 +64,7 @@ open ropw
 open rop
 open rmvvfunct6
 open rivvfunct6
+open rfwvvfunct6
 open rfvvfunct6
 open regno
 open regidx
@@ -175,18 +176,18 @@ open AtomicSupport
 open Architecture
 open AccessType
 
-/-- Type quantifiers: k_ex393443# : Nat, k_ex393443# ∈ {16, 32, 64, 128} -/
-def float_is_nan (op : (BitVec k_ex393443#)) : Bool :=
+/-- Type quantifiers: k_ex534217# : Nat, k_ex534217# ∈ {16, 32, 64, 128} -/
+def float_is_nan (op : (BitVec k_ex534217#)) : Bool :=
   let { exp := exp, mantissa := mantissa, sign := _ } := (float_decompose op)
   ((is_all_ones exp) && (! (is_all_zeros mantissa)))
 
-/-- Type quantifiers: k_ex393460# : Nat, k_ex393460# ∈ {16, 32, 64, 128} -/
-def float_is_snan (op : (BitVec k_ex393460#)) : Bool :=
+/-- Type quantifiers: k_ex534234# : Nat, k_ex534234# ∈ {16, 32, 64, 128} -/
+def float_is_snan (op : (BitVec k_ex534234#)) : Bool :=
   let { mantissa := mantissa, sign := _, exp := _ } := (float_decompose op)
   ((float_is_nan op) && (is_highest_zero mantissa))
 
-/-- Type quantifiers: k_ex393467# : Nat, k_ex393467# ∈ {16, 32, 64, 128} -/
-def float_is_qnan (op : (BitVec k_ex393467#)) : Bool :=
+/-- Type quantifiers: k_ex534241# : Nat, k_ex534241# ∈ {16, 32, 64, 128} -/
+def float_is_qnan (op : (BitVec k_ex534241#)) : Bool :=
   let { mantissa := mantissa, sign := _, exp := _ } := (float_decompose op)
   ((float_is_nan op) && (is_highest_one mantissa))
 

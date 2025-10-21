@@ -70,6 +70,7 @@ open ropw
 open rop
 open rmvvfunct6
 open rivvfunct6
+open rfwvvfunct6
 open rfvvfunct6
 open regno
 open regidx
@@ -193,7 +194,7 @@ def vector_support_of_num (arg_ : Nat) : vector_support :=
   | 3 => Float_double
   | _ => Full
 
-def vector_support_level : vector_support := Float_single
+def vector_support_level : vector_support := Full
 
 def vlen_exp := 8
 

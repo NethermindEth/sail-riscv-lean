@@ -4,6 +4,8 @@ import LeanRV64D.Prelude
 import LeanRV64D.Xlen
 import LeanRV64D.Vlen
 import LeanRV64D.Arithmetic
+import LeanRV64D.Extensions
+import LeanRV64D.Types
 import LeanRV64D.Regs
 import LeanRV64D.VextRegs
 import LeanRV64D.VextControl
@@ -72,6 +74,7 @@ open ropw
 open rop
 open rmvvfunct6
 open rivvfunct6
+open rfwvvfunct6
 open rfvvfunct6
 open regno
 open regidx
@@ -242,6 +245,91 @@ def valid_segment (nf : Nat) (EMUL_pow : Int) : Bool :=
   then ((Int.tdiv nf (2 ^i (0 -i EMUL_pow))) ≤b 8)
   else ((nf *i (2 ^i EMUL_pow)) ≤b 8)
 
+def valid_wide_vvtype (vvtype : vvfunct6) : SailM Bool := do
+  match vvtype with
+  | VV_VSMUL =>
+    (pure ((hartSupports Ext_V) && (((_get_Misa_V (← readReg misa)) == (0b1 : (BitVec 1))) && (← (currentlyEnabled
+              Ext_Zvl128b)))))
+  | _ => (pure true)
+
+def valid_wide_vxtype (vxtype : vxfunct6) : SailM Bool := do
+  match vxtype with
+  | VX_VSMUL =>
+    (pure ((hartSupports Ext_V) && (((_get_Misa_V (← readReg misa)) == (0b1 : (BitVec 1))) && (← (currentlyEnabled
+              Ext_Zvl128b)))))
+  | _ => (pure true)
+
+def valid_wide_mvvtype (mvvtype : mvvfunct6) : SailM Bool := do
+  match mvvtype with
+  | MVV_VMULH =>
+    (pure ((hartSupports Ext_V) && (((_get_Misa_V (← readReg misa)) == (0b1 : (BitVec 1))) && (← (currentlyEnabled
+              Ext_Zvl128b)))))
+  | MVV_VMULHU =>
+    (pure ((hartSupports Ext_V) && (((_get_Misa_V (← readReg misa)) == (0b1 : (BitVec 1))) && (← (currentlyEnabled
+              Ext_Zvl128b)))))
+  | MVV_VMULHSU =>
+    (pure ((hartSupports Ext_V) && (((_get_Misa_V (← readReg misa)) == (0b1 : (BitVec 1))) && (← (currentlyEnabled
+              Ext_Zvl128b)))))
+  | _ => (pure true)
+
+def valid_wide_mvxtype (mvxtype : mvxfunct6) : SailM Bool := do
+  match mvxtype with
+  | MVX_VMULH =>
+    (pure ((hartSupports Ext_V) && (((_get_Misa_V (← readReg misa)) == (0b1 : (BitVec 1))) && (← (currentlyEnabled
+              Ext_Zvl128b)))))
+  | MVX_VMULHU =>
+    (pure ((hartSupports Ext_V) && (((_get_Misa_V (← readReg misa)) == (0b1 : (BitVec 1))) && (← (currentlyEnabled
+              Ext_Zvl128b)))))
+  | MVX_VMULHSU =>
+    (pure ((hartSupports Ext_V) && (((_get_Misa_V (← readReg misa)) == (0b1 : (BitVec 1))) && (← (currentlyEnabled
+              Ext_Zvl128b)))))
+  | _ => (pure true)
+
+def valid_widening_fp_conversion (cvt : vfwunary0) : SailM Bool := do
+  match cvt with
+  | FWV_CVT_F_F =>
+    (pure (((← (currentlyEnabled Ext_Zvfhmin)) && (← do
+            (pure ((← (get_sew ())) == 16)))) || ((← (currentlyEnabled Ext_Zve64d)) && (← do
+            (pure ((← (get_sew ())) == 32))))))
+  | FWV_CVT_F_XU =>
+    (pure (((← (currentlyEnabled Ext_Zvfh)) && (← do
+            (pure ((← (get_sew ())) == 8)))) || (((← (currentlyEnabled Ext_Zve32f)) && (← do
+              (pure ((← (get_sew ())) == 16)))) || ((← (currentlyEnabled Ext_Zve64d)) && (← do
+              (pure ((← (get_sew ())) == 32)))))))
+  | FWV_CVT_F_X =>
+    (pure (((← (currentlyEnabled Ext_Zvfh)) && (← do
+            (pure ((← (get_sew ())) == 8)))) || (((← (currentlyEnabled Ext_Zve32f)) && (← do
+              (pure ((← (get_sew ())) == 16)))) || ((← (currentlyEnabled Ext_Zve64d)) && (← do
+              (pure ((← (get_sew ())) == 32)))))))
+  | _ =>
+    (pure (((← (currentlyEnabled Ext_Zvfh)) && (← do
+            (pure ((← (get_sew ())) == 16)))) || ((← (currentlyEnabled Ext_Zve64f)) && (← do
+            (pure ((← (get_sew ())) == 32))))))
+
+def valid_narrowing_fp_conversion (cvt : vfnunary0) : SailM Bool := do
+  match cvt with
+  | FNV_CVT_F_F =>
+    (pure (((← (currentlyEnabled Ext_Zvfhmin)) && (← do
+            (pure ((← (get_sew ())) == 16)))) || ((← (currentlyEnabled Ext_Zve64d)) && (← do
+            (pure ((← (get_sew ())) == 32))))))
+  | FNV_CVT_ROD_F_F =>
+    (pure (((← (currentlyEnabled Ext_Zvfh)) && (← do
+            (pure ((← (get_sew ())) == 16)))) || ((← (currentlyEnabled Ext_Zve64d)) && (← do
+            (pure ((← (get_sew ())) == 32))))))
+  | FNV_CVT_F_XU =>
+    (pure (((← (currentlyEnabled Ext_Zvfh)) && (← do
+            (pure ((← (get_sew ())) == 16)))) || ((← (currentlyEnabled Ext_Zve64f)) && (← do
+            (pure ((← (get_sew ())) == 32))))))
+  | FNV_CVT_F_X =>
+    (pure (((← (currentlyEnabled Ext_Zvfh)) && (← do
+            (pure ((← (get_sew ())) == 16)))) || ((← (currentlyEnabled Ext_Zve64f)) && (← do
+            (pure ((← (get_sew ())) == 32))))))
+  | _ =>
+    (pure (((← (currentlyEnabled Ext_Zvfh)) && (← do
+            (pure ((← (get_sew ())) == 8)))) || (((← (currentlyEnabled Ext_Zve32f)) && (← do
+              (pure ((← (get_sew ())) == 16)))) || ((← (currentlyEnabled Ext_Zve64d)) && (← do
+              (pure ((← (get_sew ())) == 32)))))))
+
 def illegal_normal (vd : vregidx) (vm : (BitVec 1)) : SailM Bool := do
   (pure ((not (← (valid_vtype ()))) || (not (valid_rd_mask vd vm))))
 
@@ -307,7 +395,7 @@ def write_velem_quad (vd : vregidx) (SEW : Nat) (input : (BitVec k_n)) (i : Nat)
   for j in [loop_j_lower:loop_j_upper:1]i do
     let () := loop_vars
     loop_vars ← do
-      assert (((j +i 1) *i SEW) ≤b (Sail.BitVec.length input)) "extensions/V/vext_utils_insts.sail:162.30-162.31"
+      assert (((j +i 1) *i SEW) ≤b (Sail.BitVec.length input)) "extensions/V/vext_utils_insts.sail:222.30-222.31"
       (write_single_element SEW ((4 *i i) +i j) vd
         (Sail.BitVec.extractLsb input (((j +i 1) *i SEW) -i 1) (j *i SEW)))
   (pure loop_vars)
@@ -380,7 +468,7 @@ def init_masked_result (num_elem : Nat) (EEW : Nat) (LMUL_pow : Int) (vd_val : (
     if ((LMUL_pow ≥b 0) : Bool)
     then num_elem
     else (Int.tdiv num_elem (2 ^i (0 -i LMUL_pow)))
-  assert (num_elem ≥b real_num_elem) "extensions/V/vext_utils_insts.sail:229.34-229.35"
+  assert (num_elem ≥b real_num_elem) "extensions/V/vext_utils_insts.sail:289.34-289.35"
   let (mask, result) ← (( do
     let loop_i_lower := 0
     let loop_i_upper := (num_elem -i 1)
@@ -453,7 +541,7 @@ def init_masked_source (num_elem : Nat) (LMUL_pow : Int) (vm_val : (BitVec num_e
     if ((LMUL_pow ≥b 0) : Bool)
     then num_elem
     else (Int.tdiv num_elem (2 ^i (0 -i LMUL_pow)))
-  assert (num_elem ≥b real_num_elem) "extensions/V/vext_utils_insts.sail:281.34-281.35"
+  assert (num_elem ≥b real_num_elem) "extensions/V/vext_utils_insts.sail:341.34-341.35"
   let mask ← (( do
     let loop_i_lower := 0
     let loop_i_upper := (num_elem -i 1)
@@ -493,7 +581,7 @@ def init_masked_result_carry (num_elem : Nat) (EEW : Nat) (LMUL_pow : Int) (vd_v
     if ((LMUL_pow ≥b 0) : Bool)
     then num_elem
     else (Int.tdiv num_elem (2 ^i (0 -i LMUL_pow)))
-  assert (num_elem ≥b real_num_elem) "extensions/V/vext_utils_insts.sail:319.34-319.35"
+  assert (num_elem ≥b real_num_elem) "extensions/V/vext_utils_insts.sail:379.34-379.35"
   let (mask, result) ← (( do
     let loop_i_lower := 0
     let loop_i_upper := (num_elem -i 1)
@@ -551,7 +639,7 @@ def init_masked_result_cmp (num_elem : Nat) (EEW : Nat) (LMUL_pow : Int) (vd_val
     if ((LMUL_pow ≥b 0) : Bool)
     then num_elem
     else (Int.tdiv num_elem (2 ^i (0 -i LMUL_pow)))
-  assert (num_elem ≥b real_num_elem) "extensions/V/vext_utils_insts.sail:359.34-359.35"
+  assert (num_elem ≥b real_num_elem) "extensions/V/vext_utils_insts.sail:419.34-419.35"
   let (mask, result) ← (( do
     let loop_i_lower := 0
     let loop_i_upper := (num_elem -i 1)
@@ -648,7 +736,7 @@ def read_vreg_seg (num_elem : Nat) (SEW : Nat) (LMUL_pow : Int) (nf : Nat) (vrid
 /-- Type quantifiers: SEW : Nat, k_n : Nat, k_n ≥ 0, 0 ≤ k_n, SEW ∈ {8, 16, 32, 64} -/
 def get_shift_amount (bit_val : (BitVec k_n)) (SEW : Nat) : SailM Nat := do
   let lowlog2bits := (log2 SEW)
-  assert ((0 <b lowlog2bits) && (lowlog2bits <b (Sail.BitVec.length bit_val))) "extensions/V/vext_utils_insts.sail:416.43-416.44"
+  assert ((0 <b lowlog2bits) && (lowlog2bits <b (Sail.BitVec.length bit_val))) "extensions/V/vext_utils_insts.sail:476.43-476.44"
   (pure (BitVec.toNat (Sail.BitVec.extractLsb bit_val (lowlog2bits -i 1) 0)))
 
 /-- Type quantifiers: k_m : Nat, shift_amount : Nat, k_m > 0 ∧ shift_amount ≥ 0 -/
@@ -658,7 +746,7 @@ def get_fixed_rounding_incr (vec_elem : (BitVec k_m)) (shift_amount : Nat) : Sai
   else
     (do
       let rounding_mode ← do (pure (_get_Vcsr_vxrm (← readReg vcsr)))
-      assert (shift_amount <b (Sail.BitVec.length vec_elem)) "extensions/V/vext_utils_insts.sail:427.28-427.29"
+      assert (shift_amount <b (Sail.BitVec.length vec_elem)) "extensions/V/vext_utils_insts.sail:487.28-487.29"
       let b__0 := rounding_mode
       if ((b__0 == (0b00 : (BitVec 2))) : Bool)
       then (bit_to_bits (BitVec.access vec_elem (shift_amount -i 1)))

@@ -68,6 +68,7 @@ open ropw
 open rop
 open rmvvfunct6
 open rivvfunct6
+open rfwvvfunct6
 open rfvvfunct6
 open regno
 open regidx
@@ -210,8 +211,8 @@ def num_of_float_class (arg_ : float_class) : Int :=
   | float_class_snan => 8
   | float_class_qnan => 9
 
-/-- Type quantifiers: k_ex393886# : Nat, k_ex393886# ∈ {16, 32, 64, 128} -/
-def float_classify (f : (BitVec k_ex393886#)) : SailM float_class := do
+/-- Type quantifiers: k_ex534660# : Nat, k_ex534660# ∈ {16, 32, 64, 128} -/
+def float_classify (f : (BitVec k_ex534660#)) : SailM float_class := do
   if ((float_is_snan f) : Bool)
   then (pure float_class_snan)
   else

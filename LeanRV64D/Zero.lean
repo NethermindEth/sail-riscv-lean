@@ -64,6 +64,7 @@ open ropw
 open rop
 open rmvvfunct6
 open rivvfunct6
+open rfwvvfunct6
 open rfvvfunct6
 open regno
 open regidx
@@ -175,8 +176,8 @@ open AtomicSupport
 open Architecture
 open AccessType
 
-/-- Type quantifiers: k_ex393485# : Nat, k_ex393485# ∈ {16, 32, 64, 128} -/
-def float_is_zero (op : (BitVec k_ex393485#)) : Bool :=
+/-- Type quantifiers: k_ex534259# : Nat, k_ex534259# ∈ {16, 32, 64, 128} -/
+def float_is_zero (op : (BitVec k_ex534259#)) : Bool :=
   let { exp := exp, mantissa := mantissa, sign := _ } := (float_decompose op)
   ((is_all_zeros exp) && (is_all_zeros mantissa))
 

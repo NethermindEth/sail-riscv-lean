@@ -70,6 +70,7 @@ open ropw
 open rop
 open rmvvfunct6
 open rivvfunct6
+open rfwvvfunct6
 open rfvvfunct6
 open regno
 open regidx
@@ -854,18 +855,15 @@ def num_of_rivvfunct6 (arg_ : rivvfunct6) : Int :=
   | IVV_VWREDSUM => 1
 
 def undefined_rfvvfunct6 (_ : Unit) : SailM rfvvfunct6 := do
-  (internal_pick
-    [FVV_VFREDOSUM, FVV_VFREDUSUM, FVV_VFREDMAX, FVV_VFREDMIN, FVV_VFWREDOSUM, FVV_VFWREDUSUM])
+  (internal_pick [FVV_VFREDOSUM, FVV_VFREDUSUM, FVV_VFREDMAX, FVV_VFREDMIN])
 
-/-- Type quantifiers: arg_ : Nat, 0 ≤ arg_ ∧ arg_ ≤ 5 -/
+/-- Type quantifiers: arg_ : Nat, 0 ≤ arg_ ∧ arg_ ≤ 3 -/
 def rfvvfunct6_of_num (arg_ : Nat) : rfvvfunct6 :=
   match arg_ with
   | 0 => FVV_VFREDOSUM
   | 1 => FVV_VFREDUSUM
   | 2 => FVV_VFREDMAX
-  | 3 => FVV_VFREDMIN
-  | 4 => FVV_VFWREDOSUM
-  | _ => FVV_VFWREDUSUM
+  | _ => FVV_VFREDMIN
 
 def num_of_rfvvfunct6 (arg_ : rfvvfunct6) : Int :=
   match arg_ with
@@ -873,8 +871,20 @@ def num_of_rfvvfunct6 (arg_ : rfvvfunct6) : Int :=
   | FVV_VFREDUSUM => 1
   | FVV_VFREDMAX => 2
   | FVV_VFREDMIN => 3
-  | FVV_VFWREDOSUM => 4
-  | FVV_VFWREDUSUM => 5
+
+def undefined_rfwvvfunct6 (_ : Unit) : SailM rfwvvfunct6 := do
+  (internal_pick [FVV_VFWREDOSUM, FVV_VFWREDUSUM])
+
+/-- Type quantifiers: arg_ : Nat, 0 ≤ arg_ ∧ arg_ ≤ 1 -/
+def rfwvvfunct6_of_num (arg_ : Nat) : rfwvvfunct6 :=
+  match arg_ with
+  | 0 => FVV_VFWREDOSUM
+  | _ => FVV_VFWREDUSUM
+
+def num_of_rfwvvfunct6 (arg_ : rfwvvfunct6) : Int :=
+  match arg_ with
+  | FVV_VFWREDOSUM => 0
+  | FVV_VFWREDUSUM => 1
 
 def undefined_wmvvfunct6 (_ : Unit) : SailM wmvvfunct6 := do
   (internal_pick [WMVV_VWMACCU, WMVV_VWMACC, WMVV_VWMACCSU])
