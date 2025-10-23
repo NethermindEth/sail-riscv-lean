@@ -1,8 +1,8 @@
-✔ [2/115] Built LeanRV64D.Sail.Attr (804ms)
-✔ [3/115] Built LeanRV64D.Sail.IntRange (1.4s)
-✔ [4/115] Built LeanRV64D.Sail.BitVec (2.5s)
+✔ [2/115] Built LeanRV64D.Sail.Attr (963ms)
+✔ [3/115] Built LeanRV64D.Sail.IntRange (1.3s)
+✔ [4/115] Built LeanRV64D.Sail.BitVec (2.4s)
 ✔ [5/115] Built LeanRV64D.Sail.Sail (3.4s)
-✖ [6/115] Building LeanRV64D.Defs (23s)
+✖ [6/115] Building LeanRV64D.Defs (24s)
 trace: .> LEAN_PATH=/home/runner/work/sail-riscv-lean/sail-riscv-lean/sail-riscv/build/model/Lean_RV64D/.lake/build/lib/lean /home/runner/.elan/toolchains/leanprover--lean4-nightly---nightly-2025-08-02/bin/lean --tstack=400000 /home/runner/work/sail-riscv-lean/sail-riscv-lean/sail-riscv/build/model/Lean_RV64D/LeanRV64D/Defs.lean -o /home/runner/work/sail-riscv-lean/sail-riscv-lean/sail-riscv/build/model/Lean_RV64D/.lake/build/lib/lean/LeanRV64D/Defs.olean -i /home/runner/work/sail-riscv-lean/sail-riscv-lean/sail-riscv/build/model/Lean_RV64D/.lake/build/lib/lean/LeanRV64D/Defs.ilean -c /home/runner/work/sail-riscv-lean/sail-riscv-lean/sail-riscv/build/model/Lean_RV64D/.lake/build/ir/LeanRV64D/Defs.c --setup /home/runner/work/sail-riscv-lean/sail-riscv-lean/sail-riscv/build/model/Lean_RV64D/.lake/build/ir/LeanRV64D/Defs.setup.json --json
 error: LeanRV64D/Defs.lean:48:26: don't know how to synthesize placeholder for argument 'w'
 context:
