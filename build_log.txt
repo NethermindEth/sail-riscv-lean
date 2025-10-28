@@ -1,4 +1,4 @@
-✔ [2/115] Built LeanRV64D.Sail.Attr (964ms)
+✔ [2/115] Built LeanRV64D.Sail.Attr (976ms)
 ✔ [3/115] Built LeanRV64D.Sail.IntRange (1.4s)
 ✔ [4/115] Built LeanRV64D.Sail.BitVec (2.4s)
 ✔ [5/115] Built LeanRV64D.Sail.Sail (3.5s)
