@@ -204,7 +204,7 @@ def csrPriv (csr : (BitVec 12)) : (BitVec 2) :=
 def check_CSR_priv (csr : (BitVec 12)) (p : Privilege) : Bool :=
   (zopz0zKzJ_u (privLevel_to_bits p) (csrPriv csr))
 
-/-- Type quantifiers: k_ex540479# : Bool -/
+/-- Type quantifiers: k_ex540487# : Bool -/
 def check_CSR_access (csr : (BitVec 12)) (isWrite : Bool) : Bool :=
   (not (isWrite && ((csrAccess csr) == (0b11 : (BitVec 2)))))
 
@@ -212,7 +212,7 @@ def sstc_CSRs_accessible (priv : Privilege) : SailM Bool := do
   (pure ((priv == Machine) || ((priv == Supervisor) && (((_get_Counteren_TM (← readReg mcounteren)) == (0b1 : (BitVec 1))) && ((_get_MEnvcfg_STCE
               (← readReg menvcfg)) == (0b1 : (BitVec 1)))))))
 
-/-- Type quantifiers: k_ex540515# : Bool -/
+/-- Type quantifiers: k_ex540523# : Bool -/
 def is_CSR_accessible (b__0 : (BitVec 12)) (g__2 : Privilege) (g__3 : Bool) : SailM Bool := do
   if ((b__0 == (0x301 : (BitVec 12))) : Bool)
   then (pure true)
@@ -776,7 +776,7 @@ def is_CSR_accessible (b__0 : (BitVec 12)) (g__2 : Privilege) (g__3 : Bool) : Sa
                                                                                                                                                                                                                                                                                                           else
                                                                                                                                                                                                                                                                                                             (pure false)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
 
-/-- Type quantifiers: k_ex541119# : Bool -/
+/-- Type quantifiers: k_ex541127# : Bool -/
 def check_CSR (csr : (BitVec 12)) (p : Privilege) (isWrite : Bool) : SailM Bool := do
   (pure ((check_CSR_priv csr p) && ((check_CSR_access csr isWrite) && (← (is_CSR_accessible csr p
             isWrite)))))
@@ -864,7 +864,9 @@ def track_trap (p : Privilege) : SailM Unit := do
     (internal_error "sys/sys_control.sail" 150 "Hypervisor extension not supported")
 
 def trap_handler (del_priv : Privilege) (c : TrapCause) (pc : (BitVec 64)) (info : (Option (BitVec 64))) (ext : (Option Unit)) : SailM (BitVec 64) := do
-  let _ : Unit := (trap_callback ())
+  let is_interrupt := (trapCause_is_interrupt c)
+  let cause := (trapCause_bits_forwards c)
+  let _ : Unit := (trap_callback is_interrupt cause)
   if ((get_config_print_platform ()) : Bool)
   then
     (pure (print_endline
@@ -877,14 +879,13 @@ def trap_handler (del_priv : Privilege) (c : TrapCause) (pc : (BitVec 64)) (info
   if ((hartSupports Ext_Zicfilp) : Bool)
   then (zicfilp_preserve_elp_on_trap del_priv)
   else (pure ())
-  let is_interrupt := (bool_to_bits (trapCause_is_interrupt c))
-  let cause := (zero_extend (m := (xlen -i 1)) (trapCause_bits_forwards c))
   match del_priv with
   | Machine =>
     (do
       writeReg mcause (Sail.BitVec.updateSubrange (← readReg mcause) (64 -i 1) (64 -i 1)
-        is_interrupt)
-      writeReg mcause (Sail.BitVec.updateSubrange (← readReg mcause) (64 -i 2) 0 cause)
+        (bool_to_bits is_interrupt))
+      writeReg mcause (Sail.BitVec.updateSubrange (← readReg mcause) (64 -i 2) 0
+        (zero_extend (m := (64 -i 1)) cause))
       writeReg mstatus (Sail.BitVec.updateSubrange (← readReg mstatus) 7 7
         (_get_Mstatus_MIE (← readReg mstatus)))
       writeReg mstatus (Sail.BitVec.updateSubrange (← readReg mstatus) 3 3 (0b0 : (BitVec 1)))
@@ -900,8 +901,9 @@ def trap_handler (del_priv : Privilege) (c : TrapCause) (pc : (BitVec 64)) (info
     (do
       assert (← (currentlyEnabled Ext_S)) "no supervisor mode present for delegation"
       writeReg scause (Sail.BitVec.updateSubrange (← readReg scause) (64 -i 1) (64 -i 1)
-        is_interrupt)
-      writeReg scause (Sail.BitVec.updateSubrange (← readReg scause) (64 -i 2) 0 cause)
+        (bool_to_bits is_interrupt))
+      writeReg scause (Sail.BitVec.updateSubrange (← readReg scause) (64 -i 2) 0
+        (zero_extend (m := (64 -i 1)) cause))
       writeReg mstatus (Sail.BitVec.updateSubrange (← readReg mstatus) 5 5
         (_get_Mstatus_SIE (← readReg mstatus)))
       writeReg mstatus (Sail.BitVec.updateSubrange (← readReg mstatus) 1 1 (0b0 : (BitVec 1)))

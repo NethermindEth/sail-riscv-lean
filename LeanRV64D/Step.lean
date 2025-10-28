@@ -3,6 +3,7 @@ import LeanRV64D.PreludeMemAddrtype
 import LeanRV64D.Common0
 import LeanRV64D.RvfiDii
 import LeanRV64D.Types
+import LeanRV64D.Callbacks
 import LeanRV64D.Regs
 import LeanRV64D.PcAccess
 import LeanRV64D.SysRegs
@@ -195,7 +196,7 @@ open AtomicSupport
 open Architecture
 open AccessType
 
-/-- Type quantifiers: k_ex623487# : Bool, step_no : Int -/
+/-- Type quantifiers: k_ex623495# : Bool, step_no : Int -/
 def run_hart_waiting (step_no : Int) (wr : WaitReason) (instbits : (BitVec 32)) (exit_wait : Bool) : SailM Step := do
   if ((← (shouldWakeForInterrupt ())) : Bool)
   then
@@ -294,6 +295,7 @@ def run_hart_active (step_no : Nat) : SailM Step := do
       | .F_RVC h =>
         (do
           let _ : Unit := (sail_instr_announce h)
+          let _ : Unit := (fetch_callback h)
           let instbits : instbits := (zero_extend (m := 32) h)
           let instruction ← do (ext_decode_compressed h)
           if ((get_config_print_instr ()) : Bool)
@@ -329,6 +331,7 @@ def run_hart_active (step_no : Nat) : SailM Step := do
       | .F_Base w =>
         (do
           let _ : Unit := (sail_instr_announce w)
+          let _ : Unit := (fetch_callback w)
           let instbits : instbits := (zero_extend (m := 32) w)
           let instruction ← do (ext_decode w)
           if ((get_config_print_instr ()) : Bool)
@@ -364,7 +367,7 @@ def wait_is_nop (wr : WaitReason) : Bool :=
   | WAIT_WRS_STO => false
   | WAIT_WRS_NTO => false
 
-/-- Type quantifiers: k_ex623537# : Bool, step_no : Nat, 0 ≤ step_no -/
+/-- Type quantifiers: k_ex623545# : Bool, step_no : Nat, 0 ≤ step_no -/
 def try_step (step_no : Nat) (exit_wait : Bool) : SailM Bool := do
   let _ : Unit := (ext_pre_step_hook ())
   writeReg minstret_increment (← (should_inc_minstret (← readReg cur_privilege)))
@@ -385,7 +388,7 @@ def try_step (step_no : Nat) (exit_wait : Bool) : SailM Bool := do
   | .Step_Waiting _ =>
     assert (hart_is_waiting (← readReg hart_state)) "cannot be Waiting in a non-Wait state"
   | .Step_Execute (.Retire_Success (), _) =>
-    assert (hart_is_active (← readReg hart_state)) "postlude/step.sail:202.74-202.75"
+    assert (hart_is_active (← readReg hart_state)) "postlude/step.sail:204.74-204.75"
   | .Step_Execute (.Trap (priv, ctl, pc), _) => (set_next_pc (← (exception_handler priv ctl pc)))
   | .Step_Execute (.Memory_Exception (vaddr, e), _) => (handle_exception (bits_of_virtaddr vaddr) e)
   | .Step_Execute (.Illegal_Instruction (), instbits) =>
@@ -393,7 +396,7 @@ def try_step (step_no : Nat) (exit_wait : Bool) : SailM Bool := do
   | .Step_Execute (.Enter_Wait wr, instbits) =>
     (do
       if ((wait_is_nop wr) : Bool)
-      then assert (hart_is_active (← readReg hart_state)) "postlude/step.sail:210.41-210.42"
+      then assert (hart_is_active (← readReg hart_state)) "postlude/step.sail:212.41-212.42"
       else
         (do
           if ((get_config_print_instr ()) : Bool)

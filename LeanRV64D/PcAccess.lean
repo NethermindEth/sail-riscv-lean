@@ -188,6 +188,7 @@ def get_next_pc (_ : Unit) : SailM (BitVec 64) := do
 def set_next_pc (pc : (BitVec 64)) : SailM Unit := do
   let _ : Unit := (sail_branch_announce xlen pc)
   writeReg nextPC pc
+  (pure (redirect_callback pc))
 
 def tick_pc (_ : Unit) : SailM Unit := do
   writeReg PC (← readReg nextPC)

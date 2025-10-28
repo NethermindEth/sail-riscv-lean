@@ -176,11 +176,11 @@ open AtomicSupport
 open Architecture
 open AccessType
 
-/-- Type quantifiers: k_ex534255# : Nat, k_ex534255# ∈ {16, 32, 64, 128} -/
-def float_is_positive (op : (BitVec k_ex534255#)) : Bool :=
+/-- Type quantifiers: k_ex534262# : Nat, k_ex534262# ∈ {16, 32, 64, 128} -/
+def float_is_positive (op : (BitVec k_ex534262#)) : Bool :=
   (is_highest_zero op)
 
-/-- Type quantifiers: k_ex534257# : Nat, k_ex534257# ∈ {16, 32, 64, 128} -/
-def float_is_negative (op : (BitVec k_ex534257#)) : Bool :=
+/-- Type quantifiers: k_ex534264# : Nat, k_ex534264# ∈ {16, 32, 64, 128} -/
+def float_is_negative (op : (BitVec k_ex534264#)) : Bool :=
   (is_highest_one op)
 

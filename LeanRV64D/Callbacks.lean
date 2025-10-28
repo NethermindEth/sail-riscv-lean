@@ -178,6 +178,10 @@ open AtomicSupport
 open Architecture
 open AccessType
 
+/-- Type quantifiers: k_n : Nat, k_n ≥ 0, k_n ∈ {16, 32} -/
+def fetch_callback (x_0 : (BitVec k_n)) : Unit :=
+  ()
+
 /-- Type quantifiers: x_2 : Nat, x_2 ≥ 0, 0 < x_2 ∧ x_2 ≤ max_mem_access -/
 def mem_write_callback (x_0 : String) (x_1 : (BitVec (if ( 64 = 32  : Bool) then 34 else 64))) (x_2 : Nat) (x_3 : (BitVec (8 * x_2))) : Unit :=
   ()
@@ -201,7 +205,11 @@ def csr_full_write_callback (x_0 : String) (x_1 : (BitVec 12)) (x_2 : (BitVec 64
 def csr_full_read_callback (x_0 : String) (x_1 : (BitVec 12)) (x_2 : (BitVec 64)) : Unit :=
   ()
 
-def trap_callback (x_0 : Unit) : Unit :=
+def redirect_callback (x_0 : (BitVec 64)) : Unit :=
+  ()
+
+/-- Type quantifiers: k_ex537924# : Bool -/
+def trap_callback (x_0 : Bool) (x_1 : (BitVec 6)) : Unit :=
   ()
 
 def csr_name_map_backwards (arg_ : String) : SailM (BitVec 12) := do

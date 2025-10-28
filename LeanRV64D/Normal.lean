@@ -176,13 +176,13 @@ open AtomicSupport
 open Architecture
 open AccessType
 
-/-- Type quantifiers: k_ex534266# : Nat, k_ex534266# ∈ {16, 32, 64, 128} -/
-def float_is_normal (op : (BitVec k_ex534266#)) : Bool :=
+/-- Type quantifiers: k_ex534273# : Nat, k_ex534273# ∈ {16, 32, 64, 128} -/
+def float_is_normal (op : (BitVec k_ex534273#)) : Bool :=
   let { exp := exp, sign := _, mantissa := _ } := (float_decompose op)
   ((! (is_all_ones exp)) && (! (is_all_zeros exp)))
 
-/-- Type quantifiers: k_ex534284# : Nat, k_ex534284# ∈ {16, 32, 64, 128} -/
-def float_is_subnormal (op : (BitVec k_ex534284#)) : Bool :=
+/-- Type quantifiers: k_ex534291# : Nat, k_ex534291# ∈ {16, 32, 64, 128} -/
+def float_is_subnormal (op : (BitVec k_ex534291#)) : Bool :=
   let { exp := exp, mantissa := mantissa, sign := _ } := (float_decompose op)
   ((is_all_zeros exp) && (! (is_all_zeros mantissa)))
 

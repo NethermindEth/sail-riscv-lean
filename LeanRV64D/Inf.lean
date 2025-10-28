@@ -176,8 +176,8 @@ open AtomicSupport
 open Architecture
 open AccessType
 
-/-- Type quantifiers: k_ex534248# : Nat, k_ex534248# ∈ {16, 32, 64, 128} -/
-def float_is_inf (op : (BitVec k_ex534248#)) : Bool :=
+/-- Type quantifiers: k_ex534255# : Nat, k_ex534255# ∈ {16, 32, 64, 128} -/
+def float_is_inf (op : (BitVec k_ex534255#)) : Bool :=
   let { exp := exp, mantissa := mantissa, sign := _ } := (float_decompose op)
   ((is_all_ones exp) && (is_all_zeros mantissa))
 
