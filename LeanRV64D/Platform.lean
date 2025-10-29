@@ -187,9 +187,9 @@ def plat_enable_dirty_update : Bool := false
 
 def plat_enable_misaligned_access : Bool := true
 
-def plat_clint_base : physaddrbits := (← (to_bits_checked (l := 64) (33554432 : Int)))
+def plat_clint_base : physaddrbits := unwrapValue ((to_bits_checked (l := 64) (33554432 : Int)))
 
-def plat_clint_size : physaddrbits := (← (to_bits_checked (l := 64) (786432 : Int)))
+def plat_clint_size : physaddrbits := unwrapValue ((to_bits_checked (l := 64) (786432 : Int)))
 
 def htif_tohost_size := 8
 
@@ -197,12 +197,12 @@ def enable_htif (tohost_addr : (BitVec 64)) : SailM Unit := do
   writeReg htif_tohost_base (some (trunc (m := 64) tohost_addr))
 
 /-- Type quantifiers: width : Nat, 0 < width ∧ width ≤ max_mem_access -/
-def within_clint (typ_0 : physaddr) (width : Nat) : Bool :=
+def within_clint (typ_0 : physaddr) (width : Nat) : SailM Bool := do
   let .Physaddr addr : physaddr := typ_0
   let addr_int := (BitVec.toNat addr)
   let clint_base_int := (BitVec.toNat plat_clint_base)
   let clint_size_int := (BitVec.toNat plat_clint_size)
-  ((clint_base_int ≤b addr_int) && ((addr_int +i width) ≤b (clint_base_int +i clint_size_int)))
+  (pure ((clint_base_int ≤b addr_int) && ((addr_int +i width) ≤b (clint_base_int +i clint_size_int))))
 
 /-- Type quantifiers: width : Nat, 0 < width ∧ width ≤ max_mem_access -/
 def within_htif_writable (typ_0 : physaddr) (width : Nat) : SailM Bool := do

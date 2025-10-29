@@ -1419,7 +1419,7 @@ def csr_name_map_forwards_matches (arg_ : (BitVec 12)) : Bool :=
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   else
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     true))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
 
-def csr_name_map_backwards_matches (arg_ : String) : Bool :=
+def csr_name_map_backwards_matches (arg_ : String) : SailM Bool := do
   let head_exp_ := arg_
   match (match head_exp_ with
   | "misa" => (some true)
@@ -1749,8 +1749,8 @@ def csr_name_map_backwards_matches (arg_ : String) : Bool :=
       (match (hex_bits_12_backwards mapping0_) with
       | reg => (some true))
     else none)) with
-  | .some result => result
+  | .some result => (pure result)
   | none =>
     (match head_exp_ with
-    | _ => false)
+    | _ => (pure false))
 

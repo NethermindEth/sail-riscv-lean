@@ -45,7 +45,7 @@ abbrev fp_rounding_modes := (BitVec 5)
 
 
 
-abbrev fp_bits := (BitVec _)
+-- Abbreviation fp_bits skipped
 
 /-- Type quantifiers: k_n : Int -/
 structure float_bits (k_n : Int) where

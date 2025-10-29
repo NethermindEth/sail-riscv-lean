@@ -198,7 +198,7 @@ def is_aligned_vaddr (typ_0 : virtaddr) (width : Nat) : Bool :=
   let .Virtaddr addr : virtaddr := typ_0
   ((Int.tmod (BitVec.toNat addr) width) == 0)
 
-/-- Type quantifiers: k_ex541635# : Bool, k_ex541634# : Bool, k_ex541633# : Bool -/
+/-- Type quantifiers: k_ex541635_ : Bool, k_ex541634_ : Bool, k_ex541633_ : Bool -/
 def read_kind_of_flags (aq : Bool) (rl : Bool) (res : Bool) : (Option read_kind) :=
   match (aq, rl, res) with
   | (false, false, false) => (some Read_plain)
@@ -210,7 +210,7 @@ def read_kind_of_flags (aq : Bool) (rl : Bool) (res : Bool) : (Option read_kind)
   | (false, true, false) => none
   | (false, true, true) => none
 
-/-- Type quantifiers: k_ex541641# : Bool, k_ex541640# : Bool, k_ex541639# : Bool -/
+/-- Type quantifiers: k_ex541641_ : Bool, k_ex541640_ : Bool, k_ex541639_ : Bool -/
 def write_kind_of_flags (aq : Bool) (rl : Bool) (con : Bool) : SailM write_kind := do
   match (aq, rl, con) with
   | (false, false, false) => (pure Write_plain)
@@ -222,7 +222,7 @@ def write_kind_of_flags (aq : Bool) (rl : Bool) (con : Bool) : SailM write_kind 
   | (true, false, false) => sailThrow ((Error_not_implemented "store.aq"))
   | (true, false, true) => sailThrow ((Error_not_implemented "sc.aq"))
 
-/-- Type quantifiers: k_ex541648# : Bool, k_ex541647# : Bool, k_ex541646# : Bool, k_ex541645# : Bool, width
+/-- Type quantifiers: k_ex541648_ : Bool, k_ex541647_ : Bool, k_ex541646_ : Bool, k_ex541645_ : Bool, width
   : Nat, width ≥ 0, 0 < width ∧ width ≤ max_mem_access -/
 def phys_mem_read (t : (AccessType Unit)) (paddr : physaddr) (width : Nat) (aq : Bool) (rl : Bool) (res : Bool) (meta' : Bool) : SailM (Result ((BitVec (8 * width)) × Unit) ExceptionType) := do
   let result ← do
@@ -247,7 +247,7 @@ def alignmentFaultFromAccessType (accTy : (AccessType Unit)) : ExceptionType :=
   | .Read Data => (E_Load_Addr_Align ())
   | _ => (E_SAMO_Addr_Align ())
 
-/-- Type quantifiers: k_ex541665# : Bool, width : Nat, 0 < width ∧ width ≤ max_mem_access -/
+/-- Type quantifiers: k_ex541665_ : Bool, width : Nat, 0 < width ∧ width ≤ max_mem_access -/
 def pmaCheck (paddr : physaddr) (width : Nat) (accTy : (AccessType Unit)) (res_or_con : Bool) : SailM (Option ExceptionType) := do
   match (matching_pma (← readReg pma_regions) paddr width) with
   | none => (pure (some (accessFaultFromAccessType accTy)))
@@ -322,7 +322,7 @@ def highestPriorityAlignmentOrAccessFault (l : ExceptionType) (r : ExceptionType
   then (pure l)
   else (pure r)
 
-/-- Type quantifiers: k_ex541785# : Bool, width : Nat, 0 < width ∧ width ≤ max_mem_access -/
+/-- Type quantifiers: k_ex541785_ : Bool, width : Nat, 0 < width ∧ width ≤ max_mem_access -/
 def phys_access_check (typ : (AccessType Unit)) (priv : Privilege) (paddr : physaddr) (width : Nat) (res_or_con : Bool) : SailM (Option ExceptionType) := do
   let pmpError ← (( do
     if ((sys_pmp_count == 0) : Bool)
@@ -335,7 +335,7 @@ def phys_access_check (typ : (AccessType Unit)) (priv : Privilege) (paddr : phys
   | (none, .some e) => (pure (some e))
   | (.some e0, .some e1) => (pure (some (← (highestPriorityAlignmentOrAccessFault e0 e1))))
 
-/-- Type quantifiers: k_ex541790# : Bool, k_ex541789# : Bool, k_ex541788# : Bool, k_ex541787# : Bool, width
+/-- Type quantifiers: k_ex541790_ : Bool, k_ex541789_ : Bool, k_ex541788_ : Bool, k_ex541787_ : Bool, width
   : Nat, width ≥ 0, 0 < width ∧ width ≤ max_mem_access -/
 def checked_mem_read (t : (AccessType Unit)) (priv : Privilege) (paddr : physaddr) (width : Nat) (aq : Bool) (rl : Bool) (res : Bool) (meta' : Bool) : SailM (Result ((BitVec (8 * width)) × Unit) ExceptionType) := do
   match (← (phys_access_check t priv paddr width res)) with
@@ -346,7 +346,7 @@ def checked_mem_read (t : (AccessType Unit)) (priv : Privilege) (paddr : physadd
       then (pure (MemoryOpResult_add_meta (← (mmio_read t paddr width)) default_meta))
       else (phys_mem_read t paddr width aq rl res meta'))
 
-/-- Type quantifiers: k_ex541799# : Bool, k_ex541798# : Bool, k_ex541797# : Bool, k_ex541796# : Bool, width
+/-- Type quantifiers: k_ex541799_ : Bool, k_ex541798_ : Bool, k_ex541797_ : Bool, k_ex541796_ : Bool, width
   : Nat, width ≥ 0, 0 < width ∧ width ≤ max_mem_access -/
 def mem_read_priv_meta (typ : (AccessType Unit)) (priv : Privilege) (paddr : physaddr) (width : Nat) (aq : Bool) (rl : Bool) (res : Bool) (meta' : Bool) : SailM (Result ((BitVec (8 * width)) × Unit) ExceptionType) := do
   let result ← (( do
@@ -366,26 +366,26 @@ def mem_read_priv_meta (typ : (AccessType Unit)) (priv : Privilege) (paddr : phy
     | .Err e => (mem_exception_callback (bits_of_physaddr paddr) (exceptionType_bits_forwards e))
   (pure result)
 
-/-- Type quantifiers: k_ex541853# : Bool, k_ex541852# : Bool, k_ex541851# : Bool, k_ex541850# : Bool, width
+/-- Type quantifiers: k_ex541853_ : Bool, k_ex541852_ : Bool, k_ex541851_ : Bool, k_ex541850_ : Bool, width
   : Nat, width ≥ 0, 0 < width ∧ width ≤ max_mem_access -/
 def mem_read_meta (typ : (AccessType Unit)) (paddr : physaddr) (width : Nat) (aq : Bool) (rl : Bool) (res : Bool) (meta' : Bool) : SailM (Result ((BitVec (8 * width)) × Unit) ExceptionType) := do
   (mem_read_priv_meta typ
     (← (effectivePrivilege typ (← readReg mstatus) (← readReg cur_privilege))) paddr width aq
     rl res meta')
 
-/-- Type quantifiers: k_ex541856# : Bool, k_ex541855# : Bool, k_ex541854# : Bool, width : Nat, width
+/-- Type quantifiers: k_ex541856_ : Bool, k_ex541855_ : Bool, k_ex541854_ : Bool, width : Nat, width
   ≥ 0, 0 < width ∧ width ≤ max_mem_access -/
 def mem_read_priv (typ : (AccessType Unit)) (priv : Privilege) (paddr : physaddr) (width : Nat) (aq : Bool) (rl : Bool) (res : Bool) : SailM (Result (BitVec (8 * width)) ExceptionType) := do
   (pure (MemoryOpResult_drop_meta (← (mem_read_priv_meta typ priv paddr width aq rl res false))))
 
-/-- Type quantifiers: k_ex541859# : Bool, k_ex541858# : Bool, k_ex541857# : Bool, width : Nat, width
+/-- Type quantifiers: k_ex541859_ : Bool, k_ex541858_ : Bool, k_ex541857_ : Bool, width : Nat, width
   ≥ 0, 0 < width ∧ width ≤ max_mem_access -/
 def mem_read (typ : (AccessType Unit)) (paddr : physaddr) (width : Nat) (aq : Bool) (rel : Bool) (res : Bool) : SailM (Result (BitVec (8 * width)) ExceptionType) := do
   (mem_read_priv typ
     (← (effectivePrivilege typ (← readReg mstatus) (← readReg cur_privilege))) paddr width aq
     rel res)
 
-/-- Type quantifiers: k_ex541862# : Bool, k_ex541861# : Bool, k_ex541860# : Bool, width : Nat, 0 <
+/-- Type quantifiers: k_ex541862_ : Bool, k_ex541861_ : Bool, k_ex541860_ : Bool, width : Nat, 0 <
   width ∧ width ≤ max_mem_access -/
 def mem_write_ea (addr : physaddr) (width : Nat) (aq : Bool) (rl : Bool) (con : Bool) : SailM (Result Unit ExceptionType) := do
   if (((rl || con) && (not (is_aligned_paddr addr width))) : Bool)
@@ -396,7 +396,7 @@ def mem_write_ea (addr : physaddr) (width : Nat) (aq : Bool) (rl : Bool) (con : 
 def phys_mem_write (wk : write_kind) (paddr : physaddr) (width : Nat) (data : (BitVec (8 * width))) (meta' : Unit) : SailM (Result Bool ExceptionType) := do
   (pure (Ok (← (write_ram wk paddr width data meta'))))
 
-/-- Type quantifiers: k_ex541877# : Bool, k_ex541876# : Bool, k_ex541875# : Bool, width : Nat, width
+/-- Type quantifiers: k_ex541877_ : Bool, k_ex541876_ : Bool, k_ex541875_ : Bool, width : Nat, width
   ≥ 0, 0 < width ∧ width ≤ max_mem_access -/
 def checked_mem_write (paddr : physaddr) (width : Nat) (data : (BitVec (8 * width))) (typ : (AccessType Unit)) (priv : Privilege) (meta' : Unit) (aq : Bool) (rl : Bool) (con : Bool) : SailM (Result Bool ExceptionType) := do
   match (← (phys_access_check typ priv paddr width con)) with
@@ -410,7 +410,7 @@ def checked_mem_write (paddr : physaddr) (width : Nat) (data : (BitVec (8 * widt
           let wk ← do (write_kind_of_flags aq rl con)
           (phys_mem_write wk paddr width data meta')))
 
-/-- Type quantifiers: k_ex541889# : Bool, k_ex541888# : Bool, k_ex541887# : Bool, width : Nat, width
+/-- Type quantifiers: k_ex541889_ : Bool, k_ex541888_ : Bool, k_ex541887_ : Bool, width : Nat, width
   ≥ 0, 0 < width ∧ width ≤ max_mem_access -/
 def mem_write_value_priv_meta (paddr : physaddr) (width : Nat) (value : (BitVec (8 * width))) (typ : (AccessType Unit)) (priv : Privilege) (meta' : Unit) (aq : Bool) (rl : Bool) (con : Bool) : SailM (Result Bool ExceptionType) := do
   if (((rl || con) && (not (is_aligned_paddr paddr width))) : Bool)
@@ -425,19 +425,19 @@ def mem_write_value_priv_meta (paddr : physaddr) (width : Nat) (value : (BitVec 
           (mem_exception_callback (bits_of_physaddr paddr) (exceptionType_bits_forwards e))
       (pure result))
 
-/-- Type quantifiers: k_ex541901# : Bool, k_ex541900# : Bool, k_ex541899# : Bool, width : Nat, width
+/-- Type quantifiers: k_ex541901_ : Bool, k_ex541900_ : Bool, k_ex541899_ : Bool, width : Nat, width
   ≥ 0, 0 < width ∧ width ≤ max_mem_access -/
 def mem_write_value_priv (paddr : physaddr) (width : Nat) (value : (BitVec (8 * width))) (priv : Privilege) (aq : Bool) (rl : Bool) (con : Bool) : SailM (Result Bool ExceptionType) := do
   (mem_write_value_priv_meta paddr width value (Write default_write_acc) priv default_meta aq rl con)
 
-/-- Type quantifiers: k_ex541904# : Bool, k_ex541903# : Bool, k_ex541902# : Bool, width : Nat, width
+/-- Type quantifiers: k_ex541904_ : Bool, k_ex541903_ : Bool, k_ex541902_ : Bool, width : Nat, width
   ≥ 0, 0 < width ∧ width ≤ max_mem_access -/
 def mem_write_value_meta (paddr : physaddr) (width : Nat) (value : (BitVec (8 * width))) (ext_acc : Unit) (meta' : Unit) (aq : Bool) (rl : Bool) (con : Bool) : SailM (Result Bool ExceptionType) := do
   let typ := (Write ext_acc)
   let ep ← do (effectivePrivilege typ (← readReg mstatus) (← readReg cur_privilege))
   (mem_write_value_priv_meta paddr width value typ ep meta' aq rl con)
 
-/-- Type quantifiers: k_ex541907# : Bool, k_ex541906# : Bool, k_ex541905# : Bool, width : Nat, width
+/-- Type quantifiers: k_ex541907_ : Bool, k_ex541906_ : Bool, k_ex541905_ : Bool, width : Nat, width
   ≥ 0, 0 < width ∧ width ≤ max_mem_access -/
 def mem_write_value (paddr : physaddr) (width : Nat) (value : (BitVec (8 * width))) (aq : Bool) (rl : Bool) (con : Bool) : SailM (Result Bool ExceptionType) := do
   (mem_write_value_meta paddr width value default_write_acc default_meta aq rl con)
