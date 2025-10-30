@@ -158,10 +158,12 @@ open barrier_kind
 open amoop
 open agtype
 open WaitReason
+open VectorHalf
 open TrapVectorMode
 open TrapCause
 open Step
 open Software_Check_Code
+open Signedness
 open SWCheckCodes
 open SATPMode
 open Reservability
@@ -182,7 +184,7 @@ open AtomicSupport
 open Architecture
 open AccessType
 
-/-- Type quantifiers: k_ex533589_ : Bool, k_ex533588_ : Bool -/
+/-- Type quantifiers: k_ex532724_ : Bool, k_ex532723_ : Bool -/
 def neq_bool (x : Bool) (y : Bool) : Bool :=
   (! (x == y))
 

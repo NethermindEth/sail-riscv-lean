@@ -61,6 +61,12 @@ inductive float_class where | float_class_negative_inf | float_class_negative_no
 
 abbrev nat1 := Int
 
+inductive Signedness where | Signed | Unsigned
+  deriving BEq, Inhabited, Repr
+
+inductive VectorHalf where | High | Low
+  deriving BEq, Inhabited, Repr
+
 abbrev max_mem_access : Int := 4096
 
 abbrev mem_access_width := Nat
@@ -395,9 +401,9 @@ inductive mmfunct6 where | MM_VMAND | MM_VMNAND | MM_VMANDN | MM_VMXOR | MM_VMOR
   deriving BEq, Inhabited, Repr
 
 structure mul_op where
-  high : Bool
-  signed_rs1 : Bool
-  signed_rs2 : Bool
+  result_part : VectorHalf
+  signed_rs1 : Signedness
+  signed_rs2 : Signedness
   deriving BEq, Inhabited, Repr
 
 inductive mvvmafunct6 where | MVV_VMACC | MVV_VNMSAC | MVV_VMADD | MVV_VNMSUB

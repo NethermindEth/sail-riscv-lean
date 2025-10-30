@@ -152,10 +152,12 @@ open barrier_kind
 open amoop
 open agtype
 open WaitReason
+open VectorHalf
 open TrapVectorMode
 open TrapCause
 open Step
 open Software_Check_Code
+open Signedness
 open SWCheckCodes
 open SATPMode
 open Reservability
@@ -176,11 +178,11 @@ open AtomicSupport
 open Architecture
 open AccessType
 
-/-- Type quantifiers: k_ex534262_ : Nat, k_ex534262_ ∈ {16, 32, 64, 128} -/
-def float_is_positive (op : (BitVec k_ex534262_)) : Bool :=
+/-- Type quantifiers: k_ex533397_ : Nat, k_ex533397_ ∈ {16, 32, 64, 128} -/
+def float_is_positive (op : (BitVec k_ex533397_)) : Bool :=
   (is_highest_zero op)
 
-/-- Type quantifiers: k_ex534264_ : Nat, k_ex534264_ ∈ {16, 32, 64, 128} -/
-def float_is_negative (op : (BitVec k_ex534264_)) : Bool :=
+/-- Type quantifiers: k_ex533399_ : Nat, k_ex533399_ ∈ {16, 32, 64, 128} -/
+def float_is_negative (op : (BitVec k_ex533399_)) : Bool :=
   (is_highest_one op)
 

@@ -158,10 +158,12 @@ open barrier_kind
 open amoop
 open agtype
 open WaitReason
+open VectorHalf
 open TrapVectorMode
 open TrapCause
 open Step
 open Software_Check_Code
+open Signedness
 open SWCheckCodes
 open SATPMode
 open Reservability
@@ -182,7 +184,7 @@ open AtomicSupport
 open Architecture
 open AccessType
 
-/-- Type quantifiers: k_ex538239_ : Bool -/
+/-- Type quantifiers: k_ex537376_ : Bool -/
 def ext_check_CSR (csrno : (BitVec 12)) (p : Privilege) (isWrite : Bool) : Bool :=
   true
 

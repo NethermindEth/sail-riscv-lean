@@ -162,10 +162,12 @@ open barrier_kind
 open amoop
 open agtype
 open WaitReason
+open VectorHalf
 open TrapVectorMode
 open TrapCause
 open Step
 open Software_Check_Code
+open Signedness
 open SWCheckCodes
 open SATPMode
 open Reservability
@@ -3371,7 +3373,7 @@ def maybe_aqrl_forwards (arg_ : (Bool × Bool)) : String :=
   | (false, true) => ".rl"
   | (false, false) => ""
 
-/-- Type quantifiers: k_ex537004_ : Bool -/
+/-- Type quantifiers: k_ex536153_ : Bool -/
 def maybe_u_forwards (arg_ : Bool) : String :=
   match arg_ with
   | true => "u"
@@ -3396,10 +3398,10 @@ def mmtype_mnemonic_forwards (arg_ : mmfunct6) : String :=
 
 def mul_mnemonic_forwards (arg_ : mul_op) : SailM String := do
   match arg_ with
-  | { high := false, signed_rs1 := true, signed_rs2 := true } => (pure "mul")
-  | { high := true, signed_rs1 := true, signed_rs2 := true } => (pure "mulh")
-  | { high := true, signed_rs1 := true, signed_rs2 := false } => (pure "mulhsu")
-  | { high := true, signed_rs1 := false, signed_rs2 := false } => (pure "mulhu")
+  | { result_part := Low, signed_rs1 := Signed, signed_rs2 := Signed } => (pure "mul")
+  | { result_part := High, signed_rs1 := Signed, signed_rs2 := Signed } => (pure "mulh")
+  | { result_part := High, signed_rs1 := Signed, signed_rs2 := Unsigned } => (pure "mulhsu")
+  | { result_part := High, signed_rs1 := Unsigned, signed_rs2 := Unsigned } => (pure "mulhu")
   | _ =>
     (do
       assert false "Pattern match failure at unknown location"

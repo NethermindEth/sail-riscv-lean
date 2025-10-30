@@ -1,10 +1,4 @@
-import LeanRV64D.Sail.Sail
-import LeanRV64D.Sail.BitVec
-import LeanRV64D.Sail.IntRange
-import LeanRV64D.Defs
-import LeanRV64D.Specialization
-import LeanRV64D.FakeReal
-import LeanRV64D.RiscvExtras
+import LeanRV64D.Prelude
 
 set_option maxHeartbeats 1_000_000_000
 set_option maxRecDepth 1_000_000
@@ -158,10 +152,12 @@ open barrier_kind
 open amoop
 open agtype
 open WaitReason
+open VectorHalf
 open TrapVectorMode
 open TrapCause
 open Step
 open Software_Check_Code
+open Signedness
 open SWCheckCodes
 open SATPMode
 open Reservability
@@ -183,7 +179,7 @@ open Architecture
 open AccessType
 
 def undefined_mul_op (_ : Unit) : SailM mul_op := do
-  (pure { high := (← (undefined_bool ()))
-          signed_rs1 := (← (undefined_bool ()))
-          signed_rs2 := (← (undefined_bool ())) })
+  (pure { result_part := (← (undefined_VectorHalf ()))
+          signed_rs1 := (← (undefined_Signedness ()))
+          signed_rs2 := (← (undefined_Signedness ())) })
 

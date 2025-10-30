@@ -152,10 +152,12 @@ open barrier_kind
 open amoop
 open agtype
 open WaitReason
+open VectorHalf
 open TrapVectorMode
 open TrapCause
 open Step
 open Software_Check_Code
+open Signedness
 open SWCheckCodes
 open SATPMode
 open Reservability
@@ -176,18 +178,18 @@ open AtomicSupport
 open Architecture
 open AccessType
 
-/-- Type quantifiers: k_ex534224_ : Nat, k_ex534224_ ∈ {16, 32, 64, 128} -/
-def float_is_nan (op : (BitVec k_ex534224_)) : Bool :=
+/-- Type quantifiers: k_ex533359_ : Nat, k_ex533359_ ∈ {16, 32, 64, 128} -/
+def float_is_nan (op : (BitVec k_ex533359_)) : Bool :=
   let { exp := exp, mantissa := mantissa, sign := _ } := (float_decompose op)
   ((is_all_ones exp) && (! (is_all_zeros mantissa)))
 
-/-- Type quantifiers: k_ex534241_ : Nat, k_ex534241_ ∈ {16, 32, 64, 128} -/
-def float_is_snan (op : (BitVec k_ex534241_)) : Bool :=
+/-- Type quantifiers: k_ex533376_ : Nat, k_ex533376_ ∈ {16, 32, 64, 128} -/
+def float_is_snan (op : (BitVec k_ex533376_)) : Bool :=
   let { mantissa := mantissa, sign := _, exp := _ } := (float_decompose op)
   ((float_is_nan op) && (is_highest_zero mantissa))
 
-/-- Type quantifiers: k_ex534248_ : Nat, k_ex534248_ ∈ {16, 32, 64, 128} -/
-def float_is_qnan (op : (BitVec k_ex534248_)) : Bool :=
+/-- Type quantifiers: k_ex533383_ : Nat, k_ex533383_ ∈ {16, 32, 64, 128} -/
+def float_is_qnan (op : (BitVec k_ex533383_)) : Bool :=
   let { mantissa := mantissa, sign := _, exp := _ } := (float_decompose op)
   ((float_is_nan op) && (is_highest_one mantissa))
 

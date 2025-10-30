@@ -152,10 +152,12 @@ open barrier_kind
 open amoop
 open agtype
 open WaitReason
+open VectorHalf
 open TrapVectorMode
 open TrapCause
 open Step
 open Software_Check_Code
+open Signedness
 open SWCheckCodes
 open SATPMode
 open Reservability
@@ -176,8 +178,8 @@ open AtomicSupport
 open Architecture
 open AccessType
 
-/-- Type quantifiers: k_ex534266_ : Nat, k_ex534266_ ∈ {16, 32, 64, 128} -/
-def float_is_zero (op : (BitVec k_ex534266_)) : Bool :=
+/-- Type quantifiers: k_ex533401_ : Nat, k_ex533401_ ∈ {16, 32, 64, 128} -/
+def float_is_zero (op : (BitVec k_ex533401_)) : Bool :=
   let { exp := exp, mantissa := mantissa, sign := _ } := (float_decompose op)
   ((is_all_zeros exp) && (is_all_zeros mantissa))
 

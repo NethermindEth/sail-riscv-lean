@@ -153,10 +153,12 @@ open barrier_kind
 open amoop
 open agtype
 open WaitReason
+open VectorHalf
 open TrapVectorMode
 open TrapCause
 open Step
 open Software_Check_Code
+open Signedness
 open SWCheckCodes
 open SATPMode
 open Reservability
@@ -224,7 +226,7 @@ def ones {n : _} : (BitVec n) :=
 def trunc {m : _} (v : (BitVec k_n)) : (BitVec m) :=
   (Sail.BitVec.truncate v m)
 
-/-- Type quantifiers: k_ex534684_ : Bool -/
+/-- Type quantifiers: k_ex533819_ : Bool -/
 def bool_bit_forwards (arg_ : Bool) : (BitVec 1) :=
   match arg_ with
   | true => 1#1
@@ -239,7 +241,7 @@ def bool_bit_backwards (arg_ : (BitVec 1)) : SailM Bool := do
       assert false "Pattern match failure at unknown location"
       throw Error.Exit)
 
-/-- Type quantifiers: k_ex534685_ : Bool -/
+/-- Type quantifiers: k_ex533820_ : Bool -/
 def bool_bit_forwards_matches (arg_ : Bool) : Bool :=
   match arg_ with
   | true => true
@@ -251,7 +253,7 @@ def bool_bit_backwards_matches (arg_ : (BitVec 1)) : Bool :=
   | 0#1 => true
   | _ => false
 
-/-- Type quantifiers: k_ex534686_ : Bool -/
+/-- Type quantifiers: k_ex533821_ : Bool -/
 def bool_bits_forwards (arg_ : Bool) : (BitVec 1) :=
   match arg_ with
   | true => (0b1 : (BitVec 1))
@@ -263,7 +265,7 @@ def bool_bits_backwards (arg_ : (BitVec 1)) : Bool :=
   then true
   else false
 
-/-- Type quantifiers: k_ex534688_ : Bool -/
+/-- Type quantifiers: k_ex533823_ : Bool -/
 def bool_bits_forwards_matches (arg_ : Bool) : Bool :=
   match arg_ with
   | true => true
@@ -278,7 +280,7 @@ def bool_bits_backwards_matches (arg_ : (BitVec 1)) : Bool :=
     then true
     else false)
 
-/-- Type quantifiers: k_ex534691_ : Bool -/
+/-- Type quantifiers: k_ex533826_ : Bool -/
 def bool_int_forwards (arg_ : Bool) : Int :=
   match arg_ with
   | false => 0
@@ -290,7 +292,7 @@ def bool_int_backwards (arg_ : Nat) : Bool :=
   | 0 => false
   | _ => true
 
-/-- Type quantifiers: k_ex534695_ : Bool -/
+/-- Type quantifiers: k_ex533830_ : Bool -/
 def bool_int_forwards_matches (arg_ : Bool) : Bool :=
   match arg_ with
   | false => true
@@ -303,14 +305,14 @@ def bool_int_backwards_matches (arg_ : Nat) : Bool :=
   | 1 => true
   | _ => false
 
-/-- Type quantifiers: k_ex534697_ : Bool -/
+/-- Type quantifiers: k_ex533832_ : Bool -/
 def bool_to_bit (x : Bool) : (BitVec 1) :=
   (bool_bit_forwards x)
 
 def bit_to_bool (x : (BitVec 1)) : SailM Bool := do
   (bool_bit_backwards x)
 
-/-- Type quantifiers: k_ex534699_ : Bool -/
+/-- Type quantifiers: k_ex533834_ : Bool -/
 def bool_to_bits (x : Bool) : (BitVec 1) :=
   (bool_bits_forwards x)
 
@@ -342,6 +344,34 @@ def to_bits_truncate {l : _} (n : Int) : (BitVec l) :=
 /-- Type quantifiers: n : Int, l : Nat, l ≥ 0, l ≥ 0 -/
 def to_bits_unsafe {l : _} (n : Int) : (BitVec l) :=
   (get_slice_int l n 0)
+
+def undefined_Signedness (_ : Unit) : SailM Signedness := do
+  (internal_pick [Signed, Unsigned])
+
+/-- Type quantifiers: arg_ : Nat, 0 ≤ arg_ ∧ arg_ ≤ 1 -/
+def Signedness_of_num (arg_ : Nat) : Signedness :=
+  match arg_ with
+  | 0 => Signed
+  | _ => Unsigned
+
+def num_of_Signedness (arg_ : Signedness) : Int :=
+  match arg_ with
+  | Signed => 0
+  | Unsigned => 1
+
+def undefined_VectorHalf (_ : Unit) : SailM VectorHalf := do
+  (internal_pick [High, Low])
+
+/-- Type quantifiers: arg_ : Nat, 0 ≤ arg_ ∧ arg_ ≤ 1 -/
+def VectorHalf_of_num (arg_ : Nat) : VectorHalf :=
+  match arg_ with
+  | 0 => High
+  | _ => Low
+
+def num_of_VectorHalf (arg_ : VectorHalf) : Int :=
+  match arg_ with
+  | High => 0
+  | Low => 1
 
 /-- Type quantifiers: k_n : Nat, k_n ≥ 0, k_n > 0 -/
 def zopz0zI_s (x : (BitVec k_n)) (y : (BitVec k_n)) : Bool :=
@@ -375,7 +405,7 @@ def zopz0zIzJ_u (x : (BitVec k_n)) (y : (BitVec k_n)) : Bool :=
 def zopz0zKzJ_u (x : (BitVec k_n)) (y : (BitVec k_n)) : Bool :=
   ((BitVec.toNat x) ≥b (BitVec.toNat y))
 
-/-- Type quantifiers: k_ex534775_ : Bool, k_ex534774_ : Bool -/
+/-- Type quantifiers: k_ex533914_ : Bool, k_ex533913_ : Bool -/
 def zopz0zJzJzK (x : Bool) (y : Bool) : Bool :=
   ((not x) || y)
 
