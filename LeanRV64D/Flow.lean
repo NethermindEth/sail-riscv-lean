@@ -184,7 +184,7 @@ open AtomicSupport
 open Architecture
 open AccessType
 
-/-- Type quantifiers: k_ex532724_ : Bool, k_ex532723_ : Bool -/
+/-- Type quantifiers: k_ex516665_ : Bool, k_ex516664_ : Bool -/
 def neq_bool (x : Bool) (y : Bool) : Bool :=
   (! (x == y))
 
