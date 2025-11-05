@@ -193,12 +193,12 @@ open AccessType
 /-- Type quantifiers: width : Nat, width > 0 -/
 def is_aligned_paddr (typ_0 : physaddr) (width : Nat) : Bool :=
   let .Physaddr addr : physaddr := typ_0
-  ((Int.tmod (BitVec.toNat addr) width) == 0)
+  ((Int.tmod (BitVec.toNatInt addr) width) == 0)
 
 /-- Type quantifiers: width : Nat, width > 0 -/
 def is_aligned_vaddr (typ_0 : virtaddr) (width : Nat) : Bool :=
   let .Virtaddr addr : virtaddr := typ_0
-  ((Int.tmod (BitVec.toNat addr) width) == 0)
+  ((Int.tmod (BitVec.toNatInt addr) width) == 0)
 
 /-- Type quantifiers: k_ex524713_ : Bool, k_ex524712_ : Bool, k_ex524711_ : Bool -/
 def read_kind_of_flags (aq : Bool) (rl : Bool) (res : Bool) : (Option read_kind) :=

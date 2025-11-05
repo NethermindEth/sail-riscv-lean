@@ -286,7 +286,7 @@ def get_scountovf (priv : Privilege) : SailM (BitVec 32) := do
     (internal_error "extensions/Sscofpmf/sscofpmf.sail" 76 "Hypervisor extension not supported")
 
 def hpmidx_from_bits (b : (BitVec 5)) : SailM Nat := do
-  let index := (BitVec.toNat b)
+  let index := (BitVec.toNatInt b)
   assert (index ≥b 3) "unreachable HPM index"
   (pure index)
 
@@ -509,7 +509,7 @@ def read_CSR (b__0 : (BitVec 12)) : SailM (BitVec 64) := do
                                                                                                                                                       3
                                                                                                                                                       0)
                                                                                                                                                   (pmpReadCfgReg
-                                                                                                                                                    (BitVec.toNat
+                                                                                                                                                    (BitVec.toNatInt
                                                                                                                                                       idx)))
                                                                                                                                               else
                                                                                                                                                 (do
@@ -525,7 +525,7 @@ def read_CSR (b__0 : (BitVec 12)) : SailM (BitVec 64) := do
                                                                                                                                                           3
                                                                                                                                                           0)
                                                                                                                                                       (pmpReadAddrReg
-                                                                                                                                                        (BitVec.toNat
+                                                                                                                                                        (BitVec.toNatInt
                                                                                                                                                           ((0b00 : (BitVec 2)) ++ idx))))
                                                                                                                                                   else
                                                                                                                                                     (do
@@ -541,7 +541,7 @@ def read_CSR (b__0 : (BitVec 12)) : SailM (BitVec 64) := do
                                                                                                                                                               3
                                                                                                                                                               0)
                                                                                                                                                           (pmpReadAddrReg
-                                                                                                                                                            (BitVec.toNat
+                                                                                                                                                            (BitVec.toNatInt
                                                                                                                                                               ((0b01 : (BitVec 2)) ++ idx))))
                                                                                                                                                       else
                                                                                                                                                         (do
@@ -557,7 +557,7 @@ def read_CSR (b__0 : (BitVec 12)) : SailM (BitVec 64) := do
                                                                                                                                                                   3
                                                                                                                                                                   0)
                                                                                                                                                               (pmpReadAddrReg
-                                                                                                                                                                (BitVec.toNat
+                                                                                                                                                                (BitVec.toNatInt
                                                                                                                                                                   ((0b10 : (BitVec 2)) ++ idx))))
                                                                                                                                                           else
                                                                                                                                                             (do
@@ -573,7 +573,7 @@ def read_CSR (b__0 : (BitVec 12)) : SailM (BitVec 64) := do
                                                                                                                                                                       3
                                                                                                                                                                       0)
                                                                                                                                                                   (pmpReadAddrReg
-                                                                                                                                                                    (BitVec.toNat
+                                                                                                                                                                    (BitVec.toNatInt
                                                                                                                                                                       ((0b11 : (BitVec 2)) ++ idx))))
                                                                                                                                                               else
                                                                                                                                                                 (do
@@ -694,7 +694,7 @@ def read_CSR (b__0 : (BitVec 12)) : SailM (BitVec 64) := do
                                                                                                                                                                                                                                            b__0
                                                                                                                                                                                                                                            4
                                                                                                                                                                                                                                            0)
-                                                                                                                                                                                                                                       ((BitVec.toNat
+                                                                                                                                                                                                                                       ((BitVec.toNatInt
                                                                                                                                                                                                                                            index) ≥b 3) : Bool)) : Bool)
                                                                                                                                                                                                                                   then
                                                                                                                                                                                                                                     (do
@@ -716,7 +716,7 @@ def read_CSR (b__0 : (BitVec 12)) : SailM (BitVec 64) := do
                                                                                                                                                                                                                                                b__0
                                                                                                                                                                                                                                                4
                                                                                                                                                                                                                                                0)
-                                                                                                                                                                                                                                           ((BitVec.toNat
+                                                                                                                                                                                                                                           ((BitVec.toNatInt
                                                                                                                                                                                                                                                index) ≥b 3) : Bool)) : Bool)
                                                                                                                                                                                                                                       then
                                                                                                                                                                                                                                         (do
@@ -738,7 +738,7 @@ def read_CSR (b__0 : (BitVec 12)) : SailM (BitVec 64) := do
                                                                                                                                                                                                                                                    b__0
                                                                                                                                                                                                                                                    4
                                                                                                                                                                                                                                                    0)
-                                                                                                                                                                                                                                               ((xlen == 32) && (((BitVec.toNat
+                                                                                                                                                                                                                                               ((xlen == 32) && (((BitVec.toNatInt
                                                                                                                                                                                                                                                      index) ≥b 3) : Bool)))) : Bool)
                                                                                                                                                                                                                                           then
                                                                                                                                                                                                                                             (do
@@ -760,7 +760,7 @@ def read_CSR (b__0 : (BitVec 12)) : SailM (BitVec 64) := do
                                                                                                                                                                                                                                                        b__0
                                                                                                                                                                                                                                                        4
                                                                                                                                                                                                                                                        0)
-                                                                                                                                                                                                                                                   ((BitVec.toNat
+                                                                                                                                                                                                                                                   ((BitVec.toNatInt
                                                                                                                                                                                                                                                        index) ≥b 3) : Bool)) : Bool)
                                                                                                                                                                                                                                               then
                                                                                                                                                                                                                                                 (do
@@ -782,7 +782,7 @@ def read_CSR (b__0 : (BitVec 12)) : SailM (BitVec 64) := do
                                                                                                                                                                                                                                                            b__0
                                                                                                                                                                                                                                                            4
                                                                                                                                                                                                                                                            0)
-                                                                                                                                                                                                                                                       ((xlen == 32) && (((BitVec.toNat
+                                                                                                                                                                                                                                                       ((xlen == 32) && (((BitVec.toNatInt
                                                                                                                                                                                                                                                              index) ≥b 3) : Bool)))) : Bool)
                                                                                                                                                                                                                                                   then
                                                                                                                                                                                                                                                     (do
@@ -804,7 +804,7 @@ def read_CSR (b__0 : (BitVec 12)) : SailM (BitVec 64) := do
                                                                                                                                                                                                                                                                b__0
                                                                                                                                                                                                                                                                4
                                                                                                                                                                                                                                                                0)
-                                                                                                                                                                                                                                                           ((xlen == 32) && (((BitVec.toNat
+                                                                                                                                                                                                                                                           ((xlen == 32) && (((BitVec.toNatInt
                                                                                                                                                                                                                                                                  index) ≥b 3) : Bool)))) : Bool)
                                                                                                                                                                                                                                                       then
                                                                                                                                                                                                                                                         (do
@@ -1340,7 +1340,7 @@ def write_CSR (b__0 : (BitVec 12)) (value : (BitVec 64)) : SailM (Result (BitVec
                                                                                                                                                   3
                                                                                                                                                   0)
                                                                                                                                               let idx :=
-                                                                                                                                                (BitVec.toNat
+                                                                                                                                                (BitVec.toNatInt
                                                                                                                                                   idx)
                                                                                                                                               (pmpWriteCfgReg
                                                                                                                                                 idx
@@ -1362,7 +1362,7 @@ def write_CSR (b__0 : (BitVec 12)) (value : (BitVec 64)) : SailM (Result (BitVec
                                                                                                                                                       3
                                                                                                                                                       0)
                                                                                                                                                   let idx :=
-                                                                                                                                                    (BitVec.toNat
+                                                                                                                                                    (BitVec.toNatInt
                                                                                                                                                       ((0b00 : (BitVec 2)) ++ idx))
                                                                                                                                                   (pmpWriteAddrReg
                                                                                                                                                     idx
@@ -1384,7 +1384,7 @@ def write_CSR (b__0 : (BitVec 12)) (value : (BitVec 64)) : SailM (Result (BitVec
                                                                                                                                                           3
                                                                                                                                                           0)
                                                                                                                                                       let idx :=
-                                                                                                                                                        (BitVec.toNat
+                                                                                                                                                        (BitVec.toNatInt
                                                                                                                                                           ((0b01 : (BitVec 2)) ++ idx))
                                                                                                                                                       (pmpWriteAddrReg
                                                                                                                                                         idx
@@ -1406,7 +1406,7 @@ def write_CSR (b__0 : (BitVec 12)) (value : (BitVec 64)) : SailM (Result (BitVec
                                                                                                                                                               3
                                                                                                                                                               0)
                                                                                                                                                           let idx :=
-                                                                                                                                                            (BitVec.toNat
+                                                                                                                                                            (BitVec.toNatInt
                                                                                                                                                               ((0b10 : (BitVec 2)) ++ idx))
                                                                                                                                                           (pmpWriteAddrReg
                                                                                                                                                             idx
@@ -1428,7 +1428,7 @@ def write_CSR (b__0 : (BitVec 12)) (value : (BitVec 64)) : SailM (Result (BitVec
                                                                                                                                                                   3
                                                                                                                                                                   0)
                                                                                                                                                               let idx :=
-                                                                                                                                                                (BitVec.toNat
+                                                                                                                                                                (BitVec.toNatInt
                                                                                                                                                                   ((0b11 : (BitVec 2)) ++ idx))
                                                                                                                                                               (pmpWriteAddrReg
                                                                                                                                                                 idx
@@ -1668,7 +1668,7 @@ def write_CSR (b__0 : (BitVec 12)) (value : (BitVec 64)) : SailM (Result (BitVec
                                                                                                                                                                                                                                    b__0
                                                                                                                                                                                                                                    4
                                                                                                                                                                                                                                    0)
-                                                                                                                                                                                                                               ((BitVec.toNat
+                                                                                                                                                                                                                               ((BitVec.toNatInt
                                                                                                                                                                                                                                    index) ≥b 3) : Bool)) : Bool)
                                                                                                                                                                                                                           then
                                                                                                                                                                                                                             (do
@@ -1696,7 +1696,7 @@ def write_CSR (b__0 : (BitVec 12)) (value : (BitVec 64)) : SailM (Result (BitVec
                                                                                                                                                                                                                                        b__0
                                                                                                                                                                                                                                        4
                                                                                                                                                                                                                                        0)
-                                                                                                                                                                                                                                   ((BitVec.toNat
+                                                                                                                                                                                                                                   ((BitVec.toNatInt
                                                                                                                                                                                                                                        index) ≥b 3) : Bool)) : Bool)
                                                                                                                                                                                                                               then
                                                                                                                                                                                                                                 (do
@@ -1724,7 +1724,7 @@ def write_CSR (b__0 : (BitVec 12)) (value : (BitVec 64)) : SailM (Result (BitVec
                                                                                                                                                                                                                                            b__0
                                                                                                                                                                                                                                            4
                                                                                                                                                                                                                                            0)
-                                                                                                                                                                                                                                       ((xlen == 32) && (((BitVec.toNat
+                                                                                                                                                                                                                                       ((xlen == 32) && (((BitVec.toNatInt
                                                                                                                                                                                                                                              index) ≥b 3) : Bool)))) : Bool)
                                                                                                                                                                                                                                   then
                                                                                                                                                                                                                                     (do
@@ -1752,7 +1752,7 @@ def write_CSR (b__0 : (BitVec 12)) (value : (BitVec 64)) : SailM (Result (BitVec
                                                                                                                                                                                                                                                b__0
                                                                                                                                                                                                                                                4
                                                                                                                                                                                                                                                0)
-                                                                                                                                                                                                                                           ((xlen == 32) && (((BitVec.toNat
+                                                                                                                                                                                                                                           ((xlen == 32) && (((BitVec.toNatInt
                                                                                                                                                                                                                                                  index) ≥b 3) : Bool)))) : Bool)
                                                                                                                                                                                                                                       then
                                                                                                                                                                                                                                         (do

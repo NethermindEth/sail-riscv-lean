@@ -557,19 +557,19 @@ def riscv_f32ToI16 (rm : (BitVec 3)) (v : (BitVec 32)) : ((BitVec 5) × (BitVec 
 
 def riscv_f16ToUi16 (rm : (BitVec 3)) (v : (BitVec 16)) : ((BitVec 5) × (BitVec 16)) :=
   let (flag, sig32) := (riscv_f16ToUi32 rm v)
-  if (((BitVec.toNat sig32) >b (BitVec.toNat (ones (n := 16)))) : Bool)
+  if (((BitVec.toNatInt sig32) >b (BitVec.toNatInt (ones (n := 16)))) : Bool)
   then ((nvFlag ()), (ones (n := 16)))
   else (flag, (Sail.BitVec.extractLsb sig32 15 0))
 
 def riscv_f16ToUi8 (rm : (BitVec 3)) (v : (BitVec 16)) : ((BitVec 5) × (BitVec 8)) :=
   let (flag, sig32) := (riscv_f16ToUi32 rm v)
-  if (((BitVec.toNat sig32) >b (BitVec.toNat (ones (n := 8)))) : Bool)
+  if (((BitVec.toNatInt sig32) >b (BitVec.toNatInt (ones (n := 8)))) : Bool)
   then ((nvFlag ()), (ones (n := 8)))
   else (flag, (Sail.BitVec.extractLsb sig32 7 0))
 
 def riscv_f32ToUi16 (rm : (BitVec 3)) (v : (BitVec 32)) : ((BitVec 5) × (BitVec 16)) :=
   let (flag, sig32) := (riscv_f32ToUi32 rm v)
-  if (((BitVec.toNat sig32) >b (BitVec.toNat (ones (n := 16)))) : Bool)
+  if (((BitVec.toNatInt sig32) >b (BitVec.toNatInt (ones (n := 16)))) : Bool)
   then ((nvFlag ()), (ones (n := 16)))
   else (flag, (Sail.BitVec.extractLsb sig32 15 0))
 
@@ -600,15 +600,15 @@ def rsqrt7 (v : (BitVec k_m)) (sub : Bool) : SailM (BitVec 64) := do
   let idx : Nat :=
     match (Sail.BitVec.length v) with
     | 16 =>
-      (BitVec.toNat
+      (BitVec.toNatInt
         ((BitVec.join1 [(BitVec.access normalized_exp 0)]) ++ (Sail.BitVec.extractLsb normalized_sig
             9 4)))
     | 32 =>
-      (BitVec.toNat
+      (BitVec.toNatInt
         ((BitVec.join1 [(BitVec.access normalized_exp 0)]) ++ (Sail.BitVec.extractLsb normalized_sig
             22 17)))
     | _ =>
-      (BitVec.toNat
+      (BitVec.toNatInt
         ((BitVec.join1 [(BitVec.access normalized_exp 0)]) ++ (Sail.BitVec.extractLsb normalized_sig
             51 46)))
   assert ((idx ≥b 0) && (idx <b 128)) "extensions/V/vext_fp_utils_insts.sail:457.29-457.30"
@@ -688,9 +688,9 @@ def recip7 (v : (BitVec k_m)) (rm_3b : (BitVec 3)) (sub : Bool) : SailM (Bool ×
     else (exp, sig)
   let idx : Nat :=
     match (Sail.BitVec.length v) with
-    | 16 => (BitVec.toNat (Sail.BitVec.extractLsb normalized_sig 9 3))
-    | 32 => (BitVec.toNat (Sail.BitVec.extractLsb normalized_sig 22 16))
-    | _ => (BitVec.toNat (Sail.BitVec.extractLsb normalized_sig 51 45))
+    | 16 => (BitVec.toNatInt (Sail.BitVec.extractLsb normalized_sig 9 3))
+    | 32 => (BitVec.toNatInt (Sail.BitVec.extractLsb normalized_sig 22 16))
+    | _ => (BitVec.toNatInt (Sail.BitVec.extractLsb normalized_sig 51 45))
   assert ((idx ≥b 0) && (idx <b 128)) "extensions/V/vext_fp_utils_insts.sail:548.29-548.30"
   let mid_exp :=
     (to_bits_unsafe (l := e) (((2 *i ((2 ^i (e -i 1)) -i 1)) -i 1) -i (BitVec.toInt normalized_exp)))

@@ -217,25 +217,25 @@ def pmpRangeMatch (begin : Nat) (end_ : Nat) (addr : Nat) (width : Nat) : pmpAdd
 
 def pmpMatchAddr (typ_0 : physaddr) (width : (BitVec 64)) (ent : (BitVec 8)) (pmpaddr : (BitVec 64)) (prev_pmpaddr : (BitVec 64)) : SailM pmpAddrMatch := do
   let .Physaddr addr : physaddr := typ_0
-  let addr := (BitVec.toNat addr)
-  let width := (BitVec.toNat width)
+  let addr := (BitVec.toNatInt addr)
+  let width := (BitVec.toNatInt width)
   match (pmpAddrMatchType_encdec_backwards (_get_Pmpcfg_ent_A ent)) with
   | OFF => (pure PMP_NoMatch)
   | TOR =>
     (if ((zopz0zKzJ_u prev_pmpaddr pmpaddr) : Bool)
     then (pure PMP_NoMatch)
     else
-      (pure (pmpRangeMatch ((BitVec.toNat prev_pmpaddr) *i 4) ((BitVec.toNat pmpaddr) *i 4) addr
-          width)))
+      (pure (pmpRangeMatch ((BitVec.toNatInt prev_pmpaddr) *i 4) ((BitVec.toNatInt pmpaddr) *i 4)
+          addr width)))
   | NA4 =>
     (do
       assert (sys_pmp_grain <b 1) "NA4 cannot be selected when PMP grain G >= 1."
-      let begin := ((BitVec.toNat pmpaddr) *i 4)
+      let begin := ((BitVec.toNatInt pmpaddr) *i 4)
       (pure (pmpRangeMatch begin (begin +i 4) addr width)))
   | NAPOT =>
     (let mask := (pmpaddr ^^^ (BitVec.addInt pmpaddr 1))
-    let begin_words := (BitVec.toNat (pmpaddr &&& (Complement.complement mask)))
-    let end_words := ((begin_words +i (BitVec.toNat mask)) +i 1)
+    let begin_words := (BitVec.toNatInt (pmpaddr &&& (Complement.complement mask)))
+    let end_words := ((begin_words +i (BitVec.toNatInt mask)) +i 1)
     (pure (pmpRangeMatch (begin_words *i 4) (end_words *i 4) addr width)))
 
 def accessToFault (acc : (AccessType Unit)) : ExceptionType :=

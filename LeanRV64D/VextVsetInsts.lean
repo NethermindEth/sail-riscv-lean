@@ -310,7 +310,7 @@ def vl_use_ceil : Bool := false
 
 /-- Type quantifiers: VLMAX : Nat, 1 ≤ VLMAX ∧ VLMAX ≤ (2 ^ 8) -/
 def calculate_new_vl (AVL : (BitVec 64)) (VLMAX : Nat) : Nat :=
-  let AVL := (BitVec.toNat AVL)
+  let AVL := (BitVec.toNatInt AVL)
   if ((AVL ≤b VLMAX) : Bool)
   then AVL
   else
@@ -331,7 +331,7 @@ def execute_vsetvl_type (ma : (BitVec 1)) (ta : (BitVec 1)) (sew : (BitVec 3)) (
   else
     (do
       let LMUL_pow_new := (BitVec.toInt lmul)
-      let SEW_pow_new := ((BitVec.toNat sew) +i 3)
+      let SEW_pow_new := ((BitVec.toNatInt sew) +i 3)
       let lmul_sew_ratio ← do (pure ((← (get_lmul_pow ())) -i (← (get_sew_pow ()))))
       let lmul_sew_ratio_new := (LMUL_pow_new -i SEW_pow_new)
       if (((SEW_pow_new >b (LMUL_pow_new +i elen_exp)) || (requires_fixed_vlmax && ((lmul_sew_ratio != lmul_sew_ratio_new) || (not

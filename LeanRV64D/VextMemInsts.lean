@@ -506,7 +506,7 @@ def process_vlsseg (nf : Nat) (vm : (BitVec 1)) (vd : vregidx) (load_width_bytes
     else (2 ^i EMUL_pow)
   let vm_val ← do (read_vmask num_elem vm zvreg)
   let vd_seg ← do (read_vreg_seg num_elem (load_width_bytes *i 8) EMUL_pow nf vd)
-  let rs2_val ← do (pure (BitVec.toNat (← (get_scalar rs2 xlen))))
+  let rs2_val ← do (pure (BitVec.toNatInt (← (get_scalar rs2 xlen))))
   let m := ((nf *i load_width_bytes) *i 8)
   let n := num_elem
   let (result, mask) ← (( do
@@ -566,7 +566,7 @@ def process_vssseg (nf : Nat) (vm : (BitVec 1)) (vs3 : vregidx) (load_width_byte
     else (2 ^i EMUL_pow)
   let vm_val ← do (read_vmask num_elem vm zvreg)
   let vs3_seg ← do (read_vreg_seg num_elem (load_width_bytes *i 8) EMUL_pow nf vs3)
-  let rs2_val ← do (pure (BitVec.toNat (← (get_scalar rs2 xlen))))
+  let rs2_val ← do (pure (BitVec.toNatInt (← (get_scalar rs2 xlen))))
   let n := num_elem
   let mask ← (( do
     match (← (init_masked_source num_elem EMUL_pow vm_val)) with
@@ -641,7 +641,7 @@ def process_vlxseg (nf : Nat) (vm : (BitVec 1)) (vd : vregidx) (EEW_index_bytes 
             let () := loop_vars_2
             loop_vars_2 ← do
               let elem_offset : Int :=
-                ((BitVec.toNat (GetElem?.getElem! vs2_val i)) +i (j *i EEW_data_bytes))
+                ((BitVec.toNatInt (GetElem?.getElem! vs2_val i)) +i (j *i EEW_data_bytes))
               match (← (vmem_read rs1 (to_bits_unsafe (l := xlen) elem_offset) EEW_data_bytes
                   (Read Data) false false false)) with
               | .Ok elem =>
@@ -702,7 +702,7 @@ def process_vsxseg (nf : Nat) (vm : (BitVec 1)) (vs3 : vregidx) (EEW_index_bytes
             let () := loop_vars_1
             loop_vars_1 ← do
               let elem_offset : Int :=
-                ((BitVec.toNat (GetElem?.getElem! vs2_val i)) +i (j *i EEW_data_bytes))
+                ((BitVec.toNatInt (GetElem?.getElem! vs2_val i)) +i (j *i EEW_data_bytes))
               let vs := (vregidx_offset vs3 (to_bits_unsafe (l := 5) (j *i EMUL_data_reg)))
               let data ← do (read_single_element (EEW_data_bytes *i 8) i vs)
               match (← (vmem_write rs1 (to_bits_unsafe (l := xlen) elem_offset) EEW_data_bytes

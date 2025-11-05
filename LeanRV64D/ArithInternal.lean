@@ -189,7 +189,7 @@ def float_is_lt_internal (op_0 : (BitVec k_n)) (op_1 : (BitVec k_n)) : Bool :=
   let is_zero := ((float_is_zero op_0) && (float_is_zero op_1))
   let diff_sign_lt := ((is_lowest_one fp_0.sign) && (! is_zero))
   let is_neg := (is_lowest_one fp_0.sign)
-  let unsigned_lt := ((BitVec.toNat op_0) <b (BitVec.toNat op_1))
+  let unsigned_lt := ((BitVec.toNatInt op_0) <b (BitVec.toNatInt op_1))
   let is_xor := ((is_neg && (! unsigned_lt)) || ((! is_neg) && unsigned_lt))
   let same_sign_lt := ((op_0 != op_1) && is_xor)
   if ((fp_0.sign != fp_1.sign) : Bool)
@@ -306,11 +306,12 @@ def float_round_and_compose (sign : (BitVec 1)) (exp : (BitVec k_n)) (mantissa :
   let three := (Sail.BitVec.zeroExtend (0b11 : (BitVec 2)) bitsize)
   let increment := (float_rounding_increment sign mantissa rounding_mode)
   let exp_limit := ((one <<< (Sail.BitVec.length fp.exp)) - three)
-  let exp_reach_limit := (! ((BitVec.toNat exp) <b (BitVec.toNat exp_limit)))
-  let exp_overflow := ((BitVec.toNat exp) >b (BitVec.toNat exp_limit))
+  let exp_reach_limit := (! ((BitVec.toNatInt exp) <b (BitVec.toNatInt exp_limit)))
+  let exp_overflow := ((BitVec.toNatInt exp) >b (BitVec.toNatInt exp_limit))
   let mantissa_limit := (one <<< (bitsize -i 1))
   let mantissa_overflow :=
-    (! ((BitVec.toNat mantissa_limit) >b ((BitVec.toNat mantissa) +i (BitVec.toNat increment))))
+    (! ((BitVec.toNatInt mantissa_limit) >b ((BitVec.toNatInt mantissa) +i (BitVec.toNatInt
+            increment))))
   if ((exp_reach_limit && (exp_overflow || mantissa_overflow)) : Bool)
   then
     (let result := (float_get_sign_with_all_ones_exp sign op)
@@ -374,7 +375,7 @@ def float_add_less_than_exp (op_0 : (BitVec k_n)) (op_1 : (BitVec k_n)) : SailM 
   let bitsize := (Sail.BitVec.length op_0)
   let fp_0 := (float_decompose op_0)
   let fp_1 := (float_decompose op_1)
-  assert ((BitVec.toNat fp_0.exp) <b (BitVec.toNat fp_1.exp)) "The exp of floating point op_0 must be less than op_1."
+  assert ((BitVec.toNatInt fp_0.exp) <b (BitVec.toNatInt fp_1.exp)) "The exp of floating point op_0 must be less than op_1."
   let is_exp_all_ones := (is_all_ones fp_1.exp)
   let mantissa_shift := (fp_1.mantissa <<< ((Sail.BitVec.length fp_1.exp) -i 2))
   let is_nan := (! (is_all_zeros mantissa_shift))
@@ -395,7 +396,7 @@ def float_add_diff_exp (op_0 : (BitVec k_n)) (op_1 : (BitVec k_n)) : SailM ((Bit
   let fp_0 := (float_decompose op_0)
   let fp_1 := (float_decompose op_1)
   assert (fp_0.exp != fp_1.exp) "The exp of floating point cannot be same."
-  if (((BitVec.toNat fp_0.exp) <b (BitVec.toNat fp_1.exp)) : Bool)
+  if (((BitVec.toNatInt fp_0.exp) <b (BitVec.toNatInt fp_1.exp)) : Bool)
   then (float_add_less_than_exp op_0 op_1)
   else
     (do

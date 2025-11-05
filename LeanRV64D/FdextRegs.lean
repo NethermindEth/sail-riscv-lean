@@ -360,11 +360,11 @@ def wF (typ_0 : fregno) (in_v : (BitVec (if ( true  : Bool) then 8 else 4 * 8)))
 
 def rF_bits (app_0 : fregidx) : SailM (BitVec (if ( true  : Bool) then 8 else 4 * 8)) := do
   let .Fregidx i := app_0
-  (rF (Fregno (BitVec.toNat i)))
+  (rF (Fregno (BitVec.toNatInt i)))
 
 def wF_bits (typ_0 : fregidx) (data : (BitVec (if ( true  : Bool) then 8 else 4 * 8))) : SailM Unit := do
   let .Fregidx i : fregidx := typ_0
-  (wF (Fregno (BitVec.toNat i)) data)
+  (wF (Fregno (BitVec.toNatInt i)) data)
 
 def rF_BF16 (i : fregidx) : SailM (BitVec 16) := do
   (pure (nan_unbox (m := 16) (← (rF_bits i))))

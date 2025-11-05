@@ -198,9 +198,9 @@ def access_within (addr : (BitVec k_width)) (bytes : Nat) (region_width_exp : Na
   ((addr &&& mask) == ((BitVec.addInt addr (bytes -i 1)) &&& mask))
 
 def prop_access_within_is_aligned (addr : (BitVec 32)) (region_width_exp : (BitVec 4)) : Bool :=
-  let region_width_exp := (BitVec.toNat region_width_exp)
+  let region_width_exp := (BitVec.toNatInt region_width_exp)
   let bytes := (2 ^i region_width_exp)
-  ((access_within addr bytes region_width_exp) == ((Int.tmod (BitVec.toNat addr) bytes) == 0))
+  ((access_within addr bytes region_width_exp) == ((Int.tmod (BitVec.toNatInt addr) bytes) == 0))
 
 def prop_access_within_single (addr : (BitVec 32)) : Bool :=
   (access_within addr 1 0)

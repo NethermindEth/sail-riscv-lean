@@ -216,7 +216,7 @@ def valid_vtype (_ : Unit) : SailM Bool := do
 
 /-- Type quantifiers: i : Int -/
 def assert_vstart (i : Int) : SailM Bool := do
-  (pure ((BitVec.toNat (← readReg vstart)) == i))
+  (pure ((BitVec.toNatInt (← readReg vstart)) == i))
 
 def valid_rd_mask (rd : vregidx) (vm : (BitVec 1)) : Bool :=
   ((vm != (0b0 : (BitVec 1))) || (bne rd zvreg))
@@ -231,8 +231,8 @@ def valid_reg_overlap (rs : vregidx) (rd : vregidx) (EMUL_pow_rs : Int) (EMUL_po
     if ((EMUL_pow_rd >b 0) : Bool)
     then (2 ^i EMUL_pow_rd)
     else 1
-  let rs_int := (BitVec.toNat (vregidx_bits rs))
-  let rd_int := (BitVec.toNat (vregidx_bits rd))
+  let rs_int := (BitVec.toNatInt (vregidx_bits rs))
+  let rd_int := (BitVec.toNatInt (vregidx_bits rd))
   if ((EMUL_pow_rs <b EMUL_pow_rd) : Bool)
   then
     (((rs_int +i rs_group) ≤b rd_int) || ((rs_int ≥b (rd_int +i rd_group)) || (((rs_int +i rs_group) == (rd_int +i rd_group)) && (EMUL_pow_rs ≥b 0))))
@@ -437,14 +437,14 @@ def write_velem_quad_vec (vd : vregidx) (SEW : Nat) (input : (Vector (BitVec SEW
   (pure loop_vars)
 
 def get_start_element (_ : Unit) : SailM (Result Nat Unit) := do
-  let start_element ← do (pure (BitVec.toNat (← readReg vstart)))
+  let start_element ← do (pure (BitVec.toNatInt (← readReg vstart)))
   let SEW_pow ← do (get_sew_pow ())
   if ((start_element >b ((2 ^i ((3 +i vlen_exp) -i SEW_pow)) -i 1)) : Bool)
   then (pure (Err ()))
   else (pure (Ok start_element))
 
 def get_end_element (_ : Unit) : SailM Int := do
-  (pure ((BitVec.toNat (← readReg vl)) -i 1))
+  (pure ((BitVec.toNatInt (← readReg vl)) -i 1))
 
 /-- Type quantifiers: num_elem : Nat, num_elem ≥ 0, EEW : Nat, EEW ≥ 0, LMUL_pow : Int, num_elem
   ≥ 0 -/
@@ -739,7 +739,7 @@ def read_vreg_seg (num_elem : Nat) (SEW : Nat) (LMUL_pow : Int) (nf : Nat) (vrid
 def get_shift_amount (bit_val : (BitVec k_n)) (SEW : Nat) : SailM Nat := do
   let lowlog2bits := (log2 SEW)
   assert ((0 <b lowlog2bits) && (lowlog2bits <b (Sail.BitVec.length bit_val))) "extensions/V/vext_utils_insts.sail:476.43-476.44"
-  (pure (BitVec.toNat (Sail.BitVec.extractLsb bit_val (lowlog2bits -i 1) 0)))
+  (pure (BitVec.toNatInt (Sail.BitVec.extractLsb bit_val (lowlog2bits -i 1) 0)))
 
 /-- Type quantifiers: k_m : Nat, shift_amount : Nat, k_m > 0 ∧ shift_amount ≥ 0 -/
 def get_fixed_rounding_incr (vec_elem : (BitVec k_m)) (shift_amount : Nat) : SailM (BitVec 1) := do
@@ -773,7 +773,7 @@ def get_fixed_rounding_incr (vec_elem : (BitVec k_m)) (shift_amount : Nat) : Sai
 
 /-- Type quantifiers: len : Nat, k_n : Nat, k_n ≥ len ∧ len > 1 -/
 def unsigned_saturation (len : Nat) (elem : (BitVec k_n)) : SailM (BitVec len) := do
-  if (((BitVec.toNat elem) >b (BitVec.toNat (ones (n := len)))) : Bool)
+  if (((BitVec.toNatInt elem) >b (BitVec.toNatInt (ones (n := len)))) : Bool)
   then
     (do
       writeReg vcsr (Sail.BitVec.updateSubrange (← readReg vcsr) 0 0 (0b1 : (BitVec 1)))

@@ -388,8 +388,8 @@ def flt_S (v1 : (BitVec 32)) (v2 : (BitVec 32)) (is_quiet : Bool) : (Bool × (Bi
     if (((s1 == (0b0 : (BitVec 1))) && (s2 == (0b0 : (BitVec 1)))) : Bool)
     then
       (if ((e1 == e2) : Bool)
-      then ((BitVec.toNat m1) <b (BitVec.toNat m2))
-      else ((BitVec.toNat e1) <b (BitVec.toNat e2)))
+      then ((BitVec.toNatInt m1) <b (BitVec.toNatInt m2))
+      else ((BitVec.toNatInt e1) <b (BitVec.toNatInt e2)))
     else
       (if (((s1 == (0b0 : (BitVec 1))) && (s2 == (0b1 : (BitVec 1)))) : Bool)
       then false
@@ -398,8 +398,8 @@ def flt_S (v1 : (BitVec 32)) (v2 : (BitVec 32)) (is_quiet : Bool) : (Bool × (Bi
         then true
         else
           (if ((e1 == e2) : Bool)
-          then ((BitVec.toNat m1) >b (BitVec.toNat m2))
-          else ((BitVec.toNat e1) >b (BitVec.toNat e2)))))
+          then ((BitVec.toNatInt m1) >b (BitVec.toNatInt m2))
+          else ((BitVec.toNatInt e1) >b (BitVec.toNatInt e2)))))
   let fflags :=
     if (is_quiet : Bool)
     then
@@ -422,8 +422,8 @@ def fle_S (v1 : (BitVec 32)) (v2 : (BitVec 32)) (is_quiet : Bool) : (Bool × (Bi
     if (((s1 == (0b0 : (BitVec 1))) && (s2 == (0b0 : (BitVec 1)))) : Bool)
     then
       (if ((e1 == e2) : Bool)
-      then ((BitVec.toNat m1) ≤b (BitVec.toNat m2))
-      else ((BitVec.toNat e1) <b (BitVec.toNat e2)))
+      then ((BitVec.toNatInt m1) ≤b (BitVec.toNatInt m2))
+      else ((BitVec.toNatInt e1) <b (BitVec.toNatInt e2)))
     else
       (if (((s1 == (0b0 : (BitVec 1))) && (s2 == (0b1 : (BitVec 1)))) : Bool)
       then (v1Is0 && v2Is0)
@@ -432,8 +432,8 @@ def fle_S (v1 : (BitVec 32)) (v2 : (BitVec 32)) (is_quiet : Bool) : (Bool × (Bi
         then true
         else
           (if ((e1 == e2) : Bool)
-          then ((BitVec.toNat m1) ≥b (BitVec.toNat m2))
-          else ((BitVec.toNat e1) >b (BitVec.toNat e2)))))
+          then ((BitVec.toNatInt m1) ≥b (BitVec.toNatInt m2))
+          else ((BitVec.toNatInt e1) >b (BitVec.toNatInt e2)))))
   let fflags :=
     if (is_quiet : Bool)
     then

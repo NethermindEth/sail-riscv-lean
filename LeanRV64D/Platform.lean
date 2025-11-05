@@ -201,9 +201,9 @@ def enable_htif (tohost_addr : (BitVec 64)) : SailM Unit := do
 /-- Type quantifiers: width : Nat, 0 < width ∧ width ≤ max_mem_access -/
 def within_clint (typ_0 : physaddr) (width : Nat) : SailM Bool := do
   let .Physaddr addr : physaddr := typ_0
-  let addr_int := (BitVec.toNat addr)
-  let clint_base_int := (BitVec.toNat plat_clint_base)
-  let clint_size_int := (BitVec.toNat plat_clint_size)
+  let addr_int := (BitVec.toNatInt addr)
+  let clint_base_int := (BitVec.toNatInt plat_clint_base)
+  let clint_size_int := (BitVec.toNatInt plat_clint_size)
   (pure ((clint_base_int ≤b addr_int) && ((addr_int +i width) ≤b (clint_base_int +i clint_size_int))))
 
 /-- Type quantifiers: width : Nat, 0 < width ∧ width ≤ max_mem_access -/
@@ -643,8 +643,8 @@ def htif_store (app_0 : physaddr) (width : Nat) (data : (BitVec (8 * width))) : 
               writeReg htif_tohost (Sail.BitVec.updateSubrange (← readReg htif_tohost) 63 32 data))
           else SailME.throw ((Err (E_SAMO_Access_Fault ())) : (Result Bool ExceptionType))))
   if (((((← readReg htif_cmd_write) == 1#1) && (← do
-           (pure ((BitVec.toNat (← readReg htif_payload_writes)) >b 0)))) || (← do
-         (pure ((BitVec.toNat (← readReg htif_payload_writes)) >b 2)))) : Bool)
+           (pure ((BitVec.toNatInt (← readReg htif_payload_writes)) >b 0)))) || (← do
+         (pure ((BitVec.toNatInt (← readReg htif_payload_writes)) >b 2)))) : Bool)
   then
     (do
       let cmd ← do (pure (Mk_htif_cmd (← readReg htif_tohost)))

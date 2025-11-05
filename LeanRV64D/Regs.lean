@@ -805,11 +805,11 @@ def wX (typ_0 : regno) (in_v : (BitVec 64)) : SailM Unit := do
 
 def rX_bits (app_0 : regidx) : SailM (BitVec 64) := do
   let .Regidx i := app_0
-  (rX (Regno (BitVec.toNat i)))
+  (rX (Regno (BitVec.toNatInt i)))
 
 def wX_bits (typ_0 : regidx) (data : (BitVec 64)) : SailM Unit := do
   let .Regidx i : regidx := typ_0
-  (wX (Regno (BitVec.toNat i)) data)
+  (wX (Regno (BitVec.toNatInt i)) data)
 
 def rX_pair_bits (i : regidx) : SailM (BitVec (64 * 2)) := do
   if ((bne i zreg) : Bool)

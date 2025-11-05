@@ -187,8 +187,8 @@ def zvk_valid_reg_overlap (rs : vregidx) (rd : vregidx) (emul_pow : Int) : Bool 
     if ((emul_pow >b 0) : Bool)
     then (2 ^i emul_pow)
     else 1
-  let rs_int := (BitVec.toNat (vregidx_bits rs))
-  let rd_int := (BitVec.toNat (vregidx_bits rd))
+  let rs_int := (BitVec.toNatInt (vregidx_bits rs))
+  let rd_int := (BitVec.toNatInt (vregidx_bits rd))
   (((rs_int +i reg_group_size) ≤b rd_int) || ((rd_int +i reg_group_size) ≤b rs_int))
 
 /-- Type quantifiers: EGS : Nat, EGW : Nat, 0 ≤ EGW, EGS > 0 -/
@@ -198,8 +198,8 @@ def zvk_check_encdec (EGW : Nat) (EGS : Nat) : SailM Bool := do
     if ((LMUL_pow <b 0) : Bool)
     then (Int.tdiv vlen (2 ^i (Int.natAbs LMUL_pow)))
     else ((2 ^i LMUL_pow) *i vlen)
-  (pure (((Int.tmod (BitVec.toNat (← readReg vl)) EGS) == 0) && (← do
-        (pure (((Int.tmod (BitVec.toNat (← readReg vstart)) EGS) == 0) && (LMUL_times_VLEN ≥b EGW))))))
+  (pure (((Int.tmod (BitVec.toNatInt (← readReg vl)) EGS) == 0) && (← do
+        (pure (((Int.tmod (BitVec.toNatInt (← readReg vstart)) EGS) == 0) && (LMUL_times_VLEN ≥b EGW))))))
 
 def undefined_zvk_vsha2_funct6 (_ : Unit) : SailM zvk_vsha2_funct6 := do
   (internal_pick [ZVK_VSHA2CH_VV, ZVK_VSHA2CL_VV])
@@ -277,7 +277,7 @@ def zvksed_ck : (Vector (BitVec 32) 32) :=
   #v[(0x646B7279 : (BitVec 32)), (0x484F565D : (BitVec 32)), (0x2C333A41 : (BitVec 32)), (0x10171E25 : (BitVec 32)), (0xF4FB0209 : (BitVec 32)), (0xD8DFE6ED : (BitVec 32)), (0xBCC3CAD1 : (BitVec 32)), (0xA0A7AEB5 : (BitVec 32)), (0x848B9299 : (BitVec 32)), (0x686F767D : (BitVec 32)), (0x4C535A61 : (BitVec 32)), (0x30373E45 : (BitVec 32)), (0x141B2229 : (BitVec 32)), (0xF8FF060D : (BitVec 32)), (0xDCE3EAF1 : (BitVec 32)), (0xC0C7CED5 : (BitVec 32)), (0xA4ABB2B9 : (BitVec 32)), (0x888F969D : (BitVec 32)), (0x6C737A81 : (BitVec 32)), (0x50575E65 : (BitVec 32)), (0x343B4249 : (BitVec 32)), (0x181F262D : (BitVec 32)), (0xFC030A11 : (BitVec 32)), (0xE0E7EEF5 : (BitVec 32)), (0xC4CBD2D9 : (BitVec 32)), (0xA8AFB6BD : (BitVec 32)), (0x8C939AA1 : (BitVec 32)), (0x70777E85 : (BitVec 32)), (0x545B6269 : (BitVec 32)), (0x383F464D : (BitVec 32)), (0x1C232A31 : (BitVec 32)), (0x00070E15 : (BitVec 32))]
 
 def zvksed_box_lookup (x : (BitVec 5)) (table : (Vector (BitVec 32) 32)) : (BitVec 32) :=
-  (GetElem?.getElem! table (31 -i (BitVec.toNat x)))
+  (GetElem?.getElem! table (31 -i (BitVec.toNatInt x)))
 
 def zvk_sm4_sbox (x : (BitVec 5)) : (BitVec 32) :=
   (zvksed_box_lookup x zvksed_ck)

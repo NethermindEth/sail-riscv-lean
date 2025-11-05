@@ -205,7 +205,7 @@ def tlb_get_ppn (sv_width : Nat) (ent : TLB_Entry) (vpn : (BitVec (sv_width - 12
 
 /-- Type quantifiers: sv_mode : Nat, is_sv_mode(sv_mode) -/
 def tlb_hash (sv_mode : Nat) (vpn : (BitVec (sv_mode - 12))) : Nat :=
-  (BitVec.toNat (Sail.BitVec.extractLsb vpn 5 0))
+  (BitVec.toNatInt (Sail.BitVec.extractLsb vpn 5 0))
 
 def reset_TLB (_ : Unit) : SailM Unit := do
   writeReg tlb (vectorInit none)

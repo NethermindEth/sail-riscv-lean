@@ -332,7 +332,7 @@ def to_bits {l : _} (n : Nat) : (BitVec l) :=
 /-- Type quantifiers: n : Int, l : Nat, l ≥ 0, l ≥ 0 -/
 def to_bits_checked {l : _} (n : Int) : SailM (BitVec l) := do
   let bv := (get_slice_int l n 0)
-  assert ((BitVec.toNat bv) == n) (HAppend.hAppend "Couldn't convert integer "
+  assert ((BitVec.toNatInt bv) == n) (HAppend.hAppend "Couldn't convert integer "
     (HAppend.hAppend (Int.repr n)
       (HAppend.hAppend " to " (HAppend.hAppend (Int.repr l) " bits without overflow."))))
   (pure bv)
@@ -391,19 +391,19 @@ def zopz0zKzJ_s (x : (BitVec k_n)) (y : (BitVec k_n)) : Bool :=
 
 /-- Type quantifiers: k_n : Nat, k_n ≥ 0 -/
 def zopz0zI_u (x : (BitVec k_n)) (y : (BitVec k_n)) : Bool :=
-  ((BitVec.toNat x) <b (BitVec.toNat y))
+  ((BitVec.toNatInt x) <b (BitVec.toNatInt y))
 
 /-- Type quantifiers: k_n : Nat, k_n ≥ 0 -/
 def zopz0zK_u (x : (BitVec k_n)) (y : (BitVec k_n)) : Bool :=
-  ((BitVec.toNat x) >b (BitVec.toNat y))
+  ((BitVec.toNatInt x) >b (BitVec.toNatInt y))
 
 /-- Type quantifiers: k_n : Nat, k_n ≥ 0 -/
 def zopz0zIzJ_u (x : (BitVec k_n)) (y : (BitVec k_n)) : Bool :=
-  ((BitVec.toNat x) ≤b (BitVec.toNat y))
+  ((BitVec.toNatInt x) ≤b (BitVec.toNatInt y))
 
 /-- Type quantifiers: k_n : Nat, k_n ≥ 0 -/
 def zopz0zKzJ_u (x : (BitVec k_n)) (y : (BitVec k_n)) : Bool :=
-  ((BitVec.toNat x) ≥b (BitVec.toNat y))
+  ((BitVec.toNatInt x) ≥b (BitVec.toNatInt y))
 
 /-- Type quantifiers: k_ex517855_ : Bool, k_ex517854_ : Bool -/
 def zopz0zJzJzK (x : Bool) (y : Bool) : Bool :=
@@ -416,7 +416,7 @@ def shift_right_arith (value : (BitVec k_n)) (shift : Nat) : (BitVec k_n) :=
 
 /-- Type quantifiers: k_m : Nat, k_m ≥ 0, k_n : Nat, k_n ≥ 0, k_n ≥ 1 -/
 def shift_bits_right_arith (value : (BitVec k_n)) (shift : (BitVec k_m)) : (BitVec k_n) :=
-  (shift_right_arith value (BitVec.toNat shift))
+  (shift_right_arith value (BitVec.toNatInt shift))
 
 /-- Type quantifiers: k_m : Nat, k_m ≥ 0, shift : Nat, k_m ≥ shift ∧ shift ≥ 0 -/
 def rotater (value : (BitVec k_m)) (shift : Nat) : (BitVec k_m) :=
@@ -428,11 +428,11 @@ def rotatel (value : (BitVec k_m)) (shift : Nat) : (BitVec k_m) :=
 
 /-- Type quantifiers: k_m : Nat, k_m ≥ 0, k_n : Nat, k_n ≥ 0, k_n ≥ 0 ∧ k_m ≥ (2 ^ k_n) -/
 def rotate_bits_right (value : (BitVec k_m)) (shift : (BitVec k_n)) : (BitVec k_m) :=
-  (rotater value (BitVec.toNat shift))
+  (rotater value (BitVec.toNatInt shift))
 
 /-- Type quantifiers: k_m : Nat, k_m ≥ 0, k_n : Nat, k_n ≥ 0, k_n ≥ 0 ∧ k_m ≥ (2 ^ k_n) -/
 def rotate_bits_left (value : (BitVec k_m)) (shift : (BitVec k_n)) : (BitVec k_m) :=
-  (rotatel value (BitVec.toNat shift))
+  (rotatel value (BitVec.toNatInt shift))
 
 /-- Type quantifiers: k_n : Nat, k_n ≥ 0, k_n > 0 -/
 def reverse_bits (xs : (BitVec k_n)) : (BitVec k_n) := Id.run do

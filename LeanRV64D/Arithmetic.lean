@@ -230,11 +230,11 @@ def mult_to_bits_half {l : _} (sign1 : Signedness) (sign2 : Signedness) (rs1_bit
   let rs1_int : Int :=
     match sign1 with
     | Signed => (BitVec.toInt rs1_bits)
-    | Unsigned => (BitVec.toNat rs1_bits)
+    | Unsigned => (BitVec.toNatInt rs1_bits)
   let rs2_int : Int :=
     match sign2 with
     | Signed => (BitVec.toInt rs2_bits)
-    | Unsigned => (BitVec.toNat rs2_bits)
+    | Unsigned => (BitVec.toNatInt rs2_bits)
   let result_wide := (to_bits_truncate (l := (2 *i l)) (rs1_int *i rs2_int))
   match result_part with
   | High => (Sail.BitVec.extractLsb result_wide ((2 *i l) -i 1) l)

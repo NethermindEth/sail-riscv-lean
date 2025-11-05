@@ -462,7 +462,7 @@ def loop (_ : Unit) : SailM Unit := do
           if ((← readReg htif_done) : Bool)
           then
             (do
-              let exit_val ← do (pure (BitVec.toNat (← readReg htif_exit_code)))
+              let exit_val ← do (pure (BitVec.toNatInt (← readReg htif_exit_code)))
               let _ : Unit :=
                 if ((exit_val == 0) : Bool)
                 then (print "SUCCESS")

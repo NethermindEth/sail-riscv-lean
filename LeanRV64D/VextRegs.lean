@@ -184,7 +184,7 @@ open AccessType
 
 def vregidx_to_vregno (app_0 : vregidx) : vregno :=
   let .Vregidx b := app_0
-  (Vregno (BitVec.toNat b))
+  (Vregno (BitVec.toNatInt b))
 
 def vregno_to_vregidx (app_0 : vregno) : vregidx :=
   let .Vregno b := app_0
@@ -631,7 +631,7 @@ def is_invalid_lmul_pow (v : (BitVec 3)) : Bool :=
   (v == (0b100 : (BitVec 3)))
 
 def get_sew_pow (_ : Unit) : SailM Nat := do
-  let sew_pow ← do (pure (BitVec.toNat (_get_Vtype_vsew (← readReg vtype))))
+  let sew_pow ← do (pure (BitVec.toNatInt (_get_Vtype_vsew (← readReg vtype))))
   assert (sew_pow <b 4) "Reserved SEW stored in vtype register. This should be impossible."
   (pure (sew_pow +i 3))
 

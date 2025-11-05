@@ -228,7 +228,7 @@ def write_single_vreg (num_elem : Nat) (SEW : Nat) (vrid : vregidx) (v : (Vector
 /-- Type quantifiers: num_elem : Nat, num_elem ≥ 0, SEW : Nat, SEW ≥ 0, LMUL_pow : Int, num_elem
   ≥ 0 ∧ is_sew_bitsize(SEW) -/
 def read_vreg (num_elem : Nat) (SEW : Nat) (LMUL_pow : Int) (vrid : vregidx) : SailM (Vector (BitVec SEW) num_elem) := do
-  let vrid_val := (BitVec.toNat (vregidx_bits vrid))
+  let vrid_val := (BitVec.toNatInt (vregidx_bits vrid))
   let result : (Vector (BitVec SEW) num_elem) := (vectorInit (zeros (n := SEW)))
   let LMUL_pow_reg :=
     if ((LMUL_pow <b 0) : Bool)
