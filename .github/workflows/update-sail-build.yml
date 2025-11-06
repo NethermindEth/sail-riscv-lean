@@ -23,8 +23,7 @@ jobs:
 
     - name: Checkout SAIL
       run: |
-        git clone https://github.com/ineol/sail.git
-        (cd sail; git checkout push-ptmumnqtnwvr)
+        git clone https://github.com/rems-project/sail.git
 
     - name: System dependencies (ubuntu)
       if: startsWith(matrix.os, 'ubuntu')
