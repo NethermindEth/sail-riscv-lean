@@ -172,6 +172,7 @@ open Privilege
 open PmpAddrMatchType
 open PTW_Error
 open PTE_Check
+open MemoryAccessType
 open InterruptType
 open ISA_Format
 open HartState
@@ -182,7 +183,6 @@ open ExecutionResult
 open ExceptionType
 open AtomicSupport
 open Architecture
-open AccessType
 
 def undefined_Software_Check_Code (_ : Unit) : SailM Software_Check_Code := do
   (internal_pick [SWC_NO_INFO, SWC_LANDING_PAD_FAULT])

@@ -168,6 +168,7 @@ open Privilege
 open PmpAddrMatchType
 open PTW_Error
 open PTE_Check
+open MemoryAccessType
 open InterruptType
 open ISA_Format
 open HartState
@@ -178,7 +179,6 @@ open ExecutionResult
 open ExceptionType
 open AtomicSupport
 open Architecture
-open AccessType
 
 def test_mstatus_sxl_uxl_reset_values (_ : Unit) : SailM Unit := do
   let mstatush_val ← (( do

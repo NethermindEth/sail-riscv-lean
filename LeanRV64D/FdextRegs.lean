@@ -173,6 +173,7 @@ open Privilege
 open PmpAddrMatchType
 open PTW_Error
 open PTE_Check
+open MemoryAccessType
 open InterruptType
 open ISA_Format
 open HartState
@@ -183,7 +184,6 @@ open ExecutionResult
 open ExceptionType
 open AtomicSupport
 open Architecture
-open AccessType
 
 /-- Type quantifiers: n : Nat, n ≥ 0, n ∈ {16, 32, 64, 128} -/
 def canonical_NaN {n : _} : (BitVec n) :=

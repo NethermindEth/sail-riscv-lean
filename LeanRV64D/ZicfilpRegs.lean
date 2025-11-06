@@ -169,6 +169,7 @@ open Privilege
 open PmpAddrMatchType
 open PTW_Error
 open PTE_Check
+open MemoryAccessType
 open InterruptType
 open ISA_Format
 open HartState
@@ -179,7 +180,6 @@ open ExecutionResult
 open ExceptionType
 open AtomicSupport
 open Architecture
-open AccessType
 
 def undefined_landing_pad_expectation (_ : Unit) : SailM landing_pad_expectation := do
   (internal_pick [NO_LP_EXPECTED, LP_EXPECTED])

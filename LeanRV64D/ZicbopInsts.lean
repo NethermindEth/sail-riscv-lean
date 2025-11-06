@@ -172,6 +172,7 @@ open Privilege
 open PmpAddrMatchType
 open PTW_Error
 open PTE_Check
+open MemoryAccessType
 open InterruptType
 open ISA_Format
 open HartState
@@ -182,7 +183,6 @@ open ExecutionResult
 open ExceptionType
 open AtomicSupport
 open Architecture
-open AccessType
 
 def encdec_cbop_zicbop_forwards (arg_ : cbop_zicbop) : (BitVec 5) :=
   match arg_ with

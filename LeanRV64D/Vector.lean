@@ -166,6 +166,7 @@ open Privilege
 open PmpAddrMatchType
 open PTW_Error
 open PTE_Check
+open MemoryAccessType
 open InterruptType
 open ISA_Format
 open HartState
@@ -176,7 +177,6 @@ open ExecutionResult
 open ExceptionType
 open AtomicSupport
 open Architecture
-open AccessType
 
 /-- Type quantifiers: len : Nat, len ≥ 0, k_v : Nat, k_v ≥ 0, len ≥ 0 ∧ k_v ≥ 0 -/
 def sail_mask (len : Nat) (v : (BitVec k_v)) : (BitVec len) :=

@@ -172,6 +172,7 @@ open Privilege
 open PmpAddrMatchType
 open PTW_Error
 open PTE_Check
+open MemoryAccessType
 open InterruptType
 open ISA_Format
 open HartState
@@ -182,7 +183,6 @@ open ExecutionResult
 open ExceptionType
 open AtomicSupport
 open Architecture
-open AccessType
 
 def encdec_reg_backwards_matches (arg_ : (BitVec 5)) : Bool :=
   let r := arg_

@@ -166,6 +166,7 @@ open Privilege
 open PmpAddrMatchType
 open PTW_Error
 open PTE_Check
+open MemoryAccessType
 open InterruptType
 open ISA_Format
 open HartState
@@ -176,20 +177,19 @@ open ExecutionResult
 open ExceptionType
 open AtomicSupport
 open Architecture
-open AccessType
 
 def ext_get_ptw_error (eptwf : Unit) : PTW_Error :=
   (PTW_No_Permission ())
 
-def translationException (a : (AccessType Unit)) (f : PTW_Error) : ExceptionType :=
+def translationException (a : (MemoryAccessType Unit)) (f : PTW_Error) : ExceptionType :=
   match (a, f) with
   | (_, .PTW_Ext_Error e) => (E_Extension (ext_translate_exception e))
-  | (.ReadWrite _, .PTW_Access ()) => (E_SAMO_Access_Fault ())
-  | (.ReadWrite _, _) => (E_SAMO_Page_Fault ())
-  | (.Read _, .PTW_Access ()) => (E_Load_Access_Fault ())
-  | (.Read _, _) => (E_Load_Page_Fault ())
-  | (.Write _, .PTW_Access ()) => (E_SAMO_Access_Fault ())
-  | (.Write _, _) => (E_SAMO_Page_Fault ())
+  | (.LoadStore _, .PTW_Access ()) => (E_SAMO_Access_Fault ())
+  | (.LoadStore _, _) => (E_SAMO_Page_Fault ())
+  | (.Load _, .PTW_Access ()) => (E_Load_Access_Fault ())
+  | (.Load _, _) => (E_Load_Page_Fault ())
+  | (.Store _, .PTW_Access ()) => (E_SAMO_Access_Fault ())
+  | (.Store _, _) => (E_SAMO_Page_Fault ())
   | (.InstructionFetch (), .PTW_Access ()) => (E_Fetch_Access_Fault ())
   | (.InstructionFetch (), _) => (E_Fetch_Page_Fault ())
 

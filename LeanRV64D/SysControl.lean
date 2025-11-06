@@ -180,6 +180,7 @@ open Privilege
 open PmpAddrMatchType
 open PTW_Error
 open PTE_Check
+open MemoryAccessType
 open InterruptType
 open ISA_Format
 open HartState
@@ -190,9 +191,8 @@ open ExecutionResult
 open ExceptionType
 open AtomicSupport
 open Architecture
-open AccessType
 
-def effectivePrivilege (t : (AccessType Unit)) (m : (BitVec 64)) (priv : Privilege) : SailM Privilege := do
+def effectivePrivilege (t : (MemoryAccessType Unit)) (m : (BitVec 64)) (priv : Privilege) : SailM Privilege := do
   if (((bne t (InstructionFetch ())) && ((_get_Mstatus_MPRV m) == (0b1 : (BitVec 1)))) : Bool)
   then (privLevel_bits_forwards ((_get_Mstatus_MPP m), 0#1))
   else (pure priv)
@@ -206,7 +206,7 @@ def csrPriv (csr : (BitVec 12)) : (BitVec 2) :=
 def check_CSR_priv (csr : (BitVec 12)) (p : Privilege) : Bool :=
   (zopz0zKzJ_u (privLevel_to_bits p) (csrPriv csr))
 
-/-- Type quantifiers: k_ex523565_ : Bool -/
+/-- Type quantifiers: k_ex523585_ : Bool -/
 def check_CSR_access (csr : (BitVec 12)) (isWrite : Bool) : Bool :=
   (not (isWrite && ((csrAccess csr) == (0b11 : (BitVec 2)))))
 
@@ -214,7 +214,7 @@ def sstc_CSRs_accessible (priv : Privilege) : SailM Bool := do
   (pure ((priv == Machine) || ((priv == Supervisor) && (((_get_Counteren_TM (← readReg mcounteren)) == (0b1 : (BitVec 1))) && ((_get_MEnvcfg_STCE
               (← readReg menvcfg)) == (0b1 : (BitVec 1)))))))
 
-/-- Type quantifiers: k_ex523601_ : Bool -/
+/-- Type quantifiers: k_ex523621_ : Bool -/
 def is_CSR_accessible (b__0 : (BitVec 12)) (g__2 : Privilege) (g__3 : Bool) : SailM Bool := do
   if ((b__0 == (0x301 : (BitVec 12))) : Bool)
   then (pure true)
@@ -778,7 +778,7 @@ def is_CSR_accessible (b__0 : (BitVec 12)) (g__2 : Privilege) (g__3 : Bool) : Sa
                                                                                                                                                                                                                                                                                                           else
                                                                                                                                                                                                                                                                                                             (pure false)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
 
-/-- Type quantifiers: k_ex524205_ : Bool -/
+/-- Type quantifiers: k_ex524225_ : Bool -/
 def check_CSR (csr : (BitVec 12)) (p : Privilege) (isWrite : Bool) : SailM Bool := do
   (pure ((check_CSR_priv csr p) && ((check_CSR_access csr isWrite) && (← (is_CSR_accessible csr p
             isWrite)))))

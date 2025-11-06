@@ -172,6 +172,7 @@ open Privilege
 open PmpAddrMatchType
 open PTW_Error
 open PTE_Check
+open MemoryAccessType
 open InterruptType
 open ISA_Format
 open HartState
@@ -182,7 +183,6 @@ open ExecutionResult
 open ExceptionType
 open AtomicSupport
 open Architecture
-open AccessType
 
 /-- Type quantifiers: k_n : Nat, k_n ≥ 0, k_n > 0 -/
 def hex_bits_signed_forwards (bv : (BitVec k_n)) : (Nat × String) :=

@@ -168,6 +168,7 @@ open Privilege
 open PmpAddrMatchType
 open PTW_Error
 open PTE_Check
+open MemoryAccessType
 open InterruptType
 open ISA_Format
 open HartState
@@ -178,7 +179,6 @@ open ExecutionResult
 open ExceptionType
 open AtomicSupport
 open Architecture
-open AccessType
 
 /-- Type quantifiers: k_n : Nat, k_n ≥ 0, k_n ∈ {16, 32} -/
 def fetch_callback (x_0 : (BitVec k_n)) : Unit :=
@@ -210,7 +210,7 @@ def csr_full_read_callback (x_0 : String) (x_1 : (BitVec 12)) (x_2 : (BitVec 64)
 def redirect_callback (x_0 : (BitVec 64)) : Unit :=
   ()
 
-/-- Type quantifiers: k_ex521002_ : Bool -/
+/-- Type quantifiers: k_ex521020_ : Bool -/
 def trap_callback (x_0 : Bool) (x_1 : (BitVec 6)) : Unit :=
   ()
 

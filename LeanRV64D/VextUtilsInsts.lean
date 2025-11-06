@@ -176,6 +176,7 @@ open Privilege
 open PmpAddrMatchType
 open PTW_Error
 open PTE_Check
+open MemoryAccessType
 open InterruptType
 open ISA_Format
 open HartState
@@ -186,7 +187,6 @@ open ExecutionResult
 open ExceptionType
 open AtomicSupport
 open Architecture
-open AccessType
 
 def maybe_vmask_forwards (arg_ : String) : SailM (BitVec 1) := do
   match arg_ with

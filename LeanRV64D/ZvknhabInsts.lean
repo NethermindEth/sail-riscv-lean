@@ -172,6 +172,7 @@ open Privilege
 open PmpAddrMatchType
 open PTW_Error
 open PTE_Check
+open MemoryAccessType
 open InterruptType
 open ISA_Format
 open HartState
@@ -182,7 +183,6 @@ open ExecutionResult
 open ExceptionType
 open AtomicSupport
 open Architecture
-open AccessType
 
 def encdec_vsha2_forwards (arg_ : zvk_vsha2_funct6) : (BitVec 6) :=
   match arg_ with

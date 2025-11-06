@@ -168,6 +168,7 @@ open Privilege
 open PmpAddrMatchType
 open PTW_Error
 open PTE_Check
+open MemoryAccessType
 open InterruptType
 open ISA_Format
 open HartState
@@ -178,7 +179,6 @@ open ExecutionResult
 open ExceptionType
 open AtomicSupport
 open Architecture
-open AccessType
 
 def undefined_write_kind (_ : Unit) : SailM write_kind := do
   (internal_pick
@@ -307,7 +307,7 @@ def write_ram_ea (wk : write_kind) (app_1 : physaddr) (width : Nat) : Unit :=
   let .Physaddr addr := app_1
   ()
 
-/-- Type quantifiers: k_ex517937_ : Bool, width : Nat, width ≥ 0, 0 < width ∧
+/-- Type quantifiers: k_ex517955_ : Bool, width : Nat, width ≥ 0, 0 < width ∧
   width ≤ max_mem_access -/
 def read_ram (rk : read_kind) (app_1 : physaddr) (width : Nat) (read_meta : Bool) : SailM ((BitVec (8 * width)) × Unit) := do
   let .Physaddr addr := app_1

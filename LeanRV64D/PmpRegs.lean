@@ -169,6 +169,7 @@ open Privilege
 open PmpAddrMatchType
 open PTW_Error
 open PTE_Check
+open MemoryAccessType
 open InterruptType
 open ISA_Format
 open HartState
@@ -179,9 +180,10 @@ open ExecutionResult
 open ExceptionType
 open AtomicSupport
 open Architecture
-open AccessType
 
 def sys_pmp_count : Int := 16
+
+def sys_pmp_usable_count : Nat := 16
 
 def sys_pmp_grain : Nat := 0
 
@@ -321,12 +323,15 @@ def pmpWriteCfgReg (n : Nat) (v : (BitVec 64)) : SailM Unit := do
     let () := loop_vars
     loop_vars ← do
       let idx := ((n *i 4) +i i)
-      writeReg pmpcfg_n (vectorUpdate (← readReg pmpcfg_n) idx
-        (pmpWriteCfg idx (GetElem?.getElem! (← readReg pmpcfg_n) idx)
-          (Sail.BitVec.extractLsb v ((8 *i i) +i 7) (8 *i i))))
+      if ((idx <b sys_pmp_usable_count) : Bool)
+      then
+        writeReg pmpcfg_n (vectorUpdate (← readReg pmpcfg_n) idx
+          (pmpWriteCfg idx (GetElem?.getElem! (← readReg pmpcfg_n) idx)
+            (Sail.BitVec.extractLsb v ((8 *i i) +i 7) (8 *i i))))
+      else (pure ())
   (pure loop_vars)
 
-/-- Type quantifiers: k_ex521384_ : Bool, k_ex521383_ : Bool -/
+/-- Type quantifiers: k_ex521404_ : Bool, k_ex521403_ : Bool -/
 def pmpWriteAddr (locked : Bool) (tor_locked : Bool) (reg : (BitVec 64)) (v : (BitVec 64)) : (BitVec 64) :=
   if ((locked || tor_locked) : Bool)
   then reg
@@ -334,10 +339,13 @@ def pmpWriteAddr (locked : Bool) (tor_locked : Bool) (reg : (BitVec 64)) (v : (B
 
 /-- Type quantifiers: n : Nat, 0 ≤ n ∧ n ≤ 63 -/
 def pmpWriteAddrReg (n : Nat) (v : (BitVec 64)) : SailM Unit := do
-  writeReg pmpaddr_n (vectorUpdate (← readReg pmpaddr_n) n
-    (pmpWriteAddr (pmpLocked (GetElem?.getElem! (← readReg pmpcfg_n) n))
-      (← do
-        if (((n +i 1) <b 64) : Bool)
-        then (pure (pmpTORLocked (GetElem?.getElem! (← readReg pmpcfg_n) (n +i 1))))
-        else (pure false)) (GetElem?.getElem! (← readReg pmpaddr_n) n) v))
+  if ((n <b sys_pmp_usable_count) : Bool)
+  then
+    writeReg pmpaddr_n (vectorUpdate (← readReg pmpaddr_n) n
+      (pmpWriteAddr (pmpLocked (GetElem?.getElem! (← readReg pmpcfg_n) n))
+        (← do
+          if (((n +i 1) <b 64) : Bool)
+          then (pure (pmpTORLocked (GetElem?.getElem! (← readReg pmpcfg_n) (n +i 1))))
+          else (pure false)) (GetElem?.getElem! (← readReg pmpaddr_n) n) v))
+  else (pure ())
 

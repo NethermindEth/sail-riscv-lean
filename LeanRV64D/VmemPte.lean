@@ -171,6 +171,7 @@ open Privilege
 open PmpAddrMatchType
 open PTW_Error
 open PTE_Check
+open MemoryAccessType
 open InterruptType
 open ISA_Format
 open HartState
@@ -181,7 +182,6 @@ open ExecutionResult
 open ExceptionType
 open AtomicSupport
 open Architecture
-open AccessType
 
 def undefined_PTE_Ext (_ : Unit) : SailM (BitVec 10) := do
   (undefined_bitvector 10)
@@ -242,17 +242,17 @@ def pte_is_invalid (pte_flags : (BitVec 8)) (pte_ext : (BitVec 10)) : SailM Bool
                     pte_ext) != (zeros (n := 2))) && (not (← (currentlyEnabled Ext_Svrsw60t59b)))) || ((_get_PTE_Ext_reserved
                   pte_ext) != (zeros (n := 5)))))))))
 
-/-- Type quantifiers: k_ex525658_ : Bool, k_ex525657_ : Bool -/
-def check_PTE_permission (ac : (AccessType Unit)) (priv : Privilege) (mxr : Bool) (do_sum : Bool) (pte_flags : (BitVec 8)) (ext : (BitVec 10)) (ext_ptw : Unit) : SailM PTE_Check := do
+/-- Type quantifiers: k_ex525678_ : Bool, k_ex525677_ : Bool -/
+def check_PTE_permission (ac : (MemoryAccessType Unit)) (priv : Privilege) (mxr : Bool) (do_sum : Bool) (pte_flags : (BitVec 8)) (ext : (BitVec 10)) (ext_ptw : Unit) : SailM PTE_Check := do
   let pte_U := (bits_to_bool (_get_PTE_Flags_U pte_flags))
   let pte_R := (bits_to_bool (_get_PTE_Flags_R pte_flags))
   let pte_W := (bits_to_bool (_get_PTE_Flags_W pte_flags))
   let pte_X := (bits_to_bool (_get_PTE_Flags_X pte_flags))
   let access_ok : Bool :=
     match ac with
-    | .Read _ => (pte_R || (pte_X && mxr))
-    | .Write _ => pte_W
-    | .ReadWrite (_, _) => (pte_W && (pte_R || (pte_X && mxr)))
+    | .Load _ => (pte_R || (pte_X && mxr))
+    | .Store _ => pte_W
+    | .LoadStore (_, _) => (pte_W && (pte_R || (pte_X && mxr)))
     | .InstructionFetch _ => pte_X
   let priv_ok ← (( do
     match priv with
@@ -267,14 +267,14 @@ def check_PTE_permission (ac : (AccessType Unit)) (priv : Privilege) (mxr : Bool
   else (pure (PTE_Check_Failure ((), ())))
 
 /-- Type quantifiers: k_pte_size : Nat, k_pte_size ≥ 0, k_pte_size ∈ {32, 64} -/
-def update_PTE_Bits (pte : (BitVec k_pte_size)) (a : (AccessType Unit)) : (Option (BitVec k_pte_size)) :=
+def update_PTE_Bits (pte : (BitVec k_pte_size)) (a : (MemoryAccessType Unit)) : (Option (BitVec k_pte_size)) :=
   let pte_flags := (Mk_PTE_Flags (Sail.BitVec.extractLsb pte 7 0))
   let update_d : Bool :=
     (((_get_PTE_Flags_D pte_flags) == (0b0 : (BitVec 1))) && (match a with
       | .InstructionFetch () => false
-      | .Read _ => false
-      | .Write _ => true
-      | .ReadWrite (_, _) => true : Bool))
+      | .Load _ => false
+      | .Store _ => true
+      | .LoadStore (_, _) => true : Bool))
   let update_a := ((_get_PTE_Flags_A pte_flags) == (0b0 : (BitVec 1)))
   if ((update_d || update_a) : Bool)
   then

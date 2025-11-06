@@ -167,6 +167,7 @@ open Privilege
 open PmpAddrMatchType
 open PTW_Error
 open PTE_Check
+open MemoryAccessType
 open InterruptType
 open ISA_Format
 open HartState
@@ -177,7 +178,6 @@ open ExecutionResult
 open ExceptionType
 open AtomicSupport
 open Architecture
-open AccessType
 
 def make_landing_pad_exception (_ : Unit) : sync_exception :=
   { trap := (E_Software_Check ())

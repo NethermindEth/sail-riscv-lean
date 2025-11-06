@@ -169,6 +169,7 @@ open Privilege
 open PmpAddrMatchType
 open PTW_Error
 open PTE_Check
+open MemoryAccessType
 open InterruptType
 open ISA_Format
 open HartState
@@ -179,7 +180,6 @@ open ExecutionResult
 open ExceptionType
 open AtomicSupport
 open Architecture
-open AccessType
 
 def fsplit_H (xf16 : (BitVec 16)) : ((BitVec 1) × (BitVec 5) × (BitVec 10)) :=
   ((Sail.BitVec.extractLsb xf16 15 15), (Sail.BitVec.extractLsb xf16 14 10), (Sail.BitVec.extractLsb
@@ -240,7 +240,7 @@ def f_is_NaN_H (xf16 : (BitVec 16)) : Bool :=
   let (sign, exp, mant) := (fsplit_H xf16)
   ((exp == (ones (n := 5))) && (mant != (zeros (n := 10))))
 
-/-- Type quantifiers: k_ex527477_ : Bool -/
+/-- Type quantifiers: k_ex527497_ : Bool -/
 def fle_H (v1 : (BitVec 16)) (v2 : (BitVec 16)) (is_quiet : Bool) : (Bool × (BitVec 5)) :=
   let (s1, e1, m1) := (fsplit_H v1)
   let (s2, e2, m2) := (fsplit_H v2)

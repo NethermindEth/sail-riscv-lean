@@ -178,6 +178,7 @@ open Privilege
 open PmpAddrMatchType
 open PTW_Error
 open PTE_Check
+open MemoryAccessType
 open InterruptType
 open ISA_Format
 open HartState
@@ -188,7 +189,6 @@ open ExecutionResult
 open ExceptionType
 open AtomicSupport
 open Architecture
-open AccessType
 
 def cbo_clean_flush_enabled (p : Privilege) : SailM Bool := do
   (feature_enabled_for_priv p (BitVec.access (_get_MEnvcfg_CBCFE (← readReg menvcfg)) 0)
@@ -358,18 +358,18 @@ def process_clean_inval (rs1 : regidx) (cbop : cbop_zicbom) : SailM ExecutionRes
   let negative_offset :=
     ((rs1_val &&& (Complement.complement
           (zero_extend (m := 64) (ones (n := plat_cache_block_size_exp))))) - rs1_val)
-  match (← (ext_data_get_addr rs1 negative_offset (Read Data) cache_block_size)) with
+  match (← (ext_data_get_addr rs1 negative_offset (Load Data) cache_block_size)) with
   | .Ext_DataAddr_Error e => (pure (Ext_DataAddr_Check_Failure e))
   | .Ext_DataAddr_OK vaddr =>
     (do
       let res ← (( do
-        match (← (translateAddr vaddr (Read Data))) with
+        match (← (translateAddr vaddr (Load Data))) with
         | .Ok (paddr, _) =>
           (do
             let ep ← do
-              (effectivePrivilege (Read Data) (← readReg mstatus) (← readReg cur_privilege))
-            let exc_read ← do (phys_access_check (Read Data) ep paddr cache_block_size false)
-            let exc_write ← do (phys_access_check (Write Data) ep paddr cache_block_size false)
+              (effectivePrivilege (Load Data) (← readReg mstatus) (← readReg cur_privilege))
+            let exc_read ← do (phys_access_check (Load Data) ep paddr cache_block_size false)
+            let exc_write ← do (phys_access_check (Store Data) ep paddr cache_block_size false)
             match (exc_read, exc_write) with
             | (.some exc_read, .some exc_write) => (pure (some exc_write))
             | _ => (pure none))

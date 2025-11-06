@@ -183,6 +183,7 @@ open Privilege
 open PmpAddrMatchType
 open PTW_Error
 open PTE_Check
+open MemoryAccessType
 open InterruptType
 open ISA_Format
 open HartState
@@ -193,7 +194,6 @@ open ExecutionResult
 open ExceptionType
 open AtomicSupport
 open Architecture
-open AccessType
 
 def encdec_csrop_forwards (arg_ : csrop) : (BitVec 2) :=
   match arg_ with
@@ -1859,7 +1859,7 @@ def write_CSR (b__0 : (BitVec 12)) (value : (BitVec 64)) : SailM (Result (BitVec
                                                                                                                                                                                                                                                                     (BitVec.toFormatted
                                                                                                                                                                                                                                                                       b__0))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
 
-/-- Type quantifiers: k_ex532781_ : Bool -/
+/-- Type quantifiers: k_ex532801_ : Bool -/
 def doCSR (csr : (BitVec 12)) (rs1_val : (BitVec 64)) (rd : regidx) (op : csrop) (is_CSR_Write : Bool) : SailM ExecutionResult := do
   if ((not (← (check_CSR csr (← readReg cur_privilege) is_CSR_Write))) : Bool)
   then (pure (Illegal_Instruction ()))

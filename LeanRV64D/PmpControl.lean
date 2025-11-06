@@ -169,6 +169,7 @@ open Privilege
 open PmpAddrMatchType
 open PTW_Error
 open PTE_Check
+open MemoryAccessType
 open InterruptType
 open ISA_Format
 open HartState
@@ -179,13 +180,12 @@ open ExecutionResult
 open ExceptionType
 open AtomicSupport
 open Architecture
-open AccessType
 
-def pmpCheckRWX (ent : (BitVec 8)) (acc : (AccessType Unit)) : Bool :=
+def pmpCheckRWX (ent : (BitVec 8)) (acc : (MemoryAccessType Unit)) : Bool :=
   match acc with
-  | .Read _ => ((_get_Pmpcfg_ent_R ent) == (0b1 : (BitVec 1)))
-  | .Write _ => ((_get_Pmpcfg_ent_W ent) == (0b1 : (BitVec 1)))
-  | .ReadWrite _ =>
+  | .Load _ => ((_get_Pmpcfg_ent_R ent) == (0b1 : (BitVec 1)))
+  | .Store _ => ((_get_Pmpcfg_ent_W ent) == (0b1 : (BitVec 1)))
+  | .LoadStore _ =>
     (((_get_Pmpcfg_ent_R ent) == (0b1 : (BitVec 1))) && ((_get_Pmpcfg_ent_W ent) == (0b1 : (BitVec 1))))
   | .InstructionFetch () => ((_get_Pmpcfg_ent_X ent) == (0b1 : (BitVec 1)))
 
@@ -238,38 +238,42 @@ def pmpMatchAddr (typ_0 : physaddr) (width : (BitVec 64)) (ent : (BitVec 8)) (pm
     let end_words := ((begin_words +i (BitVec.toNatInt mask)) +i 1)
     (pure (pmpRangeMatch (begin_words *i 4) (end_words *i 4) addr width)))
 
-def accessToFault (acc : (AccessType Unit)) : ExceptionType :=
+def accessToFault (acc : (MemoryAccessType Unit)) : ExceptionType :=
   match acc with
-  | .Read _ => (E_Load_Access_Fault ())
-  | .Write _ => (E_SAMO_Access_Fault ())
-  | .ReadWrite _ => (E_SAMO_Access_Fault ())
+  | .Load _ => (E_Load_Access_Fault ())
+  | .Store _ => (E_SAMO_Access_Fault ())
+  | .LoadStore _ => (E_SAMO_Access_Fault ())
   | .InstructionFetch () => (E_Fetch_Access_Fault ())
 
 /-- Type quantifiers: width : Nat, 0 < width ∧ width ≤ max_mem_access -/
-def pmpCheck (addr : physaddr) (width : Nat) (acc : (AccessType Unit)) (priv : Privilege) : SailM (Option ExceptionType) := SailME.run do
-  let width : xlenbits := (to_bits (l := 64) width)
-  let loop_i_lower := 0
-  let loop_i_upper := 63
-  let mut loop_vars := ()
-  for i in [loop_i_lower:loop_i_upper:1]i do
-    let () := loop_vars
-    loop_vars ← do
-      let prev_pmpaddr ← do
-        if ((i >b 0) : Bool)
-        then (pmpReadAddrReg (i -i 1))
-        else (pure (zeros (n := 64)))
-      let cfg ← do (pure (GetElem?.getElem! (← readReg pmpcfg_n) i))
-      match (← (pmpMatchAddr addr width cfg (← (pmpReadAddrReg i)) prev_pmpaddr)) with
-      | PMP_NoMatch => (pure ())
-      | PMP_PartialMatch => SailME.throw ((some (accessToFault acc)) : (Option ExceptionType))
-      | PMP_Match =>
-        SailME.throw (if (((pmpCheckRWX cfg acc) || ((priv == Machine) && (not (pmpLocked cfg)))) : Bool)
-          then none
-          else (some (accessToFault acc)) : (Option ExceptionType))
-  (pure loop_vars)
-  if ((priv == Machine) : Bool)
+def pmpCheck (addr : physaddr) (width : Nat) (acc : (MemoryAccessType Unit)) (priv : Privilege) : SailM (Option ExceptionType) := SailME.run do
+  if ((sys_pmp_count == 0) : Bool)
   then (pure none)
-  else (pure (some (accessToFault acc)))
+  else
+    (do
+      let width : xlenbits := (to_bits (l := 64) width)
+      let loop_i_lower := 0
+      let loop_i_upper := (sys_pmp_count -i 1)
+      let mut loop_vars := ()
+      for i in [loop_i_lower:loop_i_upper:1]i do
+        let () := loop_vars
+        loop_vars ← do
+          let prev_pmpaddr ← do
+            if ((i >b 0) : Bool)
+            then (pmpReadAddrReg (i -i 1))
+            else (pure (zeros (n := 64)))
+          let cfg ← do (pure (GetElem?.getElem! (← readReg pmpcfg_n) i))
+          match (← (pmpMatchAddr addr width cfg (← (pmpReadAddrReg i)) prev_pmpaddr)) with
+          | PMP_NoMatch => (pure ())
+          | PMP_PartialMatch => SailME.throw ((some (accessToFault acc)) : (Option ExceptionType))
+          | PMP_Match =>
+            SailME.throw (if (((pmpCheckRWX cfg acc) || ((priv == Machine) && (not (pmpLocked cfg)))) : Bool)
+              then none
+              else (some (accessToFault acc)) : (Option ExceptionType))
+      (pure loop_vars)
+      if ((priv == Machine) : Bool)
+      then (pure none)
+      else (pure (some (accessToFault acc))))
 
 def reset_pmp (_ : Unit) : SailM Unit := do
   let loop_i_lower := 0

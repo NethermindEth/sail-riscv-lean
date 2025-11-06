@@ -166,6 +166,7 @@ open Privilege
 open PmpAddrMatchType
 open PTW_Error
 open PTE_Check
+open MemoryAccessType
 open InterruptType
 open ISA_Format
 open HartState
@@ -176,7 +177,6 @@ open ExecutionResult
 open ExceptionType
 open AtomicSupport
 open Architecture
-open AccessType
 
 /-- Type quantifiers: k_n : Nat, k_n ≥ 0, 0 ≤ k_n ∧ k_n ≤ 64 -/
 def range_subset (a_begin : (BitVec k_n)) (a_size : (BitVec k_n)) (b_begin : (BitVec k_n)) (b_size : (BitVec k_n)) : Bool :=

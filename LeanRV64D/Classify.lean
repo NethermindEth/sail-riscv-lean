@@ -170,6 +170,7 @@ open Privilege
 open PmpAddrMatchType
 open PTW_Error
 open PTE_Check
+open MemoryAccessType
 open InterruptType
 open ISA_Format
 open HartState
@@ -180,7 +181,6 @@ open ExecutionResult
 open ExceptionType
 open AtomicSupport
 open Architecture
-open AccessType
 
 def undefined_float_class (_ : Unit) : SailM float_class := do
   (internal_pick
@@ -213,8 +213,8 @@ def num_of_float_class (arg_ : float_class) : Int :=
   | float_class_snan => 8
   | float_class_qnan => 9
 
-/-- Type quantifiers: k_ex517743_ : Nat, k_ex517743_ ∈ {16, 32, 64, 128} -/
-def float_classify (f : (BitVec k_ex517743_)) : SailM float_class := do
+/-- Type quantifiers: k_ex517761_ : Nat, k_ex517761_ ∈ {16, 32, 64, 128} -/
+def float_classify (f : (BitVec k_ex517761_)) : SailM float_class := do
   if ((float_is_snan f) : Bool)
   then (pure float_class_snan)
   else

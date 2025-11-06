@@ -168,6 +168,7 @@ open Privilege
 open PmpAddrMatchType
 open PTW_Error
 open PTE_Check
+open MemoryAccessType
 open InterruptType
 open ISA_Format
 open HartState
@@ -178,7 +179,6 @@ open ExecutionResult
 open ExceptionType
 open AtomicSupport
 open Architecture
-open AccessType
 
 /-- Type quantifiers: k_n : Nat, k_n ≥ 0, is_fp_bits(k_n) -/
 def float_is_lt_quiet (op_0 : (BitVec k_n)) (op_1 : (BitVec k_n)) : (Bool × (BitVec 5)) :=

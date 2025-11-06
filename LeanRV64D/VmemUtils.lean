@@ -171,6 +171,7 @@ open Privilege
 open PmpAddrMatchType
 open PTW_Error
 open PTE_Check
+open MemoryAccessType
 open InterruptType
 open ISA_Format
 open HartState
@@ -181,7 +182,6 @@ open ExecutionResult
 open ExceptionType
 open AtomicSupport
 open Architecture
-open AccessType
 
 def sys_misaligned_order_decreasing : Bool := false
 
@@ -241,9 +241,9 @@ def check_misaligned (vaddr : virtaddr) (width : Nat) : Bool :=
   then false
   else (not (is_aligned_vaddr vaddr width))
 
-/-- Type quantifiers: k_ex526098_ : Bool, k_ex526097_ : Bool, k_ex526096_ : Bool, width : Nat, width
+/-- Type quantifiers: k_ex526118_ : Bool, k_ex526117_ : Bool, k_ex526116_ : Bool, width : Nat, width
   ≥ 0, is_mem_width(width) -/
-def vmem_read_addr (vaddr : virtaddr) (offset : (BitVec 64)) (width : Nat) (acc : (AccessType Unit)) (aq : Bool) (rl : Bool) (res : Bool) : SailM (Result (BitVec (8 * width)) ExecutionResult) := SailME.run do
+def vmem_read_addr (vaddr : virtaddr) (offset : (BitVec 64)) (width : Nat) (acc : (MemoryAccessType Unit)) (aq : Bool) (rl : Bool) (res : Bool) : SailM (Result (BitVec (8 * width)) ExecutionResult) := SailME.run do
   if (res : Bool)
   then
     (do
@@ -301,9 +301,9 @@ def vmem_read_addr (vaddr : virtaddr) (offset : (BitVec 64)) (width : Nat) (acc 
     ((BitVec (8 * n * bytes)) × Bool × Nat) )
   (pure (Ok data))
 
-/-- Type quantifiers: k_ex526133_ : Bool, k_ex526132_ : Bool, k_ex526131_ : Bool, width : Nat, width
+/-- Type quantifiers: k_ex526153_ : Bool, k_ex526152_ : Bool, k_ex526151_ : Bool, width : Nat, width
   ≥ 0, is_mem_width(width) -/
-def vmem_write_addr (vaddr : virtaddr) (width : Nat) (data : (BitVec (8 * width))) (acc : (AccessType Unit)) (aq : Bool) (rl : Bool) (res : Bool) : SailM (Result Bool ExecutionResult) := SailME.run do
+def vmem_write_addr (vaddr : virtaddr) (width : Nat) (data : (BitVec (8 * width))) (acc : (MemoryAccessType Unit)) (aq : Bool) (rl : Bool) (res : Bool) : SailM (Result Bool ExecutionResult) := SailME.run do
   if ((check_misaligned vaddr width) : Bool)
   then (pure (Err (Memory_Exception (vaddr, (E_SAMO_Addr_Align ())))))
   else
@@ -357,9 +357,9 @@ def vmem_write_addr (vaddr : virtaddr) (width : Nat) (data : (BitVec (8 * width)
         (pure loop_vars) ) : SailME (Result Bool ExecutionResult) (Bool × Nat × Bool) )
       (pure (Ok write_success)))
 
-/-- Type quantifiers: k_ex526179_ : Bool, k_ex526178_ : Bool, k_ex526177_ : Bool, width : Nat, width
+/-- Type quantifiers: k_ex526199_ : Bool, k_ex526198_ : Bool, k_ex526197_ : Bool, width : Nat, width
   ≥ 0, is_mem_width(width) -/
-def vmem_read (rs : regidx) (offset : (BitVec 64)) (width : Nat) (acc : (AccessType Unit)) (aq : Bool) (rl : Bool) (res : Bool) : SailM (Result (BitVec (8 * width)) ExecutionResult) := SailME.run do
+def vmem_read (rs : regidx) (offset : (BitVec 64)) (width : Nat) (acc : (MemoryAccessType Unit)) (aq : Bool) (rl : Bool) (res : Bool) : SailM (Result (BitVec (8 * width)) ExecutionResult) := SailME.run do
   let vaddr ← (( do
     match (← (ext_data_get_addr rs offset acc width)) with
     | .Ext_DataAddr_OK vaddr => (pure vaddr)
@@ -368,9 +368,9 @@ def vmem_read (rs : regidx) (offset : (BitVec 64)) (width : Nat) (acc : (AccessT
     ) : SailME (Result (BitVec (8 * width)) ExecutionResult) virtaddr )
   (vmem_read_addr vaddr offset width acc aq rl res)
 
-/-- Type quantifiers: k_ex526189_ : Bool, k_ex526188_ : Bool, k_ex526187_ : Bool, width : Nat, width
+/-- Type quantifiers: k_ex526209_ : Bool, k_ex526208_ : Bool, k_ex526207_ : Bool, width : Nat, width
   ≥ 0, is_mem_width(width) -/
-def vmem_write (rs_addr : regidx) (offset : (BitVec 64)) (width : Nat) (data : (BitVec (8 * width))) (acc : (AccessType Unit)) (aq : Bool) (rl : Bool) (res : Bool) : SailM (Result Bool ExecutionResult) := SailME.run do
+def vmem_write (rs_addr : regidx) (offset : (BitVec 64)) (width : Nat) (data : (BitVec (8 * width))) (acc : (MemoryAccessType Unit)) (aq : Bool) (rl : Bool) (res : Bool) : SailM (Result Bool ExecutionResult) := SailME.run do
   let vaddr ← (( do
     match (← (ext_data_get_addr rs_addr offset acc width)) with
     | .Ext_DataAddr_OK vaddr => (pure vaddr)

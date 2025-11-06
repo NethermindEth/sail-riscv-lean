@@ -172,6 +172,7 @@ open Privilege
 open PmpAddrMatchType
 open PTW_Error
 open PTE_Check
+open MemoryAccessType
 open InterruptType
 open ISA_Format
 open HartState
@@ -182,7 +183,6 @@ open ExecutionResult
 open ExceptionType
 open AtomicSupport
 open Architecture
-open AccessType
 
 def regidx_offset (typ_0 : regidx) (o : (BitVec (if ( false  : Bool) then 4 else 5))) : regidx :=
   let .Regidx r : regidx := typ_0

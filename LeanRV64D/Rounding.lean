@@ -166,6 +166,7 @@ open Privilege
 open PmpAddrMatchType
 open PTW_Error
 open PTE_Check
+open MemoryAccessType
 open InterruptType
 open ISA_Format
 open HartState
@@ -176,7 +177,6 @@ open ExecutionResult
 open ExceptionType
 open AtomicSupport
 open Architecture
-open AccessType
 
 def float_get_rounding (_ : Unit) : SailM (BitVec 5) := do
   readReg fp_rounding_global

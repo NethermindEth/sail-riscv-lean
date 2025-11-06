@@ -176,6 +176,7 @@ open Privilege
 open PmpAddrMatchType
 open PTW_Error
 open PTE_Check
+open MemoryAccessType
 open InterruptType
 open ISA_Format
 open HartState
@@ -186,7 +187,6 @@ open ExecutionResult
 open ExceptionType
 open AtomicSupport
 open Architecture
-open AccessType
 
 def pagesize_bits := 12
 
@@ -817,11 +817,11 @@ def privLevel_to_str (p : Privilege) : SailM String := do
   | VirtualSupervisor => (pure "VS")
   | Machine => (pure "M")
 
-def accessType_to_str (a : (AccessType Unit)) : String :=
+def accessType_to_str (a : (MemoryAccessType Unit)) : String :=
   match a with
-  | .Read _ => "R"
-  | .Write _ => "W"
-  | .ReadWrite (_, _) => "RW"
+  | .Load _ => "R"
+  | .Store _ => "W"
+  | .LoadStore (_, _) => "RW"
   | .InstructionFetch () => "X"
 
 def atomic_support_str_backwards (arg_ : String) : SailM AtomicSupport := do
@@ -3373,7 +3373,7 @@ def maybe_aqrl_forwards (arg_ : (Bool × Bool)) : String :=
   | (false, true) => ".rl"
   | (false, false) => ""
 
-/-- Type quantifiers: k_ex520094_ : Bool -/
+/-- Type quantifiers: k_ex520112_ : Bool -/
 def maybe_u_forwards (arg_ : Bool) : String :=
   match arg_ with
   | true => "u"
@@ -6921,11 +6921,11 @@ def wait_name_forwards (arg_ : WaitReason) : String :=
   | WAIT_WRS_NTO => "WAIT-WRS-NTO"
 
 /-- Type quantifiers: k_a : Type -/
-def is_load_store (ac : (AccessType k_a)) : Bool :=
+def is_load_store (ac : (MemoryAccessType k_a)) : Bool :=
   match ac with
-  | .Read _ => true
-  | .Write _ => true
-  | .ReadWrite _ => true
+  | .Load _ => true
+  | .Store _ => true
+  | .LoadStore _ => true
   | .InstructionFetch _ => false
 
 def undefined_InterruptType (_ : Unit) : SailM InterruptType := do

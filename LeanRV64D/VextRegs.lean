@@ -170,6 +170,7 @@ open Privilege
 open PmpAddrMatchType
 open PTW_Error
 open PTE_Check
+open MemoryAccessType
 open InterruptType
 open ISA_Format
 open HartState
@@ -180,7 +181,6 @@ open ExecutionResult
 open ExceptionType
 open AtomicSupport
 open Architecture
-open AccessType
 
 def vregidx_to_vregno (app_0 : vregidx) : vregno :=
   let .Vregidx b := app_0

@@ -167,6 +167,7 @@ open Privilege
 open PmpAddrMatchType
 open PTW_Error
 open PTE_Check
+open MemoryAccessType
 open InterruptType
 open ISA_Format
 open HartState
@@ -177,7 +178,6 @@ open ExecutionResult
 open ExceptionType
 open AtomicSupport
 open Architecture
-open AccessType
 
 def cbo_zero_enabled (p : Privilege) : SailM Bool := do
   (feature_enabled_for_priv p (BitVec.access (_get_MEnvcfg_CBZE (← readReg menvcfg)) 0)

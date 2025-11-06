@@ -168,6 +168,7 @@ open Privilege
 open PmpAddrMatchType
 open PTW_Error
 open PTE_Check
+open MemoryAccessType
 open InterruptType
 open ISA_Format
 open HartState
@@ -178,7 +179,6 @@ open ExecutionResult
 open ExceptionType
 open AtomicSupport
 open Architecture
-open AccessType
 
 def undefined_RVFI_DII_Execution_PacketV2 (_ : Unit) : SailM (BitVec 512) := do
   (undefined_bitvector 512)

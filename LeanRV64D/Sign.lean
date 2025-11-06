@@ -166,6 +166,7 @@ open Privilege
 open PmpAddrMatchType
 open PTW_Error
 open PTE_Check
+open MemoryAccessType
 open InterruptType
 open ISA_Format
 open HartState
@@ -176,13 +177,12 @@ open ExecutionResult
 open ExceptionType
 open AtomicSupport
 open Architecture
-open AccessType
 
-/-- Type quantifiers: k_ex517338_ : Nat, k_ex517338_ ∈ {16, 32, 64, 128} -/
-def float_is_positive (op : (BitVec k_ex517338_)) : Bool :=
+/-- Type quantifiers: k_ex517356_ : Nat, k_ex517356_ ∈ {16, 32, 64, 128} -/
+def float_is_positive (op : (BitVec k_ex517356_)) : Bool :=
   (is_highest_zero op)
 
-/-- Type quantifiers: k_ex517340_ : Nat, k_ex517340_ ∈ {16, 32, 64, 128} -/
-def float_is_negative (op : (BitVec k_ex517340_)) : Bool :=
+/-- Type quantifiers: k_ex517358_ : Nat, k_ex517358_ ∈ {16, 32, 64, 128} -/
+def float_is_negative (op : (BitVec k_ex517358_)) : Bool :=
   (is_highest_one op)
 

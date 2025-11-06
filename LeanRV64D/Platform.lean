@@ -171,6 +171,7 @@ open Privilege
 open PmpAddrMatchType
 open PTW_Error
 open PTE_Check
+open MemoryAccessType
 open InterruptType
 open ISA_Format
 open HartState
@@ -181,7 +182,6 @@ open ExecutionResult
 open ExceptionType
 open AtomicSupport
 open Architecture
-open AccessType
 
 def plat_cache_block_size_exp : Nat := 6
 
@@ -232,7 +232,7 @@ def MTIME_BASE : physaddrbits := (zero_extend (m := 64) (0x0BFF8 : (BitVec 20)))
 def MTIME_BASE_HI : physaddrbits := (zero_extend (m := 64) (0x0BFFC : (BitVec 20)))
 
 /-- Type quantifiers: width : Nat, width ≥ 0, width > 0 -/
-def clint_load (t : (AccessType Unit)) (app_1 : physaddr) (width : Nat) : SailM (Result (BitVec (8 * width)) ExceptionType) := do
+def clint_load (t : (MemoryAccessType Unit)) (app_1 : physaddr) (width : Nat) : SailM (Result (BitVec (8 * width)) ExceptionType) := do
   let .Physaddr addr := app_1
   let addr := (addr - plat_clint_base)
   if (((addr == MSIP_BASE) && ((width == 8) || (width == 4))) : Bool)
@@ -344,7 +344,7 @@ def clint_load (t : (AccessType Unit)) (app_1 : physaddr) (width : Nat) : SailM 
                               else ()
                             match t with
                             | .InstructionFetch () => (pure (Err (E_Fetch_Access_Fault ())))
-                            | .Read Data => (pure (Err (E_Load_Access_Fault ())))
+                            | .Load Data => (pure (Err (E_Load_Access_Fault ())))
                             | _ => (pure (Err (E_SAMO_Access_Fault ()))))))))))
 
 def clint_dispatch (_ : Unit) : SailM Unit := do
@@ -567,7 +567,7 @@ def reset_htif (_ : Unit) : SailM Unit := do
   writeReg htif_tohost (zeros (n := 64))
 
 /-- Type quantifiers: width : Nat, width ≥ 0, 0 < width ∧ width ≤ max_mem_access -/
-def htif_load (acc : (AccessType Unit)) (app_1 : physaddr) (width : Nat) : SailM (Result (BitVec (8 * width)) ExceptionType) := do
+def htif_load (acc : (MemoryAccessType Unit)) (app_1 : physaddr) (width : Nat) : SailM (Result (BitVec (8 * width)) ExceptionType) := do
   let .Physaddr paddr := app_1
   if ((get_config_print_platform ()) : Bool)
   then
@@ -597,7 +597,7 @@ def htif_load (acc : (AccessType Unit)) (app_1 : physaddr) (width : Nat) : SailM
           else
             (match acc with
             | .InstructionFetch () => (pure (Err (E_Fetch_Access_Fault ())))
-            | .Read Data => (pure (Err (E_Load_Access_Fault ())))
+            | .Load Data => (pure (Err (E_Load_Access_Fault ())))
             | _ => (pure (Err (E_SAMO_Access_Fault ()))))))
 
 /-- Type quantifiers: width : Nat, width ≥ 0, 0 < width ∧ width ≤ max_mem_access -/
@@ -706,7 +706,7 @@ def within_mmio_writable (addr : physaddr) (width : Nat) : SailM Bool := do
     (pure ((← (within_clint addr width)) || ((← (within_htif_writable addr width)) && (width ≤b 8))))
 
 /-- Type quantifiers: width : Nat, width ≥ 0, 0 < width ∧ width ≤ max_mem_access -/
-def mmio_read (t : (AccessType Unit)) (paddr : physaddr) (width : Nat) : SailM (Result (BitVec (8 * width)) ExceptionType) := do
+def mmio_read (t : (MemoryAccessType Unit)) (paddr : physaddr) (width : Nat) : SailM (Result (BitVec (8 * width)) ExceptionType) := do
   if ((← (within_clint paddr width)) : Bool)
   then (clint_load t paddr width)
   else
@@ -716,7 +716,7 @@ def mmio_read (t : (AccessType Unit)) (paddr : physaddr) (width : Nat) : SailM (
       else
         (match t with
         | .InstructionFetch () => (pure (Err (E_Fetch_Access_Fault ())))
-        | .Read Data => (pure (Err (E_Load_Access_Fault ())))
+        | .Load Data => (pure (Err (E_Load_Access_Fault ())))
         | _ => (pure (Err (E_SAMO_Access_Fault ())))))
 
 /-- Type quantifiers: width : Nat, width ≥ 0, 0 < width ∧ width ≤ max_mem_access -/

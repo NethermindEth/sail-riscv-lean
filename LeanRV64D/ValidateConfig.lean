@@ -172,6 +172,7 @@ open Privilege
 open PmpAddrMatchType
 open PTW_Error
 open PTE_Check
+open MemoryAccessType
 open InterruptType
 open ISA_Format
 open HartState
@@ -182,7 +183,6 @@ open ExecutionResult
 open ExceptionType
 open AtomicSupport
 open Architecture
-open AccessType
 
 def check_privs (_ : Unit) : Bool :=
   if (((hartSupports Ext_S) && (not (hartSupports Ext_U))) : Bool)
@@ -465,10 +465,19 @@ def check_mem_layout (_ : Unit) : SailM Bool := do
 
 def check_pmp (_ : Unit) : Bool :=
   let valid : Bool := true
-  if (((true : Bool) && (sys_pmp_grain != 0)) : Bool)
+  let valid : Bool :=
+    if (((true : Bool) && (sys_pmp_grain != 0)) : Bool)
+    then
+      (let valid : Bool := false
+      let _ : Unit := (print_endline "NA4 is not supported if the PMP grain G is non-zero.")
+      valid)
+    else valid
+  if ((sys_pmp_usable_count >b sys_pmp_count) : Bool)
   then
     (let valid : Bool := false
-    let _ : Unit := (print_endline "NA4 is not supported if the PMP grain G is non-zero.")
+    let _ : Unit :=
+      (print_endline
+        "The number of usable PMP entries cannot exceed the total number of PMP entries.")
     valid)
   else valid
 

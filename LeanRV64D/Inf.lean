@@ -166,6 +166,7 @@ open Privilege
 open PmpAddrMatchType
 open PTW_Error
 open PTE_Check
+open MemoryAccessType
 open InterruptType
 open ISA_Format
 open HartState
@@ -176,10 +177,9 @@ open ExecutionResult
 open ExceptionType
 open AtomicSupport
 open Architecture
-open AccessType
 
-/-- Type quantifiers: k_ex517331_ : Nat, k_ex517331_ ∈ {16, 32, 64, 128} -/
-def float_is_inf (op : (BitVec k_ex517331_)) : Bool :=
+/-- Type quantifiers: k_ex517349_ : Nat, k_ex517349_ ∈ {16, 32, 64, 128} -/
+def float_is_inf (op : (BitVec k_ex517349_)) : Bool :=
   let { exp := exp, mantissa := mantissa, sign := _ } := (float_decompose op)
   ((is_all_ones exp) && (is_all_zeros mantissa))
 

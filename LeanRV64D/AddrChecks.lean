@@ -166,6 +166,7 @@ open Privilege
 open PmpAddrMatchType
 open PTW_Error
 open PTE_Check
+open MemoryAccessType
 open InterruptType
 open ISA_Format
 open HartState
@@ -176,7 +177,6 @@ open ExecutionResult
 open ExceptionType
 open AtomicSupport
 open Architecture
-open AccessType
 
 def ext_fetch_check_pc (start_pc : (BitVec 64)) (pc : (BitVec 64)) : (Option Unit) :=
   none
@@ -191,7 +191,7 @@ def ext_handle_control_check_error (err : Unit) : Unit :=
   ()
 
 /-- Type quantifiers: width : Nat, 1 ≤ width ∧ width ≤ 4096 -/
-def ext_data_get_addr (base : regidx) (offset : (BitVec 64)) (acc : (AccessType Unit)) (width : Nat) : SailM (Ext_DataAddr_Check Unit) := do
+def ext_data_get_addr (base : regidx) (offset : (BitVec 64)) (acc : (MemoryAccessType Unit)) (width : Nat) : SailM (Ext_DataAddr_Check Unit) := do
   let addr ← do (pure (Virtaddr ((← (rX_bits base)) + offset)))
   (pure (Ext_DataAddr_OK addr))
 

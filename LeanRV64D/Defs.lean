@@ -193,10 +193,10 @@ abbrev Seccfg := (BitVec 64)
 abbrev SEnvcfg := (BitVec 64)
 
 /-- Type quantifiers: k_a : Type -/
-inductive AccessType (k_a : Type) where
-  | Read (_ : k_a)
-  | Write (_ : k_a)
-  | ReadWrite (_ : (k_a × k_a))
+inductive MemoryAccessType (k_a : Type) where
+  | Load (_ : k_a)
+  | Store (_ : k_a)
+  | LoadStore (_ : (k_a × k_a))
   | InstructionFetch (_ : Unit)
   deriving Inhabited, BEq, Repr
 

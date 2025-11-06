@@ -167,6 +167,7 @@ open Privilege
 open PmpAddrMatchType
 open PTW_Error
 open PTE_Check
+open MemoryAccessType
 open InterruptType
 open ISA_Format
 open HartState
@@ -177,7 +178,6 @@ open ExecutionResult
 open ExceptionType
 open AtomicSupport
 open Architecture
-open AccessType
 
 /-- Type quantifiers: width : Nat, width ∈ {1, 2, 4, 8, 16} -/
 def amo_encoding_valid (width : Nat) (op : amoop) (typ_2 : regidx) (typ_3 : regidx) : SailM Bool := do
