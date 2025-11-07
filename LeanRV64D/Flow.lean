@@ -181,10 +181,11 @@ open Ext_DataAddr_Check
 open ExtStatus
 open ExecutionResult
 open ExceptionType
+open CSRAccessType
 open AtomicSupport
 open Architecture
 
-/-- Type quantifiers: k_ex516683_ : Bool, k_ex516682_ : Bool -/
+/-- Type quantifiers: k_ex516671_ : Bool, k_ex516670_ : Bool -/
 def neq_bool (x : Bool) (y : Bool) : Bool :=
   (! (x == y))
 

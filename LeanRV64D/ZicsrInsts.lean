@@ -1,3 +1,4 @@
+import LeanRV64D.Flow
 import LeanRV64D.Prelude
 import LeanRV64D.Errors
 import LeanRV64D.Xlen
@@ -192,6 +193,7 @@ open Ext_DataAddr_Check
 open ExtStatus
 open ExecutionResult
 open ExceptionType
+open CSRAccessType
 open AtomicSupport
 open Architecture
 
@@ -235,6 +237,16 @@ def encdec_csrop_backwards_matches (arg_ : (BitVec 2)) : Bool :=
       (if ((b__0 == (0b11 : (BitVec 2))) : Bool)
       then true
       else false))
+
+/-- Type quantifiers: k_ex531738_ : Bool, k_ex531737_ : Bool -/
+def csr_access_type (op : csrop) (rd_is_x0 : Bool) (rs1_imm_is_zero : Bool) : CSRAccessType :=
+  match (op, rd_is_x0, rs1_imm_is_zero) with
+  | (CSRRW, true, _) => CSRWrite
+  | (CSRRW, false, _) => CSRReadWrite
+  | (CSRRS, _, true) => CSRRead
+  | (CSRRC, _, true) => CSRRead
+  | (CSRRS, _, false) => CSRReadWrite
+  | (CSRRC, _, false) => CSRReadWrite
 
 def _get_HpmEvent_OF (v : (BitVec 64)) : (BitVec 1) :=
   (Sail.BitVec.extractLsb v 63 63)
@@ -1859,22 +1871,20 @@ def write_CSR (b__0 : (BitVec 12)) (value : (BitVec 64)) : SailM (Result (BitVec
                                                                                                                                                                                                                                                                     (BitVec.toFormatted
                                                                                                                                                                                                                                                                       b__0))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
 
-/-- Type quantifiers: k_ex532801_ : Bool -/
-def doCSR (csr : (BitVec 12)) (rs1_val : (BitVec 64)) (rd : regidx) (op : csrop) (is_CSR_Write : Bool) : SailM ExecutionResult := do
-  if ((not (← (check_CSR csr (← readReg cur_privilege) is_CSR_Write))) : Bool)
+def doCSR (csr : (BitVec 12)) (rs1_val : (BitVec 64)) (rd : regidx) (op : csrop) (access_type : CSRAccessType) : SailM ExecutionResult := do
+  if ((not (← (check_CSR csr (← readReg cur_privilege) access_type))) : Bool)
   then (pure (Illegal_Instruction ()))
   else
     (do
-      if ((not (ext_check_CSR csr (← readReg cur_privilege) is_CSR_Write)) : Bool)
+      if ((not (ext_check_CSR csr (← readReg cur_privilege) access_type)) : Bool)
       then (pure (Ext_CSR_Check_Failure ()))
       else
         (do
-          let is_CSR_Read := (not ((op == CSRRW) && (rd == zreg)))
           let csr_val ← (( do
-            if (is_CSR_Read : Bool)
+            if ((bne access_type CSRWrite) : Bool)
             then (read_CSR csr)
             else (pure (zeros (n := 64))) ) : SailM xlenbits )
-          if (is_CSR_Write : Bool)
+          if ((bne access_type CSRRead) : Bool)
           then
             (do
               let new_val : xlenbits :=

@@ -175,16 +175,17 @@ open Ext_DataAddr_Check
 open ExtStatus
 open ExecutionResult
 open ExceptionType
+open CSRAccessType
 open AtomicSupport
 open Architecture
 
-/-- Type quantifiers: k_ex517367_ : Nat, k_ex517367_ ∈ {16, 32, 64, 128} -/
-def float_is_normal (op : (BitVec k_ex517367_)) : Bool :=
+/-- Type quantifiers: k_ex517355_ : Nat, k_ex517355_ ∈ {16, 32, 64, 128} -/
+def float_is_normal (op : (BitVec k_ex517355_)) : Bool :=
   let { exp := exp, sign := _, mantissa := _ } := (float_decompose op)
   ((! (is_all_ones exp)) && (! (is_all_zeros exp)))
 
-/-- Type quantifiers: k_ex517385_ : Nat, k_ex517385_ ∈ {16, 32, 64, 128} -/
-def float_is_subnormal (op : (BitVec k_ex517385_)) : Bool :=
+/-- Type quantifiers: k_ex517373_ : Nat, k_ex517373_ ∈ {16, 32, 64, 128} -/
+def float_is_subnormal (op : (BitVec k_ex517373_)) : Bool :=
   let { exp := exp, mantissa := mantissa, sign := _ } := (float_decompose op)
   ((is_all_zeros exp) && (! (is_all_zeros mantissa)))
 

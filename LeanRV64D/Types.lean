@@ -185,6 +185,7 @@ open Ext_DataAddr_Check
 open ExtStatus
 open ExecutionResult
 open ExceptionType
+open CSRAccessType
 open AtomicSupport
 open Architecture
 
@@ -576,6 +577,7 @@ def currentlyEnabled (merge_var : extension) : SailM Bool := do
   | Ext_Sv39 => (pure ((hartSupports Ext_Sv39) && (← (currentlyEnabled Ext_S))))
   | Ext_Sv48 => (pure ((hartSupports Ext_Sv48) && (← (currentlyEnabled Ext_S))))
   | Ext_Sv57 => (pure ((hartSupports Ext_Sv57) && (← (currentlyEnabled Ext_S))))
+  | Ext_Sstvecd => (pure ((hartSupports Ext_Sstvecd) && (← (currentlyEnabled Ext_S))))
   | Ext_F =>
     (pure ((hartSupports Ext_F) && (((_get_Misa_F (← readReg misa)) == (0b1 : (BitVec 1))) && (((_get_Mstatus_FS
                 (← readReg mstatus)) != (0b00 : (BitVec 2))) && (← (currentlyEnabled Ext_Zicsr))))))
@@ -3373,7 +3375,7 @@ def maybe_aqrl_forwards (arg_ : (Bool × Bool)) : String :=
   | (false, true) => ".rl"
   | (false, false) => ""
 
-/-- Type quantifiers: k_ex520112_ : Bool -/
+/-- Type quantifiers: k_ex520104_ : Bool -/
 def maybe_u_forwards (arg_ : Bool) : String :=
   match arg_ with
   | true => "u"
@@ -6919,6 +6921,22 @@ def wait_name_forwards (arg_ : WaitReason) : String :=
   | WAIT_WFI => "WAIT-WFI"
   | WAIT_WRS_STO => "WAIT-WRS-STO"
   | WAIT_WRS_NTO => "WAIT-WRS-NTO"
+
+def undefined_CSRAccessType (_ : Unit) : SailM CSRAccessType := do
+  (internal_pick [CSRRead, CSRWrite, CSRReadWrite])
+
+/-- Type quantifiers: arg_ : Nat, 0 ≤ arg_ ∧ arg_ ≤ 2 -/
+def CSRAccessType_of_num (arg_ : Nat) : CSRAccessType :=
+  match arg_ with
+  | 0 => CSRRead
+  | 1 => CSRWrite
+  | _ => CSRReadWrite
+
+def num_of_CSRAccessType (arg_ : CSRAccessType) : Int :=
+  match arg_ with
+  | CSRRead => 0
+  | CSRWrite => 1
+  | CSRReadWrite => 2
 
 /-- Type quantifiers: k_a : Type -/
 def is_load_store (ac : (MemoryAccessType k_a)) : Bool :=

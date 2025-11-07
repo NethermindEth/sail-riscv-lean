@@ -179,6 +179,7 @@ open Ext_DataAddr_Check
 open ExtStatus
 open ExecutionResult
 open ExceptionType
+open CSRAccessType
 open AtomicSupport
 open Architecture
 
@@ -1804,8 +1805,8 @@ def feature_enabled_for_priv (p : Privilege) (machine_enable_bit : (BitVec 1)) (
   | User =>
     (pure ((machine_enable_bit == 1#1) && ((not (← (currentlyEnabled Ext_S))) || (supervisor_enable_bit == 1#1))))
   | VirtualSupervisor =>
-    (internal_error "core/sys_regs.sail" 952 "Hypervisor extension not supported")
-  | VirtualUser => (internal_error "core/sys_regs.sail" 953 "Hypervisor extension not supported")
+    (internal_error "core/sys_regs.sail" 954 "Hypervisor extension not supported")
+  | VirtualUser => (internal_error "core/sys_regs.sail" 955 "Hypervisor extension not supported")
 
 /-- Type quantifiers: index : Nat, 0 ≤ index ∧ index ≤ 31 -/
 def counter_enabled (index : Nat) (priv : Privilege) : SailM Bool := do

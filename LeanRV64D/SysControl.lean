@@ -189,11 +189,12 @@ open Ext_DataAddr_Check
 open ExtStatus
 open ExecutionResult
 open ExceptionType
+open CSRAccessType
 open AtomicSupport
 open Architecture
 
-def effectivePrivilege (t : (MemoryAccessType Unit)) (m : (BitVec 64)) (priv : Privilege) : SailM Privilege := do
-  if (((bne t (InstructionFetch ())) && ((_get_Mstatus_MPRV m) == (0b1 : (BitVec 1)))) : Bool)
+def effectivePrivilege (access_type : (MemoryAccessType Unit)) (m : (BitVec 64)) (priv : Privilege) : SailM Privilege := do
+  if (((bne access_type (InstructionFetch ())) && ((_get_Mstatus_MPRV m) == (0b1 : (BitVec 1)))) : Bool)
   then (privLevel_bits_forwards ((_get_Mstatus_MPP m), 0#1))
   else (pure priv)
 
@@ -206,16 +207,15 @@ def csrPriv (csr : (BitVec 12)) : (BitVec 2) :=
 def check_CSR_priv (csr : (BitVec 12)) (p : Privilege) : Bool :=
   (zopz0zKzJ_u (privLevel_to_bits p) (csrPriv csr))
 
-/-- Type quantifiers: k_ex523585_ : Bool -/
-def check_CSR_access (csr : (BitVec 12)) (isWrite : Bool) : Bool :=
-  (not (isWrite && ((csrAccess csr) == (0b11 : (BitVec 2)))))
+def check_CSR_access (csr : (BitVec 12)) (access_type : CSRAccessType) : Bool :=
+  (not
+    (((access_type == CSRWrite) || (access_type == CSRReadWrite)) && ((csrAccess csr) == (0b11 : (BitVec 2)))))
 
 def sstc_CSRs_accessible (priv : Privilege) : SailM Bool := do
   (pure ((priv == Machine) || ((priv == Supervisor) && (((_get_Counteren_TM (← readReg mcounteren)) == (0b1 : (BitVec 1))) && ((_get_MEnvcfg_STCE
               (← readReg menvcfg)) == (0b1 : (BitVec 1)))))))
 
-/-- Type quantifiers: k_ex523621_ : Bool -/
-def is_CSR_accessible (b__0 : (BitVec 12)) (g__2 : Privilege) (g__3 : Bool) : SailM Bool := do
+def is_CSR_accessible (b__0 : (BitVec 12)) (g__2 : Privilege) (g__3 : CSRAccessType) : SailM Bool := do
   if ((b__0 == (0x301 : (BitVec 12))) : Bool)
   then (pure true)
   else
@@ -550,7 +550,9 @@ def is_CSR_accessible (b__0 : (BitVec 12)) (g__2 : Privilege) (g__3 : Bool) : Sa
                                                                                                                                                                                                                               if ((b__0 == (0x015 : (BitVec 12))) : Bool)
                                                                                                                                                                                                                               then
                                                                                                                                                                                                                                 (pure ((← (currentlyEnabled
-                                                                                                                                                                                                                                        Ext_Zkr)) && (g__3 && (← do
+                                                                                                                                                                                                                                        Ext_Zkr)) && ((bne
+                                                                                                                                                                                                                                        g__3
+                                                                                                                                                                                                                                        CSRRead) && (← do
                                                                                                                                                                                                                                         match g__2 with
                                                                                                                                                                                                                                         | Machine =>
                                                                                                                                                                                                                                           (pure true)
@@ -778,10 +780,9 @@ def is_CSR_accessible (b__0 : (BitVec 12)) (g__2 : Privilege) (g__3 : Bool) : Sa
                                                                                                                                                                                                                                                                                                           else
                                                                                                                                                                                                                                                                                                             (pure false)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
 
-/-- Type quantifiers: k_ex524225_ : Bool -/
-def check_CSR (csr : (BitVec 12)) (p : Privilege) (isWrite : Bool) : SailM Bool := do
-  (pure ((check_CSR_priv csr p) && ((check_CSR_access csr isWrite) && (← (is_CSR_accessible csr p
-            isWrite)))))
+def check_CSR (csr : (BitVec 12)) (p : Privilege) (access_type : CSRAccessType) : SailM Bool := do
+  (pure ((check_CSR_priv csr p) && ((check_CSR_access csr access_type) && (← (is_CSR_accessible
+            csr p access_type)))))
 
 def exception_delegatee (e : ExceptionType) (p : Privilege) : SailM Privilege := do
   let idx := (BitVec.toNatInt (exceptionType_bits_forwards e))

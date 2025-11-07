@@ -181,11 +181,11 @@ open Ext_DataAddr_Check
 open ExtStatus
 open ExecutionResult
 open ExceptionType
+open CSRAccessType
 open AtomicSupport
 open Architecture
 
-/-- Type quantifiers: k_ex521335_ : Bool -/
-def ext_check_CSR (csrno : (BitVec 12)) (p : Privilege) (isWrite : Bool) : Bool :=
+def ext_check_CSR (csrno : (BitVec 12)) (p : Privilege) (access_type : CSRAccessType) : Bool :=
   true
 
 def ext_check_CSR_fail (_ : Unit) : Unit :=

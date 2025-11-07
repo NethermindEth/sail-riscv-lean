@@ -175,11 +175,12 @@ open Ext_DataAddr_Check
 open ExtStatus
 open ExecutionResult
 open ExceptionType
+open CSRAccessType
 open AtomicSupport
 open Architecture
 
-/-- Type quantifiers: k_ex517349_ : Nat, k_ex517349_ ∈ {16, 32, 64, 128} -/
-def float_is_inf (op : (BitVec k_ex517349_)) : Bool :=
+/-- Type quantifiers: k_ex517337_ : Nat, k_ex517337_ ∈ {16, 32, 64, 128} -/
+def float_is_inf (op : (BitVec k_ex517337_)) : Bool :=
   let { exp := exp, mantissa := mantissa, sign := _ } := (float_decompose op)
   ((is_all_ones exp) && (is_all_zeros mantissa))
 
