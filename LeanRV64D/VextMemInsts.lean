@@ -7,7 +7,7 @@ import LeanRV64D.VmemTypes
 import LeanRV64D.Callbacks
 import LeanRV64D.VextRegs
 import LeanRV64D.VextControl
-import LeanRV64D.InstRetire
+import LeanRV64D.InstsBegin
 import LeanRV64D.VmemUtils
 import LeanRV64D.VextUtilsInsts
 

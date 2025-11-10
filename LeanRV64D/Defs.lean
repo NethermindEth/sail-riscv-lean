@@ -1146,18 +1146,6 @@ abbrev MemoryOpResult k_a := (Result k_a ExceptionType)
 
 abbrev htif_cmd := (BitVec 64)
 
-inductive ExecutionResult where
-  | Retire_Success (_ : Unit)
-  | Enter_Wait (_ : WaitReason)
-  | Illegal_Instruction (_ : Unit)
-  | Trap (_ : (Privilege × ctl_result × xlenbits))
-  | Memory_Exception (_ : (virtaddr × ExceptionType))
-  | Ext_CSR_Check_Failure (_ : Unit)
-  | Ext_ControlAddr_Check_Failure (_ : ext_control_addr_error)
-  | Ext_DataAddr_Check_Failure (_ : ext_data_addr_error)
-  | Ext_XRET_Priv_Failure (_ : Unit)
-  deriving Inhabited, BEq, Repr
-
 abbrev pte_flags_bits := (BitVec 8)
 
 abbrev pte_ext_bits := (BitVec 10)
@@ -1202,6 +1190,19 @@ abbrev PTW_Result k_v := (Result ((PTW_Output k_v) × ext_ptw) (PTW_Error × ext
 
 abbrev TR_Result k_paddr k_failure := (Result (k_paddr × ext_ptw) (k_failure × ext_ptw))
 
+inductive ExecutionResult where
+  | Retire_Success (_ : Unit)
+  | ExecuteAs (_ : instruction)
+  | Enter_Wait (_ : WaitReason)
+  | Illegal_Instruction (_ : Unit)
+  | Trap (_ : (Privilege × ctl_result × xlenbits))
+  | Memory_Exception (_ : (virtaddr × ExceptionType))
+  | Ext_CSR_Check_Failure (_ : Unit)
+  | Ext_ControlAddr_Check_Failure (_ : ext_control_addr_error)
+  | Ext_DataAddr_Check_Failure (_ : ext_data_addr_error)
+  | Ext_XRET_Priv_Failure (_ : Unit)
+  deriving Inhabited, Repr
+
 
 
 inductive seed_opst where | BIST | ES16 | WAIT | DEAD
@@ -1235,7 +1236,7 @@ inductive Step where
   | Step_Fetch_Failure (_ : (virtaddr × ExceptionType))
   | Step_Execute (_ : (ExecutionResult × instbits))
   | Step_Waiting (_ : WaitReason)
-  deriving Inhabited, BEq, Repr
+  deriving Inhabited, Repr
 
 inductive ISA_Format where | Canonical_Lowercase | DeviceTree_ISA_Extensions
   deriving BEq, Inhabited, Repr

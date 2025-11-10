@@ -185,7 +185,7 @@ open CSRAccessType
 open AtomicSupport
 open Architecture
 
-/-- Type quantifiers: k_ex516671_ : Bool, k_ex516670_ : Bool -/
+/-- Type quantifiers: k_ex516287_ : Bool, k_ex516286_ : Bool -/
 def neq_bool (x : Bool) (y : Bool) : Bool :=
   (! (x == y))
 
