@@ -213,7 +213,7 @@ def within_htif_writable (typ_0 : physaddr) (width : Nat) : SailM Bool := do
   match (← readReg htif_tohost_base) with
   | none => (pure false)
   | .some base =>
-    (pure ((zopz0zI_u addr (BitVec.addInt base htif_tohost_size)) && (zopz0zKzJ_u
+    (pure ((zopz0zI_u addr (BitVec.addInt base htif_tohost_size)) && (zopz0zK_u
           (BitVec.addInt addr width) base)))
 
 /-- Type quantifiers: width : Nat, 0 < width ∧ width ≤ max_mem_access -/
