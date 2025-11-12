@@ -1,13 +1,13 @@
 import LeanRV64D.Arith
 import LeanRV64D.Prelude
 import LeanRV64D.Errors
+import LeanRV64D.PlatformConfig
 import LeanRV64D.Types
 import LeanRV64D.VmemTypes
 import LeanRV64D.Regs
 import LeanRV64D.SysRegs
 import LeanRV64D.AddrChecks
 import LeanRV64D.SysControl
-import LeanRV64D.Platform
 import LeanRV64D.Mem
 import LeanRV64D.Vmem
 import LeanRV64D.InstsBegin

@@ -1,6 +1,7 @@
 import LeanRV64D.Flow
 import LeanRV64D.Prelude
 import LeanRV64D.Errors
+import LeanRV64D.PlatformConfig
 import LeanRV64D.Types
 import LeanRV64D.SysRegs
 import LeanRV64D.Smcntrpmf
@@ -184,16 +185,6 @@ open CSRAccessType
 open AtomicSupport
 open Architecture
 
-def plat_cache_block_size_exp : Nat := 6
-
-def plat_enable_dirty_update : Bool := false
-
-def plat_enable_misaligned_access : Bool := true
-
-def plat_clint_base : physaddrbits := unwrapValue ((to_bits_checked (l := 64) (33554432 : Int)))
-
-def plat_clint_size : physaddrbits := unwrapValue ((to_bits_checked (l := 64) (786432 : Int)))
-
 def htif_tohost_size := 8
 
 def enable_htif (tohost_addr : (BitVec 64)) : SailM Unit := do
@@ -219,8 +210,6 @@ def within_htif_writable (typ_0 : physaddr) (width : Nat) : SailM Bool := do
 /-- Type quantifiers: width : Nat, 0 < width ∧ width ≤ max_mem_access -/
 def within_htif_readable (addr : physaddr) (width : Nat) : SailM Bool := do
   (within_htif_writable addr width)
-
-def plat_insns_per_tick : nat1 := 2
 
 def MSIP_BASE : physaddrbits := (zero_extend (m := 64) (0x00000 : (BitVec 20)))
 
@@ -580,7 +569,7 @@ def htif_load (acc : (MemoryAccessType Unit)) (app_1 : physaddr) (width : Nat) :
   let base ← (( do
     match (← readReg htif_tohost_base) with
     | .some base => (pure base)
-    | none => (internal_error "sys/platform.sail" 275 "HTIF load while HTIF isn't enabled") ) :
+    | none => (internal_error "sys/platform.sail" 257 "HTIF load while HTIF isn't enabled") ) :
     SailM physaddrbits )
   if (((width == 8) && (paddr == base)) : Bool)
   then (pure (Ok (zero_extend (m := 64) (← readReg htif_tohost))))
@@ -614,7 +603,7 @@ def htif_store (app_0 : physaddr) (width : Nat) (data : (BitVec (8 * width))) : 
   let base ← (( do
     match (← readReg htif_tohost_base) with
     | .some base => (pure base)
-    | none => (internal_error "sys/platform.sail" 299 "HTIF store while HTIF isn't enabled") ) :
+    | none => (internal_error "sys/platform.sail" 281 "HTIF store while HTIF isn't enabled") ) :
     SailME (Result Bool ExceptionType) physaddrbits )
   if (((width == 8) && (paddr == base)) : Bool)
   then

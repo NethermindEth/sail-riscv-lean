@@ -1,4 +1,4 @@
-import LeanRV64D.Common
+import LeanRV64D.Prelude
 
 set_option maxHeartbeats 1_000_000_000
 set_option maxRecDepth 1_000_000
@@ -179,11 +179,17 @@ open CSRAccessType
 open AtomicSupport
 open Architecture
 
-/-- Type quantifiers: k_ex517378_ : Nat, k_ex517378_ ∈ {16, 32, 64, 128} -/
-def float_is_positive (op : (BitVec k_ex517378_)) : Bool :=
-  (is_highest_zero op)
+def plat_cache_block_size_exp : Nat := 6
 
-/-- Type quantifiers: k_ex517380_ : Nat, k_ex517380_ ∈ {16, 32, 64, 128} -/
-def float_is_negative (op : (BitVec k_ex517380_)) : Bool :=
-  (is_highest_one op)
+def plat_reservation_set_size_exp : Nat := 3
+
+def plat_enable_dirty_update : Bool := false
+
+def plat_enable_misaligned_access : Bool := true
+
+def plat_clint_base : physaddrbits := unwrapValue ((to_bits_checked (l := 64) (33554432 : Int)))
+
+def plat_clint_size : physaddrbits := unwrapValue ((to_bits_checked (l := 64) (786432 : Int)))
+
+def plat_insns_per_tick : nat1 := 2
 

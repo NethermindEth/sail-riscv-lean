@@ -238,7 +238,7 @@ def encdec_csrop_backwards_matches (arg_ : (BitVec 2)) : Bool :=
       then true
       else false))
 
-/-- Type quantifiers: k_ex531354_ : Bool, k_ex531353_ : Bool -/
+/-- Type quantifiers: k_ex531829_ : Bool, k_ex531828_ : Bool -/
 def csr_access_type (op : csrop) (rd_is_x0 : Bool) (rs1_imm_is_zero : Bool) : CSRAccessType :=
   match (op, rd_is_x0, rs1_imm_is_zero) with
   | (CSRRW, true, _) => CSRWrite

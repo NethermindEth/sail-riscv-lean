@@ -1,9 +1,10 @@
 import LeanRV64D.Flow
 import LeanRV64D.Prelude
+import LeanRV64D.Xlen
 import LeanRV64D.Vlen
+import LeanRV64D.PlatformConfig
 import LeanRV64D.Extensions
 import LeanRV64D.PmpRegs
-import LeanRV64D.Platform
 import LeanRV64D.Pma
 
 set_option maxHeartbeats 1_000_000_000
@@ -523,11 +524,25 @@ def check_misc_extension_dependencies (_ : Unit) : Bool :=
 
 def check_extension_param_constraints (_ : Unit) : Bool :=
   let valid : Bool := true
-  if (((hartSupports Ext_Zic64b) && (plat_cache_block_size_exp != 6)) : Bool)
+  let valid : Bool :=
+    if (((hartSupports Ext_Zic64b) && (plat_cache_block_size_exp != 6)) : Bool)
+    then
+      (let valid : Bool := false
+      let _ : Unit :=
+        (print_endline "The Zic64b extension is enabled but the cache block size is not 64 bytes.")
+      valid)
+    else valid
+  let min_rss_exp := (log2_xlen -i 3)
+  if ((((hartSupports Ext_A) || (hartSupports Ext_Zalrsc)) && (plat_reservation_set_size_exp <b min_rss_exp)) : Bool)
   then
     (let valid : Bool := false
     let _ : Unit :=
-      (print_endline "The Zic64b extension is enabled but the cache block size is not 64 bytes.")
+      (print_endline
+        (HAppend.hAppend
+          "The A or Zalrsc extensions are enabled, but the reservation set size of 2^"
+          (HAppend.hAppend (Int.repr plat_reservation_set_size_exp)
+            (HAppend.hAppend " is too small; it should be at least 2^"
+              (HAppend.hAppend (Int.repr min_rss_exp) " for the LR/SC operands on this platform.")))))
     valid)
   else valid
 

@@ -2,6 +2,7 @@ import LeanRV64D.Prelude
 import LeanRV64D.PreludeMemAddrtype
 import LeanRV64D.Common0
 import LeanRV64D.RvfiDii
+import LeanRV64D.PlatformConfig
 import LeanRV64D.Types
 import LeanRV64D.Callbacks
 import LeanRV64D.Regs
@@ -199,7 +200,7 @@ open CSRAccessType
 open AtomicSupport
 open Architecture
 
-/-- Type quantifiers: k_ex603334_ : Bool, step_no : Int -/
+/-- Type quantifiers: k_ex603809_ : Bool, step_no : Int -/
 def run_hart_waiting (step_no : Int) (wr : WaitReason) (instbits : (BitVec 32)) (exit_wait : Bool) : SailM Step := do
   if ((← (shouldWakeForInterrupt ())) : Bool)
   then
@@ -376,7 +377,7 @@ def wait_is_nop (wr : WaitReason) : Bool :=
   | WAIT_WRS_STO => false
   | WAIT_WRS_NTO => false
 
-/-- Type quantifiers: k_ex603384_ : Bool, step_no : Nat, 0 ≤ step_no -/
+/-- Type quantifiers: k_ex603859_ : Bool, step_no : Nat, 0 ≤ step_no -/
 def try_step (step_no : Nat) (exit_wait : Bool) : SailM Bool := do
   let _ : Unit := (ext_pre_step_hook ())
   writeReg minstret_increment (← (should_inc_minstret (← readReg cur_privilege)))

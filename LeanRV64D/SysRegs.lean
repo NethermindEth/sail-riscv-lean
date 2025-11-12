@@ -1044,9 +1044,9 @@ def architecture (priv : Privilege) : SailM Architecture := do
       | Supervisor => (pure (_get_Mstatus_SXL (← readReg mstatus)))
       | User => (pure (_get_Mstatus_UXL (← readReg mstatus)))
       | VirtualUser =>
-        (internal_error "core/sys_regs.sail" 286 "Hypervisor extension not supported")
+        (internal_error "core/sys_regs.sail" 288 "Hypervisor extension not supported")
       | VirtualSupervisor =>
-        (internal_error "core/sys_regs.sail" 287 "Hypervisor extension not supported")))
+        (internal_error "core/sys_regs.sail" 289 "Hypervisor extension not supported")))
 
 def in32BitMode (_ : Unit) : SailM Bool := do
   (pure ((← (architecture (← readReg cur_privilege))) == RV32))
@@ -1132,9 +1132,9 @@ def is_fiom_active (_ : Unit) : SailM Bool := do
   | Supervisor => (pure ((_get_MEnvcfg_FIOM (← readReg menvcfg)) == (0b1 : (BitVec 1))))
   | User =>
     (pure (((_get_MEnvcfg_FIOM (← readReg menvcfg)) ||| (_get_SEnvcfg_FIOM (← readReg senvcfg))) == (0b1 : (BitVec 1))))
-  | VirtualUser => (internal_error "core/sys_regs.sail" 433 "Hypervisor extension not supported")
+  | VirtualUser => (internal_error "core/sys_regs.sail" 435 "Hypervisor extension not supported")
   | VirtualSupervisor =>
-    (internal_error "core/sys_regs.sail" 434 "Hypervisor extension not supported")
+    (internal_error "core/sys_regs.sail" 436 "Hypervisor extension not supported")
 
 def undefined_Minterrupts (_ : Unit) : SailM (BitVec 64) := do
   (undefined_bitvector 64)
@@ -1805,8 +1805,8 @@ def feature_enabled_for_priv (p : Privilege) (machine_enable_bit : (BitVec 1)) (
   | User =>
     (pure ((machine_enable_bit == 1#1) && ((not (← (currentlyEnabled Ext_S))) || (supervisor_enable_bit == 1#1))))
   | VirtualSupervisor =>
-    (internal_error "core/sys_regs.sail" 954 "Hypervisor extension not supported")
-  | VirtualUser => (internal_error "core/sys_regs.sail" 955 "Hypervisor extension not supported")
+    (internal_error "core/sys_regs.sail" 956 "Hypervisor extension not supported")
+  | VirtualUser => (internal_error "core/sys_regs.sail" 957 "Hypervisor extension not supported")
 
 /-- Type quantifiers: index : Nat, 0 ≤ index ∧ index ≤ 31 -/
 def counter_enabled (index : Nat) (priv : Privilege) : SailM Bool := do

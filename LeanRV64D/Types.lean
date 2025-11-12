@@ -423,6 +423,8 @@ def currentlyEnabled_measure (ext : extension) : Int :=
   | Ext_Smcntrpmf => 3
   | Ext_Zabha => 3
   | Ext_Zacas => 3
+  | Ext_Za64rs => 3
+  | Ext_Za128rs => 3
   | Ext_Zcb => 3
   | Ext_Zcd => 3
   | Ext_Zcf => 3
@@ -572,6 +574,7 @@ def currentlyEnabled (merge_var : extension) : SailM Bool := do
   | Ext_S =>
     (pure ((hartSupports Ext_S) && (((_get_Misa_S (← readReg misa)) == (0b1 : (BitVec 1))) && (← (currentlyEnabled
               Ext_Zicsr)))))
+  | Ext_Ssu64xl => (pure ((hartSupports Ext_Ssu64xl) && (← (currentlyEnabled Ext_S))))
   | Ext_Svbare => (currentlyEnabled Ext_S)
   | Ext_Sv32 => (pure ((hartSupports Ext_Sv32) && (← (currentlyEnabled Ext_S))))
   | Ext_Sv39 => (pure ((hartSupports Ext_Sv39) && (← (currentlyEnabled Ext_S))))
@@ -636,6 +639,8 @@ def currentlyEnabled (merge_var : extension) : SailM Bool := do
   | Ext_Zabha => (pure ((hartSupports Ext_Zabha) && (← (currentlyEnabled Ext_Zaamo))))
   | Ext_Zacas => (pure ((hartSupports Ext_Zacas) && (← (currentlyEnabled Ext_Zaamo))))
   | Ext_Zalrsc => (pure ((hartSupports Ext_Zalrsc) || (← (currentlyEnabled Ext_A))))
+  | Ext_Za64rs => (pure ((hartSupports Ext_Za64rs) && (← (currentlyEnabled Ext_Zalrsc))))
+  | Ext_Za128rs => (pure ((hartSupports Ext_Za128rs) && (← (currentlyEnabled Ext_Zalrsc))))
   | Ext_M =>
     (pure ((hartSupports Ext_M) && ((_get_Misa_M (← readReg misa)) == (0b1 : (BitVec 1)))))
   | Ext_Zmmul => (pure ((hartSupports Ext_Zmmul) || (← (currentlyEnabled Ext_M))))
@@ -3375,7 +3380,7 @@ def maybe_aqrl_forwards (arg_ : (Bool × Bool)) : String :=
   | (false, true) => ".rl"
   | (false, false) => ""
 
-/-- Type quantifiers: k_ex519720_ : Bool -/
+/-- Type quantifiers: k_ex520207_ : Bool -/
 def maybe_u_forwards (arg_ : Bool) : String :=
   match arg_ with
   | true => "u"
