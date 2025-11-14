@@ -738,8 +738,13 @@ def read_vreg_seg (num_elem : Nat) (SEW : Nat) (LMUL_pow : Int) (nf : Nat) (vrid
 
 /-- Type quantifiers: SEW : Nat, k_n : Nat, k_n ≥ 0, 0 ≤ k_n, SEW ∈ {8, 16, 32, 64} -/
 def get_shift_amount (bit_val : (BitVec k_n)) (SEW : Nat) : SailM Nat := do
-  let lowlog2bits := (log2 SEW)
-  assert ((0 <b lowlog2bits) && (lowlog2bits <b (Sail.BitVec.length bit_val))) "extensions/V/vext_utils_insts.sail:476.43-476.44"
+  let lowlog2bits : Nat :=
+    match SEW with
+    | 8 => 3
+    | 16 => 4
+    | 32 => 5
+    | _ => 6
+  assert ((0 <b lowlog2bits) && (lowlog2bits <b (Sail.BitVec.length bit_val))) "extensions/V/vext_utils_insts.sail:481.43-481.44"
   (pure (BitVec.toNatInt (Sail.BitVec.extractLsb bit_val (lowlog2bits -i 1) 0)))
 
 /-- Type quantifiers: k_m : Nat, shift_amount : Nat, k_m > 0 ∧ shift_amount ≥ 0 -/
@@ -749,7 +754,7 @@ def get_fixed_rounding_incr (vec_elem : (BitVec k_m)) (shift_amount : Nat) : Sai
   else
     (do
       let rounding_mode ← do (pure (_get_Vcsr_vxrm (← readReg vcsr)))
-      assert (shift_amount <b (Sail.BitVec.length vec_elem)) "extensions/V/vext_utils_insts.sail:487.28-487.29"
+      assert (shift_amount <b (Sail.BitVec.length vec_elem)) "extensions/V/vext_utils_insts.sail:492.28-492.29"
       let b__0 := rounding_mode
       if ((b__0 == (0b00 : (BitVec 2))) : Bool)
       then (bit_to_bits (BitVec.access vec_elem (shift_amount -i 1)))

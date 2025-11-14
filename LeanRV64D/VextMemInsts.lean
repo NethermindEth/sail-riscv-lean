@@ -3,6 +3,7 @@ import LeanRV64D.Arith
 import LeanRV64D.Prelude
 import LeanRV64D.Errors
 import LeanRV64D.Xlen
+import LeanRV64D.Vlen
 import LeanRV64D.VmemTypes
 import LeanRV64D.Callbacks
 import LeanRV64D.VextRegs
@@ -298,7 +299,7 @@ def vlewidth_pow_backwards_matches (arg_ : Nat) : Bool :=
   | _ => false
 
 /-- Type quantifiers: num_elem : Nat, EMUL_pow : Int, load_width_bytes : Nat, nf : Nat, nf > 0 ∧
-  nf ≤ 8, load_width_bytes ∈ {1, 2, 4, 8}, num_elem > 0 -/
+  nf ≤ 8, load_width_bytes ∈ {1, 2, 4, 8}, 1 ≤ num_elem ∧ num_elem ≤ (2 ^ 8) -/
 def process_vlseg (nf : Nat) (vm : (BitVec 1)) (vd : vregidx) (load_width_bytes : Nat) (rs1 : regidx) (EMUL_pow : Int) (num_elem : Nat) : SailM ExecutionResult := SailME.run do
   let EMUL_reg :=
     if ((EMUL_pow ≤b 0) : Bool)
@@ -357,7 +358,7 @@ def process_vlseg (nf : Nat) (vm : (BitVec 1)) (vd : vregidx) (load_width_bytes 
   (pure RETIRE_SUCCESS)
 
 /-- Type quantifiers: num_elem : Nat, EMUL_pow : Int, load_width_bytes : Nat, nf : Nat, nf > 0 ∧
-  nf ≤ 8, load_width_bytes ∈ {1, 2, 4, 8}, num_elem > 0 -/
+  nf ≤ 8, load_width_bytes ∈ {1, 2, 4, 8}, 1 ≤ num_elem ∧ num_elem ≤ (2 ^ 8) -/
 def process_vlsegff (nf : Nat) (vm : (BitVec 1)) (vd : vregidx) (load_width_bytes : Nat) (rs1 : regidx) (EMUL_pow : Int) (num_elem : Nat) : SailM ExecutionResult := SailME.run do
   let EMUL_reg :=
     if ((EMUL_pow ≤b 0) : Bool)
@@ -452,7 +453,7 @@ def process_vlsegff (nf : Nat) (vm : (BitVec 1)) (vd : vregidx) (load_width_byte
   (pure RETIRE_SUCCESS)
 
 /-- Type quantifiers: num_elem : Nat, EMUL_pow : Int, load_width_bytes : Nat, nf : Nat, nf > 0 ∧
-  nf ≤ 8, load_width_bytes ∈ {1, 2, 4, 8}, num_elem > 0 -/
+  nf ≤ 8, load_width_bytes ∈ {1, 2, 4, 8}, 1 ≤ num_elem ∧ num_elem ≤ (2 ^ 8) -/
 def process_vsseg (nf : Nat) (vm : (BitVec 1)) (vs3 : vregidx) (load_width_bytes : Nat) (rs1 : regidx) (EMUL_pow : Int) (num_elem : Nat) : SailM ExecutionResult := SailME.run do
   let EMUL_reg :=
     if ((EMUL_pow ≤b 0) : Bool)
@@ -489,7 +490,7 @@ def process_vsseg (nf : Nat) (vm : (BitVec 1)) (vs3 : vregidx) (load_width_bytes
                   data (Store Data) false false false)) with
               | .Ok true => (pure ())
               | .Ok false =>
-                (internal_error "extensions/V/vext_mem_insts.sail" 202
+                (internal_error "extensions/V/vext_mem_insts.sail" 206
                   "store got false from vmem_write")
               | .Err e => SailME.throw (e : ExecutionResult)
           (pure loop_vars_1))
@@ -499,7 +500,7 @@ def process_vsseg (nf : Nat) (vm : (BitVec 1)) (vs3 : vregidx) (load_width_bytes
   (pure RETIRE_SUCCESS)
 
 /-- Type quantifiers: num_elem : Nat, EMUL_pow : Int, load_width_bytes : Nat, nf : Nat, nf > 0 ∧
-  nf ≤ 8, load_width_bytes ∈ {1, 2, 4, 8}, num_elem > 0 -/
+  nf ≤ 8, load_width_bytes ∈ {1, 2, 4, 8}, 1 ≤ num_elem ∧ num_elem ≤ (2 ^ 8) -/
 def process_vlsseg (nf : Nat) (vm : (BitVec 1)) (vd : vregidx) (load_width_bytes : Nat) (rs1 : regidx) (rs2 : regidx) (EMUL_pow : Int) (num_elem : Nat) : SailM ExecutionResult := SailME.run do
   let EMUL_reg :=
     if ((EMUL_pow ≤b 0) : Bool)
@@ -559,7 +560,7 @@ def process_vlsseg (nf : Nat) (vm : (BitVec 1)) (vd : vregidx) (load_width_bytes
   (pure RETIRE_SUCCESS)
 
 /-- Type quantifiers: num_elem : Nat, EMUL_pow : Int, load_width_bytes : Nat, nf : Nat, nf > 0 ∧
-  nf ≤ 8, load_width_bytes ∈ {1, 2, 4, 8}, num_elem > 0 -/
+  nf ≤ 8, load_width_bytes ∈ {1, 2, 4, 8}, 1 ≤ num_elem ∧ num_elem ≤ (2 ^ 8) -/
 def process_vssseg (nf : Nat) (vm : (BitVec 1)) (vs3 : vregidx) (load_width_bytes : Nat) (rs1 : regidx) (rs2 : regidx) (EMUL_pow : Int) (num_elem : Nat) : SailM ExecutionResult := SailME.run do
   let EMUL_reg :=
     if ((EMUL_pow ≤b 0) : Bool)
@@ -597,7 +598,7 @@ def process_vssseg (nf : Nat) (vm : (BitVec 1)) (vs3 : vregidx) (load_width_byte
                   data (Store Data) false false false)) with
               | .Ok true => (pure ())
               | .Ok false =>
-                (internal_error "extensions/V/vext_mem_insts.sail" 323
+                (internal_error "extensions/V/vext_mem_insts.sail" 331
                   "store got false from vmem_write")
               | .Err e => SailME.throw (e : ExecutionResult)
           (pure loop_vars_1))
@@ -608,7 +609,7 @@ def process_vssseg (nf : Nat) (vm : (BitVec 1)) (vs3 : vregidx) (load_width_byte
 
 /-- Type quantifiers: mop : Int, num_elem : Nat, EMUL_data_pow : Int, EMUL_index_pow : Int, EEW_data_bytes
   : Nat, EEW_index_bytes : Nat, nf : Nat, nf > 0 ∧ nf ≤ 8, EEW_index_bytes ∈ {1, 2, 4, 8}, EEW_data_bytes
-  ∈ {1, 2, 4, 8}, num_elem > 0 -/
+  ∈ {1, 2, 4, 8}, 1 ≤ num_elem ∧ num_elem ≤ (2 ^ 8) -/
 def process_vlxseg (nf : Nat) (vm : (BitVec 1)) (vd : vregidx) (EEW_index_bytes : Nat) (EEW_data_bytes : Nat) (EMUL_index_pow : Int) (EMUL_data_pow : Int) (rs1 : regidx) (vs2 : vregidx) (num_elem : Nat) (mop : Int) : SailM ExecutionResult := SailME.run do
   let EMUL_data_reg :=
     if ((EMUL_data_pow ≤b 0) : Bool)
@@ -671,7 +672,7 @@ def process_vlxseg (nf : Nat) (vm : (BitVec 1)) (vd : vregidx) (EEW_index_bytes 
 
 /-- Type quantifiers: mop : Int, num_elem : Nat, EMUL_data_pow : Int, EMUL_index_pow : Int, EEW_data_bytes
   : Nat, EEW_index_bytes : Nat, nf : Nat, nf > 0 ∧ nf ≤ 8, EEW_index_bytes ∈ {1, 2, 4, 8}, EEW_data_bytes
-  ∈ {1, 2, 4, 8}, num_elem > 0 -/
+  ∈ {1, 2, 4, 8}, 1 ≤ num_elem ∧ num_elem ≤ (2 ^ 8) -/
 def process_vsxseg (nf : Nat) (vm : (BitVec 1)) (vs3 : vregidx) (EEW_index_bytes : Nat) (EEW_data_bytes : Nat) (EMUL_index_pow : Int) (EMUL_data_pow : Int) (rs1 : regidx) (vs2 : vregidx) (num_elem : Nat) (mop : Int) : SailM ExecutionResult := SailME.run do
   let EMUL_data_reg :=
     if ((EMUL_data_pow ≤b 0) : Bool)
@@ -710,7 +711,7 @@ def process_vsxseg (nf : Nat) (vm : (BitVec 1)) (vs3 : vregidx) (EEW_index_bytes
                   data (Store Data) false false false)) with
               | .Ok true => (pure ())
               | .Ok false =>
-                (internal_error "extensions/V/vext_mem_insts.sail" 478
+                (internal_error "extensions/V/vext_mem_insts.sail" 488
                   "store got false from vmem_write")
               | .Err e => SailME.throw (e : ExecutionResult)
           (pure loop_vars_1))
@@ -819,7 +820,7 @@ def process_vsre (nf : Nat) (load_width_bytes : Nat) (rs1 : regidx) (vs3 : vregi
                       load_width_bytes data (Store Data) false false false)) with
                   | .Ok true => (pure ())
                   | .Ok false =>
-                    (internal_error "extensions/V/vext_mem_insts.sail" 624
+                    (internal_error "extensions/V/vext_mem_insts.sail" 634
                       "store got false from vmem_write")
                   | .Err e => SailME.throw (e : ExecutionResult)
                   (pure (cur_elem +i 1))
@@ -849,7 +850,7 @@ def process_vsre (nf : Nat) (load_width_bytes : Nat) (rs1 : regidx) (vs3 : vregi
                     (GetElem?.getElem! vs3_val i) (Store Data) false false false)) with
                 | .Ok true => (pure ())
                 | .Ok false =>
-                  (internal_error "extensions/V/vext_mem_insts.sail" 639
+                  (internal_error "extensions/V/vext_mem_insts.sail" 649
                     "store got false from vmem_write")
                 | .Err e => SailME.throw (e : ExecutionResult)
                 (pure (cur_elem +i 1))
@@ -926,7 +927,7 @@ def process_vm (vd_or_vs3 : vregidx) (rs1 : regidx) (num_elem : Nat) (evl : Nat)
                       (GetElem?.getElem! vd_or_vs3_val i) (Store Data) false false false)) with
                   | .Ok true => (pure ())
                   | .Ok false =>
-                    (internal_error "extensions/V/vext_mem_insts.sail" 694
+                    (internal_error "extensions/V/vext_mem_insts.sail" 704
                       "store got false from vmem_write")
                   | .Err e => SailME.throw (e : ExecutionResult))
               else (pure ())))

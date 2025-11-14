@@ -332,7 +332,7 @@ def pmpWriteCfgReg (n : Nat) (v : (BitVec 64)) : SailM Unit := do
       else (pure ())
   (pure loop_vars)
 
-/-- Type quantifiers: k_ex521500_ : Bool, k_ex521499_ : Bool -/
+/-- Type quantifiers: k_ex520868_ : Bool, k_ex520867_ : Bool -/
 def pmpWriteAddr (locked : Bool) (tor_locked : Bool) (reg : (BitVec 64)) (v : (BitVec 64)) : (BitVec 64) :=
   if ((locked || tor_locked) : Bool)
   then reg

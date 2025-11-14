@@ -1007,15 +1007,26 @@ def exception_handler (cur_priv : Privilege) (ctl : ctl_result) (pc : (BitVec 64
 
 def xtval_exception_value (e : ExceptionType) (excinfo : (BitVec 64)) : (Option (BitVec 64)) :=
   if ((match e with
+     | .E_Illegal_Instr () => true
      | .E_Breakpoint () => true
      | .E_Load_Addr_Align () => true
      | .E_Load_Access_Fault () => true
+     | .E_Load_Page_Fault () => true
      | .E_SAMO_Addr_Align () => true
      | .E_SAMO_Access_Fault () => true
+     | .E_SAMO_Page_Fault () => true
      | .E_Fetch_Addr_Align () => true
      | .E_Fetch_Access_Fault () => true
-     | .E_Illegal_Instr () => true
-     | _ => true) : Bool)
+     | .E_Fetch_Page_Fault () => true
+     | .E_Software_Check () => true
+     | .E_U_EnvCall () => false
+     | .E_S_EnvCall () => false
+     | .E_M_EnvCall () => false
+     | .E_Extension _ => true
+     | .E_Reserved_10 () => false
+     | .E_Reserved_14 () => false
+     | .E_Reserved_16 () => false
+     | .E_Reserved_17 () => false) : Bool)
   then (some excinfo)
   else none
 
@@ -1048,7 +1059,7 @@ def reset_misa (_ : Unit) : SailM Unit := do
   writeReg misa (Sail.BitVec.updateSubrange (← readReg misa) 8 8
     (Complement.complement (_get_Misa_E (← readReg misa))))
   if (((hartSupports Ext_F) && (hartSupports Ext_Zfinx)) : Bool)
-  then (internal_error "sys/sys_control.sail" 312 "F and Zfinx cannot both be enabled!")
+  then (internal_error "sys/sys_control.sail" 324 "F and Zfinx cannot both be enabled!")
   else (pure ())
   writeReg misa (Sail.BitVec.updateSubrange (← readReg misa) 5 5
     (bool_to_bits (hartSupports Ext_F)))
