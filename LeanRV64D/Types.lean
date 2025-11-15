@@ -6889,11 +6889,11 @@ def print_insn (insn : instruction) : SailM String := do
 def ptw_error_to_str (e : PTW_Error) : String :=
   match e with
   | .PTW_Invalid_Addr () => "invalid-source-addr"
-  | .PTW_Access () => "mem-access-error"
+  | .PTW_No_Access () => "mem-access-error"
   | .PTW_Invalid_PTE () => "invalid-pte"
   | .PTW_No_Permission () => "no-permission"
   | .PTW_Misaligned () => "misaligned-superpage"
-  | .PTW_PTE_Update () => "pte-update-needed"
+  | .PTW_PTE_Needs_Update () => "pte-update-needed"
   | .PTW_Ext_Error e => "extension-error"
 
 def reservability_str_backwards (arg_ : String) : SailM Reservability := do

@@ -972,11 +972,11 @@ inductive instruction where
 
 inductive PTW_Error where
   | PTW_Invalid_Addr (_ : Unit)
-  | PTW_Access (_ : Unit)
+  | PTW_No_Access (_ : Unit)
   | PTW_Invalid_PTE (_ : Unit)
   | PTW_No_Permission (_ : Unit)
   | PTW_Misaligned (_ : Unit)
-  | PTW_PTE_Update (_ : Unit)
+  | PTW_PTE_Needs_Update (_ : Unit)
   | PTW_Ext_Error (_ : ext_ptw_error)
   deriving Inhabited, BEq, Repr
 

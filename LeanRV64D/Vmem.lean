@@ -222,7 +222,7 @@ def pt_walk (sv_width : Nat) (vpn : (BitVec (sv_width - 12))) (ac : (MemoryAcces
   assert ((sv_width == 32) || (xlen == 64)) "sys/vmem.sail:103.36-103.37"
   let pte_addr := (Physaddr (zero_extend (m := 64) pte_addr))
   match (← (read_pte pte_addr (2 ^i log_pte_size_bytes))) with
-  | .Err _ => (pure (Err ((PTW_Access ()), ext_ptw)))
+  | .Err _ => (pure (Err ((PTW_No_Access ()), ext_ptw)))
   | .Ok pte =>
     (do
       let pte_flags := (Mk_PTE_Flags (Sail.BitVec.extractLsb pte 7 0))
@@ -330,7 +330,7 @@ def translate_TLB_hit (sv_width : Nat) (asid : (BitVec (if ( 64 = 32  : Bool) th
       | .some pte' =>
         (do
           if ((not plat_enable_dirty_update) : Bool)
-          then (pure (Err ((PTW_PTE_Update ()), ext_ptw)))
+          then (pure (Err ((PTW_PTE_Needs_Update ()), ext_ptw)))
           else
             (do
               (write_TLB tlb_index (tlb_set_pte ent pte'))
@@ -372,7 +372,7 @@ def translate_TLB_miss (sv_width : Nat) (asid : (BitVec (if ( 64 = 32  : Bool) t
       | .some pte =>
         (do
           if ((not plat_enable_dirty_update) : Bool)
-          then (pure (Err ((PTW_PTE_Update ()), ext_ptw)))
+          then (pure (Err ((PTW_PTE_Needs_Update ()), ext_ptw)))
           else
             (do
               match (← (write_pte pteAddr pte_size pte)) with
@@ -380,7 +380,7 @@ def translate_TLB_miss (sv_width : Nat) (asid : (BitVec (if ( 64 = 32  : Bool) t
                 (do
                   (add_to_TLB sv_width asid vpn ppn pte pteAddr level global)
                   (pure (Ok (ppn, ext_ptw))))
-              | .Err e => (pure (Err ((PTW_Access ()), ext_ptw))))))
+              | .Err e => (pure (Err ((PTW_No_Access ()), ext_ptw))))))
 
 def satp_mode_width_forwards (arg_ : SATPMode) : SailM Int := do
   match arg_ with
