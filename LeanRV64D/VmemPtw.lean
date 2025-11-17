@@ -69,6 +69,7 @@ open rfvvfunct6
 open regno
 open regidx
 open read_kind
+open pte_check_failure
 open pmpAddrMatch
 open physaddr
 open option
@@ -179,8 +180,10 @@ open CSRAccessType
 open AtomicSupport
 open Architecture
 
-def ext_get_ptw_error (eptwf : Unit) : PTW_Error :=
-  (PTW_No_Permission ())
+def ext_get_ptw_error (failure : pte_check_failure) : PTW_Error :=
+  match failure with
+  | .PTE_No_Permission () => (PTW_No_Permission ())
+  | .PTE_Ext_Failure _ => (PTW_No_Permission ())
 
 def translationException (a : (MemoryAccessType Unit)) (f : PTW_Error) : ExceptionType :=
   match (a, f) with

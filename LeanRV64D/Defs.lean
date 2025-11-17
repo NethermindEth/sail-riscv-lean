@@ -1154,9 +1154,14 @@ abbrev PTE_Ext := (BitVec 10)
 
 abbrev PTE_Flags := (BitVec 8)
 
+inductive pte_check_failure where
+  | PTE_No_Permission (_ : Unit)
+  | PTE_Ext_Failure (_ : ext_ptw_fail)
+  deriving Inhabited, BEq, Repr
+
 inductive PTE_Check where
   | PTE_Check_Success (_ : ext_ptw)
-  | PTE_Check_Failure (_ : (ext_ptw × ext_ptw_fail))
+  | PTE_Check_Failure (_ : (ext_ptw × pte_check_failure))
   deriving Inhabited, BEq, Repr
 
 abbrev tlb_vpn_bits : Int := (57 - 12)

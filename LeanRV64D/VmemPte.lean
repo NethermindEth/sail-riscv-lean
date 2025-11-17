@@ -74,6 +74,7 @@ open rfvvfunct6
 open regno
 open regidx
 open read_kind
+open pte_check_failure
 open pmpAddrMatch
 open physaddr
 open option
@@ -249,23 +250,26 @@ def check_PTE_permission (ac : (MemoryAccessType Unit)) (priv : Privilege) (mxr 
   let pte_R := (bits_to_bool (_get_PTE_Flags_R pte_flags))
   let pte_W := (bits_to_bool (_get_PTE_Flags_W pte_flags))
   let pte_X := (bits_to_bool (_get_PTE_Flags_X pte_flags))
-  let access_ok : Bool :=
-    match ac with
-    | .Load _ => (pte_R || (pte_X && mxr))
-    | .Store _ => pte_W
-    | .LoadStore (_, _) => (pte_W && (pte_R || (pte_X && mxr)))
-    | .InstructionFetch _ => pte_X
   let priv_ok ← (( do
     match priv with
     | User => (pure pte_U)
     | Supervisor => (pure ((not pte_U) || (do_sum && (is_load_store ac))))
-    | Machine => (internal_error "sys/vmem_pte.sail" 133 "m-mode mem perm check")
-    | VirtualUser => (internal_error "sys/vmem_pte.sail" 134 "Hypervisor extension not supported")
+    | Machine => (internal_error "sys/vmem_pte.sail" 131 "m-mode mem perm check")
+    | VirtualUser => (internal_error "sys/vmem_pte.sail" 132 "Hypervisor extension not supported")
     | VirtualSupervisor =>
-      (internal_error "sys/vmem_pte.sail" 135 "Hypervisor extension not supported") ) : SailM Bool )
-  if ((access_ok && priv_ok) : Bool)
-  then (pure (PTE_Check_Success ()))
-  else (pure (PTE_Check_Failure ((), ())))
+      (internal_error "sys/vmem_pte.sail" 133 "Hypervisor extension not supported") ) : SailM Bool )
+  if ((not priv_ok) : Bool)
+  then (pure (PTE_Check_Failure ((), (PTE_No_Permission ()))))
+  else
+    (let access_ok : Bool :=
+      match ac with
+      | .Load _ => (pte_R || (pte_X && mxr))
+      | .Store _ => pte_W
+      | .LoadStore (_, _) => (pte_W && (pte_R || (pte_X && mxr)))
+      | .InstructionFetch _ => pte_X
+    if ((not access_ok) : Bool)
+    then (pure (PTE_Check_Failure ((), (PTE_No_Permission ()))))
+    else (pure (PTE_Check_Success ())))
 
 /-- Type quantifiers: k_pte_size : Nat, k_pte_size ≥ 0, k_pte_size ∈ {32, 64} -/
 def update_PTE_Bits (pte : (BitVec k_pte_size)) (a : (MemoryAccessType Unit)) : (Option (BitVec k_pte_size)) :=

@@ -83,6 +83,7 @@ open rfvvfunct6
 open regno
 open regidx
 open read_kind
+open pte_check_failure
 open pmpAddrMatch
 open physaddr
 open option
@@ -258,8 +259,8 @@ def pt_walk (sv_width : Nat) (vpn : (BitVec (sv_width - 12))) (ac : (MemoryAcces
                   else (pure ()))
               else (pure ())
               match (← (check_PTE_permission ac priv mxr do_sum pte_flags pte_ext ext_ptw)) with
-              | .PTE_Check_Failure (ext_ptw, ext_ptw_fail) =>
-                (pure (Err ((ext_get_ptw_error ext_ptw_fail), ext_ptw)))
+              | .PTE_Check_Failure (ext_ptw, pte_failure) =>
+                (pure (Err ((ext_get_ptw_error pte_failure), ext_ptw)))
               | .PTE_Check_Success ext_ptw =>
                 (let ppn :=
                   if ((level >b 0) : Bool)
@@ -321,8 +322,8 @@ def translate_TLB_hit (sv_width : Nat) (asid : (BitVec (if ( 64 = 32  : Bool) th
   let pte_flags := (Mk_PTE_Flags (Sail.BitVec.extractLsb pte 7 0))
   let pte_check ← do (check_PTE_permission ac priv mxr do_sum pte_flags ext_pte ext_ptw)
   match pte_check with
-  | .PTE_Check_Failure (ext_ptw, ext_ptw_fail) =>
-    (pure (Err ((ext_get_ptw_error ext_ptw_fail), ext_ptw)))
+  | .PTE_Check_Failure (ext_ptw, pte_failure) =>
+    (pure (Err ((ext_get_ptw_error pte_failure), ext_ptw)))
   | .PTE_Check_Success ext_ptw =>
     (do
       match (update_PTE_Bits pte ac) with
