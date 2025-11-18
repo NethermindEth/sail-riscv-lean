@@ -871,7 +871,7 @@ def trap_handler (del_priv : Privilege) (c : TrapCause) (pc : (BitVec 64)) (info
   let is_interrupt := (trapCause_is_interrupt c)
   let cause := (trapCause_bits_forwards c)
   let _ : Unit := (trap_callback is_interrupt cause)
-  if ((get_config_print_platform ()) : Bool)
+  if (((get_config_print_exception ()) || (get_config_print_interrupt ())) : Bool)
   then
     (pure (print_endline
         (HAppend.hAppend "handling "
@@ -938,7 +938,7 @@ def exception_handler (cur_priv : Privilege) (ctl : ctl_result) (pc : (BitVec 64
   | .CTL_TRAP e =>
     (do
       let del_priv ← do (exception_delegatee e.trap cur_priv)
-      if ((get_config_print_platform ()) : Bool)
+      if ((get_config_print_exception ()) : Bool)
       then
         (pure (print_endline
             (HAppend.hAppend "trapping from "
@@ -970,7 +970,7 @@ def exception_handler (cur_priv : Privilege) (ctl : ctl_result) (pc : (BitVec 64
       then (zicfilp_restore_elp_on_xret mRET (← readReg cur_privilege))
       else (pure ())
       (long_csr_write_callback "mstatus" "mstatush" (← readReg mstatus))
-      if ((get_config_print_platform ()) : Bool)
+      if ((get_config_print_exception ()) : Bool)
       then
         (pure (print_endline
             (HAppend.hAppend "ret-ing from "
@@ -997,7 +997,7 @@ def exception_handler (cur_priv : Privilege) (ctl : ctl_result) (pc : (BitVec 64
       then (zicfilp_restore_elp_on_xret sRET (← readReg cur_privilege))
       else (pure ())
       (long_csr_write_callback "mstatus" "mstatush" (← readReg mstatus))
-      if ((get_config_print_platform ()) : Bool)
+      if ((get_config_print_exception ()) : Bool)
       then
         (pure (print_endline
             (HAppend.hAppend "ret-ing from "

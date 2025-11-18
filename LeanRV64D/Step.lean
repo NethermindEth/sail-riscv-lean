@@ -201,7 +201,7 @@ open CSRAccessType
 open AtomicSupport
 open Architecture
 
-/-- Type quantifiers: k_ex603085_ : Bool, step_no : Int -/
+/-- Type quantifiers: k_ex603127_ : Bool, step_no : Int -/
 def run_hart_waiting (step_no : Int) (wr : WaitReason) (instbits : (BitVec 32)) (exit_wait : Bool) : SailM Step := do
   if ((← (shouldWakeForInterrupt ())) : Bool)
   then
@@ -378,7 +378,7 @@ def wait_is_nop (wr : WaitReason) : Bool :=
   | WAIT_WRS_STO => false
   | WAIT_WRS_NTO => false
 
-/-- Type quantifiers: k_ex603135_ : Bool, step_no : Nat, 0 ≤ step_no -/
+/-- Type quantifiers: k_ex603177_ : Bool, step_no : Nat, 0 ≤ step_no -/
 def try_step (step_no : Nat) (exit_wait : Bool) : SailM Bool := do
   let _ : Unit := (ext_pre_step_hook ())
   writeReg minstret_increment (← (should_inc_minstret (← readReg cur_privilege)))
