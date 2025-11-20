@@ -191,7 +191,7 @@ def dec_bits_forwards (bv : (BitVec k_n)) : (Nat × String) :=
   ((Sail.BitVec.length bv), (Int.repr (BitVec.toNatInt bv)))
 
 /-- Type quantifiers: k_n : Nat, k_n ≥ 0, k_n > 0 -/
-def dec_bits_forwards_matches (bv : (BitVec k_n)) : Bool :=
+def dec_bits_forwards_matches (x_0 : (BitVec k_n)) : Bool :=
   true
 
 /-- Type quantifiers: tuple_0.1 : Nat, tuple_0.1 ≥ 0, tuple_0.1 > 0 -/

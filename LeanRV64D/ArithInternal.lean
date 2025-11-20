@@ -415,7 +415,7 @@ def float_add_internal (op_0 : (BitVec k_n)) (op_1 : (BitVec k_n)) : SailM ((Bit
   else (float_add_diff_exp op_0 op_1)
 
 /-- Type quantifiers: k_n : Nat, k_n ≥ 0, k_n ∈ {16, 32, 64, 128} -/
-def float_sub_internal (op_0 : (BitVec k_n)) (op_1 : (BitVec k_n)) : SailM ((BitVec k_n) × (BitVec 5)) := do
+def float_sub_internal (_op_0 : (BitVec k_n)) (_op_1 : (BitVec k_n)) : SailM ((BitVec k_n) × (BitVec 5)) := do
   assert false "Not implemented yet."
   throw Error.Exit
 
