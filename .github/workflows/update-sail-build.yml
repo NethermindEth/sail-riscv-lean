@@ -85,6 +85,16 @@ jobs:
         wget https://elan.lean-lang.org/elan-init.sh
         bash elan-init.sh -y
 
+    - name: Send status to zulip
+      uses: zulip/github-actions-zulip/send-message@v1
+      with:
+        api-key: ${{ secrets.ZULIP_API_KEY }}
+        email: "riscv-sail-lean-bot@leanprover.zulipchat.com"
+        organization-url: "https://leanprover.zulipchat.com"
+        to: "221679"
+        type: "private"
+        content: "Starting build of the RISC-V model"
+
     - name: Use Lean to build the model and record errors
       id: run-lake
       run: |
@@ -92,6 +102,7 @@ jobs:
         cp README.md sail-riscv/build/model/Lean_RV64D
         cp report.py sail-riscv/build/model/Lean_RV64D
         cd sail-riscv/build/model/Lean_RV64D
+        export LEAN_NUM_THREADS=1
         (lake build | tee build_log.txt || true)
         sed -i '/Statistics/,$d' README.md
 
