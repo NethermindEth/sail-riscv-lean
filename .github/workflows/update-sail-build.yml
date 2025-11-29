@@ -86,6 +86,7 @@ jobs:
         bash elan-init.sh -y
 
     - name: Use Lean to build the model and record errors
+      id: run-lake
       run: |
         . ~/.profile
         cp README.md sail-riscv/build/model/Lean_RV64D
@@ -95,6 +96,13 @@ jobs:
         sed -i '/Statistics/,$d' README.md
 
         ./report.py >> README.md
+
+        {
+          echo 'report<<EOF'
+          ./report.py
+          echo EOF
+        } >> "$GITHUB_ENV"
+
         cd ../../../..
 
     - name: Save cached lake
@@ -103,6 +111,16 @@ jobs:
       with:
         path: sail-riscv/build/model/Lean_RV64D/.lake
         key: ${{ steps.cache-lake-restore.outputs.cache-primary-key }}
+
+    - name: Send status to zulip
+      uses: zulip/github-actions-zulip/send-message@v1
+      with:
+        api-key: ${{ secrets.ZULIP_API_KEY }}
+        email: "riscv-sail-lean-bot@leanprover.zulipchat.com"
+        organization-url: "https://leanprover.zulipchat.com"
+        to: "221679"
+        type: "private"
+        content: ${{ steps.run-lake.outputs.report }}
 
     - name: Deploy
       uses: s0/git-publish-subdir-action@develop
