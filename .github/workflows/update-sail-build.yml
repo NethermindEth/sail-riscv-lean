@@ -2,7 +2,7 @@ name: Build RISCV For Lean
 
 on:
   schedule:
-    - cron: "42 * * * *"
+    - cron: "0 */6 * * *"
   workflow_dispatch:
 
 env:
@@ -16,7 +16,7 @@ jobs:
         version: [5.2.1]
         os: [ubuntu-latest]
 
-    runs-on: [ubuntu-latest]
+    runs-on: [grosser-desktop]
 
     steps:
     - uses: actions/checkout@v4
