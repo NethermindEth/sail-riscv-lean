@@ -17,6 +17,7 @@ jobs:
         os: [ubuntu-latest]
 
     runs-on: [grosser-desktop]
+    container: ubuntu:24.04
 
     steps:
     - uses: actions/checkout@v4
