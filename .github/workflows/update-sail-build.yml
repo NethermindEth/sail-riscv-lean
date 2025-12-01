@@ -26,7 +26,7 @@ jobs:
       if: startsWith(matrix.os, 'ubuntu')
       run: |
         apt update
-        apt install -y build-essential pkg-config libgmp-dev z3 cvc4 opam
+        apt install -y build-essential pkg-config libgmp-dev cmake z3 cvc4 opam
 
     - name: Checkout SAIL
       run: |
