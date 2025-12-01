@@ -22,15 +22,15 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Checkout SAIL
-      run: |
-        git clone https://github.com/rems-project/sail.git
-
     - name: System dependencies (ubuntu)
       if: startsWith(matrix.os, 'ubuntu')
       run: |
-        sudo apt update
-        sudo apt install build-essential libgmp-dev z3 cvc4 opam
+        apt update
+        apt install -y build-essential libgmp-dev z3 cvc4 opam
+
+    - name: Checkout SAIL
+      run: |
+        git clone https://github.com/rems-project/sail.git
 
     - name: Restore cached opam
       id: cache-opam-restore
