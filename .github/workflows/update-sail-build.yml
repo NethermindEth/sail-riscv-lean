@@ -113,7 +113,7 @@ jobs:
           echo 'report<<EOF'
           ./report.py
           echo EOF
-        } >> "$GITHUB_ENV"
+        } >> "$GITHUB_OUTPUT"
 
         cd ../../../..
 
