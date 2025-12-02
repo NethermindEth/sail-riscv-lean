@@ -92,8 +92,9 @@ jobs:
         api-key: ${{ secrets.ZULIP_API_KEY }}
         email: "riscv-sail-lean-bot@leanprover.zulipchat.com"
         organization-url: "https://leanprover.zulipchat.com"
-        to: "221679"
-        type: "private"
+        to: "462675"
+        type: "stream"
+        topic: "Automated RISC-V build"
         content: "Starting build of the RISC-V model"
 
     - name: Use Lean to build the model and record errors
@@ -130,8 +131,9 @@ jobs:
         api-key: ${{ secrets.ZULIP_API_KEY }}
         email: "riscv-sail-lean-bot@leanprover.zulipchat.com"
         organization-url: "https://leanprover.zulipchat.com"
-        to: "221679"
-        type: "private"
+        to: "462675"
+        type: "stream"
+        topic: "Automated RISC-V build"
         content: ${{ steps.run-lake.outputs.report }}
 
     - name: Deploy
