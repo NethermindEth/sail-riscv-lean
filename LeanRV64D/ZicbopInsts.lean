@@ -96,6 +96,7 @@ open maskfunct3
 open landing_pad_expectation
 open iop
 open instruction
+open indexed_mop
 open fwvvmafunct6
 open fwvvfunct6
 open fwvfunct6
@@ -153,6 +154,7 @@ open bropw_zbb
 open brop_zbs
 open brop_zbkb
 open brop_zbb
+open breakpoint_cause
 open bop
 open biop_zbs
 open barrier_kind
@@ -188,26 +190,19 @@ open Architecture
 
 def encdec_cbop_zicbop_forwards (arg_ : cbop_zicbop) : (BitVec 5) :=
   match arg_ with
-  | PREFETCH_I => (0b00000 : (BitVec 5))
-  | PREFETCH_R => (0b00001 : (BitVec 5))
-  | PREFETCH_W => (0b00011 : (BitVec 5))
+  | PREFETCH_I => 0b00000#5
+  | PREFETCH_R => 0b00001#5
+  | PREFETCH_W => 0b00011#5
 
 def encdec_cbop_zicbop_backwards (arg_ : (BitVec 5)) : SailM cbop_zicbop := do
-  let b__0 := arg_
-  if ((b__0 == (0b00000 : (BitVec 5))) : Bool)
-  then (pure PREFETCH_I)
-  else
+  match arg_ with
+  | 0b00000 => (pure PREFETCH_I)
+  | 0b00001 => (pure PREFETCH_R)
+  | 0b00011 => (pure PREFETCH_W)
+  | _ =>
     (do
-      if ((b__0 == (0b00001 : (BitVec 5))) : Bool)
-      then (pure PREFETCH_R)
-      else
-        (do
-          if ((b__0 == (0b00011 : (BitVec 5))) : Bool)
-          then (pure PREFETCH_W)
-          else
-            (do
-              assert false "Pattern match failure at unknown location"
-              throw Error.Exit)))
+      assert false "Pattern match failure at unknown location"
+      throw Error.Exit)
 
 def encdec_cbop_zicbop_forwards_matches (arg_ : cbop_zicbop) : Bool :=
   match arg_ with
@@ -216,16 +211,11 @@ def encdec_cbop_zicbop_forwards_matches (arg_ : cbop_zicbop) : Bool :=
   | PREFETCH_W => true
 
 def encdec_cbop_zicbop_backwards_matches (arg_ : (BitVec 5)) : Bool :=
-  let b__0 := arg_
-  if ((b__0 == (0b00000 : (BitVec 5))) : Bool)
-  then true
-  else
-    (if ((b__0 == (0b00001 : (BitVec 5))) : Bool)
-    then true
-    else
-      (if ((b__0 == (0b00011 : (BitVec 5))) : Bool)
-      then true
-      else false))
+  match arg_ with
+  | 0b00000 => true
+  | 0b00001 => true
+  | 0b00011 => true
+  | _ => false
 
 def prefetch_mnemonic_backwards (arg_ : String) : SailM cbop_zicbop := do
   match arg_ with

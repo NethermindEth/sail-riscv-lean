@@ -96,6 +96,7 @@ open maskfunct3
 open landing_pad_expectation
 open iop
 open instruction
+open indexed_mop
 open fwvvmafunct6
 open fwvvfunct6
 open fwvfunct6
@@ -153,6 +154,7 @@ open bropw_zbb
 open brop_zbs
 open brop_zbkb
 open brop_zbb
+open breakpoint_cause
 open bop
 open biop_zbs
 open barrier_kind
@@ -232,31 +234,21 @@ def ntl_name_backwards_matches (arg_ : String) : Bool :=
 
 def encdec_ntl_forwards (arg_ : ntl_type) : (BitVec 5) :=
   match arg_ with
-  | NTL_P1 => (0b00010 : (BitVec 5))
-  | NTL_PALL => (0b00011 : (BitVec 5))
-  | NTL_S1 => (0b00100 : (BitVec 5))
-  | NTL_ALL => (0b00101 : (BitVec 5))
+  | NTL_P1 => 0b00010#5
+  | NTL_PALL => 0b00011#5
+  | NTL_S1 => 0b00100#5
+  | NTL_ALL => 0b00101#5
 
 def encdec_ntl_backwards (arg_ : (BitVec 5)) : SailM ntl_type := do
-  let b__0 := arg_
-  if ((b__0 == (0b00010 : (BitVec 5))) : Bool)
-  then (pure NTL_P1)
-  else
+  match arg_ with
+  | 0b00010 => (pure NTL_P1)
+  | 0b00011 => (pure NTL_PALL)
+  | 0b00100 => (pure NTL_S1)
+  | 0b00101 => (pure NTL_ALL)
+  | _ =>
     (do
-      if ((b__0 == (0b00011 : (BitVec 5))) : Bool)
-      then (pure NTL_PALL)
-      else
-        (do
-          if ((b__0 == (0b00100 : (BitVec 5))) : Bool)
-          then (pure NTL_S1)
-          else
-            (do
-              if ((b__0 == (0b00101 : (BitVec 5))) : Bool)
-              then (pure NTL_ALL)
-              else
-                (do
-                  assert false "Pattern match failure at unknown location"
-                  throw Error.Exit))))
+      assert false "Pattern match failure at unknown location"
+      throw Error.Exit)
 
 def encdec_ntl_forwards_matches (arg_ : ntl_type) : Bool :=
   match arg_ with
@@ -266,17 +258,10 @@ def encdec_ntl_forwards_matches (arg_ : ntl_type) : Bool :=
   | NTL_ALL => true
 
 def encdec_ntl_backwards_matches (arg_ : (BitVec 5)) : Bool :=
-  let b__0 := arg_
-  if ((b__0 == (0b00010 : (BitVec 5))) : Bool)
-  then true
-  else
-    (if ((b__0 == (0b00011 : (BitVec 5))) : Bool)
-    then true
-    else
-      (if ((b__0 == (0b00100 : (BitVec 5))) : Bool)
-      then true
-      else
-        (if ((b__0 == (0b00101 : (BitVec 5))) : Bool)
-        then true
-        else false)))
+  match arg_ with
+  | 0b00010 => true
+  | 0b00011 => true
+  | 0b00100 => true
+  | 0b00101 => true
+  | _ => false
 

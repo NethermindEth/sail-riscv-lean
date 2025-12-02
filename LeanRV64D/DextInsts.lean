@@ -93,6 +93,7 @@ open maskfunct3
 open landing_pad_expectation
 open iop
 open instruction
+open indexed_mop
 open fwvvmafunct6
 open fwvvfunct6
 open fwvfunct6
@@ -150,6 +151,7 @@ open bropw_zbb
 open brop_zbs
 open brop_zbkb
 open brop_zbb
+open breakpoint_cause
 open bop
 open biop_zbs
 open barrier_kind
@@ -192,15 +194,15 @@ def fmake_D (sign : (BitVec 1)) (exp : (BitVec 11)) (mant : (BitVec 52)) : (BitV
 
 def f_is_neg_inf_D (x64 : (BitVec 64)) : Bool :=
   let (sign, exp, mant) := (fsplit_D x64)
-  ((sign == (0b1 : (BitVec 1))) && ((exp == (ones (n := 11))) && (mant == (zeros (n := 52)))))
+  ((sign == 1#1) && ((exp == (ones (n := 11))) && (mant == (zeros (n := 52)))))
 
 def f_is_neg_norm_D (x64 : (BitVec 64)) : Bool :=
   let (sign, exp, mant) := (fsplit_D x64)
-  ((sign == (0b1 : (BitVec 1))) && ((exp != (zeros (n := 11))) && (exp != (ones (n := 11)))))
+  ((sign == 1#1) && ((exp != (zeros (n := 11))) && (exp != (ones (n := 11)))))
 
 def f_is_neg_subnorm_D (x64 : (BitVec 64)) : Bool :=
   let (sign, exp, mant) := (fsplit_D x64)
-  ((sign == (0b1 : (BitVec 1))) && ((exp == (zeros (n := 11))) && (mant != (zeros (n := 52)))))
+  ((sign == 1#1) && ((exp == (zeros (n := 11))) && (mant != (zeros (n := 52)))))
 
 def f_is_neg_zero_D (x64 : (BitVec 64)) : Bool :=
   let (sign, exp, mant) := (fsplit_D x64)
@@ -237,9 +239,9 @@ def f_is_NaN_D (x64 : (BitVec 64)) : Bool :=
 def negate_D (x64 : (BitVec 64)) : (BitVec 64) :=
   let (sign, exp, mant) := (fsplit_D x64)
   let new_sign :=
-    if ((sign == (0b0 : (BitVec 1))) : Bool)
-    then (0b1 : (BitVec 1))
-    else (0b0 : (BitVec 1))
+    if ((sign == 0#1) : Bool)
+    then 1#1
+    else 0#1
   (fmake_D new_sign exp mant)
 
 def feq_quiet_D (v1 : (BitVec 64)) (v2 : (BitVec 64)) : (Bool × (BitVec 5)) :=
@@ -254,21 +256,21 @@ def feq_quiet_D (v1 : (BitVec 64)) (v2 : (BitVec 64)) : (Bool × (BitVec 5)) :=
     else (zeros (n := 5))
   (result, fflags)
 
-/-- Type quantifiers: k_ex526548_ : Bool -/
+/-- Type quantifiers: k_ex547641_ : Bool -/
 def flt_D (v1 : (BitVec 64)) (v2 : (BitVec 64)) (is_quiet : Bool) : (Bool × (BitVec 5)) :=
   let (s1, e1, m1) := (fsplit_D v1)
   let (s2, e2, m2) := (fsplit_D v2)
   let result : Bool :=
-    if (((s1 == (0b0 : (BitVec 1))) && (s2 == (0b0 : (BitVec 1)))) : Bool)
+    if (((s1 == 0#1) && (s2 == 0#1)) : Bool)
     then
       (if ((e1 == e2) : Bool)
       then ((BitVec.toNatInt m1) <b (BitVec.toNatInt m2))
       else ((BitVec.toNatInt e1) <b (BitVec.toNatInt e2)))
     else
-      (if (((s1 == (0b0 : (BitVec 1))) && (s2 == (0b1 : (BitVec 1)))) : Bool)
+      (if (((s1 == 0#1) && (s2 == 1#1)) : Bool)
       then false
       else
-        (if (((s1 == (0b1 : (BitVec 1))) && (s2 == (0b0 : (BitVec 1)))) : Bool)
+        (if (((s1 == 1#1) && (s2 == 0#1)) : Bool)
         then true
         else
           (if ((e1 == e2) : Bool)
@@ -286,23 +288,23 @@ def flt_D (v1 : (BitVec 64)) (v2 : (BitVec 64)) (is_quiet : Bool) : (Bool × (Bi
       else (zeros (n := 5)))
   (result, fflags)
 
-/-- Type quantifiers: k_ex526634_ : Bool -/
+/-- Type quantifiers: k_ex547727_ : Bool -/
 def fle_D (v1 : (BitVec 64)) (v2 : (BitVec 64)) (is_quiet : Bool) : (Bool × (BitVec 5)) :=
   let (s1, e1, m1) := (fsplit_D v1)
   let (s2, e2, m2) := (fsplit_D v2)
   let v1Is0 := ((f_is_neg_zero_D v1) || (f_is_pos_zero_D v1))
   let v2Is0 := ((f_is_neg_zero_D v2) || (f_is_pos_zero_D v2))
   let result : Bool :=
-    if (((s1 == (0b0 : (BitVec 1))) && (s2 == (0b0 : (BitVec 1)))) : Bool)
+    if (((s1 == 0#1) && (s2 == 0#1)) : Bool)
     then
       (if ((e1 == e2) : Bool)
       then ((BitVec.toNatInt m1) ≤b (BitVec.toNatInt m2))
       else ((BitVec.toNatInt e1) <b (BitVec.toNatInt e2)))
     else
-      (if (((s1 == (0b0 : (BitVec 1))) && (s2 == (0b1 : (BitVec 1)))) : Bool)
+      (if (((s1 == 0#1) && (s2 == 1#1)) : Bool)
       then (v1Is0 && v2Is0)
       else
-        (if (((s1 == (0b1 : (BitVec 1))) && (s2 == (0b0 : (BitVec 1)))) : Bool)
+        (if (((s1 == 1#1) && (s2 == 0#1)) : Bool)
         then true
         else
           (if ((e1 == e2) : Bool)

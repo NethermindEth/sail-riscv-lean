@@ -99,6 +99,7 @@ open maskfunct3
 open landing_pad_expectation
 open iop
 open instruction
+open indexed_mop
 open fwvvmafunct6
 open fwvvfunct6
 open fwvfunct6
@@ -156,6 +157,7 @@ open bropw_zbb
 open brop_zbs
 open brop_zbkb
 open brop_zbb
+open breakpoint_cause
 open bop
 open biop_zbs
 open barrier_kind
@@ -206,5 +208,7 @@ def init_model (config_filename : String) : SailM Unit := do
 
 def init_boot_requirements (_ : Unit) : SailM Unit := do
   (wX (Regno 10) (← readReg mhartid))
-  (wX (Regno 11) (trunc (m := 64) (0x0000000000001000 : (BitVec 64))))
+  (wX (Regno 11)
+    (trunc (m := 64)
+      (0b0000000000000000000000000000000000000000000000000001000000000000#64 : (BitVec 64))))
 

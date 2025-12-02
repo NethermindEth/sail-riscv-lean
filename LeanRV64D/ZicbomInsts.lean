@@ -102,6 +102,7 @@ open maskfunct3
 open landing_pad_expectation
 open iop
 open instruction
+open indexed_mop
 open fwvvmafunct6
 open fwvvfunct6
 open fwvfunct6
@@ -159,6 +160,7 @@ open bropw_zbb
 open brop_zbs
 open brop_zbkb
 open brop_zbb
+open breakpoint_cause
 open bop
 open biop_zbs
 open barrier_kind
@@ -198,26 +200,19 @@ def cbo_clean_flush_enabled (p : Privilege) : SailM Bool := do
 
 def encdec_cbop_forwards (arg_ : cbop_zicbom) : (BitVec 12) :=
   match arg_ with
-  | CBO_CLEAN => (0x001 : (BitVec 12))
-  | CBO_FLUSH => (0x002 : (BitVec 12))
-  | CBO_INVAL => (0x000 : (BitVec 12))
+  | CBO_CLEAN => 0b000000000001#12
+  | CBO_FLUSH => 0b000000000010#12
+  | CBO_INVAL => 0b000000000000#12
 
 def encdec_cbop_backwards (arg_ : (BitVec 12)) : SailM cbop_zicbom := do
-  let b__0 := arg_
-  if ((b__0 == (0x001 : (BitVec 12))) : Bool)
-  then (pure CBO_CLEAN)
-  else
+  match arg_ with
+  | 0b000000000001 => (pure CBO_CLEAN)
+  | 0b000000000010 => (pure CBO_FLUSH)
+  | 0b000000000000 => (pure CBO_INVAL)
+  | _ =>
     (do
-      if ((b__0 == (0x002 : (BitVec 12))) : Bool)
-      then (pure CBO_FLUSH)
-      else
-        (do
-          if ((b__0 == (0x000 : (BitVec 12))) : Bool)
-          then (pure CBO_INVAL)
-          else
-            (do
-              assert false "Pattern match failure at unknown location"
-              throw Error.Exit)))
+      assert false "Pattern match failure at unknown location"
+      throw Error.Exit)
 
 def encdec_cbop_forwards_matches (arg_ : cbop_zicbom) : Bool :=
   match arg_ with
@@ -226,16 +221,11 @@ def encdec_cbop_forwards_matches (arg_ : cbop_zicbom) : Bool :=
   | CBO_INVAL => true
 
 def encdec_cbop_backwards_matches (arg_ : (BitVec 12)) : Bool :=
-  let b__0 := arg_
-  if ((b__0 == (0x001 : (BitVec 12))) : Bool)
-  then true
-  else
-    (if ((b__0 == (0x002 : (BitVec 12))) : Bool)
-    then true
-    else
-      (if ((b__0 == (0x000 : (BitVec 12))) : Bool)
-      then true
-      else false))
+  match arg_ with
+  | 0b000000000001 => true
+  | 0b000000000010 => true
+  | 0b000000000000 => true
+  | _ => false
 
 def cbop_mnemonic_backwards (arg_ : String) : SailM cbop_zicbom := do
   match arg_ with
@@ -278,23 +268,16 @@ def num_of_cbie (arg_ : cbie) : Int :=
 
 def encdec_cbie_forwards (arg_ : cbie) : (BitVec 2) :=
   match arg_ with
-  | CBIE_ILLEGAL => (0b00 : (BitVec 2))
-  | CBIE_EXEC_FLUSH => (0b01 : (BitVec 2))
-  | CBIE_EXEC_INVAL => (0b11 : (BitVec 2))
+  | CBIE_ILLEGAL => 0b00#2
+  | CBIE_EXEC_FLUSH => 0b01#2
+  | CBIE_EXEC_INVAL => 0b11#2
 
 def encdec_cbie_backwards (arg_ : (BitVec 2)) : SailM cbie := do
-  let b__0 := arg_
-  if ((b__0 == (0b00 : (BitVec 2))) : Bool)
-  then (pure CBIE_ILLEGAL)
-  else
-    (do
-      if ((b__0 == (0b01 : (BitVec 2))) : Bool)
-      then (pure CBIE_EXEC_FLUSH)
-      else
-        (do
-          if ((b__0 == (0b11 : (BitVec 2))) : Bool)
-          then (pure CBIE_EXEC_INVAL)
-          else (internal_error "extensions/Zicbom/zicbom_insts.sail" 45 "reserved CBIE")))
+  match arg_ with
+  | 0b00 => (pure CBIE_ILLEGAL)
+  | 0b01 => (pure CBIE_EXEC_FLUSH)
+  | 0b11 => (pure CBIE_EXEC_INVAL)
+  | _ => (internal_error "extensions/Zicbom/zicbom_insts.sail" 45 "reserved CBIE")
 
 def encdec_cbie_forwards_matches (arg_ : cbie) : Bool :=
   match arg_ with
@@ -303,19 +286,12 @@ def encdec_cbie_forwards_matches (arg_ : cbie) : Bool :=
   | CBIE_EXEC_INVAL => true
 
 def encdec_cbie_backwards_matches (arg_ : (BitVec 2)) : Bool :=
-  let b__0 := arg_
-  if ((b__0 == (0b00 : (BitVec 2))) : Bool)
-  then true
-  else
-    (if ((b__0 == (0b01 : (BitVec 2))) : Bool)
-    then true
-    else
-      (if ((b__0 == (0b11 : (BitVec 2))) : Bool)
-      then true
-      else
-        (if ((b__0 == (0b10 : (BitVec 2))) : Bool)
-        then true
-        else false)))
+  match arg_ with
+  | 0b00 => true
+  | 0b01 => true
+  | 0b11 => true
+  | 0b10 => true
+  | _ => false
 
 def undefined_checked_cbop (_ : Unit) : SailM checked_cbop := do
   (internal_pick [CBOP_ILLEGAL, CBOP_ILLEGAL_VIRTUAL, CBOP_INVAL_FLUSH, CBOP_INVAL_INVAL])
@@ -354,7 +330,7 @@ def cbop_priv_check (p : Privilege) : SailM checked_cbop := do
   | (User, _, CBIE_EXEC_FLUSH) => (pure CBOP_INVAL_FLUSH)
   | _ => (pure CBOP_INVAL_INVAL)
 
-def process_clean_inval (rs1 : regidx) (cbop : cbop_zicbom) : SailM ExecutionResult := do
+def process_clean_inval (rs1 : regidx) (_cbop : cbop_zicbom) : SailM ExecutionResult := do
   let rs1_val ← do (rX_bits rs1)
   let cache_block_size := (2 ^i plat_cache_block_size_exp)
   let negative_offset :=
@@ -373,7 +349,7 @@ def process_clean_inval (rs1 : regidx) (cbop : cbop_zicbom) : SailM ExecutionRes
             let exc_read ← do (phys_access_check (Load Data) ep paddr cache_block_size false)
             let exc_write ← do (phys_access_check (Store Data) ep paddr cache_block_size false)
             match (exc_read, exc_write) with
-            | (.some exc_read, .some exc_write) => (pure (some exc_write))
+            | (.some _exc_read, .some exc_write) => (pure (some exc_write))
             | _ => (pure none))
         | .Err (e, _) => (pure (some e)) ) : SailM (Option ExceptionType) )
       match res with

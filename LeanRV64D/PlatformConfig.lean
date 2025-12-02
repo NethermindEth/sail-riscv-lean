@@ -90,6 +90,7 @@ open maskfunct3
 open landing_pad_expectation
 open iop
 open instruction
+open indexed_mop
 open fwvvmafunct6
 open fwvvfunct6
 open fwvfunct6
@@ -147,6 +148,7 @@ open bropw_zbb
 open brop_zbs
 open brop_zbkb
 open brop_zbb
+open breakpoint_cause
 open bop
 open biop_zbs
 open barrier_kind
@@ -193,4 +195,32 @@ def plat_clint_base : physaddrbits := unwrapValue ((to_bits_checked (l := 64) (3
 def plat_clint_size : physaddrbits := unwrapValue ((to_bits_checked (l := 64) (786432 : Int)))
 
 def plat_insns_per_tick : nat1 := 2
+
+def illegal_instruction_writes_xtval : Bool := true
+
+def software_breakpoint_writes_xtval : Bool := true
+
+def hardware_breakpoint_writes_xtval : Bool := true
+
+def misaligned_load_writes_xtval : Bool := true
+
+def load_access_fault_writes_xtval : Bool := true
+
+def load_page_fault_writes_xtval : Bool := true
+
+def misaligned_samo_writes_xtval : Bool := true
+
+def samo_access_fault_writes_xtval : Bool := true
+
+def samo_page_fault_writes_xtval : Bool := true
+
+def misaligned_fetch_writes_xtval : Bool := true
+
+def fetch_access_fault_writes_xtval : Bool := true
+
+def fetch_page_fault_writes_xtval : Bool := true
+
+def software_check_fault_writes_xtval : Bool := true
+
+def reserved_exceptions_write_xtval : Bool := false
 

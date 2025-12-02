@@ -91,6 +91,7 @@ open maskfunct3
 open landing_pad_expectation
 open iop
 open instruction
+open indexed_mop
 open fwvvmafunct6
 open fwvvfunct6
 open fwvfunct6
@@ -148,6 +149,7 @@ open bropw_zbb
 open brop_zbs
 open brop_zbkb
 open brop_zbb
+open breakpoint_cause
 open bop
 open biop_zbs
 open barrier_kind
@@ -181,29 +183,29 @@ open CSRAccessType
 open AtomicSupport
 open Architecture
 
-def fp_eflag_none : fp_exception_flags := (0b00000 : (BitVec 5))
+def fp_eflag_none : fp_exception_flags := 0b00000#5
 
-def fp_eflag_invalid : fp_exception_flags := (0b00001 : (BitVec 5))
+def fp_eflag_invalid : fp_exception_flags := 0b00001#5
 
-def fp_eflag_divide_by_zero : fp_exception_flags := (0b00010 : (BitVec 5))
+def fp_eflag_divide_by_zero : fp_exception_flags := 0b00010#5
 
-def fp_eflag_oveflow : fp_exception_flags := (0b00100 : (BitVec 5))
+def fp_eflag_oveflow : fp_exception_flags := 0b00100#5
 
-def fp_eflag_underflow : fp_exception_flags := (0b01000 : (BitVec 5))
+def fp_eflag_underflow : fp_exception_flags := 0b01000#5
 
-def fp_eflag_inexact : fp_exception_flags := (0b10000 : (BitVec 5))
+def fp_eflag_inexact : fp_exception_flags := 0b10000#5
 
 def fp_eflag_overflow_and_inexact : fp_exception_flags := (fp_eflag_oveflow ||| fp_eflag_inexact)
 
-def fp_rounding_rne : fp_rounding_modes := (0b00001 : (BitVec 5))
+def fp_rounding_rne : fp_rounding_modes := 0b00001#5
 
-def fp_rounding_rna : fp_rounding_modes := (0b00010 : (BitVec 5))
+def fp_rounding_rna : fp_rounding_modes := 0b00010#5
 
-def fp_rounding_rdn : fp_rounding_modes := (0b00011 : (BitVec 5))
+def fp_rounding_rdn : fp_rounding_modes := 0b00011#5
 
-def fp_rounding_rup : fp_rounding_modes := (0b00100 : (BitVec 5))
+def fp_rounding_rup : fp_rounding_modes := 0b00100#5
 
-def fp_rounding_rtz : fp_rounding_modes := (0b00101 : (BitVec 5))
+def fp_rounding_rtz : fp_rounding_modes := 0b00101#5
 
 def fp_rounding_default : fp_rounding_modes := fp_rounding_rne
 
@@ -259,7 +261,7 @@ def float_compose (op : (float_bits k_n)) : (BitVec k_n) :=
 def float_has_max_exp (op : (BitVec k_n)) : Bool :=
   let fp := (float_decompose op)
   let bitsize := (Sail.BitVec.length op)
-  let one := (Sail.BitVec.zeroExtend (0b1 : (BitVec 1)) bitsize)
+  let one := (Sail.BitVec.zeroExtend (1#1 : (BitVec 1)) bitsize)
   let two := (one <<< 1)
   let max_exp := ((one <<< (Sail.BitVec.length fp.exp)) - two)
   (max_exp == (Sail.BitVec.zeroExtend fp.exp bitsize))

@@ -96,6 +96,7 @@ open maskfunct3
 open landing_pad_expectation
 open iop
 open instruction
+open indexed_mop
 open fwvvmafunct6
 open fwvvfunct6
 open fwvfunct6
@@ -153,6 +154,7 @@ open bropw_zbb
 open brop_zbs
 open brop_zbkb
 open brop_zbb
+open breakpoint_cause
 open bop
 open biop_zbs
 open barrier_kind
@@ -188,21 +190,17 @@ open Architecture
 
 def encdec_wrsop_forwards (arg_ : wrsop) : (BitVec 12) :=
   match arg_ with
-  | WRS_STO => (0x01D : (BitVec 12))
-  | WRS_NTO => (0x00D : (BitVec 12))
+  | WRS_STO => 0b000000011101#12
+  | WRS_NTO => 0b000000001101#12
 
 def encdec_wrsop_backwards (arg_ : (BitVec 12)) : SailM wrsop := do
-  let b__0 := arg_
-  if ((b__0 == (0x01D : (BitVec 12))) : Bool)
-  then (pure WRS_STO)
-  else
+  match arg_ with
+  | 0b000000011101 => (pure WRS_STO)
+  | 0b000000001101 => (pure WRS_NTO)
+  | _ =>
     (do
-      if ((b__0 == (0x00D : (BitVec 12))) : Bool)
-      then (pure WRS_NTO)
-      else
-        (do
-          assert false "Pattern match failure at unknown location"
-          throw Error.Exit))
+      assert false "Pattern match failure at unknown location"
+      throw Error.Exit)
 
 def encdec_wrsop_forwards_matches (arg_ : wrsop) : Bool :=
   match arg_ with
@@ -210,11 +208,8 @@ def encdec_wrsop_forwards_matches (arg_ : wrsop) : Bool :=
   | WRS_NTO => true
 
 def encdec_wrsop_backwards_matches (arg_ : (BitVec 12)) : Bool :=
-  let b__0 := arg_
-  if ((b__0 == (0x01D : (BitVec 12))) : Bool)
-  then true
-  else
-    (if ((b__0 == (0x00D : (BitVec 12))) : Bool)
-    then true
-    else false)
+  match arg_ with
+  | 0b000000011101 => true
+  | 0b000000001101 => true
+  | _ => false
 

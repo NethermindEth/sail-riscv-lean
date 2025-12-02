@@ -91,6 +91,7 @@ open maskfunct3
 open landing_pad_expectation
 open iop
 open instruction
+open indexed_mop
 open fwvvmafunct6
 open fwvvfunct6
 open fwvfunct6
@@ -148,6 +149,7 @@ open bropw_zbb
 open brop_zbs
 open brop_zbkb
 open brop_zbb
+open breakpoint_cause
 open bop
 open biop_zbs
 open barrier_kind
@@ -1000,16 +1002,15 @@ def rvfi_zero_exec_packet (_ : Unit) : SailM Unit := do
   writeReg rvfi_pc_data (Mk_RVFI_DII_Execution_Packet_PC (zeros (n := 128)))
   writeReg rvfi_int_data (Mk_RVFI_DII_Execution_Packet_Ext_Integer (zeros (n := 320)))
   writeReg rvfi_int_data (_update_RVFI_DII_Execution_Packet_Ext_Integer_magic
-    (← readReg rvfi_int_data) (0x617461642D746E69 : (BitVec 64)))
+    (← readReg rvfi_int_data) 0x617461642D746E69#64)
   writeReg rvfi_int_data_present false
   writeReg rvfi_mem_data (Mk_RVFI_DII_Execution_Packet_Ext_MemAccess (zeros (n := 704)))
   writeReg rvfi_mem_data (_update_RVFI_DII_Execution_Packet_Ext_MemAccess_magic
-    (← readReg rvfi_mem_data) (0x617461642D6D656D : (BitVec 64)))
+    (← readReg rvfi_mem_data) 0x617461642D6D656D#64)
   writeReg rvfi_mem_data_present false
 
 def rvfi_halt_exec_packet (_ : Unit) : SailM Unit := do
-  writeReg rvfi_inst_data (Sail.BitVec.updateSubrange (← readReg rvfi_inst_data) 143 136
-    (0x01 : (BitVec 8)))
+  writeReg rvfi_inst_data (Sail.BitVec.updateSubrange (← readReg rvfi_inst_data) 143 136 0x01#8)
 
 def rvfi_get_int_data (_ : Unit) : SailM (BitVec 320) := do
   assert (← readReg rvfi_int_data_present) "reading uninitialized data"
@@ -1021,7 +1022,7 @@ def rvfi_get_mem_data (_ : Unit) : SailM (BitVec 704) := do
 
 /-- Type quantifiers: width : Nat, 0 < width ∧ width ≤ 32 -/
 def rvfi_encode_width_mask (width : Nat) : (BitVec 32) :=
-  (shiftr (0xFFFFFFFF : (BitVec 32)) (32 -i width))
+  (shiftr 0xFFFFFFFF#32 (32 -i width))
 
 def print_rvfi_exec (_ : Unit) : SailM Unit := do
   (pure (print_bits "rvfi_intr     : "
@@ -1103,6 +1104,5 @@ def rvfi_wX (r : Nat) (v : (BitVec 64)) : SailM Unit := do
   writeReg rvfi_int_data_present true
 
 def rvfi_trap (_ : Unit) : SailM Unit := do
-  writeReg rvfi_inst_data (Sail.BitVec.updateSubrange (← readReg rvfi_inst_data) 135 128
-    (0x01 : (BitVec 8)))
+  writeReg rvfi_inst_data (Sail.BitVec.updateSubrange (← readReg rvfi_inst_data) 135 128 0x01#8)
 

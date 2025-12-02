@@ -96,6 +96,7 @@ open maskfunct3
 open landing_pad_expectation
 open iop
 open instruction
+open indexed_mop
 open fwvvmafunct6
 open fwvvfunct6
 open fwvfunct6
@@ -153,6 +154,7 @@ open bropw_zbb
 open brop_zbs
 open brop_zbkb
 open brop_zbb
+open breakpoint_cause
 open bop
 open biop_zbs
 open barrier_kind
@@ -193,13 +195,12 @@ def ext_translate_exception (e : Unit) : Unit :=
 
 def ext_exc_type_bits_forwards (arg_ : Unit) : (BitVec 6) :=
   match arg_ with
-  | () => (0b011000 : (BitVec 6))
+  | () => 0b011000#6
 
 def ext_exc_type_bits_backwards (arg_ : (BitVec 6)) : SailM Unit := do
-  let b__0 := arg_
-  if ((b__0 == (0b011000 : (BitVec 6))) : Bool)
-  then (pure ())
-  else
+  match arg_ with
+  | 0b011000 => (pure ())
+  | _ =>
     (do
       assert false "Pattern match failure at unknown location"
       throw Error.Exit)
@@ -209,11 +210,10 @@ def ext_exc_type_bits_forwards_matches (arg_ : Unit) : Bool :=
   | () => true
 
 def ext_exc_type_bits_backwards_matches (arg_ : (BitVec 6)) : Bool :=
-  let b__0 := arg_
-  if ((b__0 == (0b011000 : (BitVec 6))) : Bool)
-  then true
-  else false
+  match arg_ with
+  | 0b011000 => true
+  | _ => false
 
-def ext_exc_type_to_str (e : Unit) : String :=
+def ext_exc_type_to_str (_e : Unit) : String :=
   "extension-exception"
 

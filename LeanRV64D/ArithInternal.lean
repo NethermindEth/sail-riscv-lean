@@ -94,6 +94,7 @@ open maskfunct3
 open landing_pad_expectation
 open iop
 open instruction
+open indexed_mop
 open fwvvmafunct6
 open fwvvfunct6
 open fwvfunct6
@@ -151,6 +152,7 @@ open bropw_zbb
 open brop_zbs
 open brop_zbkb
 open brop_zbb
+open breakpoint_cause
 open bop
 open biop_zbs
 open barrier_kind
@@ -226,7 +228,7 @@ def float_propagate_nan (op_0 : (BitVec k_n)) (op_1 : (BitVec k_n)) : ((BitVec k
     if (is_snan : Bool)
     then fp_eflag_invalid
     else fp_eflag_none
-  let one := (Sail.BitVec.zeroExtend (0b1 : (BitVec 1)) (Sail.BitVec.length op_0))
+  let one := (Sail.BitVec.zeroExtend (1#1 : (BitVec 1)) (Sail.BitVec.length op_0))
   let fp_0 := (float_decompose op_0)
   let mask := (one <<< ((Sail.BitVec.length fp_0.mantissa) -i 1))
   let op :=
@@ -243,10 +245,10 @@ def float_rounding_increment (sign : (BitVec 1)) (op : (BitVec k_n)) (rounding_m
   let is_rna := (rounding_mode == fp_rounding_rna)
   let not_rne_and_rna := ((! is_rne) && (! is_rna))
   let rounding_inf :=
-    if ((sign == (0b1 : (BitVec 1))) : Bool)
+    if ((sign == (1#1 : (BitVec 1))) : Bool)
     then fp_rounding_rdn
     else fp_rounding_rup
-  let one := (Sail.BitVec.zeroExtend (0b1 : (BitVec 1)) bitsize)
+  let one := (Sail.BitVec.zeroExtend (1#1 : (BitVec 1)) bitsize)
   if ((not_rne_and_rna && (rounding_mode == rounding_inf)) : Bool)
   then ((one <<< ((Sail.BitVec.length fp.exp) -i 1)) - one)
   else
@@ -258,8 +260,8 @@ def float_rounding_increment (sign : (BitVec 1)) (op : (BitVec k_n)) (rounding_m
 def float_compose_after_round (sign : (BitVec 1)) (exp : (BitVec k_n)) (mantissa : (BitVec k_n)) (increment : (BitVec k_n)) (rounding_mode : (BitVec 5)) : ((BitVec k_n) × (BitVec 5)) :=
   let bitsize := (Sail.BitVec.length mantissa)
   let fp := (float_decompose mantissa)
-  let one := (Sail.BitVec.zeroExtend (0b1 : (BitVec 1)) bitsize)
-  let zero := (Sail.BitVec.zeroExtend (0b0 : (BitVec 1)) bitsize)
+  let one := (Sail.BitVec.zeroExtend (1#1 : (BitVec 1)) bitsize)
+  let zero := (Sail.BitVec.zeroExtend (0#1 : (BitVec 1)) bitsize)
   let round_mask := ((one <<< ((Sail.BitVec.length fp.exp) -i 1)) - one)
   let round_bits := (mantissa &&& round_mask)
   let eflag :=
@@ -293,7 +295,7 @@ def float_compose_after_round (sign : (BitVec 1)) (exp : (BitVec k_n)) (mantissa
 def float_get_sign_with_all_ones_exp (sign : (BitVec 1)) (op : (BitVec k_n)) : (BitVec k_n) :=
   let bitsize := (Sail.BitVec.length op)
   let fp := (float_decompose op)
-  let one := (Sail.BitVec.zeroExtend (0b1 : (BitVec 1)) bitsize)
+  let one := (Sail.BitVec.zeroExtend (1#1 : (BitVec 1)) bitsize)
   let all_ones := ((one <<< (Sail.BitVec.length fp.exp)) - one)
   let all_ones_exp := (all_ones <<< (Sail.BitVec.length fp.mantissa))
   (sign ++ (Sail.BitVec.truncate all_ones_exp (bitsize -i 1)))
@@ -303,9 +305,9 @@ def float_round_and_compose (sign : (BitVec 1)) (exp : (BitVec k_n)) (mantissa :
   let op := mantissa
   let fp := (float_decompose op)
   let bitsize := (Sail.BitVec.length op)
-  let one := (Sail.BitVec.zeroExtend (0b1 : (BitVec 1)) bitsize)
-  let zero := (Sail.BitVec.zeroExtend (0b0 : (BitVec 1)) bitsize)
-  let three := (Sail.BitVec.zeroExtend (0b11 : (BitVec 2)) bitsize)
+  let one := (Sail.BitVec.zeroExtend (1#1 : (BitVec 1)) bitsize)
+  let zero := (Sail.BitVec.zeroExtend (0#1 : (BitVec 1)) bitsize)
+  let three := (Sail.BitVec.zeroExtend (0b11#2 : (BitVec 2)) bitsize)
   let increment := (float_rounding_increment sign mantissa rounding_mode)
   let exp_limit := ((one <<< (Sail.BitVec.length fp.exp)) - three)
   let exp_reach_limit := (! ((BitVec.toNatInt exp) <b (BitVec.toNatInt exp_limit)))
@@ -339,14 +341,14 @@ def float_add_same_exp_internal (op_0 : (BitVec k_n)) (op_1 : (BitVec k_n)) : Sa
     (let mantissa_shift := (mantissa_sum >>> 1)
     let mantissa_bitsize := (Sail.BitVec.length fp_0.mantissa)
     let exp :=
-      (fp_0.exp + (Sail.BitVec.zeroExtend (0b1 : (BitVec 1)) (Sail.BitVec.length fp_0.exp)))
+      (fp_0.exp + (Sail.BitVec.zeroExtend (1#1 : (BitVec 1)) (Sail.BitVec.length fp_0.exp)))
     let mantissa := (Sail.BitVec.truncate mantissa_shift mantissa_bitsize)
     (pure ((sign ++ (exp ++ mantissa)), fp_eflag_none)))
   else
     (do
       let exp := (Sail.BitVec.zeroExtend fp_0.exp bitsize)
       let shift_bitsize := ((Sail.BitVec.length fp_0.mantissa) +i 1)
-      let one := (Sail.BitVec.zeroExtend (0b1 : (BitVec 1)) bitsize)
+      let one := (Sail.BitVec.zeroExtend (1#1 : (BitVec 1)) bitsize)
       let mantissa_offset := (mantissa_sum + (one <<< shift_bitsize))
       let mantissa := (mantissa_offset <<< ((Sail.BitVec.length fp_0.exp) -i 2))
       let rm ← do (float_get_rounding ())
@@ -409,7 +411,7 @@ def float_add_diff_exp (op_0 : (BitVec k_n)) (op_1 : (BitVec k_n)) : SailM ((Bit
 def float_add_internal (op_0 : (BitVec k_n)) (op_1 : (BitVec k_n)) : SailM ((BitVec k_n) × (BitVec 5)) := do
   let fp_0 := (float_decompose op_0)
   let fp_1 := (float_decompose op_1)
-  assert ((fp_0.sign ^^^ fp_1.sign) == (0b0 : (BitVec 1))) "The sign of float add operand 0 and operand 1 must be the same."
+  assert ((fp_0.sign ^^^ fp_1.sign) == (0#1 : (BitVec 1))) "The sign of float add operand 0 and operand 1 must be the same."
   if ((fp_0.exp == fp_1.exp) : Bool)
   then (float_add_same_exp op_0 op_1)
   else (float_add_diff_exp op_0 op_1)

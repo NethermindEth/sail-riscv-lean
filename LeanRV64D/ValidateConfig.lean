@@ -97,6 +97,7 @@ open maskfunct3
 open landing_pad_expectation
 open iop
 open instruction
+open indexed_mop
 open fwvvmafunct6
 open fwvvfunct6
 open fwvfunct6
@@ -154,6 +155,7 @@ open bropw_zbb
 open brop_zbs
 open brop_zbkb
 open brop_zbb
+open breakpoint_cause
 open bop
 open biop_zbs
 open barrier_kind
@@ -484,6 +486,18 @@ def check_pmp (_ : Unit) : Bool :=
     valid)
   else valid
 
+/-- Type quantifiers: k_ex632093_ : Bool -/
+def check_required_sstvala_option (name : String) (value : Bool) : Bool :=
+  if ((not value) : Bool)
+  then
+    (let _ : Unit :=
+      (print_endline
+        (HAppend.hAppend "The Sstvala extension is enabled but "
+          (HAppend.hAppend name
+            " have not been configured (under `base.xtval_nonzero`) to write xtval.")))
+    false)
+  else true
+
 def check_misc_extension_dependencies (_ : Unit) : Bool :=
   let valid : Bool := true
   let valid : Bool :=
@@ -513,14 +527,54 @@ def check_misc_extension_dependencies (_ : Unit) : Bool :=
           "The Zvfbfmin extension is enabled but Zve32f is disabled: supporting Zvfbfmin requires Zve32f.")
       valid)
     else valid
-  if (((hartSupports Ext_Zvfbfwma) && ((not (hartSupports Ext_Zfbfmin)) || (not
-           (hartSupports Ext_Zvfbfmin)))) : Bool)
+  let valid : Bool :=
+    if (((hartSupports Ext_Zvfbfwma) && ((not (hartSupports Ext_Zfbfmin)) || (not
+             (hartSupports Ext_Zvfbfmin)))) : Bool)
+    then
+      (let valid : Bool := false
+      let _ : Unit :=
+        (print_endline
+          "The Zvfbfwma extension is enabled but either Zfbfmin or Zvfbfmin is disabled: supporting Zvfbfwma requires Zfbfmin and Zvfbfmin.")
+      valid)
+    else valid
+  if ((hartSupports Ext_Sstvala) : Bool)
   then
-    (let valid : Bool := false
-    let _ : Unit :=
-      (print_endline
-        "The Zvfbfwma extension is enabled but either Zfbfmin or Zvfbfmin is disabled: supporting Zvfbfwma requires Zfbfmin and Zvfbfmin.")
-    valid)
+    (let valid : Bool :=
+      if ((not (hartSupports Ext_S)) : Bool)
+      then
+        (let valid : Bool := false
+        let _ : Unit :=
+          (print_endline
+            "The Sstvala extension writes `stval` which requires supervisor mode (S) but supervisor mode is not enabled.")
+        valid)
+      else valid
+    let valid : Bool :=
+      (valid && (check_required_sstvala_option "load page-faults" load_page_fault_writes_xtval))
+    let valid : Bool :=
+      (valid && (check_required_sstvala_option "load access-faults" load_access_fault_writes_xtval))
+    let valid : Bool :=
+      (valid && (check_required_sstvala_option "misaligned load exceptions"
+          misaligned_load_writes_xtval))
+    let valid : Bool :=
+      (valid && (check_required_sstvala_option "store/AMO page-faults" samo_page_fault_writes_xtval))
+    let valid : Bool :=
+      (valid && (check_required_sstvala_option "store/AMO access-faults"
+          samo_access_fault_writes_xtval))
+    let valid : Bool :=
+      (valid && (check_required_sstvala_option "misaligned store/AMO exceptions"
+          misaligned_samo_writes_xtval))
+    let valid : Bool :=
+      (valid && (check_required_sstvala_option "fetch page-faults" fetch_page_fault_writes_xtval))
+    let valid : Bool :=
+      (valid && (check_required_sstvala_option "fetch access-faults" fetch_access_fault_writes_xtval))
+    let valid : Bool :=
+      (valid && (check_required_sstvala_option "misaligned fetch exceptions"
+          misaligned_fetch_writes_xtval))
+    let valid : Bool :=
+      (valid && (check_required_sstvala_option "hardware breakpoint exceptions"
+          hardware_breakpoint_writes_xtval))
+    (valid && (check_required_sstvala_option "illegal instruction exceptions"
+        illegal_instruction_writes_xtval)))
   else valid
 
 def check_extension_param_constraints (_ : Unit) : Bool :=

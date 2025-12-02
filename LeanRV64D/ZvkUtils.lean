@@ -93,6 +93,7 @@ open maskfunct3
 open landing_pad_expectation
 open iop
 open instruction
+open indexed_mop
 open fwvvmafunct6
 open fwvvfunct6
 open fwvfunct6
@@ -150,6 +151,7 @@ open bropw_zbb
 open brop_zbs
 open brop_zbkb
 open brop_zbb
+open breakpoint_cause
 open bop
 open biop_zbs
 open barrier_kind
@@ -276,7 +278,7 @@ def zvk_sm4_round (X : (BitVec 32)) (S : (BitVec 32)) : (BitVec 32) :=
   (X ^^^ (S ^^^ ((rotatel S 2) ^^^ ((rotatel S 10) ^^^ ((rotatel S 18) ^^^ (rotatel S 24))))))
 
 def zvksed_ck : (Vector (BitVec 32) 32) :=
-  #v[(0x646B7279 : (BitVec 32)), (0x484F565D : (BitVec 32)), (0x2C333A41 : (BitVec 32)), (0x10171E25 : (BitVec 32)), (0xF4FB0209 : (BitVec 32)), (0xD8DFE6ED : (BitVec 32)), (0xBCC3CAD1 : (BitVec 32)), (0xA0A7AEB5 : (BitVec 32)), (0x848B9299 : (BitVec 32)), (0x686F767D : (BitVec 32)), (0x4C535A61 : (BitVec 32)), (0x30373E45 : (BitVec 32)), (0x141B2229 : (BitVec 32)), (0xF8FF060D : (BitVec 32)), (0xDCE3EAF1 : (BitVec 32)), (0xC0C7CED5 : (BitVec 32)), (0xA4ABB2B9 : (BitVec 32)), (0x888F969D : (BitVec 32)), (0x6C737A81 : (BitVec 32)), (0x50575E65 : (BitVec 32)), (0x343B4249 : (BitVec 32)), (0x181F262D : (BitVec 32)), (0xFC030A11 : (BitVec 32)), (0xE0E7EEF5 : (BitVec 32)), (0xC4CBD2D9 : (BitVec 32)), (0xA8AFB6BD : (BitVec 32)), (0x8C939AA1 : (BitVec 32)), (0x70777E85 : (BitVec 32)), (0x545B6269 : (BitVec 32)), (0x383F464D : (BitVec 32)), (0x1C232A31 : (BitVec 32)), (0x00070E15 : (BitVec 32))]
+  #v[0x646B7279#32, 0x484F565D#32, 0x2C333A41#32, 0x10171E25#32, 0xF4FB0209#32, 0xD8DFE6ED#32, 0xBCC3CAD1#32, 0xA0A7AEB5#32, 0x848B9299#32, 0x686F767D#32, 0x4C535A61#32, 0x30373E45#32, 0x141B2229#32, 0xF8FF060D#32, 0xDCE3EAF1#32, 0xC0C7CED5#32, 0xA4ABB2B9#32, 0x888F969D#32, 0x6C737A81#32, 0x50575E65#32, 0x343B4249#32, 0x181F262D#32, 0xFC030A11#32, 0xE0E7EEF5#32, 0xC4CBD2D9#32, 0xA8AFB6BD#32, 0x8C939AA1#32, 0x70777E85#32, 0x545B6269#32, 0x383F464D#32, 0x1C232A31#32, 0x00070E15#32]
 
 def zvksed_box_lookup (x : (BitVec 5)) (table : (Vector (BitVec 32) 32)) : (BitVec 32) :=
   (GetElem?.getElem! table (31 -i (BitVec.toNatInt x)))
@@ -324,8 +326,8 @@ def zvk_gg_j (X : (BitVec 32)) (Y : (BitVec 32)) (Z : (BitVec 32)) (J : Nat) : (
 /-- Type quantifiers: J : Nat, 0 ≤ J -/
 def zvk_t_j (J : Nat) : (BitVec 32) :=
   if ((J ≤b 15) : Bool)
-  then (0x79CC4519 : (BitVec 32))
-  else (0x7A879D8A : (BitVec 32))
+  then 0x79CC4519#32
+  else 0x7A879D8A#32
 
 /-- Type quantifiers: j : Nat, 0 ≤ j -/
 def zvk_sm3_round (A_H : (Vector (BitVec 32) 8)) (w : (BitVec 32)) (x : (BitVec 32)) (j : Nat) : (Vector (BitVec 32) 8) :=

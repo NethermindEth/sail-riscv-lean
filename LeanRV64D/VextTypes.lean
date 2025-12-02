@@ -96,6 +96,7 @@ open maskfunct3
 open landing_pad_expectation
 open iop
 open instruction
+open indexed_mop
 open fwvvmafunct6
 open fwvvfunct6
 open fwvfunct6
@@ -153,6 +154,7 @@ open bropw_zbb
 open brop_zbs
 open brop_zbkb
 open brop_zbb
+open breakpoint_cause
 open bop
 open biop_zbs
 open barrier_kind
@@ -187,67 +189,39 @@ open AtomicSupport
 open Architecture
 
 def encdec_nfields_forwards (arg_ : (BitVec 3)) : Int :=
-  let b__0 := arg_
-  if ((b__0 == (0b000 : (BitVec 3))) : Bool)
-  then 1
-  else
-    (if ((b__0 == (0b001 : (BitVec 3))) : Bool)
-    then 2
-    else
-      (if ((b__0 == (0b010 : (BitVec 3))) : Bool)
-      then 3
-      else
-        (if ((b__0 == (0b011 : (BitVec 3))) : Bool)
-        then 4
-        else
-          (if ((b__0 == (0b100 : (BitVec 3))) : Bool)
-          then 5
-          else
-            (if ((b__0 == (0b101 : (BitVec 3))) : Bool)
-            then 6
-            else
-              (if ((b__0 == (0b110 : (BitVec 3))) : Bool)
-              then 7
-              else 8))))))
+  match arg_ with
+  | 0b000 => 1
+  | 0b001 => 2
+  | 0b010 => 3
+  | 0b011 => 4
+  | 0b100 => 5
+  | 0b101 => 6
+  | 0b110 => 7
+  | _ => 8
 
 /-- Type quantifiers: arg_ : Nat, arg_ > 0 ∧ arg_ ≤ 8 -/
 def encdec_nfields_backwards (arg_ : Nat) : (BitVec 3) :=
   match arg_ with
-  | 1 => (0b000 : (BitVec 3))
-  | 2 => (0b001 : (BitVec 3))
-  | 3 => (0b010 : (BitVec 3))
-  | 4 => (0b011 : (BitVec 3))
-  | 5 => (0b100 : (BitVec 3))
-  | 6 => (0b101 : (BitVec 3))
-  | 7 => (0b110 : (BitVec 3))
-  | _ => (0b111 : (BitVec 3))
+  | 1 => 0b000#3
+  | 2 => 0b001#3
+  | 3 => 0b010#3
+  | 4 => 0b011#3
+  | 5 => 0b100#3
+  | 6 => 0b101#3
+  | 7 => 0b110#3
+  | _ => 0b111#3
 
 def encdec_nfields_forwards_matches (arg_ : (BitVec 3)) : Bool :=
-  let b__0 := arg_
-  if ((b__0 == (0b000 : (BitVec 3))) : Bool)
-  then true
-  else
-    (if ((b__0 == (0b001 : (BitVec 3))) : Bool)
-    then true
-    else
-      (if ((b__0 == (0b010 : (BitVec 3))) : Bool)
-      then true
-      else
-        (if ((b__0 == (0b011 : (BitVec 3))) : Bool)
-        then true
-        else
-          (if ((b__0 == (0b100 : (BitVec 3))) : Bool)
-          then true
-          else
-            (if ((b__0 == (0b101 : (BitVec 3))) : Bool)
-            then true
-            else
-              (if ((b__0 == (0b110 : (BitVec 3))) : Bool)
-              then true
-              else
-                (if ((b__0 == (0b111 : (BitVec 3))) : Bool)
-                then true
-                else false)))))))
+  match arg_ with
+  | 0b000 => true
+  | 0b001 => true
+  | 0b010 => true
+  | 0b011 => true
+  | 0b100 => true
+  | 0b101 => true
+  | 0b110 => true
+  | 0b111 => true
+  | _ => false
 
 /-- Type quantifiers: arg_ : Nat, arg_ > 0 ∧ arg_ ≤ 8 -/
 def encdec_nfields_backwards_matches (arg_ : Nat) : Bool :=
@@ -303,48 +277,31 @@ def nfields_string_backwards_matches (arg_ : String) : Bool :=
   | _ => false
 
 def encdec_nfields_pow2_forwards (arg_ : (BitVec 3)) : SailM Int := do
-  let b__0 := arg_
-  if ((b__0 == (0b000 : (BitVec 3))) : Bool)
-  then (pure 1)
-  else
+  match arg_ with
+  | 0b000 => (pure 1)
+  | 0b001 => (pure 2)
+  | 0b011 => (pure 4)
+  | 0b111 => (pure 8)
+  | _ =>
     (do
-      if ((b__0 == (0b001 : (BitVec 3))) : Bool)
-      then (pure 2)
-      else
-        (do
-          if ((b__0 == (0b011 : (BitVec 3))) : Bool)
-          then (pure 4)
-          else
-            (do
-              if ((b__0 == (0b111 : (BitVec 3))) : Bool)
-              then (pure 8)
-              else
-                (do
-                  assert false "Pattern match failure at unknown location"
-                  throw Error.Exit))))
+      assert false "Pattern match failure at unknown location"
+      throw Error.Exit)
 
 /-- Type quantifiers: arg_ : Nat, arg_ ∈ {1, 2, 4, 8} -/
 def encdec_nfields_pow2_backwards (arg_ : Nat) : (BitVec 3) :=
   match arg_ with
-  | 1 => (0b000 : (BitVec 3))
-  | 2 => (0b001 : (BitVec 3))
-  | 4 => (0b011 : (BitVec 3))
-  | _ => (0b111 : (BitVec 3))
+  | 1 => 0b000#3
+  | 2 => 0b001#3
+  | 4 => 0b011#3
+  | _ => 0b111#3
 
 def encdec_nfields_pow2_forwards_matches (arg_ : (BitVec 3)) : Bool :=
-  let b__0 := arg_
-  if ((b__0 == (0b000 : (BitVec 3))) : Bool)
-  then true
-  else
-    (if ((b__0 == (0b001 : (BitVec 3))) : Bool)
-    then true
-    else
-      (if ((b__0 == (0b011 : (BitVec 3))) : Bool)
-      then true
-      else
-        (if ((b__0 == (0b111 : (BitVec 3))) : Bool)
-        then true
-        else false)))
+  match arg_ with
+  | 0b000 => true
+  | 0b001 => true
+  | 0b011 => true
+  | 0b111 => true
+  | _ => false
 
 /-- Type quantifiers: arg_ : Nat, arg_ ∈ {1, 2, 4, 8} -/
 def encdec_nfields_pow2_backwards_matches (arg_ : Nat) : Bool :=

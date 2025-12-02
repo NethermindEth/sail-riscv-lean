@@ -93,6 +93,7 @@ open maskfunct3
 open landing_pad_expectation
 open iop
 open instruction
+open indexed_mop
 open fwvvmafunct6
 open fwvvfunct6
 open fwvfunct6
@@ -150,6 +151,7 @@ open bropw_zbb
 open brop_zbs
 open brop_zbkb
 open brop_zbb
+open breakpoint_cause
 open bop
 open biop_zbs
 open barrier_kind
@@ -209,22 +211,17 @@ def num_of_PmpAddrMatchType (arg_ : PmpAddrMatchType) : Int :=
 
 def pmpAddrMatchType_encdec_forwards (arg_ : PmpAddrMatchType) : (BitVec 2) :=
   match arg_ with
-  | OFF => (0b00 : (BitVec 2))
-  | TOR => (0b01 : (BitVec 2))
-  | NA4 => (0b10 : (BitVec 2))
-  | NAPOT => (0b11 : (BitVec 2))
+  | OFF => 0b00#2
+  | TOR => 0b01#2
+  | NA4 => 0b10#2
+  | NAPOT => 0b11#2
 
 def pmpAddrMatchType_encdec_backwards (arg_ : (BitVec 2)) : PmpAddrMatchType :=
-  let b__0 := arg_
-  if ((b__0 == (0b00 : (BitVec 2))) : Bool)
-  then OFF
-  else
-    (if ((b__0 == (0b01 : (BitVec 2))) : Bool)
-    then TOR
-    else
-      (if ((b__0 == (0b10 : (BitVec 2))) : Bool)
-      then NA4
-      else NAPOT))
+  match arg_ with
+  | 0b00 => OFF
+  | 0b01 => TOR
+  | 0b10 => NA4
+  | _ => NAPOT
 
 def pmpAddrMatchType_encdec_forwards_matches (arg_ : PmpAddrMatchType) : Bool :=
   match arg_ with
@@ -234,19 +231,12 @@ def pmpAddrMatchType_encdec_forwards_matches (arg_ : PmpAddrMatchType) : Bool :=
   | NAPOT => true
 
 def pmpAddrMatchType_encdec_backwards_matches (arg_ : (BitVec 2)) : Bool :=
-  let b__0 := arg_
-  if ((b__0 == (0b00 : (BitVec 2))) : Bool)
-  then true
-  else
-    (if ((b__0 == (0b01 : (BitVec 2))) : Bool)
-    then true
-    else
-      (if ((b__0 == (0b10 : (BitVec 2))) : Bool)
-      then true
-      else
-        (if ((b__0 == (0b11 : (BitVec 2))) : Bool)
-        then true
-        else false)))
+  match arg_ with
+  | 0b00 => true
+  | 0b01 => true
+  | 0b10 => true
+  | 0b11 => true
+  | _ => false
 
 def undefined_Pmpcfg_ent (_ : Unit) : SailM (BitVec 8) := do
   (undefined_bitvector 8)
@@ -271,13 +261,13 @@ def pmpReadAddrReg (n : Nat) : SailM (BitVec 64) := do
   let match_type ← do (pure (_get_Pmpcfg_ent_A (GetElem?.getElem! (← readReg pmpcfg_n) n)))
   let addr ← do (pure (GetElem?.getElem! (← readReg pmpaddr_n) n))
   match (BitVec.access match_type 1) with
-  | 1#1 =>
+  | 1 =>
     (if ((G ≥b 2) : Bool)
     then
       (let mask : xlenbits := (zero_extend (m := 64) (ones (n := (Min.min (G -i 1) xlen))))
       (pure (addr ||| mask)))
     else (pure addr))
-  | 0#1 =>
+  | 0 =>
     (if ((G ≥b 1) : Bool)
     then
       (let mask : xlenbits := (zero_extend (m := 64) (ones (n := (Min.min G xlen))))
@@ -286,24 +276,19 @@ def pmpReadAddrReg (n : Nat) : SailM (BitVec 64) := do
   | _ => (pure addr)
 
 def pmpLocked (cfg : (BitVec 8)) : Bool :=
-  ((_get_Pmpcfg_ent_L cfg) == (0b1 : (BitVec 1)))
+  ((_get_Pmpcfg_ent_L cfg) == 1#1)
 
 def pmpTORLocked (cfg : (BitVec 8)) : Bool :=
-  (((_get_Pmpcfg_ent_L cfg) == (0b1 : (BitVec 1))) && ((pmpAddrMatchType_encdec_backwards
-        (_get_Pmpcfg_ent_A cfg)) == TOR))
+  (((_get_Pmpcfg_ent_L cfg) == 1#1) && ((pmpAddrMatchType_encdec_backwards (_get_Pmpcfg_ent_A cfg)) == TOR))
 
-/-- Type quantifiers: n : Nat, 0 ≤ n ∧ n ≤ 63 -/
-def pmpWriteCfg (n : Nat) (cfg : (BitVec 8)) (v : (BitVec 8)) : (BitVec 8) :=
+def pmpWriteCfg (cfg : (BitVec 8)) (v : (BitVec 8)) : (BitVec 8) :=
   if ((pmpLocked cfg) : Bool)
   then cfg
   else
-    (let cfg := (Mk_Pmpcfg_ent (v &&& (0x9F : (BitVec 8))))
+    (let cfg := (Mk_Pmpcfg_ent (v &&& 0x9F#8))
     let cfg :=
-      if ((((_get_Pmpcfg_ent_W cfg) == (0b1 : (BitVec 1))) && ((_get_Pmpcfg_ent_R cfg) == (0b0 : (BitVec 1)))) : Bool)
-      then
-        (_update_Pmpcfg_ent_R
-          (_update_Pmpcfg_ent_W (_update_Pmpcfg_ent_X cfg (0b0 : (BitVec 1))) (0b0 : (BitVec 1)))
-          (0b0 : (BitVec 1)))
+      if ((((_get_Pmpcfg_ent_W cfg) == 1#1) && ((_get_Pmpcfg_ent_R cfg) == 0#1)) : Bool)
+      then (_update_Pmpcfg_ent_R (_update_Pmpcfg_ent_W (_update_Pmpcfg_ent_X cfg 0#1) 0#1) 0#1)
       else cfg
     let mode_supported : Bool :=
       match (pmpAddrMatchType_encdec_backwards (_get_Pmpcfg_ent_A cfg)) with
@@ -328,12 +313,12 @@ def pmpWriteCfgReg (n : Nat) (v : (BitVec 64)) : SailM Unit := do
       if ((idx <b sys_pmp_usable_count) : Bool)
       then
         writeReg pmpcfg_n (vectorUpdate (← readReg pmpcfg_n) idx
-          (pmpWriteCfg idx (GetElem?.getElem! (← readReg pmpcfg_n) idx)
+          (pmpWriteCfg (GetElem?.getElem! (← readReg pmpcfg_n) idx)
             (Sail.BitVec.extractLsb v ((8 *i i) +i 7) (8 *i i))))
       else (pure ())
   (pure loop_vars)
 
-/-- Type quantifiers: k_ex520904_ : Bool, k_ex520903_ : Bool -/
+/-- Type quantifiers: k_ex542200_ : Bool, k_ex542199_ : Bool -/
 def pmpWriteAddr (locked : Bool) (tor_locked : Bool) (reg : (BitVec 64)) (v : (BitVec 64)) : (BitVec 64) :=
   if ((locked || tor_locked) : Bool)
   then reg

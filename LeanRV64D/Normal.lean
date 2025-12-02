@@ -90,6 +90,7 @@ open maskfunct3
 open landing_pad_expectation
 open iop
 open instruction
+open indexed_mop
 open fwvvmafunct6
 open fwvvfunct6
 open fwvfunct6
@@ -147,6 +148,7 @@ open bropw_zbb
 open brop_zbs
 open brop_zbkb
 open brop_zbb
+open breakpoint_cause
 open bop
 open biop_zbs
 open barrier_kind
@@ -180,13 +182,13 @@ open CSRAccessType
 open AtomicSupport
 open Architecture
 
-/-- Type quantifiers: k_ex516800_ : Nat, k_ex516800_ ∈ {16, 32, 64, 128} -/
-def float_is_normal (op : (BitVec k_ex516800_)) : Bool :=
+/-- Type quantifiers: k_ex538830_ : Nat, k_ex538830_ ∈ {16, 32, 64, 128} -/
+def float_is_normal (op : (BitVec k_ex538830_)) : Bool :=
   let { exp := exp, sign := _, mantissa := _ } := (float_decompose op)
   ((! (is_all_ones exp)) && (! (is_all_zeros exp)))
 
-/-- Type quantifiers: k_ex516818_ : Nat, k_ex516818_ ∈ {16, 32, 64, 128} -/
-def float_is_subnormal (op : (BitVec k_ex516818_)) : Bool :=
+/-- Type quantifiers: k_ex538848_ : Nat, k_ex538848_ ∈ {16, 32, 64, 128} -/
+def float_is_subnormal (op : (BitVec k_ex538848_)) : Bool :=
   let { exp := exp, mantissa := mantissa, sign := _ } := (float_decompose op)
   ((is_all_zeros exp) && (! (is_all_zeros mantissa)))
 

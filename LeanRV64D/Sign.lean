@@ -90,6 +90,7 @@ open maskfunct3
 open landing_pad_expectation
 open iop
 open instruction
+open indexed_mop
 open fwvvmafunct6
 open fwvvfunct6
 open fwvfunct6
@@ -147,6 +148,7 @@ open bropw_zbb
 open brop_zbs
 open brop_zbkb
 open brop_zbb
+open breakpoint_cause
 open bop
 open biop_zbs
 open barrier_kind
@@ -180,11 +182,11 @@ open CSRAccessType
 open AtomicSupport
 open Architecture
 
-/-- Type quantifiers: k_ex516789_ : Nat, k_ex516789_ ∈ {16, 32, 64, 128} -/
-def float_is_positive (op : (BitVec k_ex516789_)) : Bool :=
+/-- Type quantifiers: k_ex538819_ : Nat, k_ex538819_ ∈ {16, 32, 64, 128} -/
+def float_is_positive (op : (BitVec k_ex538819_)) : Bool :=
   (is_highest_zero op)
 
-/-- Type quantifiers: k_ex516791_ : Nat, k_ex516791_ ∈ {16, 32, 64, 128} -/
-def float_is_negative (op : (BitVec k_ex516791_)) : Bool :=
+/-- Type quantifiers: k_ex538821_ : Nat, k_ex538821_ ∈ {16, 32, 64, 128} -/
+def float_is_negative (op : (BitVec k_ex538821_)) : Bool :=
   (is_highest_one op)
 

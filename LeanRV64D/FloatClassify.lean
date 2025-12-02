@@ -96,6 +96,7 @@ open maskfunct3
 open landing_pad_expectation
 open iop
 open instruction
+open indexed_mop
 open fwvvmafunct6
 open fwvvfunct6
 open fwvfunct6
@@ -153,6 +154,7 @@ open bropw_zbb
 open brop_zbs
 open brop_zbkb
 open brop_zbb
+open breakpoint_cause
 open bop
 open biop_zbs
 open barrier_kind
@@ -188,61 +190,33 @@ open Architecture
 
 def float_class_onehot_bits_forwards (arg_ : float_class) : (BitVec 10) :=
   match arg_ with
-  | float_class_negative_inf => (0b0000000001 : (BitVec 10))
-  | float_class_negative_normal => (0b0000000010 : (BitVec 10))
-  | float_class_negative_subnormal => (0b0000000100 : (BitVec 10))
-  | float_class_negative_zero => (0b0000001000 : (BitVec 10))
-  | float_class_positive_zero => (0b0000010000 : (BitVec 10))
-  | float_class_positive_subnormal => (0b0000100000 : (BitVec 10))
-  | float_class_positive_normal => (0b0001000000 : (BitVec 10))
-  | float_class_positive_inf => (0b0010000000 : (BitVec 10))
-  | float_class_snan => (0b0100000000 : (BitVec 10))
-  | float_class_qnan => (0b1000000000 : (BitVec 10))
+  | float_class_negative_inf => 0b0000000001#10
+  | float_class_negative_normal => 0b0000000010#10
+  | float_class_negative_subnormal => 0b0000000100#10
+  | float_class_negative_zero => 0b0000001000#10
+  | float_class_positive_zero => 0b0000010000#10
+  | float_class_positive_subnormal => 0b0000100000#10
+  | float_class_positive_normal => 0b0001000000#10
+  | float_class_positive_inf => 0b0010000000#10
+  | float_class_snan => 0b0100000000#10
+  | float_class_qnan => 0b1000000000#10
 
 def float_class_onehot_bits_backwards (arg_ : (BitVec 10)) : SailM float_class := do
-  let b__0 := arg_
-  if ((b__0 == (0b0000000001 : (BitVec 10))) : Bool)
-  then (pure float_class_negative_inf)
-  else
+  match arg_ with
+  | 0b0000000001 => (pure float_class_negative_inf)
+  | 0b0000000010 => (pure float_class_negative_normal)
+  | 0b0000000100 => (pure float_class_negative_subnormal)
+  | 0b0000001000 => (pure float_class_negative_zero)
+  | 0b0000010000 => (pure float_class_positive_zero)
+  | 0b0000100000 => (pure float_class_positive_subnormal)
+  | 0b0001000000 => (pure float_class_positive_normal)
+  | 0b0010000000 => (pure float_class_positive_inf)
+  | 0b0100000000 => (pure float_class_snan)
+  | 0b1000000000 => (pure float_class_qnan)
+  | _ =>
     (do
-      if ((b__0 == (0b0000000010 : (BitVec 10))) : Bool)
-      then (pure float_class_negative_normal)
-      else
-        (do
-          if ((b__0 == (0b0000000100 : (BitVec 10))) : Bool)
-          then (pure float_class_negative_subnormal)
-          else
-            (do
-              if ((b__0 == (0b0000001000 : (BitVec 10))) : Bool)
-              then (pure float_class_negative_zero)
-              else
-                (do
-                  if ((b__0 == (0b0000010000 : (BitVec 10))) : Bool)
-                  then (pure float_class_positive_zero)
-                  else
-                    (do
-                      if ((b__0 == (0b0000100000 : (BitVec 10))) : Bool)
-                      then (pure float_class_positive_subnormal)
-                      else
-                        (do
-                          if ((b__0 == (0b0001000000 : (BitVec 10))) : Bool)
-                          then (pure float_class_positive_normal)
-                          else
-                            (do
-                              if ((b__0 == (0b0010000000 : (BitVec 10))) : Bool)
-                              then (pure float_class_positive_inf)
-                              else
-                                (do
-                                  if ((b__0 == (0b0100000000 : (BitVec 10))) : Bool)
-                                  then (pure float_class_snan)
-                                  else
-                                    (do
-                                      if ((b__0 == (0b1000000000 : (BitVec 10))) : Bool)
-                                      then (pure float_class_qnan)
-                                      else
-                                        (do
-                                          assert false "Pattern match failure at unknown location"
-                                          throw Error.Exit))))))))))
+      assert false "Pattern match failure at unknown location"
+      throw Error.Exit)
 
 def float_class_onehot_bits_forwards_matches (arg_ : float_class) : Bool :=
   match arg_ with
@@ -258,37 +232,18 @@ def float_class_onehot_bits_forwards_matches (arg_ : float_class) : Bool :=
   | float_class_qnan => true
 
 def float_class_onehot_bits_backwards_matches (arg_ : (BitVec 10)) : Bool :=
-  let b__0 := arg_
-  if ((b__0 == (0b0000000001 : (BitVec 10))) : Bool)
-  then true
-  else
-    (if ((b__0 == (0b0000000010 : (BitVec 10))) : Bool)
-    then true
-    else
-      (if ((b__0 == (0b0000000100 : (BitVec 10))) : Bool)
-      then true
-      else
-        (if ((b__0 == (0b0000001000 : (BitVec 10))) : Bool)
-        then true
-        else
-          (if ((b__0 == (0b0000010000 : (BitVec 10))) : Bool)
-          then true
-          else
-            (if ((b__0 == (0b0000100000 : (BitVec 10))) : Bool)
-            then true
-            else
-              (if ((b__0 == (0b0001000000 : (BitVec 10))) : Bool)
-              then true
-              else
-                (if ((b__0 == (0b0010000000 : (BitVec 10))) : Bool)
-                then true
-                else
-                  (if ((b__0 == (0b0100000000 : (BitVec 10))) : Bool)
-                  then true
-                  else
-                    (if ((b__0 == (0b1000000000 : (BitVec 10))) : Bool)
-                    then true
-                    else false)))))))))
+  match arg_ with
+  | 0b0000000001 => true
+  | 0b0000000010 => true
+  | 0b0000000100 => true
+  | 0b0000001000 => true
+  | 0b0000010000 => true
+  | 0b0000100000 => true
+  | 0b0001000000 => true
+  | 0b0010000000 => true
+  | 0b0100000000 => true
+  | 0b1000000000 => true
+  | _ => false
 
 def float_in_one_broad_class (f : (BitVec 16)) : Bool :=
   (((((((bool_int_forwards (float_is_snan f)) +i (bool_int_forwards (float_is_qnan f))) +i (bool_int_forwards

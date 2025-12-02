@@ -112,6 +112,7 @@ open maskfunct3
 open landing_pad_expectation
 open iop
 open instruction
+open indexed_mop
 open fwvvmafunct6
 open fwvvfunct6
 open fwvfunct6
@@ -169,6 +170,7 @@ open bropw_zbb
 open brop_zbs
 open brop_zbkb
 open brop_zbb
+open breakpoint_cause
 open bop
 open biop_zbs
 open barrier_kind
@@ -346,7 +348,7 @@ def initialize_registers (_ : Unit) : SailM Unit := do
   writeReg htif_tohost (← (undefined_bitvector 64))
   writeReg htif_done (← (undefined_bool ()))
   writeReg htif_exit_code (← (undefined_bitvector 64))
-  writeReg htif_cmd_write (← (undefined_bit ()))
+  writeReg htif_cmd_write (← (undefined_bitvector 1))
   writeReg htif_payload_writes (← (undefined_bitvector 4))
   writeReg satp (← (undefined_bitvector 64))
   writeReg mhpmevent (← (undefined_vector 32 (← (undefined_HpmEvent ()))))
@@ -374,8 +376,8 @@ def sail_model_init (x_0 : Unit) : SailM Unit := do
   writeReg mconfigptr (zeros (n := 64))
   writeReg pc_reset_address (zeros (n := 64))
   writeReg htif_tohost_base none
-  writeReg pma_regions [{ base := (0x0000000000001000 : (BitVec 64))
-                          size := (0x0000000000001000 : (BitVec 64))
+  writeReg pma_regions [{ base := 0b0000000000000000000000000000000000000000000000000001000000000000#64
+                          size := 0b0000000000000000000000000000000000000000000000000001000000000000#64
                           attributes := { cacheable := true
                                           coherent := true
                                           executable := false
@@ -386,8 +388,8 @@ def sail_model_init (x_0 : Unit) : SailM Unit := do
                                           misaligned_fault := NoFault
                                           reservability := RsrvNone
                                           supports_cbo_zero := false }
-                          include_in_device_tree := false }, { base := (0x0000000002000000 : (BitVec 64))
-                                                               size := (0x0000000002000000 : (BitVec 64))
+                          include_in_device_tree := false }, { base := 0b0000000000000000000000000000000000000010000000000000000000000000#64
+                                                               size := 0b0000000000000000000000000000000000000010000000000000000000000000#64
                                                                attributes := { cacheable := false
                                                                                coherent := true
                                                                                executable := false
@@ -398,8 +400,8 @@ def sail_model_init (x_0 : Unit) : SailM Unit := do
                                                                                misaligned_fault := AlignmentFault
                                                                                reservability := RsrvNone
                                                                                supports_cbo_zero := false }
-                                                               include_in_device_tree := false }, { base := (0x0000000080000000 : (BitVec 64))
-                                                                                                    size := (0x0000000080000000 : (BitVec 64))
+                                                               include_in_device_tree := false }, { base := 0b0000000000000000000000000000000010000000000000000000000000000000#64
+                                                                                                    size := 0b0000000000000000000000000000000010000000000000000000000000000000#64
                                                                                                     attributes := { cacheable := true
                                                                                                                     coherent := true
                                                                                                                     executable := true

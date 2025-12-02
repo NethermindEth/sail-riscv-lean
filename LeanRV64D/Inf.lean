@@ -90,6 +90,7 @@ open maskfunct3
 open landing_pad_expectation
 open iop
 open instruction
+open indexed_mop
 open fwvvmafunct6
 open fwvvfunct6
 open fwvfunct6
@@ -147,6 +148,7 @@ open bropw_zbb
 open brop_zbs
 open brop_zbkb
 open brop_zbb
+open breakpoint_cause
 open bop
 open biop_zbs
 open barrier_kind
@@ -180,8 +182,8 @@ open CSRAccessType
 open AtomicSupport
 open Architecture
 
-/-- Type quantifiers: k_ex516782_ : Nat, k_ex516782_ ∈ {16, 32, 64, 128} -/
-def float_is_inf (op : (BitVec k_ex516782_)) : Bool :=
+/-- Type quantifiers: k_ex538812_ : Nat, k_ex538812_ ∈ {16, 32, 64, 128} -/
+def float_is_inf (op : (BitVec k_ex538812_)) : Bool :=
   let { exp := exp, mantissa := mantissa, sign := _ } := (float_decompose op)
   ((is_all_ones exp) && (is_all_zeros mantissa))
 

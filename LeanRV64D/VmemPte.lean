@@ -95,6 +95,7 @@ open maskfunct3
 open landing_pad_expectation
 open iop
 open instruction
+open indexed_mop
 open fwvvmafunct6
 open fwvvfunct6
 open fwvfunct6
@@ -152,6 +153,7 @@ open bropw_zbb
 open brop_zbs
 open brop_zbkb
 open brop_zbb
+open breakpoint_cause
 open bop
 open biop_zbs
 open barrier_kind
@@ -233,19 +235,19 @@ def Mk_PTE_Flags (v : (BitVec 8)) : (BitVec 8) :=
   v
 
 def pte_is_non_leaf (pte_flags : (BitVec 8)) : Bool :=
-  (((_get_PTE_Flags_X pte_flags) == (0b0 : (BitVec 1))) && (((_get_PTE_Flags_W pte_flags) == (0b0 : (BitVec 1))) && ((_get_PTE_Flags_R
-          pte_flags) == (0b0 : (BitVec 1)))))
+  (((_get_PTE_Flags_X pte_flags) == 0#1) && (((_get_PTE_Flags_W pte_flags) == 0#1) && ((_get_PTE_Flags_R
+          pte_flags) == 0#1)))
 
 def pte_is_invalid (pte_flags : (BitVec 8)) (pte_ext : (BitVec 10)) : SailM Bool := do
-  (pure (((_get_PTE_Flags_V pte_flags) == (0b0 : (BitVec 1))) || ((((_get_PTE_Flags_W pte_flags) == (0b1 : (BitVec 1))) && ((_get_PTE_Flags_R
-              pte_flags) == (0b0 : (BitVec 1)))) || ((((_get_PTE_Ext_N pte_ext) != (0b0 : (BitVec 1))) && (not
+  (pure (((_get_PTE_Flags_V pte_flags) == 0#1) || ((((_get_PTE_Flags_W pte_flags) == 1#1) && ((_get_PTE_Flags_R
+              pte_flags) == 0#1)) || ((((_get_PTE_Ext_N pte_ext) != 0#1) && (not
               (← (currentlyEnabled Ext_Svnapot)))) || ((((_get_PTE_Ext_PBMT pte_ext) != (zeros
                   (n := 2))) && (not (← (currentlyEnabled Ext_Svpbmt)))) || ((((_get_PTE_Ext_RSW_60t59b
                     pte_ext) != (zeros (n := 2))) && (not (← (currentlyEnabled Ext_Svrsw60t59b)))) || ((_get_PTE_Ext_reserved
                   pte_ext) != (zeros (n := 5)))))))))
 
-/-- Type quantifiers: k_ex525074_ : Bool, k_ex525073_ : Bool -/
-def check_PTE_permission (ac : (MemoryAccessType Unit)) (priv : Privilege) (mxr : Bool) (do_sum : Bool) (pte_flags : (BitVec 8)) (ext : (BitVec 10)) (ext_ptw : Unit) : SailM PTE_Check := do
+/-- Type quantifiers: k_ex546263_ : Bool, k_ex546262_ : Bool -/
+def check_PTE_permission (ac : (MemoryAccessType Unit)) (priv : Privilege) (mxr : Bool) (do_sum : Bool) (pte_flags : (BitVec 8)) (_ext : (BitVec 10)) (_ext_ptw : Unit) : SailM PTE_Check := do
   let pte_U := (bits_to_bool (_get_PTE_Flags_U pte_flags))
   let pte_R := (bits_to_bool (_get_PTE_Flags_R pte_flags))
   let pte_W := (bits_to_bool (_get_PTE_Flags_W pte_flags))
@@ -275,18 +277,18 @@ def check_PTE_permission (ac : (MemoryAccessType Unit)) (priv : Privilege) (mxr 
 def update_PTE_Bits (pte : (BitVec k_pte_size)) (a : (MemoryAccessType Unit)) : (Option (BitVec k_pte_size)) :=
   let pte_flags := (Mk_PTE_Flags (Sail.BitVec.extractLsb pte 7 0))
   let update_d : Bool :=
-    (((_get_PTE_Flags_D pte_flags) == (0b0 : (BitVec 1))) && (match a with
+    (((_get_PTE_Flags_D pte_flags) == 0#1) && (match a with
       | .InstructionFetch () => false
       | .Load _ => false
       | .Store _ => true
       | .LoadStore (_, _) => true : Bool))
-  let update_a := ((_get_PTE_Flags_A pte_flags) == (0b0 : (BitVec 1)))
+  let update_a := ((_get_PTE_Flags_A pte_flags) == 0#1)
   if ((update_d || update_a) : Bool)
   then
     (let pte_flags :=
-      (_update_PTE_Flags_D (_update_PTE_Flags_A pte_flags (0b1 : (BitVec 1)))
+      (_update_PTE_Flags_D (_update_PTE_Flags_A pte_flags 1#1)
         (if (update_d : Bool)
-        then (0b1 : (BitVec 1))
+        then 1#1
         else (_get_PTE_Flags_D pte_flags)))
     (some (Sail.BitVec.updateSubrange pte 7 0 pte_flags)))
   else none

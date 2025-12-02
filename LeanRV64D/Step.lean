@@ -1,5 +1,5 @@
 import LeanRV64D.Prelude
-import LeanRV64D.PreludeMemAddrtype
+import LeanRV64D.MemAddrtype
 import LeanRV64D.Common0
 import LeanRV64D.RvfiDii
 import LeanRV64D.PlatformConfig
@@ -111,6 +111,7 @@ open maskfunct3
 open landing_pad_expectation
 open iop
 open instruction
+open indexed_mop
 open fwvvmafunct6
 open fwvvfunct6
 open fwvfunct6
@@ -168,6 +169,7 @@ open bropw_zbb
 open brop_zbs
 open brop_zbkb
 open brop_zbb
+open breakpoint_cause
 open bop
 open biop_zbs
 open barrier_kind
@@ -201,8 +203,8 @@ open CSRAccessType
 open AtomicSupport
 open Architecture
 
-/-- Type quantifiers: k_ex603127_ : Bool, step_no : Int -/
-def run_hart_waiting (step_no : Int) (wr : WaitReason) (instbits : (BitVec 32)) (exit_wait : Bool) : SailM Step := do
+/-- Type quantifiers: k_ex631446_ : Bool, _step_no : Int -/
+def run_hart_waiting (_step_no : Int) (wr : WaitReason) (instbits : (BitVec 32)) (exit_wait : Bool) : SailM Step := do
   if ((← (shouldWakeForInterrupt ())) : Bool)
   then
     (do
@@ -250,7 +252,7 @@ def run_hart_waiting (step_no : Int) (wr : WaitReason) (instbits : (BitVec 32)) 
                     (HAppend.hAppend " state at PC " (BitVec.toFormatted (← readReg PC)))))))
           else (pure ())
           writeReg hart_state (HART_ACTIVE ())
-          if ((((← readReg cur_privilege) == Machine) || ((_get_Mstatus_TW (← readReg mstatus)) == (0b0 : (BitVec 1)))) : Bool)
+          if ((((← readReg cur_privilege) == Machine) || ((_get_Mstatus_TW (← readReg mstatus)) == 0#1)) : Bool)
           then (pure (Step_Execute ((Retire_Success ()), instbits)))
           else (pure (Step_Execute ((Illegal_Instruction ()), instbits))))
       | (WAIT_WRS_STO, _, true) =>
@@ -274,7 +276,7 @@ def run_hart_waiting (step_no : Int) (wr : WaitReason) (instbits : (BitVec 32)) 
                     (HAppend.hAppend " state at PC " (BitVec.toFormatted (← readReg PC)))))))
           else (pure ())
           writeReg hart_state (HART_ACTIVE ())
-          if ((((← readReg cur_privilege) == Machine) || ((_get_Mstatus_TW (← readReg mstatus)) == (0b0 : (BitVec 1)))) : Bool)
+          if ((((← readReg cur_privilege) == Machine) || ((_get_Mstatus_TW (← readReg mstatus)) == 0#1)) : Bool)
           then (pure (Step_Execute ((Retire_Success ()), instbits)))
           else (pure (Step_Execute ((Illegal_Instruction ()), instbits))))
       | (_, _, false) =>
@@ -378,7 +380,7 @@ def wait_is_nop (wr : WaitReason) : Bool :=
   | WAIT_WRS_STO => false
   | WAIT_WRS_NTO => false
 
-/-- Type quantifiers: k_ex603177_ : Bool, step_no : Nat, 0 ≤ step_no -/
+/-- Type quantifiers: k_ex631496_ : Bool, step_no : Nat, 0 ≤ step_no -/
 def try_step (step_no : Nat) (exit_wait : Bool) : SailM Bool := do
   let _ : Unit := (ext_pre_step_hook ())
   writeReg minstret_increment (← (should_inc_minstret (← readReg cur_privilege)))

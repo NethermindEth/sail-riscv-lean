@@ -96,6 +96,7 @@ open maskfunct3
 open landing_pad_expectation
 open iop
 open instruction
+open indexed_mop
 open fwvvmafunct6
 open fwvvfunct6
 open fwvfunct6
@@ -153,6 +154,7 @@ open bropw_zbb
 open brop_zbs
 open brop_zbkb
 open brop_zbb
+open breakpoint_cause
 open bop
 open biop_zbs
 open barrier_kind
@@ -188,21 +190,17 @@ open Architecture
 
 def encdec_zicondop_forwards (arg_ : zicondop) : (BitVec 3) :=
   match arg_ with
-  | CZERO_EQZ => (0b101 : (BitVec 3))
-  | CZERO_NEZ => (0b111 : (BitVec 3))
+  | CZERO_EQZ => 0b101#3
+  | CZERO_NEZ => 0b111#3
 
 def encdec_zicondop_backwards (arg_ : (BitVec 3)) : SailM zicondop := do
-  let b__0 := arg_
-  if ((b__0 == (0b101 : (BitVec 3))) : Bool)
-  then (pure CZERO_EQZ)
-  else
+  match arg_ with
+  | 0b101 => (pure CZERO_EQZ)
+  | 0b111 => (pure CZERO_NEZ)
+  | _ =>
     (do
-      if ((b__0 == (0b111 : (BitVec 3))) : Bool)
-      then (pure CZERO_NEZ)
-      else
-        (do
-          assert false "Pattern match failure at unknown location"
-          throw Error.Exit))
+      assert false "Pattern match failure at unknown location"
+      throw Error.Exit)
 
 def encdec_zicondop_forwards_matches (arg_ : zicondop) : Bool :=
   match arg_ with
@@ -210,13 +208,10 @@ def encdec_zicondop_forwards_matches (arg_ : zicondop) : Bool :=
   | CZERO_NEZ => true
 
 def encdec_zicondop_backwards_matches (arg_ : (BitVec 3)) : Bool :=
-  let b__0 := arg_
-  if ((b__0 == (0b101 : (BitVec 3))) : Bool)
-  then true
-  else
-    (if ((b__0 == (0b111 : (BitVec 3))) : Bool)
-    then true
-    else false)
+  match arg_ with
+  | 0b101 => true
+  | 0b111 => true
+  | _ => false
 
 def zicond_mnemonic_backwards (arg_ : String) : SailM zicondop := do
   match arg_ with

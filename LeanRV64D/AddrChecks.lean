@@ -90,6 +90,7 @@ open maskfunct3
 open landing_pad_expectation
 open iop
 open instruction
+open indexed_mop
 open fwvvmafunct6
 open fwvvfunct6
 open fwvfunct6
@@ -147,6 +148,7 @@ open bropw_zbb
 open brop_zbs
 open brop_zbkb
 open brop_zbb
+open breakpoint_cause
 open bop
 open biop_zbs
 open barrier_kind
@@ -180,23 +182,23 @@ open CSRAccessType
 open AtomicSupport
 open Architecture
 
-def ext_fetch_check_pc (start_pc : (BitVec 64)) (pc : (BitVec 64)) : (Option Unit) :=
+def ext_fetch_check_pc (_start_pc : (BitVec 64)) (_pc : (BitVec 64)) : (Option Unit) :=
   none
 
-def ext_handle_fetch_check_error (err : Unit) : Unit :=
+def ext_handle_fetch_check_error (_err : Unit) : Unit :=
   ()
 
-def ext_control_check_pc (pc : (BitVec 64)) : (Option Unit) :=
+def ext_control_check_pc (_pc : (BitVec 64)) : (Option Unit) :=
   none
 
-def ext_handle_control_check_error (err : Unit) : Unit :=
+def ext_handle_control_check_error (_err : Unit) : Unit :=
   ()
 
-/-- Type quantifiers: width : Nat, 1 ≤ width ∧ width ≤ 4096 -/
-def ext_data_get_addr (base : regidx) (offset : (BitVec 64)) (acc : (MemoryAccessType Unit)) (width : Nat) : SailM (Ext_DataAddr_Check Unit) := do
+/-- Type quantifiers: _width : Nat, 1 ≤ _width ∧ _width ≤ 4096 -/
+def ext_data_get_addr (base : regidx) (offset : (BitVec 64)) (_acc : (MemoryAccessType Unit)) (_width : Nat) : SailM (Ext_DataAddr_Check Unit) := do
   let addr ← do (pure (Virtaddr ((← (rX_bits base)) + offset)))
   (pure (Ext_DataAddr_OK addr))
 
-def ext_handle_data_check_error (err : Unit) : Unit :=
+def ext_handle_data_check_error (_err : Unit) : Unit :=
   ()
 

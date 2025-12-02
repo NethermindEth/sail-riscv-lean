@@ -96,6 +96,7 @@ open maskfunct3
 open landing_pad_expectation
 open iop
 open instruction
+open indexed_mop
 open fwvvmafunct6
 open fwvvfunct6
 open fwvfunct6
@@ -153,6 +154,7 @@ open bropw_zbb
 open brop_zbs
 open brop_zbkb
 open brop_zbb
+open breakpoint_cause
 open bop
 open biop_zbs
 open barrier_kind
@@ -188,31 +190,21 @@ open Architecture
 
 def encdec_rfvvfunct6_forwards (arg_ : rfvvfunct6) : (BitVec 6) :=
   match arg_ with
-  | FVV_VFREDOSUM => (0b000011 : (BitVec 6))
-  | FVV_VFREDUSUM => (0b000001 : (BitVec 6))
-  | FVV_VFREDMAX => (0b000111 : (BitVec 6))
-  | FVV_VFREDMIN => (0b000101 : (BitVec 6))
+  | FVV_VFREDOSUM => 0b000011#6
+  | FVV_VFREDUSUM => 0b000001#6
+  | FVV_VFREDMAX => 0b000111#6
+  | FVV_VFREDMIN => 0b000101#6
 
 def encdec_rfvvfunct6_backwards (arg_ : (BitVec 6)) : SailM rfvvfunct6 := do
-  let b__0 := arg_
-  if ((b__0 == (0b000011 : (BitVec 6))) : Bool)
-  then (pure FVV_VFREDOSUM)
-  else
+  match arg_ with
+  | 0b000011 => (pure FVV_VFREDOSUM)
+  | 0b000001 => (pure FVV_VFREDUSUM)
+  | 0b000111 => (pure FVV_VFREDMAX)
+  | 0b000101 => (pure FVV_VFREDMIN)
+  | _ =>
     (do
-      if ((b__0 == (0b000001 : (BitVec 6))) : Bool)
-      then (pure FVV_VFREDUSUM)
-      else
-        (do
-          if ((b__0 == (0b000111 : (BitVec 6))) : Bool)
-          then (pure FVV_VFREDMAX)
-          else
-            (do
-              if ((b__0 == (0b000101 : (BitVec 6))) : Bool)
-              then (pure FVV_VFREDMIN)
-              else
-                (do
-                  assert false "Pattern match failure at unknown location"
-                  throw Error.Exit))))
+      assert false "Pattern match failure at unknown location"
+      throw Error.Exit)
 
 def encdec_rfvvfunct6_forwards_matches (arg_ : rfvvfunct6) : Bool :=
   match arg_ with
@@ -222,19 +214,12 @@ def encdec_rfvvfunct6_forwards_matches (arg_ : rfvvfunct6) : Bool :=
   | FVV_VFREDMIN => true
 
 def encdec_rfvvfunct6_backwards_matches (arg_ : (BitVec 6)) : Bool :=
-  let b__0 := arg_
-  if ((b__0 == (0b000011 : (BitVec 6))) : Bool)
-  then true
-  else
-    (if ((b__0 == (0b000001 : (BitVec 6))) : Bool)
-    then true
-    else
-      (if ((b__0 == (0b000111 : (BitVec 6))) : Bool)
-      then true
-      else
-        (if ((b__0 == (0b000101 : (BitVec 6))) : Bool)
-        then true
-        else false)))
+  match arg_ with
+  | 0b000011 => true
+  | 0b000001 => true
+  | 0b000111 => true
+  | 0b000101 => true
+  | _ => false
 
 def rfvvtype_mnemonic_backwards (arg_ : String) : SailM rfvvfunct6 := do
   match arg_ with
@@ -264,21 +249,17 @@ def rfvvtype_mnemonic_backwards_matches (arg_ : String) : Bool :=
 
 def encdec_rfwvvfunct6_forwards (arg_ : rfwvvfunct6) : (BitVec 6) :=
   match arg_ with
-  | FVV_VFWREDOSUM => (0b110011 : (BitVec 6))
-  | FVV_VFWREDUSUM => (0b110001 : (BitVec 6))
+  | FVV_VFWREDOSUM => 0b110011#6
+  | FVV_VFWREDUSUM => 0b110001#6
 
 def encdec_rfwvvfunct6_backwards (arg_ : (BitVec 6)) : SailM rfwvvfunct6 := do
-  let b__0 := arg_
-  if ((b__0 == (0b110011 : (BitVec 6))) : Bool)
-  then (pure FVV_VFWREDOSUM)
-  else
+  match arg_ with
+  | 0b110011 => (pure FVV_VFWREDOSUM)
+  | 0b110001 => (pure FVV_VFWREDUSUM)
+  | _ =>
     (do
-      if ((b__0 == (0b110001 : (BitVec 6))) : Bool)
-      then (pure FVV_VFWREDUSUM)
-      else
-        (do
-          assert false "Pattern match failure at unknown location"
-          throw Error.Exit))
+      assert false "Pattern match failure at unknown location"
+      throw Error.Exit)
 
 def encdec_rfwvvfunct6_forwards_matches (arg_ : rfwvvfunct6) : Bool :=
   match arg_ with
@@ -286,13 +267,10 @@ def encdec_rfwvvfunct6_forwards_matches (arg_ : rfwvvfunct6) : Bool :=
   | FVV_VFWREDUSUM => true
 
 def encdec_rfwvvfunct6_backwards_matches (arg_ : (BitVec 6)) : Bool :=
-  let b__0 := arg_
-  if ((b__0 == (0b110011 : (BitVec 6))) : Bool)
-  then true
-  else
-    (if ((b__0 == (0b110001 : (BitVec 6))) : Bool)
-    then true
-    else false)
+  match arg_ with
+  | 0b110011 => true
+  | 0b110001 => true
+  | _ => false
 
 def rfwvvtype_mnemonic_backwards (arg_ : String) : SailM rfwvvfunct6 := do
   match arg_ with

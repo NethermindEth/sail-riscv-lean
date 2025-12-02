@@ -93,6 +93,7 @@ open maskfunct3
 open landing_pad_expectation
 open iop
 open instruction
+open indexed_mop
 open fwvvmafunct6
 open fwvvfunct6
 open fwvfunct6
@@ -150,6 +151,7 @@ open bropw_zbb
 open brop_zbs
 open brop_zbkb
 open brop_zbb
+open breakpoint_cause
 open bop
 open biop_zbs
 open barrier_kind
@@ -188,7 +190,7 @@ def fcvtmod_helper (x64 : (BitVec 64)) : ((BitVec 5) × (BitVec 32)) :=
   let is_subnorm := ((exp == (zeros (n := 11))) && (mant != (zeros (n := 52))))
   let is_zero := ((exp == (zeros (n := 11))) && (mant == (zeros (n := 52))))
   let is_nan_or_inf := (exp == (ones (n := 11)))
-  let true_mant := ((0b1 : (BitVec 1)) ++ mant)
+  let true_mant := (1#1 ++ mant)
   let true_exp := ((BitVec.toNatInt exp) -i 1023)
   let is_too_large := (true_exp ≥b 84)
   let is_too_small := (true_exp <b 0)
@@ -211,13 +213,13 @@ def fcvtmod_helper (x64 : (BitVec 64)) : ((BitVec 5) × (BitVec 32)) :=
             let integer := (Sail.BitVec.extractLsb fixedpoint 83 52)
             let fractional := (Sail.BitVec.extractLsb fixedpoint 51 0)
             let result :=
-              if ((sign == (0b1 : (BitVec 1))) : Bool)
+              if ((sign == 1#1) : Bool)
               then (BitVec.addInt (Complement.complement integer) 1)
               else integer
             let max_integer :=
-              if ((sign == (0b1 : (BitVec 1))) : Bool)
-              then (BitVec.toNatInt (0x80000000 : (BitVec 32)))
-              else (BitVec.toNatInt (0x7FFFFFFF : (BitVec 32)))
+              if ((sign == 1#1) : Bool)
+              then (BitVec.toNatInt 0x80000000#32)
+              else (BitVec.toNatInt 0x7FFFFFFF#32)
             let flags : (BitVec 5) :=
               if ((true_exp >b 31) : Bool)
               then (nvFlag ())

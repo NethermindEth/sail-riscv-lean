@@ -1,5 +1,5 @@
 import LeanRV64D.Prelude
-import LeanRV64D.PreludeMemMetadata
+import LeanRV64D.MemMetadata
 import LeanRV64D.ReadWriteV1
 
 set_option maxHeartbeats 1_000_000_000
@@ -92,6 +92,7 @@ open maskfunct3
 open landing_pad_expectation
 open iop
 open instruction
+open indexed_mop
 open fwvvmafunct6
 open fwvvfunct6
 open fwvfunct6
@@ -149,6 +150,7 @@ open bropw_zbb
 open brop_zbs
 open brop_zbkb
 open brop_zbb
+open breakpoint_cause
 open bop
 open biop_zbs
 open barrier_kind
@@ -304,12 +306,12 @@ def write_ram (wk : write_kind) (app_1 : physaddr) (width : Nat) (data : (BitVec
     (pure true))
   | .Err () => (pure false)
 
-/-- Type quantifiers: width : Nat, 0 < width ∧ width ≤ max_mem_access -/
-def write_ram_ea (wk : write_kind) (app_1 : physaddr) (width : Nat) : Unit :=
-  let .Physaddr addr := app_1
+/-- Type quantifiers: _width : Nat, 0 < _width ∧ _width ≤ max_mem_access -/
+def write_ram_ea (_wk : write_kind) (app_1 : physaddr) (_width : Nat) : Unit :=
+  let .Physaddr _addr := app_1
   ()
 
-/-- Type quantifiers: k_ex517381_ : Bool, width : Nat, width ≥ 0, 0 < width ∧
+/-- Type quantifiers: k_ex539408_ : Bool, width : Nat, width ≥ 0, 0 < width ∧
   width ≤ max_mem_access -/
 def read_ram (rk : read_kind) (app_1 : physaddr) (width : Nat) (read_meta : Bool) : SailM ((BitVec (8 * width)) × Unit) := do
   let .Physaddr addr := app_1

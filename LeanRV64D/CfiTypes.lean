@@ -96,6 +96,7 @@ open maskfunct3
 open landing_pad_expectation
 open iop
 open instruction
+open indexed_mop
 open fwvvmafunct6
 open fwvvfunct6
 open fwvfunct6
@@ -153,6 +154,7 @@ open bropw_zbb
 open brop_zbs
 open brop_zbkb
 open brop_zbb
+open breakpoint_cause
 open bop
 open biop_zbs
 open barrier_kind
@@ -202,21 +204,17 @@ def num_of_Software_Check_Code (arg_ : Software_Check_Code) : Int :=
 
 def software_check_cause_forwards (arg_ : Software_Check_Code) : (BitVec 2) :=
   match arg_ with
-  | SWC_NO_INFO => (0b00 : (BitVec 2))
-  | SWC_LANDING_PAD_FAULT => (0b10 : (BitVec 2))
+  | SWC_NO_INFO => 0b00#2
+  | SWC_LANDING_PAD_FAULT => 0b10#2
 
 def software_check_cause_backwards (arg_ : (BitVec 2)) : SailM Software_Check_Code := do
-  let b__0 := arg_
-  if ((b__0 == (0b00 : (BitVec 2))) : Bool)
-  then (pure SWC_NO_INFO)
-  else
+  match arg_ with
+  | 0b00 => (pure SWC_NO_INFO)
+  | 0b10 => (pure SWC_LANDING_PAD_FAULT)
+  | _ =>
     (do
-      if ((b__0 == (0b10 : (BitVec 2))) : Bool)
-      then (pure SWC_LANDING_PAD_FAULT)
-      else
-        (do
-          assert false "Pattern match failure at unknown location"
-          throw Error.Exit))
+      assert false "Pattern match failure at unknown location"
+      throw Error.Exit)
 
 def software_check_cause_forwards_matches (arg_ : Software_Check_Code) : Bool :=
   match arg_ with
@@ -224,11 +222,8 @@ def software_check_cause_forwards_matches (arg_ : Software_Check_Code) : Bool :=
   | SWC_LANDING_PAD_FAULT => true
 
 def software_check_cause_backwards_matches (arg_ : (BitVec 2)) : Bool :=
-  let b__0 := arg_
-  if ((b__0 == (0b00 : (BitVec 2))) : Bool)
-  then true
-  else
-    (if ((b__0 == (0b10 : (BitVec 2))) : Bool)
-    then true
-    else false)
+  match arg_ with
+  | 0b00 => true
+  | 0b10 => true
+  | _ => false
 

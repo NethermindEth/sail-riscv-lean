@@ -90,6 +90,7 @@ open maskfunct3
 open landing_pad_expectation
 open iop
 open instruction
+open indexed_mop
 open fwvvmafunct6
 open fwvvfunct6
 open fwvfunct6
@@ -147,6 +148,7 @@ open bropw_zbb
 open brop_zbs
 open brop_zbkb
 open brop_zbb
+open breakpoint_cause
 open bop
 open biop_zbs
 open barrier_kind
@@ -295,19 +297,19 @@ def legalize_smcntrpmf (c : (BitVec 64)) (value : (BitVec 64)) : SailM (BitVec 6
             (← do
               if ((← (currentlyEnabled Ext_S)) : Bool)
               then (pure (_get_CountSmcntrpmf_SINH v))
-              else (pure (0b0 : (BitVec 1)))))
+              else (pure 0#1)))
           (← do
             if ((← (currentlyEnabled Ext_U)) : Bool)
             then (pure (_get_CountSmcntrpmf_UINH v))
-            else (pure (0b0 : (BitVec 1)))))
+            else (pure 0#1)))
         (← do
           if ((← (currentlyEnabled Ext_H)) : Bool)
           then (pure (_get_CountSmcntrpmf_VSINH v))
-          else (pure (0b0 : (BitVec 1)))))
+          else (pure 0#1)))
       (← do
         if ((← (currentlyEnabled Ext_H)) : Bool)
         then (pure (_get_CountSmcntrpmf_VUINH v))
-        else (pure (0b0 : (BitVec 1))))))
+        else (pure 0#1))))
 
 def counter_priv_filter_bit (reg : (BitVec 64)) (priv : Privilege) : (BitVec 1) :=
   match priv with

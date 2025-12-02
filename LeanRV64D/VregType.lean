@@ -96,6 +96,7 @@ open maskfunct3
 open landing_pad_expectation
 open iop
 open instruction
+open indexed_mop
 open fwvvmafunct6
 open fwvvfunct6
 open fwvfunct6
@@ -153,6 +154,7 @@ open bropw_zbb
 open brop_zbs
 open brop_zbkb
 open brop_zbb
+open breakpoint_cause
 open bop
 open biop_zbs
 open barrier_kind
@@ -1376,4 +1378,18 @@ def num_of_vmlsop (arg_ : vmlsop) : Int :=
   match arg_ with
   | VLM => 0
   | VSM => 1
+
+def undefined_indexed_mop (_ : Unit) : SailM indexed_mop := do
+  (internal_pick [INDEXED_UNORDERED, INDEXED_ORDERED])
+
+/-- Type quantifiers: arg_ : Nat, 0 ≤ arg_ ∧ arg_ ≤ 1 -/
+def indexed_mop_of_num (arg_ : Nat) : indexed_mop :=
+  match arg_ with
+  | 0 => INDEXED_UNORDERED
+  | _ => INDEXED_ORDERED
+
+def num_of_indexed_mop (arg_ : indexed_mop) : Int :=
+  match arg_ with
+  | INDEXED_UNORDERED => 0
+  | INDEXED_ORDERED => 1
 

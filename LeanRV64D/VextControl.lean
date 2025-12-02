@@ -94,6 +94,7 @@ open maskfunct3
 open landing_pad_expectation
 open iop
 open instruction
+open indexed_mop
 open fwvvmafunct6
 open fwvvfunct6
 open fwvfunct6
@@ -151,6 +152,7 @@ open bropw_zbb
 open brop_zbs
 open brop_zbkb
 open brop_zbb
+open breakpoint_cause
 open bop
 open biop_zbs
 open barrier_kind
@@ -264,7 +266,7 @@ def write_vreg (num_elem : Nat) (SEW : Nat) (LMUL_pow : Int) (vrid : vregidx) (v
 
 /-- Type quantifiers: num_elem : Nat, num_elem ≥ 0, 0 < num_elem ∧ num_elem ≤ vlen -/
 def read_vmask (num_elem : Nat) (vm : (BitVec 1)) (vrid : vregidx) : SailM (BitVec num_elem) := do
-  if ((vm == (0b1 : (BitVec 1))) : Bool)
+  if ((vm == 1#1) : Bool)
   then (pure (ones (n := num_elem)))
   else
     (pure ((ones (n := (num_elem -i num_elem))) ++ (Sail.BitVec.extractLsb (← (rV_bits vrid))
@@ -272,7 +274,7 @@ def read_vmask (num_elem : Nat) (vm : (BitVec 1)) (vrid : vregidx) : SailM (BitV
 
 /-- Type quantifiers: num_elem : Nat, num_elem ≥ 0, 0 < num_elem ∧ num_elem ≤ vlen -/
 def read_vmask_carry (num_elem : Nat) (vm : (BitVec 1)) (vrid : vregidx) : SailM (BitVec num_elem) := do
-  if ((vm == (0b1 : (BitVec 1))) : Bool)
+  if ((vm == 1#1) : Bool)
   then (pure (zeros (n := num_elem)))
   else
     (pure ((zeros (n := (num_elem -i num_elem))) ++ (Sail.BitVec.extractLsb (← (rV_bits vrid))

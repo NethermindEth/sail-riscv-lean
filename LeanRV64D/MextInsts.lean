@@ -96,6 +96,7 @@ open maskfunct3
 open landing_pad_expectation
 open iop
 open instruction
+open indexed_mop
 open fwvvmafunct6
 open fwvvfunct6
 open fwvfunct6
@@ -153,6 +154,7 @@ open bropw_zbb
 open brop_zbs
 open brop_zbkb
 open brop_zbb
+open breakpoint_cause
 open bop
 open biop_zbs
 open barrier_kind
@@ -188,51 +190,37 @@ open Architecture
 
 def encdec_mul_op_forwards (arg_ : mul_op) : SailM (BitVec 3) := do
   match arg_ with
-  | { result_part := Low, signed_rs1 := Signed, signed_rs2 := Signed } =>
-    (pure (0b000 : (BitVec 3)))
-  | { result_part := High, signed_rs1 := Signed, signed_rs2 := Signed } =>
-    (pure (0b001 : (BitVec 3)))
-  | { result_part := High, signed_rs1 := Signed, signed_rs2 := Unsigned } =>
-    (pure (0b010 : (BitVec 3)))
-  | { result_part := High, signed_rs1 := Unsigned, signed_rs2 := Unsigned } =>
-    (pure (0b011 : (BitVec 3)))
+  | { result_part := Low, signed_rs1 := Signed, signed_rs2 := Signed } => (pure 0b000#3)
+  | { result_part := High, signed_rs1 := Signed, signed_rs2 := Signed } => (pure 0b001#3)
+  | { result_part := High, signed_rs1 := Signed, signed_rs2 := Unsigned } => (pure 0b010#3)
+  | { result_part := High, signed_rs1 := Unsigned, signed_rs2 := Unsigned } => (pure 0b011#3)
   | _ =>
     (do
       assert false "Pattern match failure at unknown location"
       throw Error.Exit)
 
 def encdec_mul_op_backwards (arg_ : (BitVec 3)) : SailM mul_op := do
-  let b__0 := arg_
-  if ((b__0 == (0b000 : (BitVec 3))) : Bool)
-  then
+  match arg_ with
+  | 0b000 =>
     (pure { result_part := Low
             signed_rs1 := Signed
             signed_rs2 := Signed })
-  else
+  | 0b001 =>
+    (pure { result_part := High
+            signed_rs1 := Signed
+            signed_rs2 := Signed })
+  | 0b010 =>
+    (pure { result_part := High
+            signed_rs1 := Signed
+            signed_rs2 := Unsigned })
+  | 0b011 =>
+    (pure { result_part := High
+            signed_rs1 := Unsigned
+            signed_rs2 := Unsigned })
+  | _ =>
     (do
-      if ((b__0 == (0b001 : (BitVec 3))) : Bool)
-      then
-        (pure { result_part := High
-                signed_rs1 := Signed
-                signed_rs2 := Signed })
-      else
-        (do
-          if ((b__0 == (0b010 : (BitVec 3))) : Bool)
-          then
-            (pure { result_part := High
-                    signed_rs1 := Signed
-                    signed_rs2 := Unsigned })
-          else
-            (do
-              if ((b__0 == (0b011 : (BitVec 3))) : Bool)
-              then
-                (pure { result_part := High
-                        signed_rs1 := Unsigned
-                        signed_rs2 := Unsigned })
-              else
-                (do
-                  assert false "Pattern match failure at unknown location"
-                  throw Error.Exit))))
+      assert false "Pattern match failure at unknown location"
+      throw Error.Exit)
 
 def encdec_mul_op_forwards_matches (arg_ : mul_op) : Bool :=
   match arg_ with
@@ -243,19 +231,12 @@ def encdec_mul_op_forwards_matches (arg_ : mul_op) : Bool :=
   | _ => false
 
 def encdec_mul_op_backwards_matches (arg_ : (BitVec 3)) : Bool :=
-  let b__0 := arg_
-  if ((b__0 == (0b000 : (BitVec 3))) : Bool)
-  then true
-  else
-    (if ((b__0 == (0b001 : (BitVec 3))) : Bool)
-    then true
-    else
-      (if ((b__0 == (0b010 : (BitVec 3))) : Bool)
-      then true
-      else
-        (if ((b__0 == (0b011 : (BitVec 3))) : Bool)
-        then true
-        else false)))
+  match arg_ with
+  | 0b000 => true
+  | 0b001 => true
+  | 0b010 => true
+  | 0b011 => true
+  | _ => false
 
 def mul_mnemonic_backwards (arg_ : String) : SailM mul_op := do
   match arg_ with

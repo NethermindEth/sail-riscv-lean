@@ -98,6 +98,7 @@ open maskfunct3
 open landing_pad_expectation
 open iop
 open instruction
+open indexed_mop
 open fwvvmafunct6
 open fwvvfunct6
 open fwvfunct6
@@ -155,6 +156,7 @@ open bropw_zbb
 open brop_zbs
 open brop_zbkb
 open brop_zbb
+open breakpoint_cause
 open bop
 open biop_zbs
 open barrier_kind
@@ -200,7 +202,7 @@ def rvfi_fetch (_ : Unit) : SailM FetchResult := SailME.run do
   match (ext_fetch_check_pc (← readReg PC) (← readReg PC)) with
   | .some e => SailME.throw ((F_Ext_Error e) : FetchResult)
   | none => (pure ())
-  if (((bne (BitVec.access (← readReg PC) 0) 0#1) || ((bne (BitVec.access (← readReg PC) 1) 0#1) && (not
+  if ((((BitVec.access (← readReg PC) 0) != 0#1) || (((BitVec.access (← readReg PC) 1) != 0#1) && (not
            (← (currentlyEnabled Ext_Zca))))) : Bool)
   then (pure (F_Error ((E_Fetch_Addr_Align ()), (← readReg PC))))
   else
@@ -214,7 +216,7 @@ def rvfi_fetch (_ : Unit) : SailM FetchResult := SailME.run do
         (pure (_get_RVFI_DII_Instruction_Packet_rvfi_insn (← readReg rvfi_instruction)))
       writeReg rvfi_inst_data (Sail.BitVec.updateSubrange (← readReg rvfi_inst_data) 127 64
         (zero_extend (m := 64) i))
-      if (((Sail.BitVec.extractLsb i 1 0) != (0b11 : (BitVec 2))) : Bool)
+      if (((Sail.BitVec.extractLsb i 1 0) != 0b11#2) : Bool)
       then (pure (F_RVC (Sail.BitVec.extractLsb i 15 0)))
       else
         (do

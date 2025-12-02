@@ -96,6 +96,7 @@ open maskfunct3
 open landing_pad_expectation
 open iop
 open instruction
+open indexed_mop
 open fwvvmafunct6
 open fwvvfunct6
 open fwvfunct6
@@ -153,6 +154,7 @@ open bropw_zbb
 open brop_zbs
 open brop_zbkb
 open brop_zbb
+open breakpoint_cause
 open bop
 open biop_zbs
 open barrier_kind
@@ -186,13 +188,13 @@ open CSRAccessType
 open AtomicSupport
 open Architecture
 
-def physaddrbits_len := 64
+def default_meta : mem_meta := ()
 
-def bits_of_physaddr (app_0 : physaddr) : (BitVec (if ( 64 = 32  : Bool) then 34 else 64)) :=
-  let .Physaddr paddr := app_0
-  paddr
+/-- Type quantifiers: _width : Nat, 1 ≤ _width ∧ _width ≤ 4096 -/
+def __WriteRAM_Meta (_addr : (BitVec (if ( 64 = 32  : Bool) then 34 else 64))) (_width : Nat) (_meta : Unit) : Unit :=
+  ()
 
-def bits_of_virtaddr (app_0 : virtaddr) : (BitVec 64) :=
-  let .Virtaddr vaddr := app_0
-  vaddr
+/-- Type quantifiers: _width : Nat, 1 ≤ _width ∧ _width ≤ 4096 -/
+def __ReadRAM_Meta (_addr : (BitVec (if ( 64 = 32  : Bool) then 34 else 64))) (_width : Nat) : Unit :=
+  default_meta
 

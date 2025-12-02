@@ -93,6 +93,7 @@ open maskfunct3
 open landing_pad_expectation
 open iop
 open instruction
+open indexed_mop
 open fwvvmafunct6
 open fwvvfunct6
 open fwvfunct6
@@ -150,6 +151,7 @@ open bropw_zbb
 open brop_zbs
 open brop_zbkb
 open brop_zbb
+open breakpoint_cause
 open bop
 open biop_zbs
 open barrier_kind
@@ -193,22 +195,22 @@ def fmake_H (sign : (BitVec 1)) (exp : (BitVec 5)) (mant : (BitVec 10)) : (BitVe
 def negate_H (xf16 : (BitVec 16)) : (BitVec 16) :=
   let (sign, exp, mant) := (fsplit_H xf16)
   let new_sign :=
-    if ((sign == (0b0 : (BitVec 1))) : Bool)
-    then (0b1 : (BitVec 1))
-    else (0b0 : (BitVec 1))
+    if ((sign == 0#1) : Bool)
+    then 1#1
+    else 0#1
   (fmake_H new_sign exp mant)
 
 def f_is_neg_inf_H (xf16 : (BitVec 16)) : Bool :=
   let (sign, exp, mant) := (fsplit_H xf16)
-  ((sign == (0b1 : (BitVec 1))) && ((exp == (ones (n := 5))) && (mant == (zeros (n := 10)))))
+  ((sign == 1#1) && ((exp == (ones (n := 5))) && (mant == (zeros (n := 10)))))
 
 def f_is_neg_norm_H (xf16 : (BitVec 16)) : Bool :=
   let (sign, exp, mant) := (fsplit_H xf16)
-  ((sign == (0b1 : (BitVec 1))) && ((exp != (zeros (n := 5))) && (exp != (ones (n := 5)))))
+  ((sign == 1#1) && ((exp != (zeros (n := 5))) && (exp != (ones (n := 5)))))
 
 def f_is_neg_subnorm_H (xf16 : (BitVec 16)) : Bool :=
   let (sign, exp, mant) := (fsplit_H xf16)
-  ((sign == (0b1 : (BitVec 1))) && ((exp == (zeros (n := 5))) && (mant != (zeros (n := 10)))))
+  ((sign == 1#1) && ((exp == (zeros (n := 5))) && (mant != (zeros (n := 10)))))
 
 def f_is_pos_subnorm_H (xf16 : (BitVec 16)) : Bool :=
   let (sign, exp, mant) := (fsplit_H xf16)
@@ -242,23 +244,23 @@ def f_is_NaN_H (xf16 : (BitVec 16)) : Bool :=
   let (sign, exp, mant) := (fsplit_H xf16)
   ((exp == (ones (n := 5))) && (mant != (zeros (n := 10))))
 
-/-- Type quantifiers: k_ex526893_ : Bool -/
+/-- Type quantifiers: k_ex547986_ : Bool -/
 def fle_H (v1 : (BitVec 16)) (v2 : (BitVec 16)) (is_quiet : Bool) : (Bool × (BitVec 5)) :=
   let (s1, e1, m1) := (fsplit_H v1)
   let (s2, e2, m2) := (fsplit_H v2)
   let v1Is0 := ((f_is_neg_zero_H v1) || (f_is_pos_zero_H v1))
   let v2Is0 := ((f_is_neg_zero_H v2) || (f_is_pos_zero_H v2))
   let result : Bool :=
-    if (((s1 == (0b0 : (BitVec 1))) && (s2 == (0b0 : (BitVec 1)))) : Bool)
+    if (((s1 == 0#1) && (s2 == 0#1)) : Bool)
     then
       (if ((e1 == e2) : Bool)
       then ((BitVec.toNatInt m1) ≤b (BitVec.toNatInt m2))
       else ((BitVec.toNatInt e1) <b (BitVec.toNatInt e2)))
     else
-      (if (((s1 == (0b0 : (BitVec 1))) && (s2 == (0b1 : (BitVec 1)))) : Bool)
+      (if (((s1 == 0#1) && (s2 == 1#1)) : Bool)
       then (v1Is0 && v2Is0)
       else
-        (if (((s1 == (0b1 : (BitVec 1))) && (s2 == (0b0 : (BitVec 1)))) : Bool)
+        (if (((s1 == 1#1) && (s2 == 0#1)) : Bool)
         then true
         else
           (if ((e1 == e2) : Bool)

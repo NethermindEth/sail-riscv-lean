@@ -96,6 +96,7 @@ open maskfunct3
 open landing_pad_expectation
 open iop
 open instruction
+open indexed_mop
 open fwvvmafunct6
 open fwvvfunct6
 open fwvfunct6
@@ -153,6 +154,7 @@ open bropw_zbb
 open brop_zbs
 open brop_zbkb
 open brop_zbb
+open breakpoint_cause
 open bop
 open biop_zbs
 open barrier_kind
@@ -188,31 +190,21 @@ open Architecture
 
 def encdec_fvvmfunct6_forwards (arg_ : fvvmfunct6) : (BitVec 6) :=
   match arg_ with
-  | FVVM_VMFEQ => (0b011000 : (BitVec 6))
-  | FVVM_VMFLE => (0b011001 : (BitVec 6))
-  | FVVM_VMFLT => (0b011011 : (BitVec 6))
-  | FVVM_VMFNE => (0b011100 : (BitVec 6))
+  | FVVM_VMFEQ => 0b011000#6
+  | FVVM_VMFLE => 0b011001#6
+  | FVVM_VMFLT => 0b011011#6
+  | FVVM_VMFNE => 0b011100#6
 
 def encdec_fvvmfunct6_backwards (arg_ : (BitVec 6)) : SailM fvvmfunct6 := do
-  let b__0 := arg_
-  if ((b__0 == (0b011000 : (BitVec 6))) : Bool)
-  then (pure FVVM_VMFEQ)
-  else
+  match arg_ with
+  | 0b011000 => (pure FVVM_VMFEQ)
+  | 0b011001 => (pure FVVM_VMFLE)
+  | 0b011011 => (pure FVVM_VMFLT)
+  | 0b011100 => (pure FVVM_VMFNE)
+  | _ =>
     (do
-      if ((b__0 == (0b011001 : (BitVec 6))) : Bool)
-      then (pure FVVM_VMFLE)
-      else
-        (do
-          if ((b__0 == (0b011011 : (BitVec 6))) : Bool)
-          then (pure FVVM_VMFLT)
-          else
-            (do
-              if ((b__0 == (0b011100 : (BitVec 6))) : Bool)
-              then (pure FVVM_VMFNE)
-              else
-                (do
-                  assert false "Pattern match failure at unknown location"
-                  throw Error.Exit))))
+      assert false "Pattern match failure at unknown location"
+      throw Error.Exit)
 
 def encdec_fvvmfunct6_forwards_matches (arg_ : fvvmfunct6) : Bool :=
   match arg_ with
@@ -222,19 +214,12 @@ def encdec_fvvmfunct6_forwards_matches (arg_ : fvvmfunct6) : Bool :=
   | FVVM_VMFNE => true
 
 def encdec_fvvmfunct6_backwards_matches (arg_ : (BitVec 6)) : Bool :=
-  let b__0 := arg_
-  if ((b__0 == (0b011000 : (BitVec 6))) : Bool)
-  then true
-  else
-    (if ((b__0 == (0b011001 : (BitVec 6))) : Bool)
-    then true
-    else
-      (if ((b__0 == (0b011011 : (BitVec 6))) : Bool)
-      then true
-      else
-        (if ((b__0 == (0b011100 : (BitVec 6))) : Bool)
-        then true
-        else false)))
+  match arg_ with
+  | 0b011000 => true
+  | 0b011001 => true
+  | 0b011011 => true
+  | 0b011100 => true
+  | _ => false
 
 def fvvmtype_mnemonic_backwards (arg_ : String) : SailM fvvmfunct6 := do
   match arg_ with
@@ -264,41 +249,25 @@ def fvvmtype_mnemonic_backwards_matches (arg_ : String) : Bool :=
 
 def encdec_fvfmfunct6_forwards (arg_ : fvfmfunct6) : (BitVec 6) :=
   match arg_ with
-  | VFM_VMFEQ => (0b011000 : (BitVec 6))
-  | VFM_VMFLE => (0b011001 : (BitVec 6))
-  | VFM_VMFLT => (0b011011 : (BitVec 6))
-  | VFM_VMFNE => (0b011100 : (BitVec 6))
-  | VFM_VMFGT => (0b011101 : (BitVec 6))
-  | VFM_VMFGE => (0b011111 : (BitVec 6))
+  | VFM_VMFEQ => 0b011000#6
+  | VFM_VMFLE => 0b011001#6
+  | VFM_VMFLT => 0b011011#6
+  | VFM_VMFNE => 0b011100#6
+  | VFM_VMFGT => 0b011101#6
+  | VFM_VMFGE => 0b011111#6
 
 def encdec_fvfmfunct6_backwards (arg_ : (BitVec 6)) : SailM fvfmfunct6 := do
-  let b__0 := arg_
-  if ((b__0 == (0b011000 : (BitVec 6))) : Bool)
-  then (pure VFM_VMFEQ)
-  else
+  match arg_ with
+  | 0b011000 => (pure VFM_VMFEQ)
+  | 0b011001 => (pure VFM_VMFLE)
+  | 0b011011 => (pure VFM_VMFLT)
+  | 0b011100 => (pure VFM_VMFNE)
+  | 0b011101 => (pure VFM_VMFGT)
+  | 0b011111 => (pure VFM_VMFGE)
+  | _ =>
     (do
-      if ((b__0 == (0b011001 : (BitVec 6))) : Bool)
-      then (pure VFM_VMFLE)
-      else
-        (do
-          if ((b__0 == (0b011011 : (BitVec 6))) : Bool)
-          then (pure VFM_VMFLT)
-          else
-            (do
-              if ((b__0 == (0b011100 : (BitVec 6))) : Bool)
-              then (pure VFM_VMFNE)
-              else
-                (do
-                  if ((b__0 == (0b011101 : (BitVec 6))) : Bool)
-                  then (pure VFM_VMFGT)
-                  else
-                    (do
-                      if ((b__0 == (0b011111 : (BitVec 6))) : Bool)
-                      then (pure VFM_VMFGE)
-                      else
-                        (do
-                          assert false "Pattern match failure at unknown location"
-                          throw Error.Exit))))))
+      assert false "Pattern match failure at unknown location"
+      throw Error.Exit)
 
 def encdec_fvfmfunct6_forwards_matches (arg_ : fvfmfunct6) : Bool :=
   match arg_ with
@@ -310,25 +279,14 @@ def encdec_fvfmfunct6_forwards_matches (arg_ : fvfmfunct6) : Bool :=
   | VFM_VMFGE => true
 
 def encdec_fvfmfunct6_backwards_matches (arg_ : (BitVec 6)) : Bool :=
-  let b__0 := arg_
-  if ((b__0 == (0b011000 : (BitVec 6))) : Bool)
-  then true
-  else
-    (if ((b__0 == (0b011001 : (BitVec 6))) : Bool)
-    then true
-    else
-      (if ((b__0 == (0b011011 : (BitVec 6))) : Bool)
-      then true
-      else
-        (if ((b__0 == (0b011100 : (BitVec 6))) : Bool)
-        then true
-        else
-          (if ((b__0 == (0b011101 : (BitVec 6))) : Bool)
-          then true
-          else
-            (if ((b__0 == (0b011111 : (BitVec 6))) : Bool)
-            then true
-            else false)))))
+  match arg_ with
+  | 0b011000 => true
+  | 0b011001 => true
+  | 0b011011 => true
+  | 0b011100 => true
+  | 0b011101 => true
+  | 0b011111 => true
+  | _ => false
 
 def fvfmtype_mnemonic_backwards (arg_ : String) : SailM fvfmfunct6 := do
   match arg_ with

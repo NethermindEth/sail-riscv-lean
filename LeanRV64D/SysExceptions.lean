@@ -91,6 +91,7 @@ open maskfunct3
 open landing_pad_expectation
 open iop
 open instruction
+open indexed_mop
 open fwvvmafunct6
 open fwvvfunct6
 open fwvfunct6
@@ -148,6 +149,7 @@ open bropw_zbb
 open brop_zbs
 open brop_zbkb
 open brop_zbb
+open breakpoint_cause
 open bop
 open biop_zbs
 open barrier_kind
@@ -181,13 +183,13 @@ open CSRAccessType
 open AtomicSupport
 open Architecture
 
-def ext_check_xret_priv (p : Privilege) : Bool :=
+def ext_check_xret_priv (_p : Privilege) : Bool :=
   true
 
 def ext_fail_xret_priv (_ : Unit) : Unit :=
   ()
 
-def handle_trap_extension (p : Privilege) (pc : (BitVec 64)) (u : (Option Unit)) : Unit :=
+def handle_trap_extension (_p : Privilege) (_pc : (BitVec 64)) (_u : (Option Unit)) : Unit :=
   ()
 
 def prepare_trap_vector (p : Privilege) (cause : (BitVec 64)) : SailM (BitVec 64) := do

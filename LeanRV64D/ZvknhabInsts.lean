@@ -96,6 +96,7 @@ open maskfunct3
 open landing_pad_expectation
 open iop
 open instruction
+open indexed_mop
 open fwvvmafunct6
 open fwvvfunct6
 open fwvfunct6
@@ -153,6 +154,7 @@ open bropw_zbb
 open brop_zbs
 open brop_zbkb
 open brop_zbb
+open breakpoint_cause
 open bop
 open biop_zbs
 open barrier_kind
@@ -188,21 +190,17 @@ open Architecture
 
 def encdec_vsha2_forwards (arg_ : zvk_vsha2_funct6) : (BitVec 6) :=
   match arg_ with
-  | ZVK_VSHA2CH_VV => (0b101110 : (BitVec 6))
-  | ZVK_VSHA2CL_VV => (0b101111 : (BitVec 6))
+  | ZVK_VSHA2CH_VV => 0b101110#6
+  | ZVK_VSHA2CL_VV => 0b101111#6
 
 def encdec_vsha2_backwards (arg_ : (BitVec 6)) : SailM zvk_vsha2_funct6 := do
-  let b__0 := arg_
-  if ((b__0 == (0b101110 : (BitVec 6))) : Bool)
-  then (pure ZVK_VSHA2CH_VV)
-  else
+  match arg_ with
+  | 0b101110 => (pure ZVK_VSHA2CH_VV)
+  | 0b101111 => (pure ZVK_VSHA2CL_VV)
+  | _ =>
     (do
-      if ((b__0 == (0b101111 : (BitVec 6))) : Bool)
-      then (pure ZVK_VSHA2CL_VV)
-      else
-        (do
-          assert false "Pattern match failure at unknown location"
-          throw Error.Exit))
+      assert false "Pattern match failure at unknown location"
+      throw Error.Exit)
 
 def encdec_vsha2_forwards_matches (arg_ : zvk_vsha2_funct6) : Bool :=
   match arg_ with
@@ -210,13 +208,10 @@ def encdec_vsha2_forwards_matches (arg_ : zvk_vsha2_funct6) : Bool :=
   | ZVK_VSHA2CL_VV => true
 
 def encdec_vsha2_backwards_matches (arg_ : (BitVec 6)) : Bool :=
-  let b__0 := arg_
-  if ((b__0 == (0b101110 : (BitVec 6))) : Bool)
-  then true
-  else
-    (if ((b__0 == (0b101111 : (BitVec 6))) : Bool)
-    then true
-    else false)
+  match arg_ with
+  | 0b101110 => true
+  | 0b101111 => true
+  | _ => false
 
 def vsha2_mnemonic_backwards (arg_ : String) : SailM zvk_vsha2_funct6 := do
   match arg_ with

@@ -98,6 +98,7 @@ open maskfunct3
 open landing_pad_expectation
 open iop
 open instruction
+open indexed_mop
 open fwvvmafunct6
 open fwvvfunct6
 open fwvfunct6
@@ -155,6 +156,7 @@ open bropw_zbb
 open brop_zbs
 open brop_zbkb
 open brop_zbb
+open breakpoint_cause
 open bop
 open biop_zbs
 open barrier_kind
@@ -190,10 +192,10 @@ open Architecture
 
 def sew_flag_forwards (arg_ : String) : SailM (BitVec 3) := do
   match arg_ with
-  | "e8" => (pure (0b000 : (BitVec 3)))
-  | "e16" => (pure (0b001 : (BitVec 3)))
-  | "e32" => (pure (0b010 : (BitVec 3)))
-  | "e64" => (pure (0b011 : (BitVec 3)))
+  | "e8" => (pure 0b000#3)
+  | "e16" => (pure 0b001#3)
+  | "e32" => (pure 0b010#3)
+  | "e64" => (pure 0b011#3)
   | _ =>
     (do
       assert false "Pattern match failure at unknown location"
@@ -208,19 +210,12 @@ def sew_flag_forwards_matches (arg_ : String) : Bool :=
   | _ => false
 
 def sew_flag_backwards_matches (arg_ : (BitVec 3)) : Bool :=
-  let b__0 := arg_
-  if ((b__0 == (0b000 : (BitVec 3))) : Bool)
-  then true
-  else
-    (if ((b__0 == (0b001 : (BitVec 3))) : Bool)
-    then true
-    else
-      (if ((b__0 == (0b010 : (BitVec 3))) : Bool)
-      then true
-      else
-        (if ((b__0 == (0b011 : (BitVec 3))) : Bool)
-        then true
-        else false)))
+  match arg_ with
+  | 0b000 => true
+  | 0b001 => true
+  | 0b010 => true
+  | 0b011 => true
+  | _ => false
 
 def maybe_lmul_flag_forwards (arg_ : String) : SailM (BitVec 3) := do
   match arg_ with
@@ -231,28 +226,15 @@ def maybe_lmul_flag_forwards_matches (arg_ : String) : SailM Bool := do
   | _ => throw Error.Exit
 
 def maybe_lmul_flag_backwards_matches (arg_ : (BitVec 3)) : Bool :=
-  let b__0 := arg_
-  if ((b__0 == (0b101 : (BitVec 3))) : Bool)
-  then true
-  else
-    (if ((b__0 == (0b110 : (BitVec 3))) : Bool)
-    then true
-    else
-      (if ((b__0 == (0b111 : (BitVec 3))) : Bool)
-      then true
-      else
-        (if ((b__0 == (0b000 : (BitVec 3))) : Bool)
-        then true
-        else
-          (if ((b__0 == (0b001 : (BitVec 3))) : Bool)
-          then true
-          else
-            (if ((b__0 == (0b010 : (BitVec 3))) : Bool)
-            then true
-            else
-              (if ((b__0 == (0b011 : (BitVec 3))) : Bool)
-              then true
-              else false))))))
+  match arg_ with
+  | 0b101 => true
+  | 0b110 => true
+  | 0b111 => true
+  | 0b000 => true
+  | 0b001 => true
+  | 0b010 => true
+  | 0b011 => true
+  | _ => false
 
 def ta_flag_forwards (arg_ : String) : SailM (BitVec 1) := do
   match arg_ with
@@ -263,13 +245,10 @@ def ta_flag_forwards_matches (arg_ : String) : SailM Bool := do
   | _ => throw Error.Exit
 
 def ta_flag_backwards_matches (arg_ : (BitVec 1)) : Bool :=
-  let b__0 := arg_
-  if ((b__0 == (0b1 : (BitVec 1))) : Bool)
-  then true
-  else
-    (if ((b__0 == (0b0 : (BitVec 1))) : Bool)
-    then true
-    else false)
+  match arg_ with
+  | 1 => true
+  | 0 => true
+  | _ => false
 
 def ma_flag_forwards (arg_ : String) : SailM (BitVec 1) := do
   match arg_ with
@@ -280,13 +259,10 @@ def ma_flag_forwards_matches (arg_ : String) : SailM Bool := do
   | _ => throw Error.Exit
 
 def ma_flag_backwards_matches (arg_ : (BitVec 1)) : Bool :=
-  let b__0 := arg_
-  if ((b__0 == (0b1 : (BitVec 1))) : Bool)
-  then true
-  else
-    (if ((b__0 == (0b0 : (BitVec 1))) : Bool)
-    then true
-    else false)
+  match arg_ with
+  | 1 => true
+  | 0 => true
+  | _ => false
 
 def vtype_assembly_forwards (arg_ : String) : SailM ((BitVec 1) × (BitVec 1) × (BitVec 3) × (BitVec 3)) := do
   throw Error.Exit
@@ -297,12 +273,12 @@ def vtype_assembly_forwards_matches (arg_ : String) : SailM Bool := do
 def vtype_assembly_backwards_matches (arg_ : ((BitVec 1) × (BitVec 1) × (BitVec 3) × (BitVec 3))) : Bool :=
   match arg_ with
   | (ma, ta, sew, lmul) =>
-    (if (((bne (BitVec.access sew 2) 1#1) && (lmul != (0b100 : (BitVec 3)))) : Bool)
+    (if ((((BitVec.access sew 2) != 1#1) && (lmul != 0b100#3)) : Bool)
     then true
     else true)
 
 def handle_illegal_vtype (_ : Unit) : SailM Unit := do
-  writeReg vtype ((0b1 : (BitVec 1)) ++ (zeros (n := (xlen -i 1))))
+  writeReg vtype (1#1 ++ (zeros (n := (xlen -i 1))))
   writeReg vl (zeros (n := 64))
   (csr_name_write_callback "vtype" (← readReg vtype))
   (csr_name_write_callback "vl" (← readReg vl))
@@ -323,7 +299,7 @@ def calculate_new_vl (AVL : (BitVec 64)) (VLMAX : Nat) : Nat :=
       else VLMAX)
     else VLMAX)
 
-/-- Type quantifiers: k_ex529873_ : Bool -/
+/-- Type quantifiers: k_ex550946_ : Bool -/
 def execute_vsetvl_type (ma : (BitVec 1)) (ta : (BitVec 1)) (sew : (BitVec 3)) (lmul : (BitVec 3)) (avl : (BitVec 64)) (requires_fixed_vlmax : Bool) (rd : regidx) : SailM ExecutionResult := do
   if (((is_invalid_lmul_pow lmul) || (is_invalid_sew_pow sew)) : Bool)
   then
@@ -350,8 +326,7 @@ def execute_vsetvl_type (ma : (BitVec 1)) (ta : (BitVec 1)) (sew : (BitVec 3)) (
           writeReg vtype (_update_Vtype_vlmul
             (_update_Vtype_vsew
               (_update_Vtype_vta
-                (_update_Vtype_vma
-                  (_update_Vtype_vill (Mk_Vtype (zeros (n := 64))) (0b0 : (BitVec 1))) ma) ta) sew)
+                (_update_Vtype_vma (_update_Vtype_vill (Mk_Vtype (zeros (n := 64))) 0#1) ma) ta) sew)
             lmul)
           (set_vstart (zeros (n := 16)))
           (csr_name_write_callback "vtype" (← readReg vtype))

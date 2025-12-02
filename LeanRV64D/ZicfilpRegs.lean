@@ -93,6 +93,7 @@ open maskfunct3
 open landing_pad_expectation
 open iop
 open instruction
+open indexed_mop
 open fwvvmafunct6
 open fwvvfunct6
 open fwvfunct6
@@ -150,6 +151,7 @@ open bropw_zbb
 open brop_zbs
 open brop_zbkb
 open brop_zbb
+open breakpoint_cause
 open bop
 open biop_zbs
 open barrier_kind
@@ -198,24 +200,20 @@ def num_of_landing_pad_expectation (arg_ : landing_pad_expectation) : Int :=
   | LP_EXPECTED => 1
 
 def landing_pad_bits_forwards (arg_ : (BitVec 1)) : landing_pad_expectation :=
-  let b__0 := arg_
-  if ((b__0 == (0b0 : (BitVec 1))) : Bool)
-  then NO_LP_EXPECTED
-  else LP_EXPECTED
+  match arg_ with
+  | 0 => NO_LP_EXPECTED
+  | _ => LP_EXPECTED
 
 def landing_pad_bits_backwards (arg_ : landing_pad_expectation) : (BitVec 1) :=
   match arg_ with
-  | NO_LP_EXPECTED => (0b0 : (BitVec 1))
-  | LP_EXPECTED => (0b1 : (BitVec 1))
+  | NO_LP_EXPECTED => 0#1
+  | LP_EXPECTED => 1#1
 
 def landing_pad_bits_forwards_matches (arg_ : (BitVec 1)) : Bool :=
-  let b__0 := arg_
-  if ((b__0 == (0b0 : (BitVec 1))) : Bool)
-  then true
-  else
-    (if ((b__0 == (0b1 : (BitVec 1))) : Bool)
-    then true
-    else false)
+  match arg_ with
+  | 0 => true
+  | 1 => true
+  | _ => false
 
 def landing_pad_bits_backwards_matches (arg_ : landing_pad_expectation) : Bool :=
   match arg_ with
@@ -226,10 +224,10 @@ def update_elp_state (rs1 : regidx) : SailM Unit := do
   if ((← (currentlyEnabled Ext_Zicfilp)) : Bool)
   then
     (do
-      let is_software_guarded_branch := (rs1 == (Regidx (zero_extend (m := 5) (0x7 : (BitVec 4)))))
+      let is_software_guarded_branch := (rs1 == (Regidx (zero_extend (m := 5) 0x7#4)))
       let is_return :=
-        ((rs1 == (Regidx (zero_extend (m := 5) (0x1 : (BitVec 4))))) || (rs1 == (Regidx
-              (zero_extend (m := 5) (0x5 : (BitVec 4))))))
+        ((rs1 == (Regidx (zero_extend (m := 5) 0x1#4))) || (rs1 == (Regidx
+              (zero_extend (m := 5) 0x5#4))))
       writeReg elp (bool_to_bits ((not is_software_guarded_branch) && (not is_return))))
   else (pure ())
 

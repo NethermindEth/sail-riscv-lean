@@ -93,6 +93,7 @@ open maskfunct3
 open landing_pad_expectation
 open iop
 open instruction
+open indexed_mop
 open fwvvmafunct6
 open fwvvfunct6
 open fwvfunct6
@@ -150,6 +151,7 @@ open bropw_zbb
 open brop_zbs
 open brop_zbkb
 open brop_zbb
+open breakpoint_cause
 open bop
 open biop_zbs
 open barrier_kind
@@ -185,11 +187,10 @@ open Architecture
 
 def pmpCheckRWX (ent : (BitVec 8)) (acc : (MemoryAccessType Unit)) : Bool :=
   match acc with
-  | .Load _ => ((_get_Pmpcfg_ent_R ent) == (0b1 : (BitVec 1)))
-  | .Store _ => ((_get_Pmpcfg_ent_W ent) == (0b1 : (BitVec 1)))
-  | .LoadStore _ =>
-    (((_get_Pmpcfg_ent_R ent) == (0b1 : (BitVec 1))) && ((_get_Pmpcfg_ent_W ent) == (0b1 : (BitVec 1))))
-  | .InstructionFetch () => ((_get_Pmpcfg_ent_X ent) == (0b1 : (BitVec 1)))
+  | .Load _ => ((_get_Pmpcfg_ent_R ent) == 1#1)
+  | .Store _ => ((_get_Pmpcfg_ent_W ent) == 1#1)
+  | .LoadStore _ => (((_get_Pmpcfg_ent_R ent) == 1#1) && ((_get_Pmpcfg_ent_W ent) == 1#1))
+  | .InstructionFetch () => ((_get_Pmpcfg_ent_X ent) == 1#1)
 
 def undefined_pmpAddrMatch (_ : Unit) : SailM pmpAddrMatch := do
   (internal_pick [PMP_NoMatch, PMP_PartialMatch, PMP_Match])
@@ -287,6 +288,6 @@ def reset_pmp (_ : Unit) : SailM Unit := do
       writeReg pmpcfg_n (vectorUpdate (← readReg pmpcfg_n) i
         (_update_Pmpcfg_ent_L
           (_update_Pmpcfg_ent_A (GetElem?.getElem! (← readReg pmpcfg_n) i)
-            (pmpAddrMatchType_encdec_forwards OFF)) (0b0 : (BitVec 1))))
+            (pmpAddrMatchType_encdec_forwards OFF)) 0#1))
   (pure loop_vars)
 

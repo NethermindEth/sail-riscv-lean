@@ -91,6 +91,7 @@ open maskfunct3
 open landing_pad_expectation
 open iop
 open instruction
+open indexed_mop
 open fwvvmafunct6
 open fwvvfunct6
 open fwvfunct6
@@ -148,6 +149,7 @@ open bropw_zbb
 open brop_zbs
 open brop_zbkb
 open brop_zbb
+open breakpoint_cause
 open bop
 open biop_zbs
 open barrier_kind
@@ -197,61 +199,33 @@ def amo_encoding_valid (width : Nat) (op : amoop) (typ_2 : regidx) (typ_3 : regi
 
 def encdec_amoop_forwards (arg_ : amoop) : (BitVec 5) :=
   match arg_ with
-  | AMOSWAP => (0b00001 : (BitVec 5))
-  | AMOADD => (0b00000 : (BitVec 5))
-  | AMOXOR => (0b00100 : (BitVec 5))
-  | AMOAND => (0b01100 : (BitVec 5))
-  | AMOOR => (0b01000 : (BitVec 5))
-  | AMOMIN => (0b10000 : (BitVec 5))
-  | AMOMAX => (0b10100 : (BitVec 5))
-  | AMOMINU => (0b11000 : (BitVec 5))
-  | AMOMAXU => (0b11100 : (BitVec 5))
-  | AMOCAS => (0b00101 : (BitVec 5))
+  | AMOSWAP => 0b00001#5
+  | AMOADD => 0b00000#5
+  | AMOXOR => 0b00100#5
+  | AMOAND => 0b01100#5
+  | AMOOR => 0b01000#5
+  | AMOMIN => 0b10000#5
+  | AMOMAX => 0b10100#5
+  | AMOMINU => 0b11000#5
+  | AMOMAXU => 0b11100#5
+  | AMOCAS => 0b00101#5
 
 def encdec_amoop_backwards (arg_ : (BitVec 5)) : SailM amoop := do
-  let b__0 := arg_
-  if ((b__0 == (0b00001 : (BitVec 5))) : Bool)
-  then (pure AMOSWAP)
-  else
+  match arg_ with
+  | 0b00001 => (pure AMOSWAP)
+  | 0b00000 => (pure AMOADD)
+  | 0b00100 => (pure AMOXOR)
+  | 0b01100 => (pure AMOAND)
+  | 0b01000 => (pure AMOOR)
+  | 0b10000 => (pure AMOMIN)
+  | 0b10100 => (pure AMOMAX)
+  | 0b11000 => (pure AMOMINU)
+  | 0b11100 => (pure AMOMAXU)
+  | 0b00101 => (pure AMOCAS)
+  | _ =>
     (do
-      if ((b__0 == (0b00000 : (BitVec 5))) : Bool)
-      then (pure AMOADD)
-      else
-        (do
-          if ((b__0 == (0b00100 : (BitVec 5))) : Bool)
-          then (pure AMOXOR)
-          else
-            (do
-              if ((b__0 == (0b01100 : (BitVec 5))) : Bool)
-              then (pure AMOAND)
-              else
-                (do
-                  if ((b__0 == (0b01000 : (BitVec 5))) : Bool)
-                  then (pure AMOOR)
-                  else
-                    (do
-                      if ((b__0 == (0b10000 : (BitVec 5))) : Bool)
-                      then (pure AMOMIN)
-                      else
-                        (do
-                          if ((b__0 == (0b10100 : (BitVec 5))) : Bool)
-                          then (pure AMOMAX)
-                          else
-                            (do
-                              if ((b__0 == (0b11000 : (BitVec 5))) : Bool)
-                              then (pure AMOMINU)
-                              else
-                                (do
-                                  if ((b__0 == (0b11100 : (BitVec 5))) : Bool)
-                                  then (pure AMOMAXU)
-                                  else
-                                    (do
-                                      if ((b__0 == (0b00101 : (BitVec 5))) : Bool)
-                                      then (pure AMOCAS)
-                                      else
-                                        (do
-                                          assert false "Pattern match failure at unknown location"
-                                          throw Error.Exit))))))))))
+      assert false "Pattern match failure at unknown location"
+      throw Error.Exit)
 
 def encdec_amoop_forwards_matches (arg_ : amoop) : Bool :=
   match arg_ with
@@ -267,37 +241,18 @@ def encdec_amoop_forwards_matches (arg_ : amoop) : Bool :=
   | AMOCAS => true
 
 def encdec_amoop_backwards_matches (arg_ : (BitVec 5)) : Bool :=
-  let b__0 := arg_
-  if ((b__0 == (0b00001 : (BitVec 5))) : Bool)
-  then true
-  else
-    (if ((b__0 == (0b00000 : (BitVec 5))) : Bool)
-    then true
-    else
-      (if ((b__0 == (0b00100 : (BitVec 5))) : Bool)
-      then true
-      else
-        (if ((b__0 == (0b01100 : (BitVec 5))) : Bool)
-        then true
-        else
-          (if ((b__0 == (0b01000 : (BitVec 5))) : Bool)
-          then true
-          else
-            (if ((b__0 == (0b10000 : (BitVec 5))) : Bool)
-            then true
-            else
-              (if ((b__0 == (0b10100 : (BitVec 5))) : Bool)
-              then true
-              else
-                (if ((b__0 == (0b11000 : (BitVec 5))) : Bool)
-                then true
-                else
-                  (if ((b__0 == (0b11100 : (BitVec 5))) : Bool)
-                  then true
-                  else
-                    (if ((b__0 == (0b00101 : (BitVec 5))) : Bool)
-                    then true
-                    else false)))))))))
+  match arg_ with
+  | 0b00001 => true
+  | 0b00000 => true
+  | 0b00100 => true
+  | 0b01100 => true
+  | 0b01000 => true
+  | 0b10000 => true
+  | 0b10100 => true
+  | 0b11000 => true
+  | 0b11100 => true
+  | 0b00101 => true
+  | _ => false
 
 def amo_mnemonic_backwards (arg_ : String) : SailM amoop := do
   match arg_ with

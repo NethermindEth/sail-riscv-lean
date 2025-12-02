@@ -96,6 +96,7 @@ open maskfunct3
 open landing_pad_expectation
 open iop
 open instruction
+open indexed_mop
 open fwvvmafunct6
 open fwvvfunct6
 open fwvfunct6
@@ -153,6 +154,7 @@ open bropw_zbb
 open brop_zbs
 open brop_zbkb
 open brop_zbb
+open breakpoint_cause
 open bop
 open biop_zbs
 open barrier_kind
@@ -188,29 +190,22 @@ open Architecture
 
 def zba_rtypeuw_mnemonic_backwards (arg_ : String) : SailM (BitVec 2) := do
   match arg_ with
-  | "add.uw" => (pure (0b00 : (BitVec 2)))
-  | "sh1add.uw" => (pure (0b01 : (BitVec 2)))
-  | "sh2add.uw" => (pure (0b10 : (BitVec 2)))
-  | "sh3add.uw" => (pure (0b11 : (BitVec 2)))
+  | "add.uw" => (pure 0b00#2)
+  | "sh1add.uw" => (pure 0b01#2)
+  | "sh2add.uw" => (pure 0b10#2)
+  | "sh3add.uw" => (pure 0b11#2)
   | _ =>
     (do
       assert false "Pattern match failure at unknown location"
       throw Error.Exit)
 
 def zba_rtypeuw_mnemonic_forwards_matches (arg_ : (BitVec 2)) : Bool :=
-  let b__0 := arg_
-  if ((b__0 == (0b00 : (BitVec 2))) : Bool)
-  then true
-  else
-    (if ((b__0 == (0b01 : (BitVec 2))) : Bool)
-    then true
-    else
-      (if ((b__0 == (0b10 : (BitVec 2))) : Bool)
-      then true
-      else
-        (if ((b__0 == (0b11 : (BitVec 2))) : Bool)
-        then true
-        else false)))
+  match arg_ with
+  | 0b00 => true
+  | 0b01 => true
+  | 0b10 => true
+  | 0b11 => true
+  | _ => false
 
 def zba_rtypeuw_mnemonic_backwards_matches (arg_ : String) : Bool :=
   match arg_ with
@@ -222,25 +217,20 @@ def zba_rtypeuw_mnemonic_backwards_matches (arg_ : String) : Bool :=
 
 def zba_rtype_mnemonic_backwards (arg_ : String) : SailM (BitVec 2) := do
   match arg_ with
-  | "sh1add" => (pure (0b01 : (BitVec 2)))
-  | "sh2add" => (pure (0b10 : (BitVec 2)))
-  | "sh3add" => (pure (0b11 : (BitVec 2)))
+  | "sh1add" => (pure 0b01#2)
+  | "sh2add" => (pure 0b10#2)
+  | "sh3add" => (pure 0b11#2)
   | _ =>
     (do
       assert false "Pattern match failure at unknown location"
       throw Error.Exit)
 
 def zba_rtype_mnemonic_forwards_matches (arg_ : (BitVec 2)) : Bool :=
-  let b__0 := arg_
-  if ((b__0 == (0b01 : (BitVec 2))) : Bool)
-  then true
-  else
-    (if ((b__0 == (0b10 : (BitVec 2))) : Bool)
-    then true
-    else
-      (if ((b__0 == (0b11 : (BitVec 2))) : Bool)
-      then true
-      else false))
+  match arg_ with
+  | 0b01 => true
+  | 0b10 => true
+  | 0b11 => true
+  | _ => false
 
 def zba_rtype_mnemonic_backwards_matches (arg_ : String) : Bool :=
   match arg_ with

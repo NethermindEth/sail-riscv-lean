@@ -97,6 +97,7 @@ open maskfunct3
 open landing_pad_expectation
 open iop
 open instruction
+open indexed_mop
 open fwvvmafunct6
 open fwvvfunct6
 open fwvfunct6
@@ -154,6 +155,7 @@ open bropw_zbb
 open brop_zbs
 open brop_zbkb
 open brop_zbb
+open breakpoint_cause
 open bop
 open biop_zbs
 open barrier_kind
@@ -188,7 +190,7 @@ open AtomicSupport
 open Architecture
 
 def isRVC (h : (BitVec 16)) : Bool :=
-  (not ((Sail.BitVec.extractLsb h 1 0) == (0b11 : (BitVec 2))))
+  (not ((Sail.BitVec.extractLsb h 1 0) == 0b11#2))
 
 def fetch (_ : Unit) : SailM FetchResult := SailME.run do
   if ((get_config_rvfi ()) : Bool)
@@ -198,8 +200,8 @@ def fetch (_ : Unit) : SailM FetchResult := SailME.run do
       match (ext_fetch_check_pc (← readReg PC) (← readReg PC)) with
       | .some e => SailME.throw ((F_Ext_Error e) : FetchResult)
       | none => (pure ())
-      if (((bne (BitVec.access (← readReg PC) 0) 0#1) || ((bne (BitVec.access (← readReg PC) 1)
-               0#1) && (not (← (currentlyEnabled Ext_Zca))))) : Bool)
+      if ((((BitVec.access (← readReg PC) 0) != 0#1) || (((BitVec.access (← readReg PC) 1) != 0#1) && (not
+               (← (currentlyEnabled Ext_Zca))))) : Bool)
       then (pure (F_Error ((E_Fetch_Addr_Align ()), (← readReg PC))))
       else
         (do

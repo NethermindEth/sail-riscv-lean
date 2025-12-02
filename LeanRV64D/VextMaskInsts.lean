@@ -96,6 +96,7 @@ open maskfunct3
 open landing_pad_expectation
 open iop
 open instruction
+open indexed_mop
 open fwvvmafunct6
 open fwvvfunct6
 open fwvfunct6
@@ -153,6 +154,7 @@ open bropw_zbb
 open brop_zbs
 open brop_zbkb
 open brop_zbb
+open breakpoint_cause
 open bop
 open biop_zbs
 open barrier_kind
@@ -188,51 +190,29 @@ open Architecture
 
 def encdec_mmfunct6_forwards (arg_ : mmfunct6) : (BitVec 6) :=
   match arg_ with
-  | MM_VMAND => (0b011001 : (BitVec 6))
-  | MM_VMNAND => (0b011101 : (BitVec 6))
-  | MM_VMANDN => (0b011000 : (BitVec 6))
-  | MM_VMXOR => (0b011011 : (BitVec 6))
-  | MM_VMOR => (0b011010 : (BitVec 6))
-  | MM_VMNOR => (0b011110 : (BitVec 6))
-  | MM_VMORN => (0b011100 : (BitVec 6))
-  | MM_VMXNOR => (0b011111 : (BitVec 6))
+  | MM_VMAND => 0b011001#6
+  | MM_VMNAND => 0b011101#6
+  | MM_VMANDN => 0b011000#6
+  | MM_VMXOR => 0b011011#6
+  | MM_VMOR => 0b011010#6
+  | MM_VMNOR => 0b011110#6
+  | MM_VMORN => 0b011100#6
+  | MM_VMXNOR => 0b011111#6
 
 def encdec_mmfunct6_backwards (arg_ : (BitVec 6)) : SailM mmfunct6 := do
-  let b__0 := arg_
-  if ((b__0 == (0b011001 : (BitVec 6))) : Bool)
-  then (pure MM_VMAND)
-  else
+  match arg_ with
+  | 0b011001 => (pure MM_VMAND)
+  | 0b011101 => (pure MM_VMNAND)
+  | 0b011000 => (pure MM_VMANDN)
+  | 0b011011 => (pure MM_VMXOR)
+  | 0b011010 => (pure MM_VMOR)
+  | 0b011110 => (pure MM_VMNOR)
+  | 0b011100 => (pure MM_VMORN)
+  | 0b011111 => (pure MM_VMXNOR)
+  | _ =>
     (do
-      if ((b__0 == (0b011101 : (BitVec 6))) : Bool)
-      then (pure MM_VMNAND)
-      else
-        (do
-          if ((b__0 == (0b011000 : (BitVec 6))) : Bool)
-          then (pure MM_VMANDN)
-          else
-            (do
-              if ((b__0 == (0b011011 : (BitVec 6))) : Bool)
-              then (pure MM_VMXOR)
-              else
-                (do
-                  if ((b__0 == (0b011010 : (BitVec 6))) : Bool)
-                  then (pure MM_VMOR)
-                  else
-                    (do
-                      if ((b__0 == (0b011110 : (BitVec 6))) : Bool)
-                      then (pure MM_VMNOR)
-                      else
-                        (do
-                          if ((b__0 == (0b011100 : (BitVec 6))) : Bool)
-                          then (pure MM_VMORN)
-                          else
-                            (do
-                              if ((b__0 == (0b011111 : (BitVec 6))) : Bool)
-                              then (pure MM_VMXNOR)
-                              else
-                                (do
-                                  assert false "Pattern match failure at unknown location"
-                                  throw Error.Exit))))))))
+      assert false "Pattern match failure at unknown location"
+      throw Error.Exit)
 
 def encdec_mmfunct6_forwards_matches (arg_ : mmfunct6) : Bool :=
   match arg_ with
@@ -246,31 +226,16 @@ def encdec_mmfunct6_forwards_matches (arg_ : mmfunct6) : Bool :=
   | MM_VMXNOR => true
 
 def encdec_mmfunct6_backwards_matches (arg_ : (BitVec 6)) : Bool :=
-  let b__0 := arg_
-  if ((b__0 == (0b011001 : (BitVec 6))) : Bool)
-  then true
-  else
-    (if ((b__0 == (0b011101 : (BitVec 6))) : Bool)
-    then true
-    else
-      (if ((b__0 == (0b011000 : (BitVec 6))) : Bool)
-      then true
-      else
-        (if ((b__0 == (0b011011 : (BitVec 6))) : Bool)
-        then true
-        else
-          (if ((b__0 == (0b011010 : (BitVec 6))) : Bool)
-          then true
-          else
-            (if ((b__0 == (0b011110 : (BitVec 6))) : Bool)
-            then true
-            else
-              (if ((b__0 == (0b011100 : (BitVec 6))) : Bool)
-              then true
-              else
-                (if ((b__0 == (0b011111 : (BitVec 6))) : Bool)
-                then true
-                else false)))))))
+  match arg_ with
+  | 0b011001 => true
+  | 0b011101 => true
+  | 0b011000 => true
+  | 0b011011 => true
+  | 0b011010 => true
+  | 0b011110 => true
+  | 0b011100 => true
+  | 0b011111 => true
+  | _ => false
 
 def mmtype_mnemonic_backwards (arg_ : String) : SailM mmfunct6 := do
   match arg_ with

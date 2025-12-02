@@ -90,6 +90,7 @@ open maskfunct3
 open landing_pad_expectation
 open iop
 open instruction
+open indexed_mop
 open fwvvmafunct6
 open fwvvfunct6
 open fwvfunct6
@@ -147,6 +148,7 @@ open bropw_zbb
 open brop_zbs
 open brop_zbkb
 open brop_zbb
+open breakpoint_cause
 open bop
 open biop_zbs
 open barrier_kind
@@ -200,22 +202,17 @@ def num_of_seed_opst (arg_ : seed_opst) : Int :=
 
 def opst_code_forwards (arg_ : seed_opst) : (BitVec 2) :=
   match arg_ with
-  | BIST => (0b00 : (BitVec 2))
-  | WAIT => (0b01 : (BitVec 2))
-  | ES16 => (0b10 : (BitVec 2))
-  | DEAD => (0b11 : (BitVec 2))
+  | BIST => 0b00#2
+  | WAIT => 0b01#2
+  | ES16 => 0b10#2
+  | DEAD => 0b11#2
 
 def opst_code_backwards (arg_ : (BitVec 2)) : seed_opst :=
-  let b__0 := arg_
-  if ((b__0 == (0b00 : (BitVec 2))) : Bool)
-  then BIST
-  else
-    (if ((b__0 == (0b01 : (BitVec 2))) : Bool)
-    then WAIT
-    else
-      (if ((b__0 == (0b10 : (BitVec 2))) : Bool)
-      then ES16
-      else DEAD))
+  match arg_ with
+  | 0b00 => BIST
+  | 0b01 => WAIT
+  | 0b10 => ES16
+  | _ => DEAD
 
 def opst_code_forwards_matches (arg_ : seed_opst) : Bool :=
   match arg_ with
@@ -225,23 +222,16 @@ def opst_code_forwards_matches (arg_ : seed_opst) : Bool :=
   | DEAD => true
 
 def opst_code_backwards_matches (arg_ : (BitVec 2)) : Bool :=
-  let b__0 := arg_
-  if ((b__0 == (0b00 : (BitVec 2))) : Bool)
-  then true
-  else
-    (if ((b__0 == (0b01 : (BitVec 2))) : Bool)
-    then true
-    else
-      (if ((b__0 == (0b10 : (BitVec 2))) : Bool)
-      then true
-      else
-        (if ((b__0 == (0b11 : (BitVec 2))) : Bool)
-        then true
-        else false)))
+  match arg_ with
+  | 0b00 => true
+  | 0b01 => true
+  | 0b10 => true
+  | 0b11 => true
+  | _ => false
 
 def read_seed_csr (_ : Unit) : SailM (BitVec 64) := do
-  let reserved_bits : (BitVec 6) := (0b000000 : (BitVec 6))
-  let custom_bits : (BitVec 8) := (0x00 : (BitVec 8))
+  let reserved_bits : (BitVec 6) := 0b000000#6
+  let custom_bits : (BitVec 8) := 0x00#8
   let seed ← (( do (get_16_random_bits ()) ) : SailM (BitVec 16) )
   (pure (zero_extend (m := 64)
       ((opst_code_forwards ES16) ++ (reserved_bits ++ (custom_bits ++ seed)))))

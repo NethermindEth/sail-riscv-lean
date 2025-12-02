@@ -92,6 +92,7 @@ open maskfunct3
 open landing_pad_expectation
 open iop
 open instruction
+open indexed_mop
 open fwvvmafunct6
 open fwvvfunct6
 open fwvfunct6
@@ -149,6 +150,7 @@ open bropw_zbb
 open brop_zbs
 open brop_zbkb
 open brop_zbb
+open breakpoint_cause
 open bop
 open biop_zbs
 open barrier_kind
@@ -185,14 +187,12 @@ open Architecture
 def test_mstatus_sxl_uxl_reset_values (_ : Unit) : SailM Unit := do
   let mstatush_val ← (( do
     match xlen with
-    | 32 => (read_CSR (0x310 : (BitVec 12)))
-    | 64 => (pure (Sail.BitVec.extractLsb (← (read_CSR (0x300 : (BitVec 12)))) 63 32))
+    | 64 => (pure (Sail.BitVec.extractLsb (← (read_CSR 0x300#12)) 63 32))
     | _ => (internal_error "unit_tests/test_mstatus.sail" 7 "unsupported xlen") ) : SailM
     (BitVec 32) )
   let expected_xl ← (( do
     match xlen with
-    | 32 => (pure (0b00 : (BitVec 2)))
-    | 64 => (pure (0b10 : (BitVec 2)))
+    | 64 => (pure 0b10#2)
     | _ => (internal_error "unit_tests/test_mstatus.sail" 15 "unsupported xlen") ) : SailM
     (BitVec 2) )
   assert ((Sail.BitVec.extractLsb mstatush_val 3 2) == expected_xl) "unit_tests/test_mstatus.sail:18.44-18.45"

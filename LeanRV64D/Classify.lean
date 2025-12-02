@@ -94,6 +94,7 @@ open maskfunct3
 open landing_pad_expectation
 open iop
 open instruction
+open indexed_mop
 open fwvvmafunct6
 open fwvvfunct6
 open fwvfunct6
@@ -151,6 +152,7 @@ open bropw_zbb
 open brop_zbs
 open brop_zbkb
 open brop_zbb
+open breakpoint_cause
 open bop
 open biop_zbs
 open barrier_kind
@@ -215,8 +217,8 @@ def num_of_float_class (arg_ : float_class) : Int :=
   | float_class_snan => 8
   | float_class_qnan => 9
 
-/-- Type quantifiers: k_ex517194_ : Nat, k_ex517194_ ∈ {16, 32, 64, 128} -/
-def float_classify (f : (BitVec k_ex517194_)) : SailM float_class := do
+/-- Type quantifiers: k_ex539224_ : Nat, k_ex539224_ ∈ {16, 32, 64, 128} -/
+def float_classify (f : (BitVec k_ex539224_)) : SailM float_class := do
   if ((float_is_snan f) : Bool)
   then (pure float_class_snan)
   else
