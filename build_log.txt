@@ -1,4 +1,4 @@
-✖ [105/116] Building LeanRV64D.ZicsrInsts (2357s)
+✖ [105/116] Building LeanRV64D.ZicsrInsts (2358s)
 trace: .> LEAN_PATH=/__w/sail-riscv-lean/sail-riscv-lean/sail-riscv/build/model/Lean_RV64D/.lake/build/lib/lean /github/home/.elan/toolchains/leanprover--lean4-nightly---nightly-2025-08-02/bin/lean --tstack=400000 /__w/sail-riscv-lean/sail-riscv-lean/sail-riscv/build/model/Lean_RV64D/LeanRV64D/ZicsrInsts.lean -o /__w/sail-riscv-lean/sail-riscv-lean/sail-riscv/build/model/Lean_RV64D/.lake/build/lib/lean/LeanRV64D/ZicsrInsts.olean -i /__w/sail-riscv-lean/sail-riscv-lean/sail-riscv/build/model/Lean_RV64D/.lake/build/lib/lean/LeanRV64D/ZicsrInsts.ilean -c /__w/sail-riscv-lean/sail-riscv-lean/sail-riscv/build/model/Lean_RV64D/.lake/build/ir/LeanRV64D/ZicsrInsts.c --setup /__w/sail-riscv-lean/sail-riscv-lean/sail-riscv/build/model/Lean_RV64D/.lake/build/ir/LeanRV64D/ZicsrInsts.setup.json --json
 error: LeanRV64D/ZicsrInsts.lean:3581:41: unexpected token ')'; expected '|'
 error: Lean exited with code 1
