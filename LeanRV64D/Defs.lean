@@ -1627,6 +1627,7 @@ instance : Inhabited (RegisterRef RegisterType (Vector (BitVec 8) 64)) where
 instance : Inhabited (RegisterRef RegisterType (Vector (Option TLB_Entry) 64)) where
   default := .Reg tlb
 abbrev SailM := PreSailM RegisterType trivialChoiceSource exception
+abbrev SailME := PreSailME RegisterType trivialChoiceSource exception
 
 instance : Arch where
   va_size := 64
