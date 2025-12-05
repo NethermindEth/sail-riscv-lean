@@ -182,13 +182,13 @@ open CSRAccessType
 open AtomicSupport
 open Architecture
 
-/-- Type quantifiers: k_ex538830_ : Nat, k_ex538830_ ∈ {16, 32, 64, 128} -/
-def float_is_normal (op : (BitVec k_ex538830_)) : Bool :=
+/-- Type quantifiers: k_ex647047_ : Nat, k_ex647047_ ∈ {16, 32, 64, 128} -/
+def float_is_normal (op : (BitVec k_ex647047_)) : Bool :=
   let { exp := exp, sign := _, mantissa := _ } := (float_decompose op)
   ((! (is_all_ones exp)) && (! (is_all_zeros exp)))
 
-/-- Type quantifiers: k_ex538848_ : Nat, k_ex538848_ ∈ {16, 32, 64, 128} -/
-def float_is_subnormal (op : (BitVec k_ex538848_)) : Bool :=
+/-- Type quantifiers: k_ex647065_ : Nat, k_ex647065_ ∈ {16, 32, 64, 128} -/
+def float_is_subnormal (op : (BitVec k_ex647065_)) : Bool :=
   let { exp := exp, mantissa := mantissa, sign := _ } := (float_decompose op)
   ((is_all_zeros exp) && (! (is_all_zeros mantissa)))
 

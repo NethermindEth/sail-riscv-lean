@@ -1821,7 +1821,7 @@ def maybe_aqrl_forwards (arg_ : (Bool × Bool)) : String :=
   | (false, true) => ".rl"
   | (false, false) => ""
 
-/-- Type quantifiers: k_ex541179_ : Bool -/
+/-- Type quantifiers: k_ex649396_ : Bool -/
 def maybe_u_forwards (arg_ : Bool) : String :=
   match arg_ with
   | true => "u"
@@ -2590,50 +2590,28 @@ def assembly_forwards (arg_ : instruction) : SailM String := do
                         (String.append (← (reg_name_forwards rs1))
                           (String.append (opt_spc_forwards ()) (String.append ")" "")))))))))))))
   | .ADDIW (imm, rs1, rd) =>
-    (do
-      if ((xlen == 64) : Bool)
-      then
-        (pure (String.append "addiw"
-            (String.append (spc_forwards ())
-              (String.append (← (reg_name_forwards rd))
+    (pure (String.append "addiw"
+        (String.append (spc_forwards ())
+          (String.append (← (reg_name_forwards rd))
+            (String.append (sep_forwards ())
+              (String.append (← (reg_name_forwards rs1))
                 (String.append (sep_forwards ())
-                  (String.append (← (reg_name_forwards rs1))
-                    (String.append (sep_forwards ())
-                      (String.append (← (hex_bits_signed_12_forwards imm)) ""))))))))
-      else
-        (do
-          assert false "Pattern match failure at unknown location"
-          throw Error.Exit))
+                  (String.append (← (hex_bits_signed_12_forwards imm)) ""))))))))
   | .RTYPEW (rs2, rs1, rd, op) =>
-    (do
-      if ((xlen == 64) : Bool)
-      then
-        (pure (String.append (rtypew_mnemonic_forwards op)
-            (String.append (spc_forwards ())
-              (String.append (← (reg_name_forwards rd))
-                (String.append (sep_forwards ())
-                  (String.append (← (reg_name_forwards rs1))
-                    (String.append (sep_forwards ())
-                      (String.append (← (reg_name_forwards rs2)) ""))))))))
-      else
-        (do
-          assert false "Pattern match failure at unknown location"
-          throw Error.Exit))
+    (pure (String.append (rtypew_mnemonic_forwards op)
+        (String.append (spc_forwards ())
+          (String.append (← (reg_name_forwards rd))
+            (String.append (sep_forwards ())
+              (String.append (← (reg_name_forwards rs1))
+                (String.append (sep_forwards ()) (String.append (← (reg_name_forwards rs2)) ""))))))))
   | .SHIFTIWOP (shamt, rs1, rd, op) =>
-    (do
-      if ((xlen == 64) : Bool)
-      then
-        (pure (String.append (shiftiwop_mnemonic_forwards op)
-            (String.append (spc_forwards ())
-              (String.append (← (reg_name_forwards rd))
+    (pure (String.append (shiftiwop_mnemonic_forwards op)
+        (String.append (spc_forwards ())
+          (String.append (← (reg_name_forwards rd))
+            (String.append (sep_forwards ())
+              (String.append (← (reg_name_forwards rs1))
                 (String.append (sep_forwards ())
-                  (String.append (← (reg_name_forwards rs1))
-                    (String.append (sep_forwards ())
-                      (String.append (← (hex_bits_5_forwards shamt)) ""))))))))
-      else
-        (do
-          assert false "Pattern match failure at unknown location"
-          throw Error.Exit))
+                  (String.append (← (hex_bits_5_forwards shamt)) ""))))))))
   | .FENCE (pred, succ) =>
     (pure (String.append "fence"
         (String.append (spc_forwards ())
@@ -2736,54 +2714,32 @@ def assembly_forwards (arg_ : instruction) : SailM String := do
                 (String.append (← (reg_name_forwards rs1))
                   (String.append (sep_forwards ()) (String.append (← (reg_name_forwards rs2)) "")))))))))
   | .MULW (rs2, rs1, rd) =>
-    (do
-      if ((xlen == 64) : Bool)
-      then
-        (pure (String.append "mulw"
+    (pure (String.append "mulw"
+        (String.append (spc_forwards ())
+          (String.append (← (reg_name_forwards rd))
+            (String.append (sep_forwards ())
+              (String.append (← (reg_name_forwards rs1))
+                (String.append (sep_forwards ()) (String.append (← (reg_name_forwards rs2)) ""))))))))
+  | .DIVW (rs2, rs1, rd, is_unsigned) =>
+    (pure (String.append "div"
+        (String.append (maybe_u_forwards is_unsigned)
+          (String.append "w"
             (String.append (spc_forwards ())
               (String.append (← (reg_name_forwards rd))
                 (String.append (sep_forwards ())
                   (String.append (← (reg_name_forwards rs1))
                     (String.append (sep_forwards ())
-                      (String.append (← (reg_name_forwards rs2)) ""))))))))
-      else
-        (do
-          assert false "Pattern match failure at unknown location"
-          throw Error.Exit))
-  | .DIVW (rs2, rs1, rd, is_unsigned) =>
-    (do
-      if ((xlen == 64) : Bool)
-      then
-        (pure (String.append "div"
-            (String.append (maybe_u_forwards is_unsigned)
-              (String.append "w"
-                (String.append (spc_forwards ())
-                  (String.append (← (reg_name_forwards rd))
-                    (String.append (sep_forwards ())
-                      (String.append (← (reg_name_forwards rs1))
-                        (String.append (sep_forwards ())
-                          (String.append (← (reg_name_forwards rs2)) ""))))))))))
-      else
-        (do
-          assert false "Pattern match failure at unknown location"
-          throw Error.Exit))
+                      (String.append (← (reg_name_forwards rs2)) ""))))))))))
   | .REMW (rs2, rs1, rd, is_unsigned) =>
-    (do
-      if ((xlen == 64) : Bool)
-      then
-        (pure (String.append "rem"
-            (String.append (maybe_u_forwards is_unsigned)
-              (String.append "w"
-                (String.append (spc_forwards ())
-                  (String.append (← (reg_name_forwards rd))
+    (pure (String.append "rem"
+        (String.append (maybe_u_forwards is_unsigned)
+          (String.append "w"
+            (String.append (spc_forwards ())
+              (String.append (← (reg_name_forwards rd))
+                (String.append (sep_forwards ())
+                  (String.append (← (reg_name_forwards rs1))
                     (String.append (sep_forwards ())
-                      (String.append (← (reg_name_forwards rs1))
-                        (String.append (sep_forwards ())
-                          (String.append (← (reg_name_forwards rs2)) ""))))))))))
-      else
-        (do
-          assert false "Pattern match failure at unknown location"
-          throw Error.Exit))
+                      (String.append (← (reg_name_forwards rs2)) ""))))))))))
   | .SLLIUW (shamt, rs1, rd) =>
     (pure (String.append "slli.uw"
         (String.append (spc_forwards ())
@@ -2954,20 +2910,13 @@ def assembly_forwards (arg_ : instruction) : SailM String := do
                 (String.append "("
                   (String.append (← (creg_name_forwards rsc)) (String.append ")" "")))))))))
   | .C_LD (uimm, rsc, rdc) =>
-    (do
-      if ((xlen == 64) : Bool)
-      then
-        (pure (String.append "c.ld"
-            (String.append (spc_forwards ())
-              (String.append (← (creg_name_forwards rdc))
-                (String.append (sep_forwards ())
-                  (String.append (← (hex_bits_8_forwards ((uimm : (BitVec 5)) ++ 0b000#3)))
-                    (String.append "("
-                      (String.append (← (creg_name_forwards rsc)) (String.append ")" "")))))))))
-      else
-        (do
-          assert false "Pattern match failure at unknown location"
-          throw Error.Exit))
+    (pure (String.append "c.ld"
+        (String.append (spc_forwards ())
+          (String.append (← (creg_name_forwards rdc))
+            (String.append (sep_forwards ())
+              (String.append (← (hex_bits_8_forwards ((uimm : (BitVec 5)) ++ 0b000#3)))
+                (String.append "("
+                  (String.append (← (creg_name_forwards rsc)) (String.append ")" "")))))))))
   | .C_SW (uimm, rsc1, rsc2) =>
     (pure (String.append "c.sw"
         (String.append (spc_forwards ())
@@ -2977,20 +2926,13 @@ def assembly_forwards (arg_ : instruction) : SailM String := do
                 (String.append "("
                   (String.append (← (creg_name_forwards rsc1)) (String.append ")" "")))))))))
   | .C_SD (uimm, rsc1, rsc2) =>
-    (do
-      if ((xlen == 64) : Bool)
-      then
-        (pure (String.append "c.sd"
-            (String.append (spc_forwards ())
-              (String.append (← (creg_name_forwards rsc2))
-                (String.append (sep_forwards ())
-                  (String.append (← (hex_bits_8_forwards ((uimm : (BitVec 5)) ++ 0b000#3)))
-                    (String.append "("
-                      (String.append (← (creg_name_forwards rsc1)) (String.append ")" "")))))))))
-      else
-        (do
-          assert false "Pattern match failure at unknown location"
-          throw Error.Exit))
+    (pure (String.append "c.sd"
+        (String.append (spc_forwards ())
+          (String.append (← (creg_name_forwards rsc2))
+            (String.append (sep_forwards ())
+              (String.append (← (hex_bits_8_forwards ((uimm : (BitVec 5)) ++ 0b000#3)))
+                (String.append "("
+                  (String.append (← (creg_name_forwards rsc1)) (String.append ")" "")))))))))
   | .C_ADDI (imm, rsd) =>
     (do
       if ((bne rsd zreg) : Bool)
@@ -3016,18 +2958,11 @@ def assembly_forwards (arg_ : instruction) : SailM String := do
           assert false "Pattern match failure at unknown location"
           throw Error.Exit))
   | .C_ADDIW (imm, rsd) =>
-    (do
-      if ((xlen == 64) : Bool)
-      then
-        (pure (String.append "c.addiw"
-            (String.append (spc_forwards ())
-              (String.append (← (reg_name_forwards rsd))
-                (String.append (sep_forwards ())
-                  (String.append (← (hex_bits_signed_6_forwards imm)) ""))))))
-      else
-        (do
-          assert false "Pattern match failure at unknown location"
-          throw Error.Exit))
+    (pure (String.append "c.addiw"
+        (String.append (spc_forwards ())
+          (String.append (← (reg_name_forwards rsd))
+            (String.append (sep_forwards ())
+              (String.append (← (hex_bits_signed_6_forwards imm)) ""))))))
   | .C_LI (imm, rd) =>
     (pure (String.append "c.li"
         (String.append (spc_forwards ())
@@ -3098,29 +3033,15 @@ def assembly_forwards (arg_ : instruction) : SailM String := do
           (String.append (← (creg_name_forwards rsd))
             (String.append (sep_forwards ()) (String.append (← (creg_name_forwards rs2)) ""))))))
   | .C_SUBW (rsd, rs2) =>
-    (do
-      if ((xlen == 64) : Bool)
-      then
-        (pure (String.append "c.subw"
-            (String.append (spc_forwards ())
-              (String.append (← (creg_name_forwards rsd))
-                (String.append (sep_forwards ()) (String.append (← (creg_name_forwards rs2)) ""))))))
-      else
-        (do
-          assert false "Pattern match failure at unknown location"
-          throw Error.Exit))
+    (pure (String.append "c.subw"
+        (String.append (spc_forwards ())
+          (String.append (← (creg_name_forwards rsd))
+            (String.append (sep_forwards ()) (String.append (← (creg_name_forwards rs2)) ""))))))
   | .C_ADDW (rsd, rs2) =>
-    (do
-      if ((xlen == 64) : Bool)
-      then
-        (pure (String.append "c.addw"
-            (String.append (spc_forwards ())
-              (String.append (← (creg_name_forwards rsd))
-                (String.append (sep_forwards ()) (String.append (← (creg_name_forwards rs2)) ""))))))
-      else
-        (do
-          assert false "Pattern match failure at unknown location"
-          throw Error.Exit))
+    (pure (String.append "c.addw"
+        (String.append (spc_forwards ())
+          (String.append (← (creg_name_forwards rsd))
+            (String.append (sep_forwards ()) (String.append (← (creg_name_forwards rs2)) ""))))))
   | .C_J imm =>
     (pure (String.append "c.j"
         (String.append (spc_forwards ())
@@ -3181,20 +3102,13 @@ def assembly_forwards (arg_ : instruction) : SailM String := do
                 (String.append "("
                   (String.append (← (sp_reg_name_forwards ())) (String.append ")" "")))))))))
   | .C_SDSP (uimm, rs2) =>
-    (do
-      if ((xlen == 64) : Bool)
-      then
-        (pure (String.append "c.sdsp"
-            (String.append (spc_forwards ())
-              (String.append (← (reg_name_forwards rs2))
-                (String.append (sep_forwards ())
-                  (String.append (← (hex_bits_9_forwards ((uimm : (BitVec 6)) ++ 0b000#3)))
-                    (String.append "("
-                      (String.append (← (sp_reg_name_forwards ())) (String.append ")" "")))))))))
-      else
-        (do
-          assert false "Pattern match failure at unknown location"
-          throw Error.Exit))
+    (pure (String.append "c.sdsp"
+        (String.append (spc_forwards ())
+          (String.append (← (reg_name_forwards rs2))
+            (String.append (sep_forwards ())
+              (String.append (← (hex_bits_9_forwards ((uimm : (BitVec 6)) ++ 0b000#3)))
+                (String.append "("
+                  (String.append (← (sp_reg_name_forwards ())) (String.append ")" "")))))))))
   | .C_JR rs1 =>
     (do
       if ((bne rs1 zreg) : Bool)

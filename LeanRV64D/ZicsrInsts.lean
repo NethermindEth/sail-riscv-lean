@@ -229,7 +229,7 @@ def encdec_csrop_backwards_matches (arg_ : (BitVec 2)) : Bool :=
   | 0b11 => true
   | _ => false
 
-/-- Type quantifiers: k_ex551578_ : Bool, k_ex551577_ : Bool -/
+/-- Type quantifiers: k_ex659795_ : Bool, k_ex659794_ : Bool -/
 def csr_access_type (op : csrop) (rd_is_x0 : Bool) (rs1_imm_is_zero : Bool) : CSRAccessType :=
   match (op, rd_is_x0, rs1_imm_is_zero) with
   | (CSRRW, true, _) => CSRWrite
@@ -322,7 +322,7 @@ def read_CSR (merge_var : (BitVec 12)) : SailM (BitVec 64) := do
           let v__3836 := 0x310#12
           if ((((Sail.BitVec.extractLsb v__3836 11 4) == (0x3A#8 : (BitVec 8))) && (let idx : (BitVec 4) :=
                  (Sail.BitVec.extractLsb v__3836 3 0)
-               (((BitVec.access idx 0) == 0#1) || (xlen == 32)))) : Bool)
+               (((BitVec.access idx 0) == 0#1) || (xlen == 32)) : Bool)) : Bool)
           then
             (do
               let idx : (BitVec 4) := (Sail.BitVec.extractLsb v__3836 3 0)
@@ -403,7 +403,7 @@ def read_CSR (merge_var : (BitVec 12)) : SailM (BitVec 64) := do
                                             (do
                                               if ((((Sail.BitVec.extractLsb v__3836 11 5) == (0b1011100#7 : (BitVec 7))) && (let index : (BitVec 5) :=
                                                      (Sail.BitVec.extractLsb v__3836 4 0)
-                                                   ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)))) : Bool)
+                                                   ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)) : Bool)) : Bool)
                                               then
                                                 (do
                                                   let index : (BitVec 5) :=
@@ -424,7 +424,7 @@ def read_CSR (merge_var : (BitVec 12)) : SailM (BitVec 64) := do
                                                     (do
                                                       if ((((Sail.BitVec.extractLsb v__3836 11 5) == (0b1100100#7 : (BitVec 7))) && (let index : (BitVec 5) :=
                                                              (Sail.BitVec.extractLsb v__3836 4 0)
-                                                           ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)))) : Bool)
+                                                           ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)) : Bool)) : Bool)
                                                       then
                                                         (do
                                                           let index : (BitVec 5) :=
@@ -436,7 +436,7 @@ def read_CSR (merge_var : (BitVec 12)) : SailM (BitVec 64) := do
                                                           if ((((Sail.BitVec.extractLsb v__3836 11 5) == (0b0111001#7 : (BitVec 7))) && (let index : (BitVec 5) :=
                                                                  (Sail.BitVec.extractLsb v__3836 4 0)
                                                                ((xlen == 32) && (((BitVec.toNatInt
-                                                                     index) ≥b 3) : Bool)))) : Bool)
+                                                                     index) ≥b 3) : Bool)) : Bool)) : Bool)
                                                           then
                                                             (do
                                                               let index : (BitVec 5) :=
@@ -603,7 +603,7 @@ def read_CSR (merge_var : (BitVec 12)) : SailM (BitVec 64) := do
                                             (do
                                               if ((((Sail.BitVec.extractLsb v__3836 11 5) == (0b1011100#7 : (BitVec 7))) && (let index : (BitVec 5) :=
                                                      (Sail.BitVec.extractLsb v__3836 4 0)
-                                                   ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)))) : Bool)
+                                                   ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)) : Bool)) : Bool)
                                               then
                                                 (do
                                                   let index : (BitVec 5) :=
@@ -624,7 +624,7 @@ def read_CSR (merge_var : (BitVec 12)) : SailM (BitVec 64) := do
                                                     (do
                                                       if ((((Sail.BitVec.extractLsb v__3836 11 5) == (0b1100100#7 : (BitVec 7))) && (let index : (BitVec 5) :=
                                                              (Sail.BitVec.extractLsb v__3836 4 0)
-                                                           ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)))) : Bool)
+                                                           ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)) : Bool)) : Bool)
                                                       then
                                                         (do
                                                           let index : (BitVec 5) :=
@@ -636,7 +636,7 @@ def read_CSR (merge_var : (BitVec 12)) : SailM (BitVec 64) := do
                                                           if ((((Sail.BitVec.extractLsb v__3836 11 5) == (0b0111001#7 : (BitVec 7))) && (let index : (BitVec 5) :=
                                                                  (Sail.BitVec.extractLsb v__3836 4 0)
                                                                ((xlen == 32) && (((BitVec.toNatInt
-                                                                     index) ≥b 3) : Bool)))) : Bool)
+                                                                     index) ≥b 3) : Bool)) : Bool)) : Bool)
                                                           then
                                                             (do
                                                               let index : (BitVec 5) :=
@@ -795,7 +795,7 @@ def read_CSR (merge_var : (BitVec 12)) : SailM (BitVec 64) := do
                                         (do
                                           if ((((Sail.BitVec.extractLsb v__3836 11 5) == (0b1011100#7 : (BitVec 7))) && (let index : (BitVec 5) :=
                                                  (Sail.BitVec.extractLsb v__3836 4 0)
-                                               ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)))) : Bool)
+                                               ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)) : Bool)) : Bool)
                                           then
                                             (do
                                               let index : (BitVec 5) :=
@@ -815,7 +815,7 @@ def read_CSR (merge_var : (BitVec 12)) : SailM (BitVec 64) := do
                                                 (do
                                                   if ((((Sail.BitVec.extractLsb v__3836 11 5) == (0b1100100#7 : (BitVec 7))) && (let index : (BitVec 5) :=
                                                          (Sail.BitVec.extractLsb v__3836 4 0)
-                                                       ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)))) : Bool)
+                                                       ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)) : Bool)) : Bool)
                                                   then
                                                     (do
                                                       let index : (BitVec 5) :=
@@ -826,7 +826,7 @@ def read_CSR (merge_var : (BitVec 12)) : SailM (BitVec 64) := do
                                                     (do
                                                       if ((((Sail.BitVec.extractLsb v__3836 11 5) == (0b0111001#7 : (BitVec 7))) && (let index : (BitVec 5) :=
                                                              (Sail.BitVec.extractLsb v__3836 4 0)
-                                                           ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)))) : Bool)
+                                                           ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)) : Bool)) : Bool)
                                                       then
                                                         (do
                                                           let index : (BitVec 5) :=
@@ -958,7 +958,7 @@ def read_CSR (merge_var : (BitVec 12)) : SailM (BitVec 64) := do
           let v__3836 := 0x757#12
           if ((((Sail.BitVec.extractLsb v__3836 11 4) == (0x3A#8 : (BitVec 8))) && (let idx : (BitVec 4) :=
                  (Sail.BitVec.extractLsb v__3836 3 0)
-               (((BitVec.access idx 0) == 0#1) || (xlen == 32)))) : Bool)
+               (((BitVec.access idx 0) == 0#1) || (xlen == 32)) : Bool)) : Bool)
           then
             (do
               let idx : (BitVec 4) := (Sail.BitVec.extractLsb v__3836 3 0)
@@ -1039,7 +1039,7 @@ def read_CSR (merge_var : (BitVec 12)) : SailM (BitVec 64) := do
                                             (do
                                               if ((((Sail.BitVec.extractLsb v__3836 11 5) == (0b1011100#7 : (BitVec 7))) && (let index : (BitVec 5) :=
                                                      (Sail.BitVec.extractLsb v__3836 4 0)
-                                                   ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)))) : Bool)
+                                                   ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)) : Bool)) : Bool)
                                               then
                                                 (do
                                                   let index : (BitVec 5) :=
@@ -1060,7 +1060,7 @@ def read_CSR (merge_var : (BitVec 12)) : SailM (BitVec 64) := do
                                                     (do
                                                       if ((((Sail.BitVec.extractLsb v__3836 11 5) == (0b1100100#7 : (BitVec 7))) && (let index : (BitVec 5) :=
                                                              (Sail.BitVec.extractLsb v__3836 4 0)
-                                                           ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)))) : Bool)
+                                                           ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)) : Bool)) : Bool)
                                                       then
                                                         (do
                                                           let index : (BitVec 5) :=
@@ -1072,7 +1072,7 @@ def read_CSR (merge_var : (BitVec 12)) : SailM (BitVec 64) := do
                                                           if ((((Sail.BitVec.extractLsb v__3836 11 5) == (0b0111001#7 : (BitVec 7))) && (let index : (BitVec 5) :=
                                                                  (Sail.BitVec.extractLsb v__3836 4 0)
                                                                ((xlen == 32) && (((BitVec.toNatInt
-                                                                     index) ≥b 3) : Bool)))) : Bool)
+                                                                     index) ≥b 3) : Bool)) : Bool)) : Bool)
                                                           then
                                                             (do
                                                               let index : (BitVec 5) :=
@@ -1239,7 +1239,7 @@ def read_CSR (merge_var : (BitVec 12)) : SailM (BitVec 64) := do
                                             (do
                                               if ((((Sail.BitVec.extractLsb v__3836 11 5) == (0b1011100#7 : (BitVec 7))) && (let index : (BitVec 5) :=
                                                      (Sail.BitVec.extractLsb v__3836 4 0)
-                                                   ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)))) : Bool)
+                                                   ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)) : Bool)) : Bool)
                                               then
                                                 (do
                                                   let index : (BitVec 5) :=
@@ -1260,7 +1260,7 @@ def read_CSR (merge_var : (BitVec 12)) : SailM (BitVec 64) := do
                                                     (do
                                                       if ((((Sail.BitVec.extractLsb v__3836 11 5) == (0b1100100#7 : (BitVec 7))) && (let index : (BitVec 5) :=
                                                              (Sail.BitVec.extractLsb v__3836 4 0)
-                                                           ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)))) : Bool)
+                                                           ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)) : Bool)) : Bool)
                                                       then
                                                         (do
                                                           let index : (BitVec 5) :=
@@ -1272,7 +1272,7 @@ def read_CSR (merge_var : (BitVec 12)) : SailM (BitVec 64) := do
                                                           if ((((Sail.BitVec.extractLsb v__3836 11 5) == (0b0111001#7 : (BitVec 7))) && (let index : (BitVec 5) :=
                                                                  (Sail.BitVec.extractLsb v__3836 4 0)
                                                                ((xlen == 32) && (((BitVec.toNatInt
-                                                                     index) ≥b 3) : Bool)))) : Bool)
+                                                                     index) ≥b 3) : Bool)) : Bool)) : Bool)
                                                           then
                                                             (do
                                                               let index : (BitVec 5) :=
@@ -1431,7 +1431,7 @@ def read_CSR (merge_var : (BitVec 12)) : SailM (BitVec 64) := do
                                         (do
                                           if ((((Sail.BitVec.extractLsb v__3836 11 5) == (0b1011100#7 : (BitVec 7))) && (let index : (BitVec 5) :=
                                                  (Sail.BitVec.extractLsb v__3836 4 0)
-                                               ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)))) : Bool)
+                                               ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)) : Bool)) : Bool)
                                           then
                                             (do
                                               let index : (BitVec 5) :=
@@ -1451,7 +1451,7 @@ def read_CSR (merge_var : (BitVec 12)) : SailM (BitVec 64) := do
                                                 (do
                                                   if ((((Sail.BitVec.extractLsb v__3836 11 5) == (0b1100100#7 : (BitVec 7))) && (let index : (BitVec 5) :=
                                                          (Sail.BitVec.extractLsb v__3836 4 0)
-                                                       ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)))) : Bool)
+                                                       ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)) : Bool)) : Bool)
                                                   then
                                                     (do
                                                       let index : (BitVec 5) :=
@@ -1462,7 +1462,7 @@ def read_CSR (merge_var : (BitVec 12)) : SailM (BitVec 64) := do
                                                     (do
                                                       if ((((Sail.BitVec.extractLsb v__3836 11 5) == (0b0111001#7 : (BitVec 7))) && (let index : (BitVec 5) :=
                                                              (Sail.BitVec.extractLsb v__3836 4 0)
-                                                           ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)))) : Bool)
+                                                           ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)) : Bool)) : Bool)
                                                       then
                                                         (do
                                                           let index : (BitVec 5) :=
@@ -1594,7 +1594,7 @@ def read_CSR (merge_var : (BitVec 12)) : SailM (BitVec 64) := do
           let v__3836 := 0x31A#12
           if ((((Sail.BitVec.extractLsb v__3836 11 4) == (0x3A#8 : (BitVec 8))) && (let idx : (BitVec 4) :=
                  (Sail.BitVec.extractLsb v__3836 3 0)
-               (((BitVec.access idx 0) == 0#1) || (xlen == 32)))) : Bool)
+               (((BitVec.access idx 0) == 0#1) || (xlen == 32)) : Bool)) : Bool)
           then
             (do
               let idx : (BitVec 4) := (Sail.BitVec.extractLsb v__3836 3 0)
@@ -1675,7 +1675,7 @@ def read_CSR (merge_var : (BitVec 12)) : SailM (BitVec 64) := do
                                             (do
                                               if ((((Sail.BitVec.extractLsb v__3836 11 5) == (0b1011100#7 : (BitVec 7))) && (let index : (BitVec 5) :=
                                                      (Sail.BitVec.extractLsb v__3836 4 0)
-                                                   ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)))) : Bool)
+                                                   ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)) : Bool)) : Bool)
                                               then
                                                 (do
                                                   let index : (BitVec 5) :=
@@ -1696,7 +1696,7 @@ def read_CSR (merge_var : (BitVec 12)) : SailM (BitVec 64) := do
                                                     (do
                                                       if ((((Sail.BitVec.extractLsb v__3836 11 5) == (0b1100100#7 : (BitVec 7))) && (let index : (BitVec 5) :=
                                                              (Sail.BitVec.extractLsb v__3836 4 0)
-                                                           ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)))) : Bool)
+                                                           ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)) : Bool)) : Bool)
                                                       then
                                                         (do
                                                           let index : (BitVec 5) :=
@@ -1708,7 +1708,7 @@ def read_CSR (merge_var : (BitVec 12)) : SailM (BitVec 64) := do
                                                           if ((((Sail.BitVec.extractLsb v__3836 11 5) == (0b0111001#7 : (BitVec 7))) && (let index : (BitVec 5) :=
                                                                  (Sail.BitVec.extractLsb v__3836 4 0)
                                                                ((xlen == 32) && (((BitVec.toNatInt
-                                                                     index) ≥b 3) : Bool)))) : Bool)
+                                                                     index) ≥b 3) : Bool)) : Bool)) : Bool)
                                                           then
                                                             (do
                                                               let index : (BitVec 5) :=
@@ -1875,7 +1875,7 @@ def read_CSR (merge_var : (BitVec 12)) : SailM (BitVec 64) := do
                                             (do
                                               if ((((Sail.BitVec.extractLsb v__3836 11 5) == (0b1011100#7 : (BitVec 7))) && (let index : (BitVec 5) :=
                                                      (Sail.BitVec.extractLsb v__3836 4 0)
-                                                   ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)))) : Bool)
+                                                   ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)) : Bool)) : Bool)
                                               then
                                                 (do
                                                   let index : (BitVec 5) :=
@@ -1896,7 +1896,7 @@ def read_CSR (merge_var : (BitVec 12)) : SailM (BitVec 64) := do
                                                     (do
                                                       if ((((Sail.BitVec.extractLsb v__3836 11 5) == (0b1100100#7 : (BitVec 7))) && (let index : (BitVec 5) :=
                                                              (Sail.BitVec.extractLsb v__3836 4 0)
-                                                           ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)))) : Bool)
+                                                           ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)) : Bool)) : Bool)
                                                       then
                                                         (do
                                                           let index : (BitVec 5) :=
@@ -1908,7 +1908,7 @@ def read_CSR (merge_var : (BitVec 12)) : SailM (BitVec 64) := do
                                                           if ((((Sail.BitVec.extractLsb v__3836 11 5) == (0b0111001#7 : (BitVec 7))) && (let index : (BitVec 5) :=
                                                                  (Sail.BitVec.extractLsb v__3836 4 0)
                                                                ((xlen == 32) && (((BitVec.toNatInt
-                                                                     index) ≥b 3) : Bool)))) : Bool)
+                                                                     index) ≥b 3) : Bool)) : Bool)) : Bool)
                                                           then
                                                             (do
                                                               let index : (BitVec 5) :=
@@ -2067,7 +2067,7 @@ def read_CSR (merge_var : (BitVec 12)) : SailM (BitVec 64) := do
                                         (do
                                           if ((((Sail.BitVec.extractLsb v__3836 11 5) == (0b1011100#7 : (BitVec 7))) && (let index : (BitVec 5) :=
                                                  (Sail.BitVec.extractLsb v__3836 4 0)
-                                               ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)))) : Bool)
+                                               ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)) : Bool)) : Bool)
                                           then
                                             (do
                                               let index : (BitVec 5) :=
@@ -2087,7 +2087,7 @@ def read_CSR (merge_var : (BitVec 12)) : SailM (BitVec 64) := do
                                                 (do
                                                   if ((((Sail.BitVec.extractLsb v__3836 11 5) == (0b1100100#7 : (BitVec 7))) && (let index : (BitVec 5) :=
                                                          (Sail.BitVec.extractLsb v__3836 4 0)
-                                                       ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)))) : Bool)
+                                                       ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)) : Bool)) : Bool)
                                                   then
                                                     (do
                                                       let index : (BitVec 5) :=
@@ -2098,7 +2098,7 @@ def read_CSR (merge_var : (BitVec 12)) : SailM (BitVec 64) := do
                                                     (do
                                                       if ((((Sail.BitVec.extractLsb v__3836 11 5) == (0b0111001#7 : (BitVec 7))) && (let index : (BitVec 5) :=
                                                              (Sail.BitVec.extractLsb v__3836 4 0)
-                                                           ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)))) : Bool)
+                                                           ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)) : Bool)) : Bool)
                                                       then
                                                         (do
                                                           let index : (BitVec 5) :=
@@ -2233,7 +2233,7 @@ def read_CSR (merge_var : (BitVec 12)) : SailM (BitVec 64) := do
           let v__3836 := 0x312#12
           if ((((Sail.BitVec.extractLsb v__3836 11 4) == (0x3A#8 : (BitVec 8))) && (let idx : (BitVec 4) :=
                  (Sail.BitVec.extractLsb v__3836 3 0)
-               (((BitVec.access idx 0) == 0#1) || (xlen == 32)))) : Bool)
+               (((BitVec.access idx 0) == 0#1) || (xlen == 32)) : Bool)) : Bool)
           then
             (do
               let idx : (BitVec 4) := (Sail.BitVec.extractLsb v__3836 3 0)
@@ -2314,7 +2314,7 @@ def read_CSR (merge_var : (BitVec 12)) : SailM (BitVec 64) := do
                                             (do
                                               if ((((Sail.BitVec.extractLsb v__3836 11 5) == (0b1011100#7 : (BitVec 7))) && (let index : (BitVec 5) :=
                                                      (Sail.BitVec.extractLsb v__3836 4 0)
-                                                   ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)))) : Bool)
+                                                   ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)) : Bool)) : Bool)
                                               then
                                                 (do
                                                   let index : (BitVec 5) :=
@@ -2335,7 +2335,7 @@ def read_CSR (merge_var : (BitVec 12)) : SailM (BitVec 64) := do
                                                     (do
                                                       if ((((Sail.BitVec.extractLsb v__3836 11 5) == (0b1100100#7 : (BitVec 7))) && (let index : (BitVec 5) :=
                                                              (Sail.BitVec.extractLsb v__3836 4 0)
-                                                           ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)))) : Bool)
+                                                           ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)) : Bool)) : Bool)
                                                       then
                                                         (do
                                                           let index : (BitVec 5) :=
@@ -2347,7 +2347,7 @@ def read_CSR (merge_var : (BitVec 12)) : SailM (BitVec 64) := do
                                                           if ((((Sail.BitVec.extractLsb v__3836 11 5) == (0b0111001#7 : (BitVec 7))) && (let index : (BitVec 5) :=
                                                                  (Sail.BitVec.extractLsb v__3836 4 0)
                                                                ((xlen == 32) && (((BitVec.toNatInt
-                                                                     index) ≥b 3) : Bool)))) : Bool)
+                                                                     index) ≥b 3) : Bool)) : Bool)) : Bool)
                                                           then
                                                             (do
                                                               let index : (BitVec 5) :=
@@ -2514,7 +2514,7 @@ def read_CSR (merge_var : (BitVec 12)) : SailM (BitVec 64) := do
                                             (do
                                               if ((((Sail.BitVec.extractLsb v__3836 11 5) == (0b1011100#7 : (BitVec 7))) && (let index : (BitVec 5) :=
                                                      (Sail.BitVec.extractLsb v__3836 4 0)
-                                                   ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)))) : Bool)
+                                                   ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)) : Bool)) : Bool)
                                               then
                                                 (do
                                                   let index : (BitVec 5) :=
@@ -2535,7 +2535,7 @@ def read_CSR (merge_var : (BitVec 12)) : SailM (BitVec 64) := do
                                                     (do
                                                       if ((((Sail.BitVec.extractLsb v__3836 11 5) == (0b1100100#7 : (BitVec 7))) && (let index : (BitVec 5) :=
                                                              (Sail.BitVec.extractLsb v__3836 4 0)
-                                                           ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)))) : Bool)
+                                                           ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)) : Bool)) : Bool)
                                                       then
                                                         (do
                                                           let index : (BitVec 5) :=
@@ -2547,7 +2547,7 @@ def read_CSR (merge_var : (BitVec 12)) : SailM (BitVec 64) := do
                                                           if ((((Sail.BitVec.extractLsb v__3836 11 5) == (0b0111001#7 : (BitVec 7))) && (let index : (BitVec 5) :=
                                                                  (Sail.BitVec.extractLsb v__3836 4 0)
                                                                ((xlen == 32) && (((BitVec.toNatInt
-                                                                     index) ≥b 3) : Bool)))) : Bool)
+                                                                     index) ≥b 3) : Bool)) : Bool)) : Bool)
                                                           then
                                                             (do
                                                               let index : (BitVec 5) :=
@@ -2706,7 +2706,7 @@ def read_CSR (merge_var : (BitVec 12)) : SailM (BitVec 64) := do
                                         (do
                                           if ((((Sail.BitVec.extractLsb v__3836 11 5) == (0b1011100#7 : (BitVec 7))) && (let index : (BitVec 5) :=
                                                  (Sail.BitVec.extractLsb v__3836 4 0)
-                                               ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)))) : Bool)
+                                               ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)) : Bool)) : Bool)
                                           then
                                             (do
                                               let index : (BitVec 5) :=
@@ -2726,7 +2726,7 @@ def read_CSR (merge_var : (BitVec 12)) : SailM (BitVec 64) := do
                                                 (do
                                                   if ((((Sail.BitVec.extractLsb v__3836 11 5) == (0b1100100#7 : (BitVec 7))) && (let index : (BitVec 5) :=
                                                          (Sail.BitVec.extractLsb v__3836 4 0)
-                                                       ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)))) : Bool)
+                                                       ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)) : Bool)) : Bool)
                                                   then
                                                     (do
                                                       let index : (BitVec 5) :=
@@ -2737,7 +2737,7 @@ def read_CSR (merge_var : (BitVec 12)) : SailM (BitVec 64) := do
                                                     (do
                                                       if ((((Sail.BitVec.extractLsb v__3836 11 5) == (0b0111001#7 : (BitVec 7))) && (let index : (BitVec 5) :=
                                                              (Sail.BitVec.extractLsb v__3836 4 0)
-                                                           ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)))) : Bool)
+                                                           ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)) : Bool)) : Bool)
                                                       then
                                                         (do
                                                           let index : (BitVec 5) :=
@@ -2886,7 +2886,7 @@ def read_CSR (merge_var : (BitVec 12)) : SailM (BitVec 64) := do
     (do
       if ((((Sail.BitVec.extractLsb v__3836 11 4) == (0x3A#8 : (BitVec 8))) && (let idx : (BitVec 4) :=
              (Sail.BitVec.extractLsb v__3836 3 0)
-           (((BitVec.access idx 0) == 0#1) || (xlen == 32)))) : Bool)
+           (((BitVec.access idx 0) == 0#1) || (xlen == 32)) : Bool)) : Bool)
       then
         (do
           let idx : (BitVec 4) := (Sail.BitVec.extractLsb v__3836 3 0)
@@ -2966,7 +2966,7 @@ def read_CSR (merge_var : (BitVec 12)) : SailM (BitVec 64) := do
                                         (do
                                           if ((((Sail.BitVec.extractLsb v__3836 11 5) == (0b1011100#7 : (BitVec 7))) && (let index : (BitVec 5) :=
                                                  (Sail.BitVec.extractLsb v__3836 4 0)
-                                               ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)))) : Bool)
+                                               ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)) : Bool)) : Bool)
                                           then
                                             (do
                                               let index : (BitVec 5) :=
@@ -2986,7 +2986,7 @@ def read_CSR (merge_var : (BitVec 12)) : SailM (BitVec 64) := do
                                                 (do
                                                   if ((((Sail.BitVec.extractLsb v__3836 11 5) == (0b1100100#7 : (BitVec 7))) && (let index : (BitVec 5) :=
                                                          (Sail.BitVec.extractLsb v__3836 4 0)
-                                                       ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)))) : Bool)
+                                                       ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)) : Bool)) : Bool)
                                                   then
                                                     (do
                                                       let index : (BitVec 5) :=
@@ -2997,7 +2997,7 @@ def read_CSR (merge_var : (BitVec 12)) : SailM (BitVec 64) := do
                                                     (do
                                                       if ((((Sail.BitVec.extractLsb v__3836 11 5) == (0b0111001#7 : (BitVec 7))) && (let index : (BitVec 5) :=
                                                              (Sail.BitVec.extractLsb v__3836 4 0)
-                                                           ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)))) : Bool)
+                                                           ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)) : Bool)) : Bool)
                                                       then
                                                         (do
                                                           let index : (BitVec 5) :=
@@ -3149,7 +3149,7 @@ def read_CSR (merge_var : (BitVec 12)) : SailM (BitVec 64) := do
                                         (do
                                           if ((((Sail.BitVec.extractLsb v__3836 11 5) == (0b1011100#7 : (BitVec 7))) && (let index : (BitVec 5) :=
                                                  (Sail.BitVec.extractLsb v__3836 4 0)
-                                               ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)))) : Bool)
+                                               ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)) : Bool)) : Bool)
                                           then
                                             (do
                                               let index : (BitVec 5) :=
@@ -3169,7 +3169,7 @@ def read_CSR (merge_var : (BitVec 12)) : SailM (BitVec 64) := do
                                                 (do
                                                   if ((((Sail.BitVec.extractLsb v__3836 11 5) == (0b1100100#7 : (BitVec 7))) && (let index : (BitVec 5) :=
                                                          (Sail.BitVec.extractLsb v__3836 4 0)
-                                                       ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)))) : Bool)
+                                                       ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)) : Bool)) : Bool)
                                                   then
                                                     (do
                                                       let index : (BitVec 5) :=
@@ -3180,7 +3180,7 @@ def read_CSR (merge_var : (BitVec 12)) : SailM (BitVec 64) := do
                                                     (do
                                                       if ((((Sail.BitVec.extractLsb v__3836 11 5) == (0b0111001#7 : (BitVec 7))) && (let index : (BitVec 5) :=
                                                              (Sail.BitVec.extractLsb v__3836 4 0)
-                                                           ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)))) : Bool)
+                                                           ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)) : Bool)) : Bool)
                                                       then
                                                         (do
                                                           let index : (BitVec 5) :=
@@ -3326,7 +3326,7 @@ def read_CSR (merge_var : (BitVec 12)) : SailM (BitVec 64) := do
                                     (do
                                       if ((((Sail.BitVec.extractLsb v__3836 11 5) == (0b1011100#7 : (BitVec 7))) && (let index : (BitVec 5) :=
                                              (Sail.BitVec.extractLsb v__3836 4 0)
-                                           ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)))) : Bool)
+                                           ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)) : Bool)) : Bool)
                                       then
                                         (do
                                           let index : (BitVec 5) :=
@@ -3346,7 +3346,7 @@ def read_CSR (merge_var : (BitVec 12)) : SailM (BitVec 64) := do
                                             (do
                                               if ((((Sail.BitVec.extractLsb v__3836 11 5) == (0b1100100#7 : (BitVec 7))) && (let index : (BitVec 5) :=
                                                      (Sail.BitVec.extractLsb v__3836 4 0)
-                                                   ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)))) : Bool)
+                                                   ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)) : Bool)) : Bool)
                                               then
                                                 (do
                                                   let index : (BitVec 5) :=
@@ -3356,7 +3356,7 @@ def read_CSR (merge_var : (BitVec 12)) : SailM (BitVec 64) := do
                                                 (do
                                                   if ((((Sail.BitVec.extractLsb v__3836 11 5) == (0b0111001#7 : (BitVec 7))) && (let index : (BitVec 5) :=
                                                          (Sail.BitVec.extractLsb v__3836 4 0)
-                                                       ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)))) : Bool)
+                                                       ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)) : Bool)) : Bool)
                                                   then
                                                     (do
                                                       let index : (BitVec 5) :=
@@ -3571,15 +3571,9 @@ def write_CSR (arg0 : (BitVec 12)) (arg1 : (BitVec 64)) : SailM (Result (BitVec 
           (pure (Ok (← readReg mstatus))))
       else
         (do
-          if ((xlen == 32) : Bool)
-          then
-            (do
-              writeReg mstatus (← (legalize_mstatus (← readReg mstatus)
-                  ((Sail.BitVec.extractLsb (← readReg mstatus) 63 32) ++ value)))
-              (pure (Ok (Sail.BitVec.extractLsb (← readReg mstatus) 31 0))))
-          else
-            (match (0x300#12, value) with
-            )))
+          writeReg mstatus (← (legalize_mstatus (← readReg mstatus)
+              ((Sail.BitVec.extractLsb (← readReg mstatus) 63 32) ++ value)))
+          (pure (Ok (Sail.BitVec.extractLsb (← readReg mstatus) 31 0)))))
   | (0x310, value) =>
     (do
       if ((xlen == 32) : Bool)
@@ -3595,7 +3589,7 @@ def write_CSR (arg0 : (BitVec 12)) (arg1 : (BitVec 64)) : SailM (Result (BitVec 
             (do
               if ((((Sail.BitVec.extractLsb v__3858 11 4) == (0x3A#8 : (BitVec 8))) && (let idx : (BitVec 4) :=
                      (Sail.BitVec.extractLsb v__3858 3 0)
-                   (((BitVec.access idx 0) == 0#1) || (xlen == 32)))) : Bool)
+                   (((BitVec.access idx 0) == 0#1) || (xlen == 32)) : Bool)) : Bool)
               then
                 (do
                   let idx : (BitVec 4) := (Sail.BitVec.extractLsb v__3858 3 0)
@@ -3691,19 +3685,12 @@ def write_CSR (arg0 : (BitVec 12)) (arg1 : (BitVec 64)) : SailM (Result (BitVec 
                                           (pure (Ok (← readReg mcyclecfg))))
                                       else
                                         (do
-                                          if ((xlen == 32) : Bool)
-                                          then
-                                            (do
-                                              writeReg mcyclecfg (← (legalize_smcntrpmf
-                                                  (← readReg mcyclecfg)
-                                                  ((Sail.BitVec.extractLsb (← readReg mcyclecfg)
-                                                      63 32) ++ value)))
-                                              (pure (Ok
-                                                  (Sail.BitVec.extractLsb (← readReg mcyclecfg)
-                                                    (xlen -i 1) 0))))
-                                          else
-                                            (match (0x321#12, value) with
-                                            )))
+                                          writeReg mcyclecfg (← (legalize_smcntrpmf
+                                              (← readReg mcyclecfg)
+                                              ((Sail.BitVec.extractLsb (← readReg mcyclecfg) 63 32) ++ value)))
+                                          (pure (Ok
+                                              (Sail.BitVec.extractLsb (← readReg mcyclecfg)
+                                                (xlen -i 1) 0)))))
                                   | (0x721, value) =>
                                     (do
                                       if ((xlen == 32) : Bool)
@@ -3746,7 +3733,7 @@ def write_CSR (arg0 : (BitVec 12)) (arg1 : (BitVec 64)) : SailM (Result (BitVec 
                                                     (do
                                                       if ((((Sail.BitVec.extractLsb v__3858 11 5) == (0b1011100#7 : (BitVec 7))) && (let index : (BitVec 5) :=
                                                              (Sail.BitVec.extractLsb v__3858 4 0)
-                                                           ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)))) : Bool)
+                                                           ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)) : Bool)) : Bool)
                                                       then
                                                         (do
                                                           let index : (BitVec 5) :=
@@ -3759,7 +3746,7 @@ def write_CSR (arg0 : (BitVec 12)) (arg1 : (BitVec 64)) : SailM (Result (BitVec 
                                                           if ((((Sail.BitVec.extractLsb v__3858 11 5) == (0b0111001#7 : (BitVec 7))) && (let index : (BitVec 5) :=
                                                                  (Sail.BitVec.extractLsb v__3858 4 0)
                                                                ((xlen == 32) && (((BitVec.toNatInt
-                                                                     index) ≥b 3) : Bool)))) : Bool)
+                                                                     index) ≥b 3) : Bool)) : Bool)) : Bool)
                                                           then
                                                             (do
                                                               let index : (BitVec 5) :=
@@ -3873,19 +3860,13 @@ def write_CSR (arg0 : (BitVec 12)) (arg1 : (BitVec 64)) : SailM (Result (BitVec 
                                                 (xlen -i 1) 0))))
                                       else
                                         (do
-                                          if ((xlen == 32) : Bool)
-                                          then
-                                            (do
-                                              writeReg minstretcfg (← (legalize_smcntrpmf
-                                                  (← readReg minstretcfg)
-                                                  ((Sail.BitVec.extractLsb (← readReg minstretcfg)
-                                                      63 32) ++ value)))
-                                              (pure (Ok
-                                                  (Sail.BitVec.extractLsb (← readReg minstretcfg)
-                                                    (xlen -i 1) 0))))
-                                          else
-                                            (match (0x322#12, value) with
-                                            )))
+                                          writeReg minstretcfg (← (legalize_smcntrpmf
+                                              (← readReg minstretcfg)
+                                              ((Sail.BitVec.extractLsb (← readReg minstretcfg) 63
+                                                  32) ++ value)))
+                                          (pure (Ok
+                                              (Sail.BitVec.extractLsb (← readReg minstretcfg)
+                                                (xlen -i 1) 0)))))
                                   | (0x722, value) =>
                                     (do
                                       if ((xlen == 32) : Bool)
@@ -3929,7 +3910,7 @@ def write_CSR (arg0 : (BitVec 12)) (arg1 : (BitVec 64)) : SailM (Result (BitVec 
                                                     (do
                                                       if ((((Sail.BitVec.extractLsb v__3858 11 5) == (0b1011100#7 : (BitVec 7))) && (let index : (BitVec 5) :=
                                                              (Sail.BitVec.extractLsb v__3858 4 0)
-                                                           ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)))) : Bool)
+                                                           ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)) : Bool)) : Bool)
                                                       then
                                                         (do
                                                           let index : (BitVec 5) :=
@@ -3942,7 +3923,7 @@ def write_CSR (arg0 : (BitVec 12)) (arg1 : (BitVec 64)) : SailM (Result (BitVec 
                                                           if ((((Sail.BitVec.extractLsb v__3858 11 5) == (0b0111001#7 : (BitVec 7))) && (let index : (BitVec 5) :=
                                                                  (Sail.BitVec.extractLsb v__3858 4 0)
                                                                ((xlen == 32) && (((BitVec.toNatInt
-                                                                     index) ≥b 3) : Bool)))) : Bool)
+                                                                     index) ≥b 3) : Bool)) : Bool)) : Bool)
                                                           then
                                                             (do
                                                               let index : (BitVec 5) :=
@@ -4078,7 +4059,7 @@ def write_CSR (arg0 : (BitVec 12)) (arg1 : (BitVec 64)) : SailM (Result (BitVec 
                                             (do
                                               if ((((Sail.BitVec.extractLsb v__3858 11 5) == (0b1011100#7 : (BitVec 7))) && (let index : (BitVec 5) :=
                                                      (Sail.BitVec.extractLsb v__3858 4 0)
-                                                   ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)))) : Bool)
+                                                   ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)) : Bool)) : Bool)
                                               then
                                                 (do
                                                   let index : (BitVec 5) :=
@@ -4090,7 +4071,7 @@ def write_CSR (arg0 : (BitVec 12)) (arg1 : (BitVec 64)) : SailM (Result (BitVec 
                                                 (do
                                                   if ((((Sail.BitVec.extractLsb v__3858 11 5) == (0b0111001#7 : (BitVec 7))) && (let index : (BitVec 5) :=
                                                          (Sail.BitVec.extractLsb v__3858 4 0)
-                                                       ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)))) : Bool)
+                                                       ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)) : Bool)) : Bool)
                                                   then
                                                     (do
                                                       let index : (BitVec 5) :=
@@ -4190,14 +4171,8 @@ def write_CSR (arg0 : (BitVec 12)) (arg1 : (BitVec 64)) : SailM (Result (BitVec 
           (pure (Ok (Sail.BitVec.extractLsb (← readReg mseccfg) 31 0))))
       else
         (do
-          if ((xlen == 64) : Bool)
-          then
-            (do
-              writeReg mseccfg (← (legalize_mseccfg (← readReg mseccfg) value))
-              (pure (Ok (← readReg mseccfg))))
-          else
-            (match (0x747#12, value) with
-            )))
+          writeReg mseccfg (← (legalize_mseccfg (← readReg mseccfg) value))
+          (pure (Ok (← readReg mseccfg)))))
   | (0x757, value) =>
     (do
       if ((xlen == 32) : Bool)
@@ -4213,7 +4188,7 @@ def write_CSR (arg0 : (BitVec 12)) (arg1 : (BitVec 64)) : SailM (Result (BitVec 
             (do
               if ((((Sail.BitVec.extractLsb v__3858 11 4) == (0x3A#8 : (BitVec 8))) && (let idx : (BitVec 4) :=
                      (Sail.BitVec.extractLsb v__3858 3 0)
-                   (((BitVec.access idx 0) == 0#1) || (xlen == 32)))) : Bool)
+                   (((BitVec.access idx 0) == 0#1) || (xlen == 32)) : Bool)) : Bool)
               then
                 (do
                   let idx : (BitVec 4) := (Sail.BitVec.extractLsb v__3858 3 0)
@@ -4309,19 +4284,12 @@ def write_CSR (arg0 : (BitVec 12)) (arg1 : (BitVec 64)) : SailM (Result (BitVec 
                                           (pure (Ok (← readReg mcyclecfg))))
                                       else
                                         (do
-                                          if ((xlen == 32) : Bool)
-                                          then
-                                            (do
-                                              writeReg mcyclecfg (← (legalize_smcntrpmf
-                                                  (← readReg mcyclecfg)
-                                                  ((Sail.BitVec.extractLsb (← readReg mcyclecfg)
-                                                      63 32) ++ value)))
-                                              (pure (Ok
-                                                  (Sail.BitVec.extractLsb (← readReg mcyclecfg)
-                                                    (xlen -i 1) 0))))
-                                          else
-                                            (match (0x321#12, value) with
-                                            )))
+                                          writeReg mcyclecfg (← (legalize_smcntrpmf
+                                              (← readReg mcyclecfg)
+                                              ((Sail.BitVec.extractLsb (← readReg mcyclecfg) 63 32) ++ value)))
+                                          (pure (Ok
+                                              (Sail.BitVec.extractLsb (← readReg mcyclecfg)
+                                                (xlen -i 1) 0)))))
                                   | (0x721, value) =>
                                     (do
                                       if ((xlen == 32) : Bool)
@@ -4364,7 +4332,7 @@ def write_CSR (arg0 : (BitVec 12)) (arg1 : (BitVec 64)) : SailM (Result (BitVec 
                                                     (do
                                                       if ((((Sail.BitVec.extractLsb v__3858 11 5) == (0b1011100#7 : (BitVec 7))) && (let index : (BitVec 5) :=
                                                              (Sail.BitVec.extractLsb v__3858 4 0)
-                                                           ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)))) : Bool)
+                                                           ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)) : Bool)) : Bool)
                                                       then
                                                         (do
                                                           let index : (BitVec 5) :=
@@ -4377,7 +4345,7 @@ def write_CSR (arg0 : (BitVec 12)) (arg1 : (BitVec 64)) : SailM (Result (BitVec 
                                                           if ((((Sail.BitVec.extractLsb v__3858 11 5) == (0b0111001#7 : (BitVec 7))) && (let index : (BitVec 5) :=
                                                                  (Sail.BitVec.extractLsb v__3858 4 0)
                                                                ((xlen == 32) && (((BitVec.toNatInt
-                                                                     index) ≥b 3) : Bool)))) : Bool)
+                                                                     index) ≥b 3) : Bool)) : Bool)) : Bool)
                                                           then
                                                             (do
                                                               let index : (BitVec 5) :=
@@ -4491,19 +4459,13 @@ def write_CSR (arg0 : (BitVec 12)) (arg1 : (BitVec 64)) : SailM (Result (BitVec 
                                                 (xlen -i 1) 0))))
                                       else
                                         (do
-                                          if ((xlen == 32) : Bool)
-                                          then
-                                            (do
-                                              writeReg minstretcfg (← (legalize_smcntrpmf
-                                                  (← readReg minstretcfg)
-                                                  ((Sail.BitVec.extractLsb (← readReg minstretcfg)
-                                                      63 32) ++ value)))
-                                              (pure (Ok
-                                                  (Sail.BitVec.extractLsb (← readReg minstretcfg)
-                                                    (xlen -i 1) 0))))
-                                          else
-                                            (match (0x322#12, value) with
-                                            )))
+                                          writeReg minstretcfg (← (legalize_smcntrpmf
+                                              (← readReg minstretcfg)
+                                              ((Sail.BitVec.extractLsb (← readReg minstretcfg) 63
+                                                  32) ++ value)))
+                                          (pure (Ok
+                                              (Sail.BitVec.extractLsb (← readReg minstretcfg)
+                                                (xlen -i 1) 0)))))
                                   | (0x722, value) =>
                                     (do
                                       if ((xlen == 32) : Bool)
@@ -4547,7 +4509,7 @@ def write_CSR (arg0 : (BitVec 12)) (arg1 : (BitVec 64)) : SailM (Result (BitVec 
                                                     (do
                                                       if ((((Sail.BitVec.extractLsb v__3858 11 5) == (0b1011100#7 : (BitVec 7))) && (let index : (BitVec 5) :=
                                                              (Sail.BitVec.extractLsb v__3858 4 0)
-                                                           ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)))) : Bool)
+                                                           ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)) : Bool)) : Bool)
                                                       then
                                                         (do
                                                           let index : (BitVec 5) :=
@@ -4560,7 +4522,7 @@ def write_CSR (arg0 : (BitVec 12)) (arg1 : (BitVec 64)) : SailM (Result (BitVec 
                                                           if ((((Sail.BitVec.extractLsb v__3858 11 5) == (0b0111001#7 : (BitVec 7))) && (let index : (BitVec 5) :=
                                                                  (Sail.BitVec.extractLsb v__3858 4 0)
                                                                ((xlen == 32) && (((BitVec.toNatInt
-                                                                     index) ≥b 3) : Bool)))) : Bool)
+                                                                     index) ≥b 3) : Bool)) : Bool)) : Bool)
                                                           then
                                                             (do
                                                               let index : (BitVec 5) :=
@@ -4696,7 +4658,7 @@ def write_CSR (arg0 : (BitVec 12)) (arg1 : (BitVec 64)) : SailM (Result (BitVec 
                                             (do
                                               if ((((Sail.BitVec.extractLsb v__3858 11 5) == (0b1011100#7 : (BitVec 7))) && (let index : (BitVec 5) :=
                                                      (Sail.BitVec.extractLsb v__3858 4 0)
-                                                   ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)))) : Bool)
+                                                   ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)) : Bool)) : Bool)
                                               then
                                                 (do
                                                   let index : (BitVec 5) :=
@@ -4708,7 +4670,7 @@ def write_CSR (arg0 : (BitVec 12)) (arg1 : (BitVec 64)) : SailM (Result (BitVec 
                                                 (do
                                                   if ((((Sail.BitVec.extractLsb v__3858 11 5) == (0b0111001#7 : (BitVec 7))) && (let index : (BitVec 5) :=
                                                          (Sail.BitVec.extractLsb v__3858 4 0)
-                                                       ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)))) : Bool)
+                                                       ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)) : Bool)) : Bool)
                                                   then
                                                     (do
                                                       let index : (BitVec 5) :=
@@ -4808,14 +4770,8 @@ def write_CSR (arg0 : (BitVec 12)) (arg1 : (BitVec 64)) : SailM (Result (BitVec 
           (pure (Ok (Sail.BitVec.extractLsb (← readReg menvcfg) 31 0))))
       else
         (do
-          if ((xlen == 64) : Bool)
-          then
-            (do
-              writeReg menvcfg (← (legalize_menvcfg (← readReg menvcfg) value))
-              (pure (Ok (← readReg menvcfg))))
-          else
-            (match (0x30A#12, value) with
-            )))
+          writeReg menvcfg (← (legalize_menvcfg (← readReg menvcfg) value))
+          (pure (Ok (← readReg menvcfg)))))
   | (0x31A, value) =>
     (do
       if ((xlen == 32) : Bool)
@@ -4831,7 +4787,7 @@ def write_CSR (arg0 : (BitVec 12)) (arg1 : (BitVec 64)) : SailM (Result (BitVec 
             (do
               if ((((Sail.BitVec.extractLsb v__3858 11 4) == (0x3A#8 : (BitVec 8))) && (let idx : (BitVec 4) :=
                      (Sail.BitVec.extractLsb v__3858 3 0)
-                   (((BitVec.access idx 0) == 0#1) || (xlen == 32)))) : Bool)
+                   (((BitVec.access idx 0) == 0#1) || (xlen == 32)) : Bool)) : Bool)
               then
                 (do
                   let idx : (BitVec 4) := (Sail.BitVec.extractLsb v__3858 3 0)
@@ -4927,19 +4883,12 @@ def write_CSR (arg0 : (BitVec 12)) (arg1 : (BitVec 64)) : SailM (Result (BitVec 
                                           (pure (Ok (← readReg mcyclecfg))))
                                       else
                                         (do
-                                          if ((xlen == 32) : Bool)
-                                          then
-                                            (do
-                                              writeReg mcyclecfg (← (legalize_smcntrpmf
-                                                  (← readReg mcyclecfg)
-                                                  ((Sail.BitVec.extractLsb (← readReg mcyclecfg)
-                                                      63 32) ++ value)))
-                                              (pure (Ok
-                                                  (Sail.BitVec.extractLsb (← readReg mcyclecfg)
-                                                    (xlen -i 1) 0))))
-                                          else
-                                            (match (0x321#12, value) with
-                                            )))
+                                          writeReg mcyclecfg (← (legalize_smcntrpmf
+                                              (← readReg mcyclecfg)
+                                              ((Sail.BitVec.extractLsb (← readReg mcyclecfg) 63 32) ++ value)))
+                                          (pure (Ok
+                                              (Sail.BitVec.extractLsb (← readReg mcyclecfg)
+                                                (xlen -i 1) 0)))))
                                   | (0x721, value) =>
                                     (do
                                       if ((xlen == 32) : Bool)
@@ -4982,7 +4931,7 @@ def write_CSR (arg0 : (BitVec 12)) (arg1 : (BitVec 64)) : SailM (Result (BitVec 
                                                     (do
                                                       if ((((Sail.BitVec.extractLsb v__3858 11 5) == (0b1011100#7 : (BitVec 7))) && (let index : (BitVec 5) :=
                                                              (Sail.BitVec.extractLsb v__3858 4 0)
-                                                           ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)))) : Bool)
+                                                           ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)) : Bool)) : Bool)
                                                       then
                                                         (do
                                                           let index : (BitVec 5) :=
@@ -4995,7 +4944,7 @@ def write_CSR (arg0 : (BitVec 12)) (arg1 : (BitVec 64)) : SailM (Result (BitVec 
                                                           if ((((Sail.BitVec.extractLsb v__3858 11 5) == (0b0111001#7 : (BitVec 7))) && (let index : (BitVec 5) :=
                                                                  (Sail.BitVec.extractLsb v__3858 4 0)
                                                                ((xlen == 32) && (((BitVec.toNatInt
-                                                                     index) ≥b 3) : Bool)))) : Bool)
+                                                                     index) ≥b 3) : Bool)) : Bool)) : Bool)
                                                           then
                                                             (do
                                                               let index : (BitVec 5) :=
@@ -5109,19 +5058,13 @@ def write_CSR (arg0 : (BitVec 12)) (arg1 : (BitVec 64)) : SailM (Result (BitVec 
                                                 (xlen -i 1) 0))))
                                       else
                                         (do
-                                          if ((xlen == 32) : Bool)
-                                          then
-                                            (do
-                                              writeReg minstretcfg (← (legalize_smcntrpmf
-                                                  (← readReg minstretcfg)
-                                                  ((Sail.BitVec.extractLsb (← readReg minstretcfg)
-                                                      63 32) ++ value)))
-                                              (pure (Ok
-                                                  (Sail.BitVec.extractLsb (← readReg minstretcfg)
-                                                    (xlen -i 1) 0))))
-                                          else
-                                            (match (0x322#12, value) with
-                                            )))
+                                          writeReg minstretcfg (← (legalize_smcntrpmf
+                                              (← readReg minstretcfg)
+                                              ((Sail.BitVec.extractLsb (← readReg minstretcfg) 63
+                                                  32) ++ value)))
+                                          (pure (Ok
+                                              (Sail.BitVec.extractLsb (← readReg minstretcfg)
+                                                (xlen -i 1) 0)))))
                                   | (0x722, value) =>
                                     (do
                                       if ((xlen == 32) : Bool)
@@ -5165,7 +5108,7 @@ def write_CSR (arg0 : (BitVec 12)) (arg1 : (BitVec 64)) : SailM (Result (BitVec 
                                                     (do
                                                       if ((((Sail.BitVec.extractLsb v__3858 11 5) == (0b1011100#7 : (BitVec 7))) && (let index : (BitVec 5) :=
                                                              (Sail.BitVec.extractLsb v__3858 4 0)
-                                                           ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)))) : Bool)
+                                                           ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)) : Bool)) : Bool)
                                                       then
                                                         (do
                                                           let index : (BitVec 5) :=
@@ -5178,7 +5121,7 @@ def write_CSR (arg0 : (BitVec 12)) (arg1 : (BitVec 64)) : SailM (Result (BitVec 
                                                           if ((((Sail.BitVec.extractLsb v__3858 11 5) == (0b0111001#7 : (BitVec 7))) && (let index : (BitVec 5) :=
                                                                  (Sail.BitVec.extractLsb v__3858 4 0)
                                                                ((xlen == 32) && (((BitVec.toNatInt
-                                                                     index) ≥b 3) : Bool)))) : Bool)
+                                                                     index) ≥b 3) : Bool)) : Bool)) : Bool)
                                                           then
                                                             (do
                                                               let index : (BitVec 5) :=
@@ -5314,7 +5257,7 @@ def write_CSR (arg0 : (BitVec 12)) (arg1 : (BitVec 64)) : SailM (Result (BitVec 
                                             (do
                                               if ((((Sail.BitVec.extractLsb v__3858 11 5) == (0b1011100#7 : (BitVec 7))) && (let index : (BitVec 5) :=
                                                      (Sail.BitVec.extractLsb v__3858 4 0)
-                                                   ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)))) : Bool)
+                                                   ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)) : Bool)) : Bool)
                                               then
                                                 (do
                                                   let index : (BitVec 5) :=
@@ -5326,7 +5269,7 @@ def write_CSR (arg0 : (BitVec 12)) (arg1 : (BitVec 64)) : SailM (Result (BitVec 
                                                 (do
                                                   if ((((Sail.BitVec.extractLsb v__3858 11 5) == (0b0111001#7 : (BitVec 7))) && (let index : (BitVec 5) :=
                                                          (Sail.BitVec.extractLsb v__3858 4 0)
-                                                       ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)))) : Bool)
+                                                       ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)) : Bool)) : Bool)
                                                   then
                                                     (do
                                                       let index : (BitVec 5) :=
@@ -5437,15 +5380,9 @@ def write_CSR (arg0 : (BitVec 12)) (arg1 : (BitVec 64)) : SailM (Result (BitVec 
           (pure (Ok (← readReg medeleg))))
       else
         (do
-          if ((xlen == 32) : Bool)
-          then
-            (do
-              writeReg medeleg (legalize_medeleg (← readReg medeleg)
-                ((Sail.BitVec.extractLsb (← readReg medeleg) 63 32) ++ value))
-              (pure (Ok (Sail.BitVec.extractLsb (← readReg medeleg) 31 0))))
-          else
-            (match (0x302#12, value) with
-            )))
+          writeReg medeleg (legalize_medeleg (← readReg medeleg)
+            ((Sail.BitVec.extractLsb (← readReg medeleg) 63 32) ++ value))
+          (pure (Ok (Sail.BitVec.extractLsb (← readReg medeleg) 31 0)))))
   | (0x312, value) =>
     (do
       if ((xlen == 32) : Bool)
@@ -5461,7 +5398,7 @@ def write_CSR (arg0 : (BitVec 12)) (arg1 : (BitVec 64)) : SailM (Result (BitVec 
             (do
               if ((((Sail.BitVec.extractLsb v__3858 11 4) == (0x3A#8 : (BitVec 8))) && (let idx : (BitVec 4) :=
                      (Sail.BitVec.extractLsb v__3858 3 0)
-                   (((BitVec.access idx 0) == 0#1) || (xlen == 32)))) : Bool)
+                   (((BitVec.access idx 0) == 0#1) || (xlen == 32)) : Bool)) : Bool)
               then
                 (do
                   let idx : (BitVec 4) := (Sail.BitVec.extractLsb v__3858 3 0)
@@ -5557,19 +5494,12 @@ def write_CSR (arg0 : (BitVec 12)) (arg1 : (BitVec 64)) : SailM (Result (BitVec 
                                           (pure (Ok (← readReg mcyclecfg))))
                                       else
                                         (do
-                                          if ((xlen == 32) : Bool)
-                                          then
-                                            (do
-                                              writeReg mcyclecfg (← (legalize_smcntrpmf
-                                                  (← readReg mcyclecfg)
-                                                  ((Sail.BitVec.extractLsb (← readReg mcyclecfg)
-                                                      63 32) ++ value)))
-                                              (pure (Ok
-                                                  (Sail.BitVec.extractLsb (← readReg mcyclecfg)
-                                                    (xlen -i 1) 0))))
-                                          else
-                                            (match (0x321#12, value) with
-                                            )))
+                                          writeReg mcyclecfg (← (legalize_smcntrpmf
+                                              (← readReg mcyclecfg)
+                                              ((Sail.BitVec.extractLsb (← readReg mcyclecfg) 63 32) ++ value)))
+                                          (pure (Ok
+                                              (Sail.BitVec.extractLsb (← readReg mcyclecfg)
+                                                (xlen -i 1) 0)))))
                                   | (0x721, value) =>
                                     (do
                                       if ((xlen == 32) : Bool)
@@ -5612,7 +5542,7 @@ def write_CSR (arg0 : (BitVec 12)) (arg1 : (BitVec 64)) : SailM (Result (BitVec 
                                                     (do
                                                       if ((((Sail.BitVec.extractLsb v__3858 11 5) == (0b1011100#7 : (BitVec 7))) && (let index : (BitVec 5) :=
                                                              (Sail.BitVec.extractLsb v__3858 4 0)
-                                                           ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)))) : Bool)
+                                                           ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)) : Bool)) : Bool)
                                                       then
                                                         (do
                                                           let index : (BitVec 5) :=
@@ -5625,7 +5555,7 @@ def write_CSR (arg0 : (BitVec 12)) (arg1 : (BitVec 64)) : SailM (Result (BitVec 
                                                           if ((((Sail.BitVec.extractLsb v__3858 11 5) == (0b0111001#7 : (BitVec 7))) && (let index : (BitVec 5) :=
                                                                  (Sail.BitVec.extractLsb v__3858 4 0)
                                                                ((xlen == 32) && (((BitVec.toNatInt
-                                                                     index) ≥b 3) : Bool)))) : Bool)
+                                                                     index) ≥b 3) : Bool)) : Bool)) : Bool)
                                                           then
                                                             (do
                                                               let index : (BitVec 5) :=
@@ -5739,19 +5669,13 @@ def write_CSR (arg0 : (BitVec 12)) (arg1 : (BitVec 64)) : SailM (Result (BitVec 
                                                 (xlen -i 1) 0))))
                                       else
                                         (do
-                                          if ((xlen == 32) : Bool)
-                                          then
-                                            (do
-                                              writeReg minstretcfg (← (legalize_smcntrpmf
-                                                  (← readReg minstretcfg)
-                                                  ((Sail.BitVec.extractLsb (← readReg minstretcfg)
-                                                      63 32) ++ value)))
-                                              (pure (Ok
-                                                  (Sail.BitVec.extractLsb (← readReg minstretcfg)
-                                                    (xlen -i 1) 0))))
-                                          else
-                                            (match (0x322#12, value) with
-                                            )))
+                                          writeReg minstretcfg (← (legalize_smcntrpmf
+                                              (← readReg minstretcfg)
+                                              ((Sail.BitVec.extractLsb (← readReg minstretcfg) 63
+                                                  32) ++ value)))
+                                          (pure (Ok
+                                              (Sail.BitVec.extractLsb (← readReg minstretcfg)
+                                                (xlen -i 1) 0)))))
                                   | (0x722, value) =>
                                     (do
                                       if ((xlen == 32) : Bool)
@@ -5795,7 +5719,7 @@ def write_CSR (arg0 : (BitVec 12)) (arg1 : (BitVec 64)) : SailM (Result (BitVec 
                                                     (do
                                                       if ((((Sail.BitVec.extractLsb v__3858 11 5) == (0b1011100#7 : (BitVec 7))) && (let index : (BitVec 5) :=
                                                              (Sail.BitVec.extractLsb v__3858 4 0)
-                                                           ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)))) : Bool)
+                                                           ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)) : Bool)) : Bool)
                                                       then
                                                         (do
                                                           let index : (BitVec 5) :=
@@ -5808,7 +5732,7 @@ def write_CSR (arg0 : (BitVec 12)) (arg1 : (BitVec 64)) : SailM (Result (BitVec 
                                                           if ((((Sail.BitVec.extractLsb v__3858 11 5) == (0b0111001#7 : (BitVec 7))) && (let index : (BitVec 5) :=
                                                                  (Sail.BitVec.extractLsb v__3858 4 0)
                                                                ((xlen == 32) && (((BitVec.toNatInt
-                                                                     index) ≥b 3) : Bool)))) : Bool)
+                                                                     index) ≥b 3) : Bool)) : Bool)) : Bool)
                                                           then
                                                             (do
                                                               let index : (BitVec 5) :=
@@ -5944,7 +5868,7 @@ def write_CSR (arg0 : (BitVec 12)) (arg1 : (BitVec 64)) : SailM (Result (BitVec 
                                             (do
                                               if ((((Sail.BitVec.extractLsb v__3858 11 5) == (0b1011100#7 : (BitVec 7))) && (let index : (BitVec 5) :=
                                                      (Sail.BitVec.extractLsb v__3858 4 0)
-                                                   ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)))) : Bool)
+                                                   ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)) : Bool)) : Bool)
                                               then
                                                 (do
                                                   let index : (BitVec 5) :=
@@ -5956,7 +5880,7 @@ def write_CSR (arg0 : (BitVec 12)) (arg1 : (BitVec 64)) : SailM (Result (BitVec 
                                                 (do
                                                   if ((((Sail.BitVec.extractLsb v__3858 11 5) == (0b0111001#7 : (BitVec 7))) && (let index : (BitVec 5) :=
                                                          (Sail.BitVec.extractLsb v__3858 4 0)
-                                                       ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)))) : Bool)
+                                                       ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)) : Bool)) : Bool)
                                                   then
                                                     (do
                                                       let index : (BitVec 5) :=
@@ -6110,7 +6034,7 @@ def write_CSR (arg0 : (BitVec 12)) (arg1 : (BitVec 64)) : SailM (Result (BitVec 
     (do
       if ((((Sail.BitVec.extractLsb v__3858 11 4) == (0x3A#8 : (BitVec 8))) && (let idx : (BitVec 4) :=
              (Sail.BitVec.extractLsb v__3858 3 0)
-           (((BitVec.access idx 0) == 0#1) || (xlen == 32)))) : Bool)
+           (((BitVec.access idx 0) == 0#1) || (xlen == 32)) : Bool)) : Bool)
       then
         (do
           let idx : (BitVec 4) := (Sail.BitVec.extractLsb v__3858 3 0)
@@ -6201,18 +6125,11 @@ def write_CSR (arg0 : (BitVec 12)) (arg1 : (BitVec 64)) : SailM (Result (BitVec 
                                   (pure (Ok (← readReg mcyclecfg))))
                               else
                                 (do
-                                  if ((xlen == 32) : Bool)
-                                  then
-                                    (do
-                                      writeReg mcyclecfg (← (legalize_smcntrpmf
-                                          (← readReg mcyclecfg)
-                                          ((Sail.BitVec.extractLsb (← readReg mcyclecfg) 63 32) ++ value)))
-                                      (pure (Ok
-                                          (Sail.BitVec.extractLsb (← readReg mcyclecfg)
-                                            (xlen -i 1) 0))))
-                                  else
-                                    (match (0x321#12, value) with
-                                    )))
+                                  writeReg mcyclecfg (← (legalize_smcntrpmf
+                                      (← readReg mcyclecfg)
+                                      ((Sail.BitVec.extractLsb (← readReg mcyclecfg) 63 32) ++ value)))
+                                  (pure (Ok
+                                      (Sail.BitVec.extractLsb (← readReg mcyclecfg) (xlen -i 1) 0)))))
                           | (0x721, value) =>
                             (do
                               if ((xlen == 32) : Bool)
@@ -6253,7 +6170,7 @@ def write_CSR (arg0 : (BitVec 12)) (arg1 : (BitVec 64)) : SailM (Result (BitVec 
                                             (do
                                               if ((((Sail.BitVec.extractLsb v__3858 11 5) == (0b1011100#7 : (BitVec 7))) && (let index : (BitVec 5) :=
                                                      (Sail.BitVec.extractLsb v__3858 4 0)
-                                                   ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)))) : Bool)
+                                                   ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)) : Bool)) : Bool)
                                               then
                                                 (do
                                                   let index : (BitVec 5) :=
@@ -6265,7 +6182,7 @@ def write_CSR (arg0 : (BitVec 12)) (arg1 : (BitVec 64)) : SailM (Result (BitVec 
                                                 (do
                                                   if ((((Sail.BitVec.extractLsb v__3858 11 5) == (0b0111001#7 : (BitVec 7))) && (let index : (BitVec 5) :=
                                                          (Sail.BitVec.extractLsb v__3858 4 0)
-                                                       ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)))) : Bool)
+                                                       ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)) : Bool)) : Bool)
                                                   then
                                                     (do
                                                       let index : (BitVec 5) :=
@@ -6367,18 +6284,12 @@ def write_CSR (arg0 : (BitVec 12)) (arg1 : (BitVec 64)) : SailM (Result (BitVec 
                                         0))))
                               else
                                 (do
-                                  if ((xlen == 32) : Bool)
-                                  then
-                                    (do
-                                      writeReg minstretcfg (← (legalize_smcntrpmf
-                                          (← readReg minstretcfg)
-                                          ((Sail.BitVec.extractLsb (← readReg minstretcfg) 63 32) ++ value)))
-                                      (pure (Ok
-                                          (Sail.BitVec.extractLsb (← readReg minstretcfg)
-                                            (xlen -i 1) 0))))
-                                  else
-                                    (match (0x322#12, value) with
-                                    )))
+                                  writeReg minstretcfg (← (legalize_smcntrpmf
+                                      (← readReg minstretcfg)
+                                      ((Sail.BitVec.extractLsb (← readReg minstretcfg) 63 32) ++ value)))
+                                  (pure (Ok
+                                      (Sail.BitVec.extractLsb (← readReg minstretcfg) (xlen -i 1)
+                                        0)))))
                           | (0x722, value) =>
                             (do
                               if ((xlen == 32) : Bool)
@@ -6420,7 +6331,7 @@ def write_CSR (arg0 : (BitVec 12)) (arg1 : (BitVec 64)) : SailM (Result (BitVec 
                                             (do
                                               if ((((Sail.BitVec.extractLsb v__3858 11 5) == (0b1011100#7 : (BitVec 7))) && (let index : (BitVec 5) :=
                                                      (Sail.BitVec.extractLsb v__3858 4 0)
-                                                   ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)))) : Bool)
+                                                   ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)) : Bool)) : Bool)
                                               then
                                                 (do
                                                   let index : (BitVec 5) :=
@@ -6432,7 +6343,7 @@ def write_CSR (arg0 : (BitVec 12)) (arg1 : (BitVec 64)) : SailM (Result (BitVec 
                                                 (do
                                                   if ((((Sail.BitVec.extractLsb v__3858 11 5) == (0b0111001#7 : (BitVec 7))) && (let index : (BitVec 5) :=
                                                          (Sail.BitVec.extractLsb v__3858 4 0)
-                                                       ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)))) : Bool)
+                                                       ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)) : Bool)) : Bool)
                                                   then
                                                     (do
                                                       let index : (BitVec 5) :=
@@ -6554,7 +6465,7 @@ def write_CSR (arg0 : (BitVec 12)) (arg1 : (BitVec 64)) : SailM (Result (BitVec 
                                     (do
                                       if ((((Sail.BitVec.extractLsb v__3858 11 5) == (0b1011100#7 : (BitVec 7))) && (let index : (BitVec 5) :=
                                              (Sail.BitVec.extractLsb v__3858 4 0)
-                                           ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)))) : Bool)
+                                           ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)) : Bool)) : Bool)
                                       then
                                         (do
                                           let index : (BitVec 5) :=
@@ -6566,7 +6477,7 @@ def write_CSR (arg0 : (BitVec 12)) (arg1 : (BitVec 64)) : SailM (Result (BitVec 
                                         (do
                                           if ((((Sail.BitVec.extractLsb v__3858 11 5) == (0b0111001#7 : (BitVec 7))) && (let index : (BitVec 5) :=
                                                  (Sail.BitVec.extractLsb v__3858 4 0)
-                                               ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)))) : Bool)
+                                               ((xlen == 32) && (((BitVec.toNatInt index) ≥b 3) : Bool)) : Bool)) : Bool)
                                           then
                                             (do
                                               let index : (BitVec 5) :=
