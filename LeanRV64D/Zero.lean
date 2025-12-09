@@ -6,6 +6,7 @@ set_option linter.unusedVariables false
 set_option match.ignoreUnusedAlts true
 
 open Sail
+open ConcurrencyInterfaceV1
 
 noncomputable section
 
@@ -182,8 +183,8 @@ open CSRAccessType
 open AtomicSupport
 open Architecture
 
-/-- Type quantifiers: k_ex631600_ : Nat, k_ex631600_ ∈ {16, 32, 64, 128} -/
-def float_is_zero (op : (BitVec k_ex631600_)) : Bool :=
+/-- Type quantifiers: k_ex633537_ : Nat, k_ex633537_ ∈ {16, 32, 64, 128} -/
+def float_is_zero (op : (BitVec k_ex633537_)) : Bool :=
   let { exp := exp, mantissa := mantissa, sign := _ } := (float_decompose op)
   ((is_all_zeros exp) && (is_all_zeros mantissa))
 

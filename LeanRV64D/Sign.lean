@@ -6,6 +6,7 @@ set_option linter.unusedVariables false
 set_option match.ignoreUnusedAlts true
 
 open Sail
+open ConcurrencyInterfaceV1
 
 noncomputable section
 
@@ -182,11 +183,11 @@ open CSRAccessType
 open AtomicSupport
 open Architecture
 
-/-- Type quantifiers: k_ex631596_ : Nat, k_ex631596_ ∈ {16, 32, 64, 128} -/
-def float_is_positive (op : (BitVec k_ex631596_)) : Bool :=
+/-- Type quantifiers: k_ex633533_ : Nat, k_ex633533_ ∈ {16, 32, 64, 128} -/
+def float_is_positive (op : (BitVec k_ex633533_)) : Bool :=
   (is_highest_zero op)
 
-/-- Type quantifiers: k_ex631598_ : Nat, k_ex631598_ ∈ {16, 32, 64, 128} -/
-def float_is_negative (op : (BitVec k_ex631598_)) : Bool :=
+/-- Type quantifiers: k_ex633535_ : Nat, k_ex633535_ ∈ {16, 32, 64, 128} -/
+def float_is_negative (op : (BitVec k_ex633535_)) : Bool :=
   (is_highest_one op)
 

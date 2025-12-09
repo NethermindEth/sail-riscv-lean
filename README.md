@@ -100,17 +100,18 @@ This work was funded by a grant provided by the [Ethereum Foundation](https://et
 
 # Statistics
 
-Lines: 145,027  
-Definitions: 4,213  
+Lines: 145,491  
+Definitions: 4,228  
 Inductive definitions: 177  
-Abbreviations: 164  
+Abbreviations: 175  
 
 ## Warnings and Errors
 
-Errors found: 3  
+Errors found: 4  
 Warnings found: 1  
 
 ### Error Classes
 
-- 2x cannot lift `(<- ...)` over a binder, this error usually happens when you are trying to lift a method nested in a `fun`, `let`, or `match`-alternative, and it can often be fixed by adding a missing `do`
+- 2x Unknown identifier `Arch.pa`
+- 1x invalid binder annotation, type is not a class instance
 - 1x Lean exited with code 1

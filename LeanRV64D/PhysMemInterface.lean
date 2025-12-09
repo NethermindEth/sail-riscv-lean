@@ -9,6 +9,7 @@ set_option linter.unusedVariables false
 set_option match.ignoreUnusedAlts true
 
 open Sail
+open ConcurrencyInterfaceV1
 
 noncomputable section
 
@@ -269,9 +270,6 @@ def num_of_barrier_kind (arg_ : barrier_kind) : Int :=
 def undefined_RISCV_strong_access (_ : Unit) : SailM RISCV_strong_access := do
   (pure { variety := (← (undefined_Access_variety ())) })
 
-def physaddrbits_zero_extend (xs : (BitVec (if ( 64 = 32  : Bool) then 34 else 64))) : (BitVec 64) :=
-  (zero_extend (m := 64) xs)
-
 /-- Type quantifiers: width : Nat, width ≥ 0, 0 < width ∧ width ≤ max_mem_access -/
 def write_ram (wk : write_kind) (app_1 : physaddr) (width : Nat) (data : (BitVec (8 * width))) (meta' : Unit) : SailM Bool := do
   let .Physaddr addr := app_1
@@ -313,7 +311,7 @@ def write_ram_ea (_wk : write_kind) (app_1 : physaddr) (_width : Nat) : Unit :=
   let .Physaddr _addr := app_1
   ()
 
-/-- Type quantifiers: k_ex632185_ : Bool, width : Nat, width ≥ 0, 0 < width ∧
+/-- Type quantifiers: k_ex634429_ : Bool, width : Nat, width ≥ 0, 0 < width ∧
   width ≤ max_mem_access -/
 def read_ram (rk : read_kind) (app_1 : physaddr) (width : Nat) (read_meta : Bool) : SailM ((BitVec (8 * width)) × Unit) := do
   let .Physaddr addr := app_1

@@ -6,6 +6,7 @@ set_option linter.unusedVariables false
 set_option match.ignoreUnusedAlts true
 
 open Sail
+open ConcurrencyInterfaceV1
 
 noncomputable section
 
@@ -182,18 +183,18 @@ open CSRAccessType
 open AtomicSupport
 open Architecture
 
-/-- Type quantifiers: k_ex631558_ : Nat, k_ex631558_ ∈ {16, 32, 64, 128} -/
-def float_is_nan (op : (BitVec k_ex631558_)) : Bool :=
+/-- Type quantifiers: k_ex633495_ : Nat, k_ex633495_ ∈ {16, 32, 64, 128} -/
+def float_is_nan (op : (BitVec k_ex633495_)) : Bool :=
   let { exp := exp, mantissa := mantissa, sign := _ } := (float_decompose op)
   ((is_all_ones exp) && (! (is_all_zeros mantissa)))
 
-/-- Type quantifiers: k_ex631575_ : Nat, k_ex631575_ ∈ {16, 32, 64, 128} -/
-def float_is_snan (op : (BitVec k_ex631575_)) : Bool :=
+/-- Type quantifiers: k_ex633512_ : Nat, k_ex633512_ ∈ {16, 32, 64, 128} -/
+def float_is_snan (op : (BitVec k_ex633512_)) : Bool :=
   let { mantissa := mantissa, sign := _, exp := _ } := (float_decompose op)
   ((float_is_nan op) && (is_highest_zero mantissa))
 
-/-- Type quantifiers: k_ex631582_ : Nat, k_ex631582_ ∈ {16, 32, 64, 128} -/
-def float_is_qnan (op : (BitVec k_ex631582_)) : Bool :=
+/-- Type quantifiers: k_ex633519_ : Nat, k_ex633519_ ∈ {16, 32, 64, 128} -/
+def float_is_qnan (op : (BitVec k_ex633519_)) : Bool :=
   let { mantissa := mantissa, sign := _, exp := _ } := (float_decompose op)
   ((float_is_nan op) && (is_highest_one mantissa))
 
