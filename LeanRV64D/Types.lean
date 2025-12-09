@@ -364,57 +364,6 @@ def _get_Mstatus_FS (v : (BitVec 64)) : (BitVec 2) :=
 def _get_Mstatus_VS (v : (BitVec 64)) : (BitVec 2) :=
   (Sail.BitVec.extractLsb v 10 9)
 
-def currentlyEnabled_measure (ext : extension) : Int :=
-  match ext with
-  | Ext_Zicsr => 0
-  | Ext_A => 1
-  | Ext_B => 1
-  | Ext_C => 1
-  | Ext_D => 1
-  | Ext_F => 1
-  | Ext_M => 1
-  | Ext_S => 1
-  | Ext_V => 5
-  | Ext_H => 4
-  | Ext_Smcntrpmf => 3
-  | Ext_Zabha => 3
-  | Ext_Zacas => 3
-  | Ext_Za64rs => 3
-  | Ext_Za128rs => 3
-  | Ext_Zcb => 3
-  | Ext_Zcd => 3
-  | Ext_Zcf => 3
-  | Ext_Zcmop => 3
-  | Ext_Zfhmin => 3
-  | Ext_Zhinx => 3
-  | Ext_Zicfilp => 3
-  | Ext_Zvl32b => 0
-  | Ext_Zvl64b => 0
-  | Ext_Zvl128b => 0
-  | Ext_Zvl256b => 0
-  | Ext_Zvl512b => 0
-  | Ext_Zvl1024b => 0
-  | Ext_Zve32x => 1
-  | Ext_Zvfbfmin => 3
-  | Ext_Zvfbfwma => 4
-  | Ext_Zve64f => 3
-  | Ext_Zve64d => 4
-  | Ext_Zvfh => 4
-  | Ext_Zvfhmin => 5
-  | Ext_Zvbb => 6
-  | Ext_Zvbc => 6
-  | Ext_Zvkb => 7
-  | Ext_Zvkg => 6
-  | Ext_Zvkned => 6
-  | Ext_Zvknha => 6
-  | Ext_Zvknhb => 6
-  | Ext_Zvksed => 6
-  | Ext_Zvksh => 6
-  | Ext_Sscofpmf => 3
-  | Ext_Svrsw60t59b => 3
-  | Ext_Zhinxmin => 4
-  | _ => 2
-
 def Mk_MEnvcfg (v : (BitVec 64)) : (BitVec 64) :=
   v
 
@@ -1821,7 +1770,7 @@ def maybe_aqrl_forwards (arg_ : (Bool × Bool)) : String :=
   | (false, true) => ".rl"
   | (false, false) => ""
 
-/-- Type quantifiers: k_ex634194_ : Bool -/
+/-- Type quantifiers: k_ex633947_ : Bool -/
 def maybe_u_forwards (arg_ : Bool) : String :=
   match arg_ with
   | true => "u"

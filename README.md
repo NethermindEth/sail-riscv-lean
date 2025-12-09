@@ -100,12 +100,17 @@ This work was funded by a grant provided by the [Ethereum Foundation](https://et
 
 # Statistics
 
-Lines: 145,038  
-Definitions: 4,215  
+Lines: 145,027  
+Definitions: 4,213  
 Inductive definitions: 177  
 Abbreviations: 164  
 
 ## Warnings and Errors
 
-Errors found: 0  
+Errors found: 3  
 Warnings found: 1  
+
+### Error Classes
+
+- 2x cannot lift `(<- ...)` over a binder, this error usually happens when you are trying to lift a method nested in a `fun`, `let`, or `match`-alternative, and it can often be fixed by adding a missing `do`
+- 1x Lean exited with code 1

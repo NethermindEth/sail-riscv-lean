@@ -1,4 +1,5 @@
 import LeanRV64D.Prelude
+import LeanRV64D.Errors
 import LeanRV64D.MemMetadata
 import LeanRV64D.ReadWriteV1
 
@@ -274,32 +275,33 @@ def physaddrbits_zero_extend (xs : (BitVec (if ( 64 = 32  : Bool) then 34 else 6
 /-- Type quantifiers: width : Nat, width ≥ 0, 0 < width ∧ width ≤ max_mem_access -/
 def write_ram (wk : write_kind) (app_1 : physaddr) (width : Nat) (data : (BitVec (8 * width))) (meta' : Unit) : SailM Bool := do
   let .Physaddr addr := app_1
-  let request : (Mem_write_request width 64 physaddrbits Unit RISCV_strong_access) :=
-    { access_kind := match wk with
-      | Write_plain =>
-        (AK_explicit
-          { variety := AV_plain
-            strength := AS_normal })
-      | Write_RISCV_release =>
-        (AK_explicit
-          { variety := AV_plain
-            strength := AS_rel_or_acq })
-      | Write_RISCV_strong_release => (AK_arch { variety := AV_plain })
-      | Write_RISCV_conditional =>
-        (AK_explicit
-          { variety := AV_exclusive
-            strength := AS_normal })
-      | Write_RISCV_conditional_release =>
-        (AK_explicit
-          { variety := AV_exclusive
-            strength := AS_rel_or_acq })
-      | Write_RISCV_conditional_strong_release => (AK_arch { variety := AV_exclusive })
-      va := none
-      pa := addr
-      translation := ()
-      size := width
-      value := (some data)
-      tag := none }
+  let request ← (( do
+    (pure { access_kind := match wk with
+            | Write_plain =>
+              (AK_explicit
+                { variety := AV_plain
+                  strength := AS_normal })
+            | Write_RISCV_release =>
+              (← (internal_error "core/phys_mem_interface.sail" 90 "Write_RISCV_release is unused"))
+            | Write_RISCV_strong_release =>
+              (← (internal_error "core/phys_mem_interface.sail" 91
+                  "Write_RISCV_strong_release is unused"))
+            | Write_RISCV_conditional =>
+              (AK_explicit
+                { variety := AV_exclusive
+                  strength := AS_normal })
+            | Write_RISCV_conditional_release =>
+              (AK_explicit
+                { variety := AV_exclusive
+                  strength := AS_rel_or_acq })
+            | Write_RISCV_conditional_strong_release => (AK_arch { variety := AV_exclusive })
+            va := none
+            pa := addr
+            translation := ()
+            size := width
+            value := (some data)
+            tag := none }) ) : SailM
+    (Mem_write_request width 64 physaddrbits Unit RISCV_strong_access) )
   match (← (sail_mem_write request)) with
   | .Ok _ =>
     (let _ : Unit := (__WriteRAM_Meta addr width meta')
@@ -311,7 +313,7 @@ def write_ram_ea (_wk : write_kind) (app_1 : physaddr) (_width : Nat) : Unit :=
   let .Physaddr _addr := app_1
   ()
 
-/-- Type quantifiers: k_ex632423_ : Bool, width : Nat, width ≥ 0, 0 < width ∧
+/-- Type quantifiers: k_ex632185_ : Bool, width : Nat, width ≥ 0, 0 < width ∧
   width ≤ max_mem_access -/
 def read_ram (rk : read_kind) (app_1 : physaddr) (width : Nat) (read_meta : Bool) : SailM ((BitVec (8 * width)) × Unit) := do
   let .Physaddr addr := app_1
@@ -319,32 +321,33 @@ def read_ram (rk : read_kind) (app_1 : physaddr) (width : Nat) (read_meta : Bool
     if (read_meta : Bool)
     then (__ReadRAM_Meta addr width)
     else default_meta
-  let request : (Mem_read_request width 64 physaddrbits Unit RISCV_strong_access) :=
-    { access_kind := match rk with
-      | Read_plain =>
-        (AK_explicit
-          { variety := AV_plain
-            strength := AS_normal })
-      | Read_ifetch => (AK_ifetch ())
-      | Read_RISCV_acquire =>
-        (AK_explicit
-          { variety := AV_plain
-            strength := AS_rel_or_acq })
-      | Read_RISCV_strong_acquire => (AK_arch { variety := AV_plain })
-      | Read_RISCV_reserved =>
-        (AK_explicit
-          { variety := AV_exclusive
-            strength := AS_normal })
-      | Read_RISCV_reserved_acquire =>
-        (AK_explicit
-          { variety := AV_exclusive
-            strength := AS_rel_or_acq })
-      | Read_RISCV_reserved_strong_acquire => (AK_arch { variety := AV_exclusive })
-      va := none
-      pa := addr
-      translation := ()
-      size := width
-      tag := false }
+  let request ← (( do
+    (pure { access_kind := match rk with
+            | Read_plain =>
+              (AK_explicit
+                { variety := AV_plain
+                  strength := AS_normal })
+            | Read_ifetch => (AK_ifetch ())
+            | Read_RISCV_acquire =>
+              (← (internal_error "core/phys_mem_interface.sail" 131 "Read_RISCV_acquire is unused"))
+            | Read_RISCV_strong_acquire =>
+              (← (internal_error "core/phys_mem_interface.sail" 132
+                  "Read_RISCV_strong_acquire is unused"))
+            | Read_RISCV_reserved =>
+              (AK_explicit
+                { variety := AV_exclusive
+                  strength := AS_normal })
+            | Read_RISCV_reserved_acquire =>
+              (AK_explicit
+                { variety := AV_exclusive
+                  strength := AS_rel_or_acq })
+            | Read_RISCV_reserved_strong_acquire => (AK_arch { variety := AV_exclusive })
+            va := none
+            pa := addr
+            translation := ()
+            size := width
+            tag := false }) ) : SailM
+    (Mem_read_request width 64 physaddrbits Unit RISCV_strong_access) )
   match (← (sail_mem_read request)) with
   | .Ok (value, _) => (pure (value, meta'))
   | .Err () => throw Error.Exit
