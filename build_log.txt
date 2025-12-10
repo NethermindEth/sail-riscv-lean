@@ -1,11 +1,11 @@
-✔ [2/116] Built LeanRV64D.Sail.Attr (358ms)
-✔ [3/116] Built LeanRV64D.Sail.BitVec (700ms)
-✔ [4/116] Built LeanRV64D.Sail.IntRange (349ms)
+✔ [2/116] Built LeanRV64D.Sail.Attr (359ms)
+✔ [3/116] Built LeanRV64D.Sail.BitVec (682ms)
+✔ [4/116] Built LeanRV64D.Sail.IntRange (348ms)
 ✔ [5/116] Built LeanRV64D.Sail.Sail (1.5s)
 ✔ [6/116] Built LeanRV64D.Defs (17s)
-✔ [7/116] Built LeanRV64D.Specialization (489ms)
-✔ [8/116] Built LeanRV64D.FakeReal (389ms)
-✖ [9/116] Building LeanRV64D.RiscvExtras (421ms)
+✔ [7/116] Built LeanRV64D.Specialization (479ms)
+✔ [8/116] Built LeanRV64D.FakeReal (394ms)
+✖ [9/116] Building LeanRV64D.RiscvExtras (419ms)
 trace: .> LEAN_PATH=/__w/sail-riscv-lean/sail-riscv-lean/sail-riscv/build/model/Lean_RV64D/.lake/build/lib/lean /github/home/.elan/toolchains/leanprover--lean4-nightly---nightly-2025-11-18/bin/lean --tstack=400000 /__w/sail-riscv-lean/sail-riscv-lean/sail-riscv/build/model/Lean_RV64D/LeanRV64D/RiscvExtras.lean -o /__w/sail-riscv-lean/sail-riscv-lean/sail-riscv/build/model/Lean_RV64D/.lake/build/lib/lean/LeanRV64D/RiscvExtras.olean -i /__w/sail-riscv-lean/sail-riscv-lean/sail-riscv/build/model/Lean_RV64D/.lake/build/lib/lean/LeanRV64D/RiscvExtras.ilean -c /__w/sail-riscv-lean/sail-riscv-lean/sail-riscv/build/model/Lean_RV64D/.lake/build/ir/LeanRV64D/RiscvExtras.c --setup /__w/sail-riscv-lean/sail-riscv-lean/sail-riscv/build/model/Lean_RV64D/.lake/build/ir/LeanRV64D/RiscvExtras.setup.json --json
 error: LeanRV64D/RiscvExtras.lean:22:10: invalid binder annotation, type is not a class instance
   Arch
