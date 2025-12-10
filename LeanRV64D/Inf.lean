@@ -183,8 +183,8 @@ open CSRAccessType
 open AtomicSupport
 open Architecture
 
-/-- Type quantifiers: k_ex633526_ : Nat, k_ex633526_ ∈ {16, 32, 64, 128} -/
-def float_is_inf (op : (BitVec k_ex633526_)) : Bool :=
+/-- Type quantifiers: k_ex633590_ : Nat, k_ex633590_ ∈ {16, 32, 64, 128} -/
+def float_is_inf (op : (BitVec k_ex633590_)) : Bool :=
   let { exp := exp, mantissa := mantissa, sign := _ } := (float_decompose op)
   ((is_all_ones exp) && (is_all_zeros mantissa))
 

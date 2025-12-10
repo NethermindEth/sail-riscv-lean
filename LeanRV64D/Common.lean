@@ -212,8 +212,8 @@ def fp_rounding_default : fp_rounding_modes := fp_rounding_rne
 
 /-- Type quantifiers: atom_n : Int -/
 def undefined_float_bits (atom_n : Int) : SailM (float_bits atom_n) := do
-  (pure { sign := (← (undefined_bitvector 1))
-          exp := (← (undefined_bitvector
+  (pure { sign := ← (undefined_bitvector 1)
+          exp := ← (undefined_bitvector
               (if ((atom_n == 16) : Bool)
               then 5
               else
@@ -222,8 +222,8 @@ def undefined_float_bits (atom_n : Int) : SailM (float_bits atom_n) := do
                 else
                   (if ((atom_n == 64) : Bool)
                   then 11
-                  else 15)))))
-          mantissa := (← (undefined_bitvector
+                  else 15))))
+          mantissa := ← (undefined_bitvector
               (if ((atom_n == 16) : Bool)
               then 10
               else
@@ -232,7 +232,7 @@ def undefined_float_bits (atom_n : Int) : SailM (float_bits atom_n) := do
                 else
                   (if ((atom_n == 64) : Bool)
                   then 52
-                  else 112))))) })
+                  else 112)))) })
 
 /-- Type quantifiers: k_n : Nat, k_n ≥ 0, is_fp_bits(k_n) -/
 def float_decompose (op : (BitVec k_n)) : (float_bits k_n) :=

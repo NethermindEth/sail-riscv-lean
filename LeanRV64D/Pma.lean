@@ -289,22 +289,22 @@ def misaligned_fault_str_backwards_matches (arg_ : String) : Bool :=
   | _ => false
 
 def undefined_PMA (_ : Unit) : SailM PMA := do
-  (pure { cacheable := (← (undefined_bool ()))
-          coherent := (← (undefined_bool ()))
-          executable := (← (undefined_bool ()))
-          readable := (← (undefined_bool ()))
-          writable := (← (undefined_bool ()))
-          read_idempotent := (← (undefined_bool ()))
-          write_idempotent := (← (undefined_bool ()))
-          misaligned_fault := (← (undefined_misaligned_fault ()))
-          reservability := (← (undefined_Reservability ()))
-          supports_cbo_zero := (← (undefined_bool ())) })
+  (pure { cacheable := ← (undefined_bool ())
+          coherent := ← (undefined_bool ())
+          executable := ← (undefined_bool ())
+          readable := ← (undefined_bool ())
+          writable := ← (undefined_bool ())
+          read_idempotent := ← (undefined_bool ())
+          write_idempotent := ← (undefined_bool ())
+          misaligned_fault := ← (undefined_misaligned_fault ())
+          reservability := ← (undefined_Reservability ())
+          supports_cbo_zero := ← (undefined_bool ()) })
 
 def undefined_PMA_Region (_ : Unit) : SailM PMA_Region := do
-  (pure { base := (← (undefined_bitvector 64))
-          size := (← (undefined_bitvector 64))
-          attributes := (← (undefined_PMA ()))
-          include_in_device_tree := (← (undefined_bool ())) })
+  (pure { base := ← (undefined_bitvector 64)
+          size := ← (undefined_bitvector 64)
+          attributes := ← (undefined_PMA ())
+          include_in_device_tree := ← (undefined_bool ()) })
 
 /-- Type quantifiers: width : Nat, 1 ≤ width ∧ width ≤ 4096 -/
 def matching_pma (pmas : (List PMA_Region)) (addr : physaddr) (width : Nat) : (Option PMA_Region) :=

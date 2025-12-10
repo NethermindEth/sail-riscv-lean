@@ -100,18 +100,12 @@ This work was funded by a grant provided by the [Ethereum Foundation](https://et
 
 # Statistics
 
-Lines: 145,491  
-Definitions: 4,228  
+Lines: 145,716  
+Definitions: 4,232  
 Inductive definitions: 177  
 Abbreviations: 175  
 
 ## Warnings and Errors
 
-Errors found: 4  
+Errors found: 0  
 Warnings found: 1  
-
-### Error Classes
-
-- 2x Unknown identifier `Arch.pa`
-- 1x invalid binder annotation, type is not a class instance
-- 1x Lean exited with code 1

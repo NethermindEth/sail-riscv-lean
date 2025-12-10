@@ -10,6 +10,7 @@ import LeanRV64D.Sail.Sail
 import LeanRV64D.Defs
 
 open Sail
+open ConcurrencyInterfaceV1
 
 def print_bits (_ : String) (_ : BitVec n) : Unit := ()
 def print_string (_ : String) (_ : String) : Unit := ()

@@ -222,8 +222,8 @@ def num_of_Access_strength (arg_ : Access_strength) : Int :=
   | AS_acq_rcpc => 2
 
 def undefined_Explicit_access_kind (_ : Unit) : SailM Explicit_access_kind := do
-  (pure { variety := (← (undefined_Access_variety ()))
-          strength := (← (undefined_Access_strength ())) })
+  (pure { variety := ← (undefined_Access_variety ())
+          strength := ← (undefined_Access_strength ()) })
 
 /-- Type quantifiers: k_n : Nat, k_vasize : Nat, k_pa : Type, k_translation_summary : Type, k_arch_ak
   : Type, k_n > 0 ∧ k_vasize > 0 -/

@@ -1,4 +1,10 @@
-import LeanRV64D.Prelude
+import LeanRV64D.Sail.Sail
+import LeanRV64D.Sail.BitVec
+import LeanRV64D.Sail.IntRange
+import LeanRV64D.Defs
+import LeanRV64D.Specialization
+import LeanRV64D.FakeReal
+import LeanRV64D.RiscvExtras
 
 set_option maxHeartbeats 1_000_000_000
 set_option maxRecDepth 1_000_000
@@ -183,8 +189,18 @@ open CSRAccessType
 open AtomicSupport
 open Architecture
 
-def undefined_mul_op (_ : Unit) : SailM mul_op := do
-  (pure { result_part := ← (undefined_VectorHalf ())
-          signed_rs1 := ← (undefined_Signedness ())
-          signed_rs2 := ← (undefined_Signedness ()) })
+def ptw_start_callback (x_0 : (BitVec 64)) (x_1 : (MemoryAccessType Unit)) (x_2 : (Privilege × Unit)) : Unit :=
+  ()
+
+/-- Type quantifiers: x_0 : Nat, 0 ≤ x_0 ∧ x_0 ≤ 4 -/
+def ptw_step_callback (x_0 : Nat) (x_1 : (BitVec (if ( 64 = 32  : Bool) then 34 else 64))) (x_2 : (BitVec 64)) : Unit :=
+  ()
+
+/-- Type quantifiers: x_1 : Nat, 0 ≤ x_1 ∧ x_1 ≤ 4 -/
+def ptw_success_callback (x_0 : (BitVec 64)) (x_1 : Nat) : Unit :=
+  ()
+
+/-- Type quantifiers: x_1 : Nat, 0 ≤ x_1 ∧ x_1 ≤ 4 -/
+def ptw_fail_callback (x_0 : PTW_Error) (x_1 : Nat) (x_2 : (BitVec (if ( 64 = 32  : Bool) then 34 else 64))) : Unit :=
+  ()
 
