@@ -187,20 +187,6 @@ open CSRAccessType
 open AtomicSupport
 open Architecture
 
-def hartSupports_measure (ext : extension) : Int :=
-  match ext with
-  | Ext_D => 1
-  | Ext_Sstvecd => 1
-  | Ext_Ssu64xl => 1
-  | Ext_Zvkn => 1
-  | Ext_Zvks => 1
-  | Ext_C => 2
-  | Ext_Zvknc => 2
-  | Ext_Zvkng => 2
-  | Ext_Zvksc => 2
-  | Ext_Zvksg => 2
-  | _ => 0
-
 def extensionName_forwards (arg_ : extension) : String :=
   match arg_ with
   | Ext_M => "m"
@@ -633,6 +619,20 @@ def extensionName_backwards_matches (arg_ : String) : Bool :=
   | "svrsw60t59b" => true
   | "smcntrpmf" => true
   | _ => false
+
+def hartSupports_measure (ext : extension) : Int :=
+  match ext with
+  | Ext_D => 1
+  | Ext_Sstvecd => 1
+  | Ext_Ssu64xl => 1
+  | Ext_Zvkn => 1
+  | Ext_Zvks => 1
+  | Ext_C => 2
+  | Ext_Zvknc => 2
+  | Ext_Zvkng => 2
+  | Ext_Zvksc => 2
+  | Ext_Zvksg => 2
+  | _ => 0
 
 def hartSupports (merge_var : extension) : Bool :=
   match merge_var with
