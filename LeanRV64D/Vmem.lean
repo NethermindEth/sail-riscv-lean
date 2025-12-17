@@ -330,7 +330,7 @@ def translationMode (priv : Privilege) : SailM SATPMode := do
       | none => (internal_error "sys/vmem.sail" 221 "invalid translation mode in satp"))
 
 /-- Type quantifiers: tlb_index : Nat, k_ex656721_ : Bool, k_ex656720_ : Bool, sv_width : Nat, is_sv_mode(sv_width), 0
-  ≤ tlb_index ∧ tlb_index ≤ (64 - 1) -/
+  ≤ tlb_index ∧ tlb_index ≤ (2 ^ 6 - 1) -/
 def translate_TLB_hit (sv_width : Nat) (_asid : (BitVec (if ( 64 = 32  : Bool) then 9 else 16))) (vpn : (BitVec (sv_width - 12))) (ac : (MemoryAccessType Unit)) (priv : Privilege) (mxr : Bool) (do_sum : Bool) (ext_ptw : Unit) (tlb_index : Nat) (ent : TLB_Entry) : SailM (Result ((BitVec (if ( sv_width
   = 32  : Bool) then 22 else 44)) × Unit) (PTW_Error × Unit)) := do
   let pte_size :=

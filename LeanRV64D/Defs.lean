@@ -1346,7 +1346,9 @@ structure TLB_Entry where
   pteAddr : physaddr
   deriving BEq, Inhabited, Repr
 
-abbrev num_tlb_entries : Int := 64
+abbrev num_tlb_entries_exp : Int := 6
+
+abbrev num_tlb_entries : Int := (2 ^ 6)
 
 abbrev tlb_index_range := Nat
 
@@ -1595,7 +1597,7 @@ abbrev RegisterType : Register → Type
   | .mhpmcounter => (Vector (BitVec 64) 32)
   | .mhpmevent => (Vector (BitVec 64) 32)
   | .satp => (BitVec 64)
-  | .tlb => (Vector (Option TLB_Entry) 64)
+  | .tlb => (Vector (Option TLB_Entry) (2 ^ 6))
   | .pma_regions => (List PMA_Region)
   | .htif_payload_writes => (BitVec 4)
   | .htif_cmd_write => (BitVec 1)
@@ -1794,7 +1796,7 @@ instance : Inhabited (RegisterRef RegisterType (Vector (BitVec 64) 64)) where
   default := .Reg pmpaddr_n
 instance : Inhabited (RegisterRef RegisterType (Vector (BitVec 8) 64)) where
   default := .Reg pmpcfg_n
-instance : Inhabited (RegisterRef RegisterType (Vector (Option TLB_Entry) 64)) where
+instance : Inhabited (RegisterRef RegisterType (Vector (Option TLB_Entry) (2 ^ 6))) where
   default := .Reg tlb
 abbrev SailM := PreSailM RegisterType trivialChoiceSource exception
 abbrev SailME := PreSailME RegisterType trivialChoiceSource exception

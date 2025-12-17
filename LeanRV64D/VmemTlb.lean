@@ -208,14 +208,16 @@ def tlb_get_ppn (sv_width : Nat) (ent : TLB_Entry) (vpn : (BitVec (sv_width - 12
     then 22
     else 44)) (ppn ||| (vpn &&& levelMask)))
 
+def num_tlb_entries_exp := 6
+
 /-- Type quantifiers: _sv_mode : Nat, is_sv_mode(_sv_mode) -/
 def tlb_hash (_sv_mode : Nat) (vpn : (BitVec (_sv_mode - 12))) : Nat :=
-  (BitVec.toNatInt (Sail.BitVec.extractLsb vpn 5 0))
+  (BitVec.toNatInt (Sail.BitVec.extractLsb vpn (num_tlb_entries_exp -i 1) 0))
 
 def reset_TLB (_ : Unit) : SailM Unit := do
   writeReg tlb (vectorInit none)
 
-/-- Type quantifiers: index : Nat, 0 ≤ index ∧ index ≤ (64 - 1) -/
+/-- Type quantifiers: index : Nat, 0 ≤ index ∧ index ≤ (2 ^ 6 - 1) -/
 def write_TLB (index : Nat) (entry : TLB_Entry) : SailM Unit := do
   writeReg tlb (vectorUpdate (← readReg tlb) index (some entry))
 
