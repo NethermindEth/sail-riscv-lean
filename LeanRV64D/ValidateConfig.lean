@@ -487,7 +487,7 @@ def check_pmp (_ : Unit) : Bool :=
     valid)
   else valid
 
-/-- Type quantifiers: k_ex742269_ : Bool -/
+/-- Type quantifiers: k_ex742637_ : Bool -/
 def check_required_sstvala_option (name : String) (value : Bool) : Bool :=
   if ((not value) : Bool)
   then
@@ -501,6 +501,51 @@ def check_required_sstvala_option (name : String) (value : Bool) : Bool :=
 
 def check_misc_extension_dependencies (_ : Unit) : Bool :=
   let valid : Bool := true
+  let valid : Bool :=
+    if (((hartSupports Ext_F) && (hartSupports Ext_Zfinx)) : Bool)
+    then
+      (let valid : Bool := false
+      let _ : Unit :=
+        (print_endline
+          "The F and Zfinx extensions are mutually exclusive and cannot be supported simultaneously.")
+      valid)
+    else valid
+  let valid : Bool :=
+    if (((hartSupports Ext_Zfinx) && (not (hartSupports Ext_Zicsr))) : Bool)
+    then
+      (let valid : Bool := false
+      let _ : Unit :=
+        (print_endline
+          "The Zfinx extensions is enabled but Zicsr is disabled: supporting Zfinx requires Zicsr.")
+      valid)
+    else valid
+  let valid : Bool :=
+    if (((hartSupports Ext_Zdinx) && (not (hartSupports Ext_Zfinx))) : Bool)
+    then
+      (let valid : Bool := false
+      let _ : Unit :=
+        (print_endline
+          "The Zdinx extensions is enabled but Zfinx is disabled: supporting Zdinx requires Zfinx.")
+      valid)
+    else valid
+  let valid : Bool :=
+    if (((hartSupports Ext_Zhinx) && (not (hartSupports Ext_Zfinx))) : Bool)
+    then
+      (let valid : Bool := false
+      let _ : Unit :=
+        (print_endline
+          "The Zhinx extensions is enabled but Zfinx is disabled: supporting Zhinx requires Zfinx.")
+      valid)
+    else valid
+  let valid : Bool :=
+    if (((hartSupports Ext_Zhinxmin) && (not (hartSupports Ext_Zfinx))) : Bool)
+    then
+      (let valid : Bool := false
+      let _ : Unit :=
+        (print_endline
+          "The Zhinxmin extensions is enabled but Zfinx is disabled: supporting Zhinxmin requires Zfinx.")
+      valid)
+    else valid
   let valid : Bool :=
     if (((hartSupports Ext_Zicfilp) && (not (hartSupports Ext_Zicsr))) : Bool)
     then

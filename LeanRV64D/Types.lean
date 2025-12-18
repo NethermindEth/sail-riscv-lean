@@ -566,7 +566,7 @@ def currentlyEnabled (merge_var : extension) : SailM Bool := do
   | Ext_Zcf =>
     (pure ((hartSupports Ext_Zcf) && ((← (currentlyEnabled Ext_F)) && ((← (currentlyEnabled
                 Ext_Zca)) && ((← (currentlyEnabled Ext_C)) || (not (hartSupports Ext_C)))))))
-  | Ext_Zdinx => (pure ((hartSupports Ext_Zdinx) && (flen ≥b 64)))
+  | Ext_Zdinx => (pure ((hartSupports Ext_Zdinx) && (← (currentlyEnabled Ext_Zfinx))))
   | Ext_Zcd =>
     (pure ((hartSupports Ext_Zcd) && ((← (currentlyEnabled Ext_D)) && ((← (currentlyEnabled
                 Ext_Zca)) && ((← (currentlyEnabled Ext_C)) || (not (hartSupports Ext_C)))))))
@@ -1771,7 +1771,7 @@ def maybe_aqrl_forwards (arg_ : (Bool × Bool)) : String :=
   | (false, true) => ".rl"
   | (false, false) => ""
 
-/-- Type quantifiers: k_ex651392_ : Bool -/
+/-- Type quantifiers: k_ex651760_ : Bool -/
 def maybe_u_forwards (arg_ : Bool) : String :=
   match arg_ with
   | true => "u"
