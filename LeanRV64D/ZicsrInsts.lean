@@ -3660,20 +3660,20 @@ def write_CSR (arg0 : (BitVec 12)) (arg1 : (BitVec 64)) : SailM (Result (BitVec 
                                       (pure (Ok (← readReg vstart))))
                                   | (0x009, value) =>
                                     (do
-                                      (ext_write_vcsr (_get_Vcsr_vxrm (← readReg vcsr))
+                                      (write_vcsr (_get_Vcsr_vxrm (← readReg vcsr))
                                         (Sail.BitVec.extractLsb value 0 0))
                                       (pure (Ok
                                           (zero_extend (m := 64)
                                             (_get_Vcsr_vxsat (← readReg vcsr))))))
                                   | (0x00A, value) =>
                                     (do
-                                      (ext_write_vcsr (Sail.BitVec.extractLsb value 1 0)
+                                      (write_vcsr (Sail.BitVec.extractLsb value 1 0)
                                         (_get_Vcsr_vxsat (← readReg vcsr)))
                                       (pure (Ok
                                           (zero_extend (m := 64) (_get_Vcsr_vxrm (← readReg vcsr))))))
                                   | (0x00F, value) =>
                                     (do
-                                      (ext_write_vcsr (Sail.BitVec.extractLsb value 2 1)
+                                      (write_vcsr (Sail.BitVec.extractLsb value 2 1)
                                         (Sail.BitVec.extractLsb value 0 0))
                                       (pure (Ok (zero_extend (m := 64) (← readReg vcsr)))))
                                   | (0x321, value) =>
@@ -4259,20 +4259,20 @@ def write_CSR (arg0 : (BitVec 12)) (arg1 : (BitVec 64)) : SailM (Result (BitVec 
                                       (pure (Ok (← readReg vstart))))
                                   | (0x009, value) =>
                                     (do
-                                      (ext_write_vcsr (_get_Vcsr_vxrm (← readReg vcsr))
+                                      (write_vcsr (_get_Vcsr_vxrm (← readReg vcsr))
                                         (Sail.BitVec.extractLsb value 0 0))
                                       (pure (Ok
                                           (zero_extend (m := 64)
                                             (_get_Vcsr_vxsat (← readReg vcsr))))))
                                   | (0x00A, value) =>
                                     (do
-                                      (ext_write_vcsr (Sail.BitVec.extractLsb value 1 0)
+                                      (write_vcsr (Sail.BitVec.extractLsb value 1 0)
                                         (_get_Vcsr_vxsat (← readReg vcsr)))
                                       (pure (Ok
                                           (zero_extend (m := 64) (_get_Vcsr_vxrm (← readReg vcsr))))))
                                   | (0x00F, value) =>
                                     (do
-                                      (ext_write_vcsr (Sail.BitVec.extractLsb value 2 1)
+                                      (write_vcsr (Sail.BitVec.extractLsb value 2 1)
                                         (Sail.BitVec.extractLsb value 0 0))
                                       (pure (Ok (zero_extend (m := 64) (← readReg vcsr)))))
                                   | (0x321, value) =>
@@ -4858,20 +4858,20 @@ def write_CSR (arg0 : (BitVec 12)) (arg1 : (BitVec 64)) : SailM (Result (BitVec 
                                       (pure (Ok (← readReg vstart))))
                                   | (0x009, value) =>
                                     (do
-                                      (ext_write_vcsr (_get_Vcsr_vxrm (← readReg vcsr))
+                                      (write_vcsr (_get_Vcsr_vxrm (← readReg vcsr))
                                         (Sail.BitVec.extractLsb value 0 0))
                                       (pure (Ok
                                           (zero_extend (m := 64)
                                             (_get_Vcsr_vxsat (← readReg vcsr))))))
                                   | (0x00A, value) =>
                                     (do
-                                      (ext_write_vcsr (Sail.BitVec.extractLsb value 1 0)
+                                      (write_vcsr (Sail.BitVec.extractLsb value 1 0)
                                         (_get_Vcsr_vxsat (← readReg vcsr)))
                                       (pure (Ok
                                           (zero_extend (m := 64) (_get_Vcsr_vxrm (← readReg vcsr))))))
                                   | (0x00F, value) =>
                                     (do
-                                      (ext_write_vcsr (Sail.BitVec.extractLsb value 2 1)
+                                      (write_vcsr (Sail.BitVec.extractLsb value 2 1)
                                         (Sail.BitVec.extractLsb value 0 0))
                                       (pure (Ok (zero_extend (m := 64) (← readReg vcsr)))))
                                   | (0x321, value) =>
@@ -5469,20 +5469,20 @@ def write_CSR (arg0 : (BitVec 12)) (arg1 : (BitVec 64)) : SailM (Result (BitVec 
                                       (pure (Ok (← readReg vstart))))
                                   | (0x009, value) =>
                                     (do
-                                      (ext_write_vcsr (_get_Vcsr_vxrm (← readReg vcsr))
+                                      (write_vcsr (_get_Vcsr_vxrm (← readReg vcsr))
                                         (Sail.BitVec.extractLsb value 0 0))
                                       (pure (Ok
                                           (zero_extend (m := 64)
                                             (_get_Vcsr_vxsat (← readReg vcsr))))))
                                   | (0x00A, value) =>
                                     (do
-                                      (ext_write_vcsr (Sail.BitVec.extractLsb value 1 0)
+                                      (write_vcsr (Sail.BitVec.extractLsb value 1 0)
                                         (_get_Vcsr_vxsat (← readReg vcsr)))
                                       (pure (Ok
                                           (zero_extend (m := 64) (_get_Vcsr_vxrm (← readReg vcsr))))))
                                   | (0x00F, value) =>
                                     (do
-                                      (ext_write_vcsr (Sail.BitVec.extractLsb value 2 1)
+                                      (write_vcsr (Sail.BitVec.extractLsb value 2 1)
                                         (Sail.BitVec.extractLsb value 0 0))
                                       (pure (Ok (zero_extend (m := 64) (← readReg vcsr)))))
                                   | (0x321, value) =>
@@ -6103,17 +6103,17 @@ def write_CSR (arg0 : (BitVec 12)) (arg1 : (BitVec 64)) : SailM (Result (BitVec 
                               (pure (Ok (← readReg vstart))))
                           | (0x009, value) =>
                             (do
-                              (ext_write_vcsr (_get_Vcsr_vxrm (← readReg vcsr))
+                              (write_vcsr (_get_Vcsr_vxrm (← readReg vcsr))
                                 (Sail.BitVec.extractLsb value 0 0))
                               (pure (Ok (zero_extend (m := 64) (_get_Vcsr_vxsat (← readReg vcsr))))))
                           | (0x00A, value) =>
                             (do
-                              (ext_write_vcsr (Sail.BitVec.extractLsb value 1 0)
+                              (write_vcsr (Sail.BitVec.extractLsb value 1 0)
                                 (_get_Vcsr_vxsat (← readReg vcsr)))
                               (pure (Ok (zero_extend (m := 64) (_get_Vcsr_vxrm (← readReg vcsr))))))
                           | (0x00F, value) =>
                             (do
-                              (ext_write_vcsr (Sail.BitVec.extractLsb value 2 1)
+                              (write_vcsr (Sail.BitVec.extractLsb value 2 1)
                                 (Sail.BitVec.extractLsb value 0 0))
                               (pure (Ok (zero_extend (m := 64) (← readReg vcsr)))))
                           | (0x321, value) =>

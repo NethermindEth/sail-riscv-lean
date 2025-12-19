@@ -278,12 +278,13 @@ def vtype_assembly_backwards_matches (arg_ : ((BitVec 1) × (BitVec 1) × (BitVe
     then true
     else true)
 
-def handle_illegal_vtype (_ : Unit) : SailM Unit := do
+def handle_illegal_vtype (rd : regidx) : SailM Unit := do
   writeReg vtype (1#1 ++ (zeros (n := (xlen -i 1))))
   writeReg vl (zeros (n := 64))
   (csr_name_write_callback "vtype" (← readReg vtype))
   (csr_name_write_callback "vl" (← readReg vl))
   (set_vstart (zeros (n := 16)))
+  (wX_bits rd (← readReg vl))
 
 def vl_use_ceil : Bool := false
 
@@ -305,7 +306,7 @@ def execute_vsetvl_type (ma : (BitVec 1)) (ta : (BitVec 1)) (sew : (BitVec 3)) (
   if (((is_invalid_lmul_pow lmul) || (is_invalid_sew_pow sew)) : Bool)
   then
     (do
-      (handle_illegal_vtype ())
+      (handle_illegal_vtype rd)
       (pure RETIRE_SUCCESS))
   else
     (do
@@ -317,7 +318,7 @@ def execute_vsetvl_type (ma : (BitVec 1)) (ta : (BitVec 1)) (sew : (BitVec 3)) (
                  (← (valid_vtype ())))))) : Bool)
       then
         (do
-          (handle_illegal_vtype ())
+          (handle_illegal_vtype rd)
           (pure RETIRE_SUCCESS))
       else
         (do

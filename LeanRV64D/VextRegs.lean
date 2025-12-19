@@ -643,7 +643,7 @@ def set_vstart (value : (BitVec 16)) : SailM Unit := do
   writeReg vstart (zero_extend (m := 64) (Sail.BitVec.extractLsb value (vlen_exp -i 1) 0))
   (csr_name_write_callback "vstart" (← readReg vstart))
 
-def ext_write_vcsr (vxrm_val : (BitVec 2)) (vxsat_val : (BitVec 1)) : SailM Unit := do
+def write_vcsr (vxrm_val : (BitVec 2)) (vxsat_val : (BitVec 1)) : SailM Unit := do
   writeReg vcsr (Sail.BitVec.updateSubrange (← readReg vcsr) 2 1 vxrm_val)
   writeReg vcsr (Sail.BitVec.updateSubrange (← readReg vcsr) 0 0 vxsat_val)
   (dirty_v_context ())
