@@ -183,11 +183,11 @@ open CSRAccessType
 open AtomicSupport
 open Architecture
 
-/-- Type quantifiers: k_ex649104_ : Nat, k_ex649104_ ∈ {16, 32, 64, 128} -/
-def float_is_positive (op : (BitVec k_ex649104_)) : Bool :=
+/-- Type quantifiers: k_ex646157_ : Nat, k_ex646157_ ∈ {16, 32, 64, 128} -/
+def float_is_positive (op : (BitVec k_ex646157_)) : Bool :=
   (is_highest_zero op)
 
-/-- Type quantifiers: k_ex649106_ : Nat, k_ex649106_ ∈ {16, 32, 64, 128} -/
-def float_is_negative (op : (BitVec k_ex649106_)) : Bool :=
+/-- Type quantifiers: k_ex646159_ : Nat, k_ex646159_ ∈ {16, 32, 64, 128} -/
+def float_is_negative (op : (BitVec k_ex646159_)) : Bool :=
   (is_highest_one op)
 

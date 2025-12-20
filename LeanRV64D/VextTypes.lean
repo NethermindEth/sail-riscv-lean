@@ -200,18 +200,6 @@ def encdec_nfields_forwards (arg_ : (BitVec 3)) : Int :=
   | 0b110 => 7
   | _ => 8
 
-/-- Type quantifiers: arg_ : Nat, arg_ > 0 ∧ arg_ ≤ 8 -/
-def encdec_nfields_backwards (arg_ : Nat) : (BitVec 3) :=
-  match arg_ with
-  | 1 => 0b000#3
-  | 2 => 0b001#3
-  | 3 => 0b010#3
-  | 4 => 0b011#3
-  | 5 => 0b100#3
-  | 6 => 0b101#3
-  | 7 => 0b110#3
-  | _ => 0b111#3
-
 def encdec_nfields_forwards_matches (arg_ : (BitVec 3)) : Bool :=
   match arg_ with
   | 0b000 => true
@@ -287,14 +275,6 @@ def encdec_nfields_pow2_forwards (arg_ : (BitVec 3)) : SailM Int := do
     (do
       assert false "Pattern match failure at unknown location"
       throw Error.Exit)
-
-/-- Type quantifiers: arg_ : Nat, arg_ ∈ {1, 2, 4, 8} -/
-def encdec_nfields_pow2_backwards (arg_ : Nat) : (BitVec 3) :=
-  match arg_ with
-  | 1 => 0b000#3
-  | 2 => 0b001#3
-  | 4 => 0b011#3
-  | _ => 0b111#3
 
 def encdec_nfields_pow2_forwards_matches (arg_ : (BitVec 3)) : Bool :=
   match arg_ with

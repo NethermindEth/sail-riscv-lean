@@ -248,10 +248,6 @@ def encdec_cfreg_backwards_matches (arg_ : (BitVec 3)) : Bool :=
   match arg_ with
   | r => true
 
-def encdec_freg_forwards (arg_ : fregidx) : (BitVec 5) :=
-  match arg_ with
-  | .Fregidx r => r
-
 def encdec_freg_backwards (arg_ : (BitVec 5)) : fregidx :=
   match arg_ with
   | r => (Fregidx r)

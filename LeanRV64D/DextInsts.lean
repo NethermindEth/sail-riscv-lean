@@ -1,6 +1,5 @@
 import LeanRV64D.Flow
 import LeanRV64D.Prelude
-import LeanRV64D.Types
 import LeanRV64D.FextInsts
 
 set_option maxHeartbeats 1_000_000_000
@@ -257,7 +256,7 @@ def feq_quiet_D (v1 : (BitVec 64)) (v2 : (BitVec 64)) : (Bool × (BitVec 5)) :=
     else (zeros (n := 5))
   (result, fflags)
 
-/-- Type quantifiers: k_ex658209_ : Bool -/
+/-- Type quantifiers: k_ex663547_ : Bool -/
 def flt_D (v1 : (BitVec 64)) (v2 : (BitVec 64)) (is_quiet : Bool) : (Bool × (BitVec 5)) :=
   let (s1, e1, m1) := (fsplit_D v1)
   let (s2, e2, m2) := (fsplit_D v2)
@@ -289,7 +288,7 @@ def flt_D (v1 : (BitVec 64)) (v2 : (BitVec 64)) (is_quiet : Bool) : (Bool × (Bi
       else (zeros (n := 5)))
   (result, fflags)
 
-/-- Type quantifiers: k_ex658295_ : Bool -/
+/-- Type quantifiers: k_ex663633_ : Bool -/
 def fle_D (v1 : (BitVec 64)) (v2 : (BitVec 64)) (is_quiet : Bool) : (Bool × (BitVec 5)) :=
   let (s1, e1, m1) := (fsplit_D v1)
   let (s2, e2, m2) := (fsplit_D v2)
@@ -322,13 +321,6 @@ def fle_D (v1 : (BitVec 64)) (v2 : (BitVec 64)) (is_quiet : Bool) : (Bool × (Bi
       then (nvFlag ())
       else (zeros (n := 5)))
   (result, fflags)
-
-def haveDoubleFPU (_ : Unit) : SailM Bool := do
-  (pure ((← (currentlyEnabled Ext_D)) || (← (currentlyEnabled Ext_Zdinx))))
-
-/-- Type quantifiers: n : Nat, n ≥ 0, n > 0 -/
-def validDoubleRegs {n : _} (regs : (Vector fregidx n)) : Bool :=
-  true
 
 def f_madd_type_mnemonic_D_backwards (arg_ : String) : SailM f_madd_op_D := do
   match arg_ with

@@ -189,17 +189,6 @@ open CSRAccessType
 open AtomicSupport
 open Architecture
 
-def encdec_mmfunct6_forwards (arg_ : mmfunct6) : (BitVec 6) :=
-  match arg_ with
-  | MM_VMAND => 0b011001#6
-  | MM_VMNAND => 0b011101#6
-  | MM_VMANDN => 0b011000#6
-  | MM_VMXOR => 0b011011#6
-  | MM_VMOR => 0b011010#6
-  | MM_VMNOR => 0b011110#6
-  | MM_VMORN => 0b011100#6
-  | MM_VMXNOR => 0b011111#6
-
 def encdec_mmfunct6_backwards (arg_ : (BitVec 6)) : SailM mmfunct6 := do
   match arg_ with
   | 0b011001 => (pure MM_VMAND)

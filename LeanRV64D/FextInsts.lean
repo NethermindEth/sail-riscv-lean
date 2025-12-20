@@ -186,15 +186,6 @@ open CSRAccessType
 open AtomicSupport
 open Architecture
 
-def encdec_rounding_mode_forwards (arg_ : rounding_mode) : (BitVec 3) :=
-  match arg_ with
-  | RM_RNE => 0b000#3
-  | RM_RTZ => 0b001#3
-  | RM_RDN => 0b010#3
-  | RM_RUP => 0b011#3
-  | RM_RMM => 0b100#3
-  | RM_DYN => 0b111#3
-
 def encdec_rounding_mode_backwards (arg_ : (BitVec 3)) : SailM rounding_mode := do
   match arg_ with
   | 0b000 => (pure RM_RNE)
@@ -358,7 +349,7 @@ def feq_quiet_S (v1 : (BitVec 32)) (v2 : (BitVec 32)) : (Bool × (BitVec 5)) :=
     else (zeros (n := 5))
   (result, fflags)
 
-/-- Type quantifiers: k_ex657820_ : Bool -/
+/-- Type quantifiers: k_ex663176_ : Bool -/
 def flt_S (v1 : (BitVec 32)) (v2 : (BitVec 32)) (is_quiet : Bool) : (Bool × (BitVec 5)) :=
   let (s1, e1, m1) := (fsplit_S v1)
   let (s2, e2, m2) := (fsplit_S v2)
@@ -390,7 +381,7 @@ def flt_S (v1 : (BitVec 32)) (v2 : (BitVec 32)) (is_quiet : Bool) : (Bool × (Bi
       else (zeros (n := 5)))
   (result, fflags)
 
-/-- Type quantifiers: k_ex657906_ : Bool -/
+/-- Type quantifiers: k_ex663262_ : Bool -/
 def fle_S (v1 : (BitVec 32)) (v2 : (BitVec 32)) (is_quiet : Bool) : (Bool × (BitVec 5)) :=
   let (s1, e1, m1) := (fsplit_S v1)
   let (s2, e2, m2) := (fsplit_S v2)
@@ -423,17 +414,6 @@ def fle_S (v1 : (BitVec 32)) (v2 : (BitVec 32)) (is_quiet : Bool) : (Bool × (Bi
       then (nvFlag ())
       else (zeros (n := 5)))
   (result, fflags)
-
-def haveSingleFPU (_ : Unit) : SailM Bool := do
-  (pure ((← (currentlyEnabled Ext_F)) || (← (currentlyEnabled Ext_Zfinx))))
-
-/-- Type quantifiers: width : Nat, width ∈ {1, 2, 4, 8} -/
-def float_load_store_width_supported (width : Nat) : SailM Bool := do
-  match width with
-  | 1 => (pure false)
-  | 2 => (pure ((← (currentlyEnabled Ext_Zfhmin)) || (← (currentlyEnabled Ext_Zfbfmin))))
-  | 4 => (currentlyEnabled Ext_F)
-  | _ => (currentlyEnabled Ext_D)
 
 def f_madd_type_mnemonic_S_backwards (arg_ : String) : SailM f_madd_op_S := do
   match arg_ with

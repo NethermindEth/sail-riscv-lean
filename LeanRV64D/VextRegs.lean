@@ -195,14 +195,6 @@ def vregno_to_vregidx (app_0 : vregno) : vregidx :=
   let .Vregno b := app_0
   (Vregidx (to_bits (l := 5) b))
 
-def vregidx_bits (app_0 : vregidx) : (BitVec 5) :=
-  let .Vregidx b := app_0
-  b
-
-def encdec_vreg_forwards (arg_ : vregidx) : (BitVec 5) :=
-  match arg_ with
-  | .Vregidx r => r
-
 def encdec_vreg_backwards (arg_ : (BitVec 5)) : vregidx :=
   match arg_ with
   | r => (Vregidx r)
@@ -525,9 +517,6 @@ def _set_Vtype_vill (r_ref : (RegisterRef (BitVec 64))) (v : (BitVec (64 - 1 - (
   let r ← do (reg_deref r_ref)
   writeRegRef r_ref (_update_Vtype_vill r v)
 
-def _get_Vtype_vlmul (v : (BitVec 64)) : (BitVec 3) :=
-  (Sail.BitVec.extractLsb v 2 0)
-
 def _update_Vtype_vlmul (v : (BitVec 64)) (x : (BitVec 3)) : (BitVec 64) :=
   (Sail.BitVec.updateSubrange v 2 0 x)
 
@@ -544,9 +533,6 @@ def _update_Vtype_vma (v : (BitVec 64)) (x : (BitVec 1)) : (BitVec 64) :=
 def _set_Vtype_vma (r_ref : (RegisterRef (BitVec 64))) (v : (BitVec 1)) : SailM Unit := do
   let r ← do (reg_deref r_ref)
   writeRegRef r_ref (_update_Vtype_vma r v)
-
-def _get_Vtype_vsew (v : (BitVec 64)) : (BitVec 3) :=
-  (Sail.BitVec.extractLsb v 5 3)
 
 def _update_Vtype_vsew (v : (BitVec 64)) (x : (BitVec 3)) : (BitVec 64) :=
   (Sail.BitVec.updateSubrange v 5 3 x)
@@ -571,21 +557,8 @@ def is_invalid_sew_pow (v : (BitVec 3)) : Bool :=
 def is_invalid_lmul_pow (v : (BitVec 3)) : Bool :=
   (v == 0b100#3)
 
-def get_sew_pow (_ : Unit) : SailM Nat := do
-  let sew_pow ← do (pure (BitVec.toNatInt (_get_Vtype_vsew (← readReg vtype))))
-  assert (sew_pow <b 4) "Reserved SEW stored in vtype register. This should be impossible."
-  (pure (sew_pow +i 3))
-
-def get_sew (_ : Unit) : SailM Int := do
-  (pure (2 ^i (← (get_sew_pow ()))))
-
 def get_sew_bytes (_ : Unit) : SailM Int := do
   (pure (Int.tdiv (← (get_sew ())) 8))
-
-def get_lmul_pow (_ : Unit) : SailM Int := do
-  let lmul_pow ← do (pure (BitVec.toInt (_get_Vtype_vlmul (← readReg vtype))))
-  assert (lmul_pow >b (Neg.neg 4)) "Reserved LMUL stored in vtype register. This should be impossible."
-  (pure lmul_pow)
 
 def undefined_agtype (_ : Unit) : SailM agtype := do
   (internal_pick [UNDISTURBED, AGNOSTIC])

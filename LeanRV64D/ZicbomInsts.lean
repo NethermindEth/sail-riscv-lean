@@ -199,12 +199,6 @@ def cbo_clean_flush_enabled (p : Privilege) : SailM Bool := do
   (feature_enabled_for_priv p (BitVec.access (_get_MEnvcfg_CBCFE (← readReg menvcfg)) 0)
     (BitVec.access (_get_SEnvcfg_CBCFE (← readReg senvcfg)) 0))
 
-def encdec_cbop_forwards (arg_ : cbop_zicbom) : (BitVec 12) :=
-  match arg_ with
-  | CBO_CLEAN => 0b000000000001#12
-  | CBO_FLUSH => 0b000000000010#12
-  | CBO_INVAL => 0b000000000000#12
-
 def encdec_cbop_backwards (arg_ : (BitVec 12)) : SailM cbop_zicbom := do
   match arg_ with
   | 0b000000000001 => (pure CBO_CLEAN)

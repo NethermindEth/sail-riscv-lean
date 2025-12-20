@@ -4,6 +4,7 @@ import LeanRV64D.Prelude
 import LeanRV64D.Errors
 import LeanRV64D.Xlen
 import LeanRV64D.Vlen
+import LeanRV64D.Types
 import LeanRV64D.VmemTypes
 import LeanRV64D.Callbacks
 import LeanRV64D.VextRegs
@@ -221,13 +222,6 @@ def vlewidth_bitsnumberstr_backwards_matches (arg_ : String) : Bool :=
   | "64" => true
   | _ => false
 
-def encdec_vlewidth_forwards (arg_ : vlewidth) : (BitVec 3) :=
-  match arg_ with
-  | VLE8 => 0b000#3
-  | VLE16 => 0b101#3
-  | VLE32 => 0b110#3
-  | VLE64 => 0b111#3
-
 def encdec_vlewidth_backwards (arg_ : (BitVec 3)) : SailM vlewidth := do
   match arg_ with
   | 0b000 => (pure VLE8)
@@ -254,13 +248,6 @@ def encdec_vlewidth_backwards_matches (arg_ : (BitVec 3)) : Bool :=
   | 0b111 => true
   | _ => false
 
-def vlewidth_pow_forwards (arg_ : vlewidth) : Int :=
-  match arg_ with
-  | VLE8 => 3
-  | VLE16 => 4
-  | VLE32 => 5
-  | VLE64 => 6
-
 /-- Type quantifiers: arg_ : Nat, arg_ ∈ {3, 4, 5, 6} -/
 def vlewidth_pow_backwards (arg_ : Nat) : vlewidth :=
   match arg_ with
@@ -284,11 +271,6 @@ def vlewidth_pow_backwards_matches (arg_ : Nat) : Bool :=
   | 5 => true
   | 6 => true
   | _ => false
-
-def encdec_indexed_mop_forwards (arg_ : indexed_mop) : (BitVec 2) :=
-  match arg_ with
-  | INDEXED_UNORDERED => 0b01#2
-  | INDEXED_ORDERED => 0b11#2
 
 def encdec_indexed_mop_backwards (arg_ : (BitVec 2)) : SailM indexed_mop := do
   match arg_ with
@@ -890,11 +872,6 @@ def process_vsre (nf : Nat) (load_width_bytes : Nat) (rs1 : regidx) (vs3 : vregi
         (pure loop_vars_1) ) : SailME ExecutionResult Int )
       (set_vstart (zeros (n := 16)))
       (pure RETIRE_SUCCESS))
-
-def encdec_lsop_forwards (arg_ : vmlsop) : (BitVec 7) :=
-  match arg_ with
-  | VLM => 0b0000111#7
-  | VSM => 0b0100111#7
 
 def encdec_lsop_backwards (arg_ : (BitVec 7)) : SailM vmlsop := do
   match arg_ with

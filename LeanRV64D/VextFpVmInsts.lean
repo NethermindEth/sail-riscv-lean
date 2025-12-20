@@ -189,13 +189,6 @@ open CSRAccessType
 open AtomicSupport
 open Architecture
 
-def encdec_fvvmfunct6_forwards (arg_ : fvvmfunct6) : (BitVec 6) :=
-  match arg_ with
-  | FVVM_VMFEQ => 0b011000#6
-  | FVVM_VMFLE => 0b011001#6
-  | FVVM_VMFLT => 0b011011#6
-  | FVVM_VMFNE => 0b011100#6
-
 def encdec_fvvmfunct6_backwards (arg_ : (BitVec 6)) : SailM fvvmfunct6 := do
   match arg_ with
   | 0b011000 => (pure FVVM_VMFEQ)
@@ -247,15 +240,6 @@ def fvvmtype_mnemonic_backwards_matches (arg_ : String) : Bool :=
   | "vmflt.vv" => true
   | "vmfne.vv" => true
   | _ => false
-
-def encdec_fvfmfunct6_forwards (arg_ : fvfmfunct6) : (BitVec 6) :=
-  match arg_ with
-  | VFM_VMFEQ => 0b011000#6
-  | VFM_VMFLE => 0b011001#6
-  | VFM_VMFLT => 0b011011#6
-  | VFM_VMFNE => 0b011100#6
-  | VFM_VMFGT => 0b011101#6
-  | VFM_VMFGE => 0b011111#6
 
 def encdec_fvfmfunct6_backwards (arg_ : (BitVec 6)) : SailM fvfmfunct6 := do
   match arg_ with

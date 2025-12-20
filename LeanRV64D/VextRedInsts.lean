@@ -189,11 +189,6 @@ open CSRAccessType
 open AtomicSupport
 open Architecture
 
-def encdec_rivvfunct6_forwards (arg_ : rivvfunct6) : (BitVec 6) :=
-  match arg_ with
-  | IVV_VWREDSUMU => 0b110000#6
-  | IVV_VWREDSUM => 0b110001#6
-
 def encdec_rivvfunct6_backwards (arg_ : (BitVec 6)) : SailM rivvfunct6 := do
   match arg_ with
   | 0b110000 => (pure IVV_VWREDSUMU)
@@ -233,17 +228,6 @@ def rivvtype_mnemonic_backwards_matches (arg_ : String) : Bool :=
   | "vwredsumu.vs" => true
   | "vwredsum.vs" => true
   | _ => false
-
-def encdec_rmvvfunct6_forwards (arg_ : rmvvfunct6) : (BitVec 6) :=
-  match arg_ with
-  | MVV_VREDSUM => 0b000000#6
-  | MVV_VREDAND => 0b000001#6
-  | MVV_VREDOR => 0b000010#6
-  | MVV_VREDXOR => 0b000011#6
-  | MVV_VREDMINU => 0b000100#6
-  | MVV_VREDMIN => 0b000101#6
-  | MVV_VREDMAXU => 0b000110#6
-  | MVV_VREDMAX => 0b000111#6
 
 def encdec_rmvvfunct6_backwards (arg_ : (BitVec 6)) : SailM rmvvfunct6 := do
   match arg_ with

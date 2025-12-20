@@ -1,6 +1,4 @@
 import LeanRV64D.Prelude
-import LeanRV64D.Vlen
-import LeanRV64D.VextRegs
 import LeanRV64D.TypesKext
 
 set_option maxHeartbeats 1_000_000_000
@@ -186,26 +184,6 @@ open CSRAccessType
 open AtomicSupport
 open Architecture
 
-/-- Type quantifiers: emul_pow : Int -/
-def zvk_valid_reg_overlap (rs : vregidx) (rd : vregidx) (emul_pow : Int) : Bool :=
-  let reg_group_size :=
-    if ((emul_pow >b 0) : Bool)
-    then (2 ^i emul_pow)
-    else 1
-  let rs_int := (BitVec.toNatInt (vregidx_bits rs))
-  let rd_int := (BitVec.toNatInt (vregidx_bits rd))
-  (((rs_int +i reg_group_size) ≤b rd_int) || ((rd_int +i reg_group_size) ≤b rs_int))
-
-/-- Type quantifiers: EGS : Nat, EGW : Nat, 0 ≤ EGW, EGS > 0 -/
-def zvk_check_encdec (EGW : Nat) (EGS : Nat) : SailM Bool := do
-  let LMUL_pow ← do (get_lmul_pow ())
-  let LMUL_times_VLEN :=
-    if ((LMUL_pow <b 0) : Bool)
-    then (Int.tdiv vlen (2 ^i (Int.natAbs LMUL_pow)))
-    else ((2 ^i LMUL_pow) *i vlen)
-  (pure (((Int.tmod (BitVec.toNatInt (← readReg vl)) EGS) == 0) && (← do
-        (pure (((Int.tmod (BitVec.toNatInt (← readReg vstart)) EGS) == 0) && (LMUL_times_VLEN ≥b EGW))))))
-
 def undefined_zvk_vsha2_funct6 (_ : Unit) : SailM zvk_vsha2_funct6 := do
   (internal_pick [ZVK_VSHA2CH_VV, ZVK_VSHA2CL_VV])
 
@@ -219,12 +197,6 @@ def num_of_zvk_vsha2_funct6 (arg_ : zvk_vsha2_funct6) : Int :=
   match arg_ with
   | ZVK_VSHA2CH_VV => 0
   | ZVK_VSHA2CL_VV => 1
-
-def zvknhab_check_encdec (vs2 : vregidx) (vs1 : vregidx) (vd : vregidx) : SailM Bool := do
-  let SEW ← do (get_sew ())
-  let LMUL_pow ← do (get_lmul_pow ())
-  (pure ((← (zvk_check_encdec SEW 4)) && ((zvk_valid_reg_overlap vs1 vd LMUL_pow) && (zvk_valid_reg_overlap
-          vs2 vd LMUL_pow))))
 
 /-- Type quantifiers: SEW : Nat, SEW ≥ 0, SEW ∈ {32, 64} -/
 def zvk_sig0 (x : (BitVec k_n)) (SEW : Nat) : (BitVec SEW) :=

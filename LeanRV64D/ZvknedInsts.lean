@@ -189,11 +189,6 @@ open CSRAccessType
 open AtomicSupport
 open Architecture
 
-def encdec_vaesdf_forwards (arg_ : zvk_vaesdf_funct6) : (BitVec 6) :=
-  match arg_ with
-  | ZVK_VAESDF_VV => 0b101000#6
-  | ZVK_VAESDF_VS => 0b101001#6
-
 def encdec_vaesdf_backwards (arg_ : (BitVec 6)) : SailM zvk_vaesdf_funct6 := do
   match arg_ with
   | 0b101000 => (pure ZVK_VAESDF_VV)
@@ -233,11 +228,6 @@ def vaesdf_mnemonic_backwards_matches (arg_ : String) : Bool :=
   | "vaesdf.vv" => true
   | "vaesdf.vs" => true
   | _ => false
-
-def encdec_vaesdm_forwards (arg_ : zvk_vaesdm_funct6) : (BitVec 6) :=
-  match arg_ with
-  | ZVK_VAESDM_VV => 0b101000#6
-  | ZVK_VAESDM_VS => 0b101001#6
 
 def encdec_vaesdm_backwards (arg_ : (BitVec 6)) : SailM zvk_vaesdm_funct6 := do
   match arg_ with
@@ -279,11 +269,6 @@ def vaesdm_mnemonic_backwards_matches (arg_ : String) : Bool :=
   | "vaesdm.vs" => true
   | _ => false
 
-def encdec_vaesef_forwards (arg_ : zvk_vaesef_funct6) : (BitVec 6) :=
-  match arg_ with
-  | ZVK_VAESEF_VV => 0b101000#6
-  | ZVK_VAESEF_VS => 0b101001#6
-
 def encdec_vaesef_backwards (arg_ : (BitVec 6)) : SailM zvk_vaesef_funct6 := do
   match arg_ with
   | 0b101000 => (pure ZVK_VAESEF_VV)
@@ -323,11 +308,6 @@ def vaesef_mnemonic_backwards_matches (arg_ : String) : Bool :=
   | "vaesef.vv" => true
   | "vaesef.vs" => true
   | _ => false
-
-def encdec_vaesem_forwards (arg_ : zvk_vaesem_funct6) : (BitVec 6) :=
-  match arg_ with
-  | ZVK_VAESEM_VV => 0b101000#6
-  | ZVK_VAESEM_VS => 0b101001#6
 
 def encdec_vaesem_backwards (arg_ : (BitVec 6)) : SailM zvk_vaesem_funct6 := do
   match arg_ with

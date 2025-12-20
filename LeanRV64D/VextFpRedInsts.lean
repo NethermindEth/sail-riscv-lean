@@ -189,13 +189,6 @@ open CSRAccessType
 open AtomicSupport
 open Architecture
 
-def encdec_rfvvfunct6_forwards (arg_ : rfvvfunct6) : (BitVec 6) :=
-  match arg_ with
-  | FVV_VFREDOSUM => 0b000011#6
-  | FVV_VFREDUSUM => 0b000001#6
-  | FVV_VFREDMAX => 0b000111#6
-  | FVV_VFREDMIN => 0b000101#6
-
 def encdec_rfvvfunct6_backwards (arg_ : (BitVec 6)) : SailM rfvvfunct6 := do
   match arg_ with
   | 0b000011 => (pure FVV_VFREDOSUM)
@@ -247,11 +240,6 @@ def rfvvtype_mnemonic_backwards_matches (arg_ : String) : Bool :=
   | "vfredmax.vs" => true
   | "vfredmin.vs" => true
   | _ => false
-
-def encdec_rfwvvfunct6_forwards (arg_ : rfwvvfunct6) : (BitVec 6) :=
-  match arg_ with
-  | FVV_VFWREDOSUM => 0b110011#6
-  | FVV_VFWREDUSUM => 0b110001#6
 
 def encdec_rfwvvfunct6_backwards (arg_ : (BitVec 6)) : SailM rfwvvfunct6 := do
   match arg_ with

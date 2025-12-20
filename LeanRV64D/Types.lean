@@ -7,6 +7,7 @@ import LeanRV64D.Prelude
 import LeanRV64D.Errors
 import LeanRV64D.Xlen
 import LeanRV64D.Flen
+import LeanRV64D.Vlen
 import LeanRV64D.Extensions
 import LeanRV64D.TypesExt
 
@@ -1110,83 +1111,6 @@ def exceptionType_to_str (e : ExceptionType) : String :=
   | .E_Breakpoint Brk_Hardware => "hardware-breakpoint"
   | .E_Extension e => (ext_exc_type_to_str e)
 
-def interruptType_to_str (i : InterruptType) : String :=
-  match i with
-  | I_U_Software => "user-software-interrupt"
-  | I_S_Software => "supervisor-software-interrupt"
-  | I_M_Software => "machine-software-interrupt"
-  | I_U_Timer => "user-timer-interrupt"
-  | I_S_Timer => "supervisor-timer-interrupt"
-  | I_M_Timer => "machine-timer-interrupt"
-  | I_U_External => "user-external-interrupt"
-  | I_S_External => "supervisor-external-interrupt"
-  | I_M_External => "machine-external-interrupt"
-
-def misaligned_fault_str_backwards (arg_ : String) : SailM misaligned_fault := do
-  match arg_ with
-  | "NoFault" => (pure NoFault)
-  | "AccessFault" => (pure AccessFault)
-  | "AlignmentFault" => (pure AlignmentFault)
-  | _ =>
-    (do
-      assert false "Pattern match failure at unknown location"
-      throw Error.Exit)
-
-def misaligned_fault_str_forwards (arg_ : misaligned_fault) : String :=
-  match arg_ with
-  | NoFault => "NoFault"
-  | AccessFault => "AccessFault"
-  | AlignmentFault => "AlignmentFault"
-
-def reservability_str_forwards (arg_ : Reservability) : String :=
-  match arg_ with
-  | RsrvNone => "RsrvNone"
-  | RsrvNonEventual => "RsrvNonEventual"
-  | RsrvEventual => "RsrvEventual"
-
-def pma_attributes_to_str (attr : PMA) : String :=
-  (HAppend.hAppend
-    (if (attr.cacheable : Bool)
-    then " cacheable"
-    else "")
-    (HAppend.hAppend
-      (if (attr.coherent : Bool)
-      then " coherent"
-      else "")
-      (HAppend.hAppend
-        (if (attr.executable : Bool)
-        then " executable"
-        else "")
-        (HAppend.hAppend
-          (if (attr.readable : Bool)
-          then " readable"
-          else "")
-          (HAppend.hAppend
-            (if (attr.writable : Bool)
-            then " writable"
-            else "")
-            (HAppend.hAppend
-              (if (attr.read_idempotent : Bool)
-              then " read-idempotent"
-              else "")
-              (HAppend.hAppend
-                (if (attr.write_idempotent : Bool)
-                then " write-idempotent"
-                else "")
-                (HAppend.hAppend " misaligned_fault:"
-                  (HAppend.hAppend (misaligned_fault_str_forwards attr.misaligned_fault)
-                    (HAppend.hAppend " "
-                      (HAppend.hAppend (reservability_str_forwards attr.reservability)
-                        (if (attr.supports_cbo_zero : Bool)
-                        then " supports_cbo_zero"
-                        else ""))))))))))))
-
-def pma_region_to_str (region : PMA_Region) : String :=
-  (HAppend.hAppend "base: "
-    (HAppend.hAppend (BitVec.toFormatted region.base)
-      (HAppend.hAppend " size: "
-        (HAppend.hAppend (BitVec.toFormatted region.size) (pma_attributes_to_str region.attributes)))))
-
 def amo_mnemonic_forwards (arg_ : amoop) : String :=
   match arg_ with
   | AMOSWAP => "amoswap"
@@ -1771,7 +1695,7 @@ def maybe_aqrl_forwards (arg_ : (Bool × Bool)) : String :=
   | (false, true) => ".rl"
   | (false, false) => ""
 
-/-- Type quantifiers: k_ex651760_ : Bool -/
+/-- Type quantifiers: k_ex648803_ : Bool -/
 def maybe_u_forwards (arg_ : Bool) : String :=
   match arg_ with
   | true => "u"
@@ -2562,12 +2486,19 @@ def assembly_forwards (arg_ : instruction) : SailM String := do
               (String.append (← (reg_name_forwards rs1))
                 (String.append (sep_forwards ())
                   (String.append (← (hex_bits_5_forwards shamt)) ""))))))))
-  | .FENCE (pred, succ) =>
-    (pure (String.append "fence"
-        (String.append (spc_forwards ())
-          (String.append (fence_bits_forwards pred)
-            (String.append (sep_forwards ()) (String.append (fence_bits_forwards succ) ""))))))
   | .FENCE_TSO () => (pure "fence.tso")
+  | .FENCE (0b0000, pred, succ, rs, rd) =>
+    (do
+      if (((rs == zreg) && (rd == zreg)) : Bool)
+      then
+        (pure (HAppend.hAppend "fence"
+            (HAppend.hAppend (spc_forwards ())
+              (HAppend.hAppend (fence_bits_forwards pred)
+                (HAppend.hAppend (sep_forwards ()) (fence_bits_forwards succ))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
   | .ECALL () => (pure "ecall")
   | .MRET () => (pure "mret")
   | .SRET () => (pure "sret")
@@ -2578,36 +2509,6 @@ def assembly_forwards (arg_ : instruction) : SailM String := do
         (String.append (spc_forwards ())
           (String.append (← (reg_name_forwards rs1))
             (String.append (sep_forwards ()) (String.append (← (reg_name_forwards rs2)) ""))))))
-  | .FENCE_RESERVED (fm, pred, succ, rs, rd) =>
-    (do
-      if ((((fm != 0b0000#4) && (fm != 0b1000#4)) || ((bne rs zreg) || (bne rd zreg))) : Bool)
-      then
-        (pure (String.append "fence.reserved."
-            (String.append (fence_bits_forwards pred)
-              (String.append "."
-                (String.append (fence_bits_forwards succ)
-                  (String.append "."
-                    (String.append (← (reg_name_forwards rs))
-                      (String.append "."
-                        (String.append (← (reg_name_forwards rd))
-                          (String.append "." (String.append (← (hex_bits_4_forwards fm)) "")))))))))))
-      else
-        (do
-          assert false "Pattern match failure at unknown location"
-          throw Error.Exit))
-  | .FENCEI_RESERVED (imm, rs, rd) =>
-    (do
-      if (((imm != 0b000000000000#12) || ((bne rs zreg) || (bne rd zreg))) : Bool)
-      then
-        (pure (String.append "fence.i.reserved."
-            (String.append (← (reg_name_forwards rd))
-              (String.append "."
-                (String.append (← (reg_name_forwards rs))
-                  (String.append "." (String.append (← (hex_bits_12_forwards imm)) "")))))))
-      else
-        (do
-          assert false "Pattern match failure at unknown location"
-          throw Error.Exit))
   | .AMO (op, aq, rl, rs2, rs1, width, rd) =>
     (pure (String.append (amo_mnemonic_forwards op)
         (String.append "."
@@ -4960,7 +4861,14 @@ def assembly_forwards (arg_ : instruction) : SailM String := do
             (String.append (opt_spc_forwards ())
               (String.append (← (reg_name_forwards rs1))
                 (String.append (opt_spc_forwards ()) (String.append ")" ""))))))))
-  | .FENCEI () => (pure "fence.i")
+  | .FENCEI (0x000, rs, rd) =>
+    (do
+      if (((rs == zreg) && (rd == zreg)) : Bool)
+      then (pure "fence.i")
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
   | .FCVT_BF16_S (rs1, rm, rd) =>
     (pure (String.append "fcvt.bf16.s"
         (String.append (spc_forwards ())
@@ -5030,9 +4938,5239 @@ def assembly_forwards (arg_ : instruction) : SailM String := do
   | .C_ILLEGAL s =>
     (pure (String.append "c.illegal"
         (String.append (spc_forwards ()) (String.append (← (hex_bits_16_forwards s)) ""))))
+  | _ =>
+    (do
+      assert false "Pattern match failure at unknown location"
+      throw Error.Exit)
 
-def print_insn (insn : instruction) : SailM String := do
-  (assembly_forwards insn)
+def assembly_forwards_matches (arg_ : instruction) : Bool :=
+  match arg_ with
+  | .ZICBOP (cbop, rs1, offset) => true
+  | .NTL op => true
+  | .C_NTL op => true
+  | .PAUSE () => true
+  | .LPAD lpl => true
+  | .UTYPE (imm, rd, op) => true
+  | .JAL (imm, rd) => true
+  | .JALR (imm, rs1, rd) => true
+  | .BTYPE (imm, rs2, rs1, op) => true
+  | .ITYPE (imm, rs1, rd, op) => true
+  | .SHIFTIOP (shamt, rs1, rd, op) => true
+  | .RTYPE (rs2, rs1, rd, op) => true
+  | .LOAD (imm, rs1, rd, is_unsigned, width) => true
+  | .STORE (imm, rs2, rs1, width) => true
+  | .ADDIW (imm, rs1, rd) => true
+  | .RTYPEW (rs2, rs1, rd, op) => true
+  | .SHIFTIWOP (shamt, rs1, rd, op) => true
+  | .FENCE_TSO () => true
+  | .FENCE (0b0000, pred, succ, rs, rd) =>
+    (if (((rs == zreg) && (rd == zreg)) : Bool)
+    then true
+    else false)
+  | .ECALL () => true
+  | .MRET () => true
+  | .SRET () => true
+  | .EBREAK () => true
+  | .WFI () => true
+  | .SFENCE_VMA (rs1, rs2) => true
+  | .AMO (op, aq, rl, rs2, rs1, width, rd) => true
+  | .LOADRES (aq, rl, rs1, width, rd) => true
+  | .STORECON (aq, rl, rs2, rs1, width, rd) => true
+  | .MUL (rs2, rs1, rd, mul_op) => true
+  | .DIV (rs2, rs1, rd, is_unsigned) => true
+  | .REM (rs2, rs1, rd, is_unsigned) => true
+  | .MULW (rs2, rs1, rd) => true
+  | .DIVW (rs2, rs1, rd, is_unsigned) => true
+  | .REMW (rs2, rs1, rd, is_unsigned) => true
+  | .SLLIUW (shamt, rs1, rd) => true
+  | .ZBA_RTYPEUW (rs2, rs1, rd, shamt) => true
+  | .ZBA_RTYPE (rs2, rs1, rd, shamt) => true
+  | .RORIW (shamt, rs1, rd) => true
+  | .RORI (shamt, rs1, rd) => true
+  | .ZBB_RTYPEW (rs2, rs1, rd, op) => true
+  | .ZBB_RTYPE (rs2, rs1, rd, op) => true
+  | .ZBB_EXTOP (rs1, rd, op) => true
+  | .REV8 (rs1, rd) => true
+  | .ORCB (rs1, rd) => true
+  | .CPOP (rs1, rd) => true
+  | .CPOPW (rs1, rd) => true
+  | .CLZ (rs1, rd) => true
+  | .CLZW (rs1, rd) => true
+  | .CTZ (rs1, rd) => true
+  | .CTZW (rs1, rd) => true
+  | .CLMUL (rs2, rs1, rd) => true
+  | .CLMULH (rs2, rs1, rd) => true
+  | .CLMULR (rs2, rs1, rd) => true
+  | .ZBS_IOP (shamt, rs1, rd, op) => true
+  | .ZBS_RTYPE (rs2, rs1, rd, op) => true
+  | .C_NOP 0b000000 => true
+  | .C_NOP imm =>
+    (if ((imm != (zeros (n := 6))) : Bool)
+    then true
+    else false)
+  | .C_ADDI4SPN (rdc, nzimm) =>
+    (if ((nzimm != 0b00000000#8) : Bool)
+    then true
+    else false)
+  | .C_LW (uimm, rsc, rdc) => true
+  | .C_LD (uimm, rsc, rdc) => true
+  | .C_SW (uimm, rsc1, rsc2) => true
+  | .C_SD (uimm, rsc1, rsc2) => true
+  | .C_ADDI (imm, rsd) =>
+    (if ((bne rsd zreg) : Bool)
+    then true
+    else false)
+  | .C_JAL imm =>
+    (if ((xlen == 32) : Bool)
+    then true
+    else false)
+  | .C_ADDIW (imm, rsd) => true
+  | .C_LI (imm, rd) => true
+  | .C_ADDI16SP imm =>
+    (if ((imm != 0b000000#6) : Bool)
+    then true
+    else false)
+  | .C_LUI (imm, rd) =>
+    (if (((bne rd sp) && (imm != 0b000000#6)) : Bool)
+    then true
+    else false)
+  | .C_SRLI (shamt, rsd) => true
+  | .C_SRAI (shamt, rsd) => true
+  | .C_ANDI (imm, rsd) => true
+  | .C_SUB (rsd, rs2) => true
+  | .C_XOR (rsd, rs2) => true
+  | .C_OR (rsd, rs2) => true
+  | .C_AND (rsd, rs2) => true
+  | .C_SUBW (rsd, rs2) => true
+  | .C_ADDW (rsd, rs2) => true
+  | .C_J imm => true
+  | .C_BEQZ (imm, rs) => true
+  | .C_BNEZ (imm, rs) => true
+  | .C_SLLI (shamt, rsd) => true
+  | .C_LWSP (uimm, rd) =>
+    (if ((bne rd zreg) : Bool)
+    then true
+    else false)
+  | .C_LDSP (uimm, rd) =>
+    (if (((bne rd zreg) && (xlen == 64)) : Bool)
+    then true
+    else false)
+  | .C_SWSP (uimm, rs2) => true
+  | .C_SDSP (uimm, rs2) => true
+  | .C_JR rs1 =>
+    (if ((bne rs1 zreg) : Bool)
+    then true
+    else false)
+  | .C_JALR rs1 =>
+    (if ((bne rs1 zreg) : Bool)
+    then true
+    else false)
+  | .C_MV (rd, rs2) =>
+    (if ((bne rs2 zreg) : Bool)
+    then true
+    else false)
+  | .C_EBREAK () => true
+  | .C_ADD (rsd, rs2) =>
+    (if ((bne rs2 zreg) : Bool)
+    then true
+    else false)
+  | .C_LBU (uimm, rdc, rsc1) => true
+  | .C_LHU (uimm, rdc, rsc1) => true
+  | .C_LH (uimm, rdc, rsc1) => true
+  | .C_SB (uimm, rsc1, rsc2) => true
+  | .C_SH (uimm, rsc1, rsc2) => true
+  | .C_ZEXT_B rsdc => true
+  | .C_SEXT_B rsdc => true
+  | .C_ZEXT_H rsdc => true
+  | .C_SEXT_H rsdc => true
+  | .C_ZEXT_W rsdc => true
+  | .C_NOT rsdc => true
+  | .C_MUL (rsdc, rsc2) => true
+  | .LOAD_FP (imm, rs1, rd, width) => true
+  | .STORE_FP (imm, rs2, rs1, width) => true
+  | .F_MADD_TYPE_S (rs3, rs2, rs1, rm, rd, op) => true
+  | .F_BIN_RM_TYPE_S (rs2, rs1, rm, rd, op) => true
+  | .F_UN_RM_FF_TYPE_S (rs1, rm, rd, FSQRT_S) => true
+  | .F_UN_RM_FX_TYPE_S (rs1, rm, rd, op) => true
+  | .F_UN_RM_XF_TYPE_S (rs1, rm, rd, op) => true
+  | .F_BIN_TYPE_F_S (rs2, rs1, rd, op) => true
+  | .F_BIN_TYPE_X_S (rs2, rs1, rd, op) => true
+  | .F_UN_TYPE_X_S (rs1, rd, op) => true
+  | .F_UN_TYPE_F_S (rs1, rd, op) => true
+  | .C_FLWSP (imm, rd) =>
+    (if ((xlen == 32) : Bool)
+    then true
+    else false)
+  | .C_FSWSP (uimm, rs2) =>
+    (if ((xlen == 32) : Bool)
+    then true
+    else false)
+  | .C_FLW (uimm, rsc, rdc) =>
+    (if ((xlen == 32) : Bool)
+    then true
+    else false)
+  | .C_FSW (uimm, rsc1, rsc2) =>
+    (if ((xlen == 32) : Bool)
+    then true
+    else false)
+  | .F_MADD_TYPE_D (rs3, rs2, rs1, rm, rd, op) => true
+  | .F_BIN_RM_TYPE_D (rs2, rs1, rm, rd, op) => true
+  | .F_UN_RM_FF_TYPE_D (rs1, rm, rd, op) => true
+  | .F_UN_RM_FX_TYPE_D (rs1, rm, rd, op) => true
+  | .F_UN_RM_XF_TYPE_D (rs1, rm, rd, op) => true
+  | .F_BIN_F_TYPE_D (rs2, rs1, rd, op) => true
+  | .F_BIN_X_TYPE_D (rs2, rs1, rd, op) => true
+  | .F_UN_X_TYPE_D (rs1, rd, op) => true
+  | .F_UN_F_TYPE_D (rs1, rd, op) => true
+  | .C_FLDSP (uimm, rd) => true
+  | .C_FSDSP (uimm, rs2) => true
+  | .C_FLD (uimm, rsc, rdc) => true
+  | .C_FSD (uimm, rsc1, rsc2) => true
+  | .F_BIN_RM_TYPE_H (rs2, rs1, rm, rd, op) => true
+  | .F_MADD_TYPE_H (rs3, rs2, rs1, rm, rd, op) => true
+  | .F_BIN_F_TYPE_H (rs2, rs1, rd, op) => true
+  | .F_BIN_X_TYPE_H (rs2, rs1, rd, op) => true
+  | .F_UN_RM_FF_TYPE_H (rs1, rm, rd, op) => true
+  | .F_UN_RM_FX_TYPE_H (rs1, rm, rd, op) => true
+  | .F_UN_RM_XF_TYPE_H (rs1, rm, rd, op) => true
+  | .F_UN_F_TYPE_H (rs1, rd, op) => true
+  | .F_UN_X_TYPE_H (rs1, rd, op) => true
+  | .FLI_H (constantidx, rd) => true
+  | .FLI_S (constantidx, rd) => true
+  | .FLI_D (constantidx, rd) => true
+  | .FMINM_H (rs2, rs1, rd) => true
+  | .FMAXM_H (rs2, rs1, rd) => true
+  | .FMINM_S (rs2, rs1, rd) => true
+  | .FMAXM_S (rs2, rs1, rd) => true
+  | .FMINM_D (rs2, rs1, rd) => true
+  | .FMAXM_D (rs2, rs1, rd) => true
+  | .FROUND_H (rs1, rm, rd) => true
+  | .FROUNDNX_H (rs1, rm, rd) => true
+  | .FROUND_S (rs1, rm, rd) => true
+  | .FROUNDNX_S (rs1, rm, rd) => true
+  | .FROUND_D (rs1, rm, rd) => true
+  | .FROUNDNX_D (rs1, rm, rd) => true
+  | .FMVH_X_D (rs1, rd) => true
+  | .FMVP_D_X (rs2, rs1, rd) => true
+  | .FLEQ_H (rs2, rs1, rd) => true
+  | .FLTQ_H (rs2, rs1, rd) => true
+  | .FLEQ_S (rs2, rs1, rd) => true
+  | .FLTQ_S (rs2, rs1, rd) => true
+  | .FLEQ_D (rs2, rs1, rd) => true
+  | .FLTQ_D (rs2, rs1, rd) => true
+  | .FCVTMOD_W_D (rs1, rd) => true
+  | .VSETVLI (ma, ta, sew, lmul, rs1, rd) => true
+  | .VSETVL (rs2, rs1, rd) => true
+  | .VSETIVLI (ma, ta, sew, lmul, uimm, rd) => true
+  | .VVTYPE (funct6, vm, vs2, vs1, vd) => true
+  | .NVSTYPE (funct6, vm, vs2, vs1, vd) => true
+  | .NVTYPE (funct6, vm, vs2, vs1, vd) => true
+  | .MASKTYPEV (vs2, vs1, vd) => true
+  | .MOVETYPEV (vs1, vd) => true
+  | .VXTYPE (funct6, vm, vs2, rs1, vd) => true
+  | .NXSTYPE (funct6, vm, vs2, rs1, vd) => true
+  | .NXTYPE (funct6, vm, vs2, rs1, vd) => true
+  | .VXSG (funct6, vm, vs2, rs1, vd) => true
+  | .MASKTYPEX (vs2, rs1, vd) => true
+  | .MOVETYPEX (rs1, vd) => true
+  | .VITYPE (funct6, vm, vs2, simm, vd) => true
+  | .NISTYPE (funct6, vm, vs2, uimm, vd) => true
+  | .NITYPE (funct6, vm, vs2, uimm, vd) => true
+  | .VISG (funct6, vm, vs2, simm, vd) => true
+  | .MASKTYPEI (vs2, simm, vd) => true
+  | .MOVETYPEI (vd, simm) => true
+  | .VMVRTYPE (vs2, nreg, vd) => true
+  | .MVVTYPE (funct6, vm, vs2, vs1, vd) => true
+  | .MVVMATYPE (funct6, vm, vs2, vs1, vd) => true
+  | .WVVTYPE (funct6, vm, vs2, vs1, vd) => true
+  | .WVTYPE (funct6, vm, vs2, vs1, vd) => true
+  | .WMVVTYPE (funct6, vm, vs2, vs1, vd) => true
+  | .VEXTTYPE (funct6, vm, vs2, vd) => true
+  | .VMVXS (vs2, rd) => true
+  | .MVVCOMPRESS (vs2, vs1, vd) => true
+  | .MVXTYPE (funct6, vm, vs2, rs1, vd) => true
+  | .MVXMATYPE (funct6, vm, vs2, rs1, vd) => true
+  | .WVXTYPE (funct6, vm, vs2, rs1, vd) => true
+  | .WXTYPE (funct6, vm, vs2, rs1, vd) => true
+  | .WMVXTYPE (funct6, vm, vs2, rs1, vd) => true
+  | .VMVSX (rs1, vd) => true
+  | .FVVTYPE (funct6, vm, vs2, vs1, vd) => true
+  | .FVVMATYPE (funct6, vm, vs2, vs1, vd) => true
+  | .FWVVTYPE (funct6, vm, vs2, vs1, vd) => true
+  | .FWVVMATYPE (funct6, vm, vs1, vs2, vd) => true
+  | .FWVTYPE (funct6, vm, vs2, vs1, vd) => true
+  | .VFUNARY0 (vm, vs2, vfunary0, vd) => true
+  | .VFWUNARY0 (vm, vs2, vfwunary0, vd) => true
+  | .VFNUNARY0 (vm, vs2, vfnunary0, vd) => true
+  | .VFUNARY1 (vm, vs2, vfunary1, vd) => true
+  | .VFMVFS (vs2, rd) => true
+  | .FVFTYPE (funct6, vm, vs2, rs1, vd) => true
+  | .FVFMATYPE (funct6, vm, vs2, rs1, vd) => true
+  | .FWVFTYPE (funct6, vm, vs2, rs1, vd) => true
+  | .FWVFMATYPE (funct6, vm, rs1, vs2, vd) => true
+  | .FWFTYPE (funct6, vm, vs2, rs1, vd) => true
+  | .VFMERGE (vs2, rs1, vd) => true
+  | .VFMV (rs1, vd) => true
+  | .VFMVSF (rs1, vd) => true
+  | .VLSEGTYPE (nf, vm, rs1, width, vd) => true
+  | .VLSEGFFTYPE (nf, vm, rs1, width, vd) => true
+  | .VSSEGTYPE (nf, vm, rs1, width, vs3) => true
+  | .VLSSEGTYPE (nf, vm, rs2, rs1, width, vd) => true
+  | .VSSSEGTYPE (nf, vm, rs2, rs1, width, vs3) => true
+  | .VLXSEGTYPE (nf, vm, vs2, rs1, width, vd, mop) => true
+  | .VSXSEGTYPE (nf, vm, vs2, rs1, width, vs3, mop) => true
+  | .VLRETYPE (nf, rs1, width, vd) => true
+  | .VSRETYPE (nf, rs1, vs3) => true
+  | .VMTYPE (rs1, vd_or_vs3, op) => true
+  | .MMTYPE (funct6, vs2, vs1, vd) => true
+  | .VCPOP_M (vm, vs2, rd) => true
+  | .VFIRST_M (vm, vs2, rd) => true
+  | .VMSBF_M (vm, vs2, vd) => true
+  | .VMSIF_M (vm, vs2, vd) => true
+  | .VMSOF_M (vm, vs2, vd) => true
+  | .VIOTA_M (vm, vs2, vd) => true
+  | .VID_V (vm, vd) => true
+  | .VVMTYPE (funct6, vs2, vs1, vd) => true
+  | .VVMCTYPE (funct6, vs2, vs1, vd) => true
+  | .VVMSTYPE (funct6, vs2, vs1, vd) => true
+  | .VVCMPTYPE (funct6, vm, vs2, vs1, vd) => true
+  | .VXMTYPE (funct6, vs2, rs1, vd) => true
+  | .VXMCTYPE (funct6, vs2, rs1, vd) => true
+  | .VXMSTYPE (funct6, vs2, rs1, vd) => true
+  | .VXCMPTYPE (funct6, vm, vs2, rs1, vd) => true
+  | .VIMTYPE (funct6, vs2, simm, vd) => true
+  | .VIMCTYPE (funct6, vs2, simm, vd) => true
+  | .VIMSTYPE (funct6, vs2, simm, vd) => true
+  | .VICMPTYPE (funct6, vm, vs2, simm, vd) => true
+  | .FVVMTYPE (funct6, vm, vs2, vs1, vd) => true
+  | .FVFMTYPE (funct6, vm, vs2, rs1, vd) => true
+  | .RIVVTYPE (funct6, vm, vs2, vs1, vd) => true
+  | .RMVVTYPE (funct6, vm, vs2, vs1, vd) => true
+  | .RFVVTYPE (funct6, vm, vs2, vs1, vd) => true
+  | .RFWVVTYPE (funct6, vm, vs2, vs1, vd) => true
+  | .SHA256SIG0 (rs1, rd) => true
+  | .SHA256SIG1 (rs1, rd) => true
+  | .SHA256SUM0 (rs1, rd) => true
+  | .SHA256SUM1 (rs1, rd) => true
+  | .AES32ESMI (bs, rs2, rs1, rd) => true
+  | .AES32ESI (bs, rs2, rs1, rd) => true
+  | .AES32DSMI (bs, rs2, rs1, rd) => true
+  | .AES32DSI (bs, rs2, rs1, rd) => true
+  | .SHA512SIG0L (rs2, rs1, rd) => true
+  | .SHA512SIG0H (rs2, rs1, rd) => true
+  | .SHA512SIG1L (rs2, rs1, rd) => true
+  | .SHA512SIG1H (rs2, rs1, rd) => true
+  | .SHA512SUM0R (rs2, rs1, rd) => true
+  | .SHA512SUM1R (rs2, rs1, rd) => true
+  | .AES64KS1I (rnum, rs1, rd) => true
+  | .AES64KS2 (rs2, rs1, rd) => true
+  | .AES64IM (rs1, rd) => true
+  | .AES64ESM (rs2, rs1, rd) => true
+  | .AES64ES (rs2, rs1, rd) => true
+  | .AES64DSM (rs2, rs1, rd) => true
+  | .AES64DS (rs2, rs1, rd) => true
+  | .SHA512SIG0 (rs1, rd) => true
+  | .SHA512SIG1 (rs1, rd) => true
+  | .SHA512SUM0 (rs1, rd) => true
+  | .SHA512SUM1 (rs1, rd) => true
+  | .SM3P0 (rs1, rd) => true
+  | .SM3P1 (rs1, rd) => true
+  | .SM4ED (bs, rs2, rs1, rd) => true
+  | .SM4KS (bs, rs2, rs1, rd) => true
+  | .ZBKB_RTYPE (rs2, rs1, rd, op) => true
+  | .ZBKB_PACKW (rs2, rs1, rd) => true
+  | .ZIP (rs1, rd) => true
+  | .UNZIP (rs1, rd) => true
+  | .BREV8 (rs1, rd) => true
+  | .XPERM8 (rs2, rs1, rd) => true
+  | .XPERM4 (rs2, rs1, rd) => true
+  | .VANDN_VV (vm, vs1, vs2, vd) => true
+  | .VANDN_VX (vm, vs2, rs1, vd) => true
+  | .VBREV_V (vm, vs2, vd) => true
+  | .VBREV8_V (vm, vs2, vd) => true
+  | .VREV8_V (vm, vs2, vd) => true
+  | .VCLZ_V (vm, vs2, vd) => true
+  | .VCTZ_V (vm, vs2, vd) => true
+  | .VCPOP_V (vm, vs2, vd) => true
+  | .VROL_VV (vm, vs1, vs2, vd) => true
+  | .VROL_VX (vm, vs2, rs1, vd) => true
+  | .VROR_VV (vm, vs1, vs2, vd) => true
+  | .VROR_VX (vm, vs2, rs1, vd) => true
+  | .VROR_VI (vm, vs2, uimm, vd) => true
+  | .VWSLL_VV (vm, vs2, vs1, vd) => true
+  | .VWSLL_VX (vm, vs2, rs1, vd) => true
+  | .VWSLL_VI (vm, vs2, uimm, vd) => true
+  | .VCLMUL_VV (vm, vs2, vs1, vd) => true
+  | .VCLMUL_VX (vm, vs2, rs1, vd) => true
+  | .VCLMULH_VV (vm, vs2, vs1, vd) => true
+  | .VCLMULH_VX (vm, vs2, rs1, vd) => true
+  | .VGHSH_VV (vs2, vs1, vd) => true
+  | .VGMUL_VV (vs2, vd) => true
+  | .VAESDF (funct6, vs2, vd) => true
+  | .VAESDM (funct6, vs2, vd) => true
+  | .VAESEF (funct6, vs2, vd) => true
+  | .VAESEM (funct6, vs2, vd) => true
+  | .VAESKF1_VI (vs2, rnd, vd) => true
+  | .VAESKF2_VI (vs2, rnd, vd) => true
+  | .VAESZ_VS (vs2, vd) => true
+  | .VSM4K_VI (vs2, uimm, vd) => true
+  | .ZVKSM4RTYPE (funct6, vs2, vd) => true
+  | .VSHA2MS_VV (vs2, vs1, vd) => true
+  | .ZVKSHA2TYPE (funct6, vs2, vs1, vd) => true
+  | .VSM3ME_VV (vs2, vs1, vd) => true
+  | .VSM3C_VI (vs2, uimm, vd) => true
+  | .CSRImm (csr, imm, rd, op) => true
+  | .CSRReg (csr, rs1, rd, op) => true
+  | .SINVAL_VMA (rs1, rs2) => true
+  | .SFENCE_W_INVAL () => true
+  | .SFENCE_INVAL_IR () => true
+  | .WRS WRS_STO => true
+  | .WRS WRS_NTO => true
+  | .ZICOND_RTYPE (rs2, rs1, rd, op) => true
+  | .ZICBOM (cbop, rs1) => true
+  | .ZICBOZ rs1 => true
+  | .FENCEI (0x000, rs, rd) =>
+    (if (((rs == zreg) && (rd == zreg)) : Bool)
+    then true
+    else false)
+  | .FCVT_BF16_S (rs1, rm, rd) => true
+  | .FCVT_S_BF16 (rs1, rm, rd) => true
+  | .VFNCVTBF16_F_F_W (vm, vs2, vd) => true
+  | .VFWCVTBF16_F_F_V (vm, vs2, vd) => true
+  | .VFWMACCBF16_VV (vm, vs2, vs1, vd) => true
+  | .VFWMACCBF16_VF (vm, vs2, vs1, vd) => true
+  | .ZIMOP_MOP_R (mop, rs1, rd) => true
+  | .ZIMOP_MOP_RR (mop, rs2, rs1, rd) => true
+  | .ZCMOP mop => true
+  | .ILLEGAL s => true
+  | .C_ILLEGAL s => true
+  | _ => false
+
+/-- Type quantifiers: width : Nat, width ∈ {1, 2, 4, 8, 16} -/
+def amo_encoding_valid (width : Nat) (op : amoop) (typ_2 : regidx) (typ_3 : regidx) : SailM Bool := do
+  let .Regidx rs2 : regidx := typ_2
+  let .Regidx rd : regidx := typ_3
+  (pure ((← do
+        if ((op == AMOCAS) : Bool)
+        then (currentlyEnabled Ext_Zacas)
+        else (currentlyEnabled Ext_Zaamo)) && (← do
+        if ((width <b 4) : Bool)
+        then (currentlyEnabled Ext_Zabha)
+        else
+          (pure ((width ≤b xlen_bytes) || ((op == AMOCAS) && ((width ≤b (xlen_bytes *i 2)) && (((BitVec.access
+                        rs2 0) == 0#1) && ((BitVec.access rd 0) == 0#1)))))))))
+
+def encdec_amoop_forwards (arg_ : amoop) : (BitVec 5) :=
+  match arg_ with
+  | AMOSWAP => 0b00001#5
+  | AMOADD => 0b00000#5
+  | AMOXOR => 0b00100#5
+  | AMOAND => 0b01100#5
+  | AMOOR => 0b01000#5
+  | AMOMIN => 0b10000#5
+  | AMOMAX => 0b10100#5
+  | AMOMINU => 0b11000#5
+  | AMOMAXU => 0b11100#5
+  | AMOCAS => 0b00101#5
+
+def encdec_bop_forwards (arg_ : bop) : (BitVec 3) :=
+  match arg_ with
+  | BEQ => 0b000#3
+  | BNE => 0b001#3
+  | BLT => 0b100#3
+  | BGE => 0b101#3
+  | BLTU => 0b110#3
+  | BGEU => 0b111#3
+
+def encdec_cbop_forwards (arg_ : cbop_zicbom) : (BitVec 12) :=
+  match arg_ with
+  | CBO_CLEAN => 0b000000000001#12
+  | CBO_FLUSH => 0b000000000010#12
+  | CBO_INVAL => 0b000000000000#12
+
+def encdec_cbop_zicbop_forwards (arg_ : cbop_zicbop) : (BitVec 5) :=
+  match arg_ with
+  | PREFETCH_I => 0b00000#5
+  | PREFETCH_R => 0b00001#5
+  | PREFETCH_W => 0b00011#5
+
+def encdec_csrop_forwards (arg_ : csrop) : (BitVec 2) :=
+  match arg_ with
+  | CSRRW => 0b01#2
+  | CSRRS => 0b10#2
+  | CSRRC => 0b11#2
+
+def encdec_freg_forwards (arg_ : fregidx) : (BitVec 5) :=
+  match arg_ with
+  | .Fregidx r => r
+
+def encdec_fvffunct6_forwards (arg_ : fvffunct6) : (BitVec 6) :=
+  match arg_ with
+  | VF_VADD => 0b000000#6
+  | VF_VSUB => 0b000010#6
+  | VF_VMIN => 0b000100#6
+  | VF_VMAX => 0b000110#6
+  | VF_VSGNJ => 0b001000#6
+  | VF_VSGNJN => 0b001001#6
+  | VF_VSGNJX => 0b001010#6
+  | VF_VSLIDE1UP => 0b001110#6
+  | VF_VSLIDE1DOWN => 0b001111#6
+  | VF_VDIV => 0b100000#6
+  | VF_VRDIV => 0b100001#6
+  | VF_VMUL => 0b100100#6
+  | VF_VRSUB => 0b100111#6
+
+def encdec_fvfmafunct6_forwards (arg_ : fvfmafunct6) : (BitVec 6) :=
+  match arg_ with
+  | VF_VMADD => 0b101000#6
+  | VF_VNMADD => 0b101001#6
+  | VF_VMSUB => 0b101010#6
+  | VF_VNMSUB => 0b101011#6
+  | VF_VMACC => 0b101100#6
+  | VF_VNMACC => 0b101101#6
+  | VF_VMSAC => 0b101110#6
+  | VF_VNMSAC => 0b101111#6
+
+def encdec_fvfmfunct6_forwards (arg_ : fvfmfunct6) : (BitVec 6) :=
+  match arg_ with
+  | VFM_VMFEQ => 0b011000#6
+  | VFM_VMFLE => 0b011001#6
+  | VFM_VMFLT => 0b011011#6
+  | VFM_VMFNE => 0b011100#6
+  | VFM_VMFGT => 0b011101#6
+  | VFM_VMFGE => 0b011111#6
+
+def encdec_fvvfunct6_forwards (arg_ : fvvfunct6) : (BitVec 6) :=
+  match arg_ with
+  | FVV_VADD => 0b000000#6
+  | FVV_VSUB => 0b000010#6
+  | FVV_VMIN => 0b000100#6
+  | FVV_VMAX => 0b000110#6
+  | FVV_VSGNJ => 0b001000#6
+  | FVV_VSGNJN => 0b001001#6
+  | FVV_VSGNJX => 0b001010#6
+  | FVV_VDIV => 0b100000#6
+  | FVV_VMUL => 0b100100#6
+
+def encdec_fvvmafunct6_forwards (arg_ : fvvmafunct6) : (BitVec 6) :=
+  match arg_ with
+  | FVV_VMADD => 0b101000#6
+  | FVV_VNMADD => 0b101001#6
+  | FVV_VMSUB => 0b101010#6
+  | FVV_VNMSUB => 0b101011#6
+  | FVV_VMACC => 0b101100#6
+  | FVV_VNMACC => 0b101101#6
+  | FVV_VMSAC => 0b101110#6
+  | FVV_VNMSAC => 0b101111#6
+
+def encdec_fvvmfunct6_forwards (arg_ : fvvmfunct6) : (BitVec 6) :=
+  match arg_ with
+  | FVVM_VMFEQ => 0b011000#6
+  | FVVM_VMFLE => 0b011001#6
+  | FVVM_VMFLT => 0b011011#6
+  | FVVM_VMFNE => 0b011100#6
+
+def encdec_fwffunct6_forwards (arg_ : fwffunct6) : (BitVec 6) :=
+  match arg_ with
+  | FWF_VADD => 0b110100#6
+  | FWF_VSUB => 0b110110#6
+
+def encdec_fwvffunct6_forwards (arg_ : fwvffunct6) : (BitVec 6) :=
+  match arg_ with
+  | FWVF_VADD => 0b110000#6
+  | FWVF_VSUB => 0b110010#6
+  | FWVF_VMUL => 0b111000#6
+
+def encdec_fwvfmafunct6_forwards (arg_ : fwvfmafunct6) : (BitVec 6) :=
+  match arg_ with
+  | FWVF_VMACC => 0b111100#6
+  | FWVF_VNMACC => 0b111101#6
+  | FWVF_VMSAC => 0b111110#6
+  | FWVF_VNMSAC => 0b111111#6
+
+def encdec_fwvfunct6_forwards (arg_ : fwvfunct6) : (BitVec 6) :=
+  match arg_ with
+  | FWV_VADD => 0b110100#6
+  | FWV_VSUB => 0b110110#6
+
+def encdec_fwvvfunct6_forwards (arg_ : fwvvfunct6) : (BitVec 6) :=
+  match arg_ with
+  | FWVV_VADD => 0b110000#6
+  | FWVV_VSUB => 0b110010#6
+  | FWVV_VMUL => 0b111000#6
+
+def encdec_fwvvmafunct6_forwards (arg_ : fwvvmafunct6) : (BitVec 6) :=
+  match arg_ with
+  | FWVV_VMACC => 0b111100#6
+  | FWVV_VNMACC => 0b111101#6
+  | FWVV_VMSAC => 0b111110#6
+  | FWVV_VNMSAC => 0b111111#6
+
+def encdec_indexed_mop_forwards (arg_ : indexed_mop) : (BitVec 2) :=
+  match arg_ with
+  | INDEXED_UNORDERED => 0b01#2
+  | INDEXED_ORDERED => 0b11#2
+
+def encdec_iop_forwards (arg_ : iop) : (BitVec 3) :=
+  match arg_ with
+  | ADDI => 0b000#3
+  | SLTI => 0b010#3
+  | SLTIU => 0b011#3
+  | ANDI => 0b111#3
+  | ORI => 0b110#3
+  | XORI => 0b100#3
+
+def encdec_lsop_forwards (arg_ : vmlsop) : (BitVec 7) :=
+  match arg_ with
+  | VLM => 0b0000111#7
+  | VSM => 0b0100111#7
+
+def encdec_mmfunct6_forwards (arg_ : mmfunct6) : (BitVec 6) :=
+  match arg_ with
+  | MM_VMAND => 0b011001#6
+  | MM_VMNAND => 0b011101#6
+  | MM_VMANDN => 0b011000#6
+  | MM_VMXOR => 0b011011#6
+  | MM_VMOR => 0b011010#6
+  | MM_VMNOR => 0b011110#6
+  | MM_VMORN => 0b011100#6
+  | MM_VMXNOR => 0b011111#6
+
+def encdec_mul_op_forwards (arg_ : mul_op) : SailM (BitVec 3) := do
+  match arg_ with
+  | { result_part := Low, signed_rs1 := Signed, signed_rs2 := Signed } => (pure 0b000#3)
+  | { result_part := High, signed_rs1 := Signed, signed_rs2 := Signed } => (pure 0b001#3)
+  | { result_part := High, signed_rs1 := Signed, signed_rs2 := Unsigned } => (pure 0b010#3)
+  | { result_part := High, signed_rs1 := Unsigned, signed_rs2 := Unsigned } => (pure 0b011#3)
+  | _ =>
+    (do
+      assert false "Pattern match failure at unknown location"
+      throw Error.Exit)
+
+def encdec_mvvfunct6_forwards (arg_ : mvvfunct6) : (BitVec 6) :=
+  match arg_ with
+  | MVV_VAADDU => 0b001000#6
+  | MVV_VAADD => 0b001001#6
+  | MVV_VASUBU => 0b001010#6
+  | MVV_VASUB => 0b001011#6
+  | MVV_VMUL => 0b100101#6
+  | MVV_VMULH => 0b100111#6
+  | MVV_VMULHU => 0b100100#6
+  | MVV_VMULHSU => 0b100110#6
+  | MVV_VDIVU => 0b100000#6
+  | MVV_VDIV => 0b100001#6
+  | MVV_VREMU => 0b100010#6
+  | MVV_VREM => 0b100011#6
+
+def encdec_mvvmafunct6_forwards (arg_ : mvvmafunct6) : (BitVec 6) :=
+  match arg_ with
+  | MVV_VMACC => 0b101101#6
+  | MVV_VNMSAC => 0b101111#6
+  | MVV_VMADD => 0b101001#6
+  | MVV_VNMSUB => 0b101011#6
+
+def encdec_mvxfunct6_forwards (arg_ : mvxfunct6) : (BitVec 6) :=
+  match arg_ with
+  | MVX_VAADDU => 0b001000#6
+  | MVX_VAADD => 0b001001#6
+  | MVX_VASUBU => 0b001010#6
+  | MVX_VASUB => 0b001011#6
+  | MVX_VSLIDE1UP => 0b001110#6
+  | MVX_VSLIDE1DOWN => 0b001111#6
+  | MVX_VMUL => 0b100101#6
+  | MVX_VMULH => 0b100111#6
+  | MVX_VMULHU => 0b100100#6
+  | MVX_VMULHSU => 0b100110#6
+  | MVX_VDIVU => 0b100000#6
+  | MVX_VDIV => 0b100001#6
+  | MVX_VREMU => 0b100010#6
+  | MVX_VREM => 0b100011#6
+
+def encdec_mvxmafunct6_forwards (arg_ : mvxmafunct6) : (BitVec 6) :=
+  match arg_ with
+  | MVX_VMACC => 0b101101#6
+  | MVX_VNMSAC => 0b101111#6
+  | MVX_VMADD => 0b101001#6
+  | MVX_VNMSUB => 0b101011#6
+
+/-- Type quantifiers: arg_ : Nat, arg_ > 0 ∧ arg_ ≤ 8 -/
+def encdec_nfields_backwards (arg_ : Nat) : (BitVec 3) :=
+  match arg_ with
+  | 1 => 0b000#3
+  | 2 => 0b001#3
+  | 3 => 0b010#3
+  | 4 => 0b011#3
+  | 5 => 0b100#3
+  | 6 => 0b101#3
+  | 7 => 0b110#3
+  | _ => 0b111#3
+
+/-- Type quantifiers: arg_ : Nat, arg_ ∈ {1, 2, 4, 8} -/
+def encdec_nfields_pow2_backwards (arg_ : Nat) : (BitVec 3) :=
+  match arg_ with
+  | 1 => 0b000#3
+  | 2 => 0b001#3
+  | 4 => 0b011#3
+  | _ => 0b111#3
+
+def encdec_nifunct6_forwards (arg_ : nifunct6) : (BitVec 6) :=
+  match arg_ with
+  | NI_VNCLIPU => 0b101110#6
+  | NI_VNCLIP => 0b101111#6
+
+def encdec_nisfunct6_forwards (arg_ : nisfunct6) : (BitVec 6) :=
+  match arg_ with
+  | NIS_VNSRL => 0b101100#6
+  | NIS_VNSRA => 0b101101#6
+
+/-- Type quantifiers: arg_ : Nat, arg_ ∈ {1, 2, 4, 8} -/
+def encdec_nreg_backwards (arg_ : Nat) : (BitVec 5) :=
+  match arg_ with
+  | 1 => 0b00000#5
+  | 2 => 0b00001#5
+  | 4 => 0b00011#5
+  | _ => 0b00111#5
+
+def encdec_ntl_forwards (arg_ : ntl_type) : (BitVec 5) :=
+  match arg_ with
+  | NTL_P1 => 0b00010#5
+  | NTL_PALL => 0b00011#5
+  | NTL_S1 => 0b00100#5
+  | NTL_ALL => 0b00101#5
+
+def encdec_nvfunct6_forwards (arg_ : nvfunct6) : (BitVec 6) :=
+  match arg_ with
+  | NV_VNCLIPU => 0b101110#6
+  | NV_VNCLIP => 0b101111#6
+
+def encdec_nvsfunct6_forwards (arg_ : nvsfunct6) : (BitVec 6) :=
+  match arg_ with
+  | NVS_VNSRL => 0b101100#6
+  | NVS_VNSRA => 0b101101#6
+
+def encdec_nxfunct6_forwards (arg_ : nxfunct6) : (BitVec 6) :=
+  match arg_ with
+  | NX_VNCLIPU => 0b101110#6
+  | NX_VNCLIP => 0b101111#6
+
+def encdec_nxsfunct6_forwards (arg_ : nxsfunct6) : (BitVec 6) :=
+  match arg_ with
+  | NXS_VNSRL => 0b101100#6
+  | NXS_VNSRA => 0b101101#6
+
+def encdec_rfvvfunct6_forwards (arg_ : rfvvfunct6) : (BitVec 6) :=
+  match arg_ with
+  | FVV_VFREDOSUM => 0b000011#6
+  | FVV_VFREDUSUM => 0b000001#6
+  | FVV_VFREDMAX => 0b000111#6
+  | FVV_VFREDMIN => 0b000101#6
+
+def encdec_rfwvvfunct6_forwards (arg_ : rfwvvfunct6) : (BitVec 6) :=
+  match arg_ with
+  | FVV_VFWREDOSUM => 0b110011#6
+  | FVV_VFWREDUSUM => 0b110001#6
+
+def encdec_rivvfunct6_forwards (arg_ : rivvfunct6) : (BitVec 6) :=
+  match arg_ with
+  | IVV_VWREDSUMU => 0b110000#6
+  | IVV_VWREDSUM => 0b110001#6
+
+def encdec_rmvvfunct6_forwards (arg_ : rmvvfunct6) : (BitVec 6) :=
+  match arg_ with
+  | MVV_VREDSUM => 0b000000#6
+  | MVV_VREDAND => 0b000001#6
+  | MVV_VREDOR => 0b000010#6
+  | MVV_VREDXOR => 0b000011#6
+  | MVV_VREDMINU => 0b000100#6
+  | MVV_VREDMIN => 0b000101#6
+  | MVV_VREDMAXU => 0b000110#6
+  | MVV_VREDMAX => 0b000111#6
+
+def encdec_rounding_mode_forwards (arg_ : rounding_mode) : (BitVec 3) :=
+  match arg_ with
+  | RM_RNE => 0b000#3
+  | RM_RTZ => 0b001#3
+  | RM_RDN => 0b010#3
+  | RM_RUP => 0b011#3
+  | RM_RMM => 0b100#3
+  | RM_DYN => 0b111#3
+
+def encdec_uop_forwards (arg_ : uop) : (BitVec 7) :=
+  match arg_ with
+  | LUI => 0b0110111#7
+  | AUIPC => 0b0010111#7
+
+def encdec_vaesdf_forwards (arg_ : zvk_vaesdf_funct6) : (BitVec 6) :=
+  match arg_ with
+  | ZVK_VAESDF_VV => 0b101000#6
+  | ZVK_VAESDF_VS => 0b101001#6
+
+def encdec_vaesdm_forwards (arg_ : zvk_vaesdm_funct6) : (BitVec 6) :=
+  match arg_ with
+  | ZVK_VAESDM_VV => 0b101000#6
+  | ZVK_VAESDM_VS => 0b101001#6
+
+def encdec_vaesef_forwards (arg_ : zvk_vaesef_funct6) : (BitVec 6) :=
+  match arg_ with
+  | ZVK_VAESEF_VV => 0b101000#6
+  | ZVK_VAESEF_VS => 0b101001#6
+
+def encdec_vaesem_forwards (arg_ : zvk_vaesem_funct6) : (BitVec 6) :=
+  match arg_ with
+  | ZVK_VAESEM_VV => 0b101000#6
+  | ZVK_VAESEM_VS => 0b101001#6
+
+def encdec_vfnunary0_vs1_forwards (arg_ : vfnunary0) : (BitVec 5) :=
+  match arg_ with
+  | FNV_CVT_XU_F => 0b10000#5
+  | FNV_CVT_X_F => 0b10001#5
+  | FNV_CVT_F_XU => 0b10010#5
+  | FNV_CVT_F_X => 0b10011#5
+  | FNV_CVT_F_F => 0b10100#5
+  | FNV_CVT_ROD_F_F => 0b10101#5
+  | FNV_CVT_RTZ_XU_F => 0b10110#5
+  | FNV_CVT_RTZ_X_F => 0b10111#5
+
+def encdec_vfunary0_vs1_forwards (arg_ : vfunary0) : (BitVec 5) :=
+  match arg_ with
+  | FV_CVT_XU_F => 0b00000#5
+  | FV_CVT_X_F => 0b00001#5
+  | FV_CVT_F_XU => 0b00010#5
+  | FV_CVT_F_X => 0b00011#5
+  | FV_CVT_RTZ_XU_F => 0b00110#5
+  | FV_CVT_RTZ_X_F => 0b00111#5
+
+def encdec_vfunary1_vs1_forwards (arg_ : vfunary1) : (BitVec 5) :=
+  match arg_ with
+  | FVV_VSQRT => 0b00000#5
+  | FVV_VRSQRT7 => 0b00100#5
+  | FVV_VREC7 => 0b00101#5
+  | FVV_VCLASS => 0b10000#5
+
+def encdec_vfwunary0_vs1_forwards (arg_ : vfwunary0) : (BitVec 5) :=
+  match arg_ with
+  | FWV_CVT_XU_F => 0b01000#5
+  | FWV_CVT_X_F => 0b01001#5
+  | FWV_CVT_F_XU => 0b01010#5
+  | FWV_CVT_F_X => 0b01011#5
+  | FWV_CVT_F_F => 0b01100#5
+  | FWV_CVT_RTZ_XU_F => 0b01110#5
+  | FWV_CVT_RTZ_X_F => 0b01111#5
+
+def encdec_vicmpfunct6_forwards (arg_ : vicmpfunct6) : (BitVec 6) :=
+  match arg_ with
+  | VICMP_VMSEQ => 0b011000#6
+  | VICMP_VMSNE => 0b011001#6
+  | VICMP_VMSLEU => 0b011100#6
+  | VICMP_VMSLE => 0b011101#6
+  | VICMP_VMSGTU => 0b011110#6
+  | VICMP_VMSGT => 0b011111#6
+
+def encdec_vifunct6_forwards (arg_ : vifunct6) : (BitVec 6) :=
+  match arg_ with
+  | VI_VADD => 0b000000#6
+  | VI_VRSUB => 0b000011#6
+  | VI_VAND => 0b001001#6
+  | VI_VOR => 0b001010#6
+  | VI_VXOR => 0b001011#6
+  | VI_VSADDU => 0b100000#6
+  | VI_VSADD => 0b100001#6
+  | VI_VSLL => 0b100101#6
+  | VI_VSRL => 0b101000#6
+  | VI_VSRA => 0b101001#6
+  | VI_VSSRL => 0b101010#6
+  | VI_VSSRA => 0b101011#6
+
+def encdec_vimcfunct6_forwards (arg_ : vimcfunct6) : (BitVec 6) :=
+  match arg_ with
+  | VIMC_VMADC => 0b010001#6
+
+def encdec_vimfunct6_forwards (arg_ : vimfunct6) : (BitVec 6) :=
+  match arg_ with
+  | VIM_VMADC => 0b010001#6
+
+def encdec_vimsfunct6_forwards (arg_ : vimsfunct6) : (BitVec 6) :=
+  match arg_ with
+  | VIMS_VADC => 0b010000#6
+
+def encdec_visgfunct6_forwards (arg_ : visgfunct6) : (BitVec 6) :=
+  match arg_ with
+  | VI_VSLIDEUP => 0b001110#6
+  | VI_VSLIDEDOWN => 0b001111#6
+  | VI_VRGATHER => 0b001100#6
+
+def encdec_vlewidth_forwards (arg_ : vlewidth) : (BitVec 3) :=
+  match arg_ with
+  | VLE8 => 0b000#3
+  | VLE16 => 0b101#3
+  | VLE32 => 0b110#3
+  | VLE64 => 0b111#3
+
+def encdec_vreg_forwards (arg_ : vregidx) : (BitVec 5) :=
+  match arg_ with
+  | .Vregidx r => r
+
+def encdec_vsha2_forwards (arg_ : zvk_vsha2_funct6) : (BitVec 6) :=
+  match arg_ with
+  | ZVK_VSHA2CH_VV => 0b101110#6
+  | ZVK_VSHA2CL_VV => 0b101111#6
+
+def encdec_vvcmpfunct6_forwards (arg_ : vvcmpfunct6) : (BitVec 6) :=
+  match arg_ with
+  | VVCMP_VMSEQ => 0b011000#6
+  | VVCMP_VMSNE => 0b011001#6
+  | VVCMP_VMSLTU => 0b011010#6
+  | VVCMP_VMSLT => 0b011011#6
+  | VVCMP_VMSLEU => 0b011100#6
+  | VVCMP_VMSLE => 0b011101#6
+
+def encdec_vvfunct6_forwards (arg_ : vvfunct6) : (BitVec 6) :=
+  match arg_ with
+  | VV_VADD => 0b000000#6
+  | VV_VSUB => 0b000010#6
+  | VV_VMINU => 0b000100#6
+  | VV_VMIN => 0b000101#6
+  | VV_VMAXU => 0b000110#6
+  | VV_VMAX => 0b000111#6
+  | VV_VAND => 0b001001#6
+  | VV_VOR => 0b001010#6
+  | VV_VXOR => 0b001011#6
+  | VV_VRGATHER => 0b001100#6
+  | VV_VRGATHEREI16 => 0b001110#6
+  | VV_VSADDU => 0b100000#6
+  | VV_VSADD => 0b100001#6
+  | VV_VSSUBU => 0b100010#6
+  | VV_VSSUB => 0b100011#6
+  | VV_VSLL => 0b100101#6
+  | VV_VSMUL => 0b100111#6
+  | VV_VSRL => 0b101000#6
+  | VV_VSRA => 0b101001#6
+  | VV_VSSRL => 0b101010#6
+  | VV_VSSRA => 0b101011#6
+
+def encdec_vvmcfunct6_forwards (arg_ : vvmcfunct6) : (BitVec 6) :=
+  match arg_ with
+  | VVMC_VMADC => 0b010001#6
+  | VVMC_VMSBC => 0b010011#6
+
+def encdec_vvmfunct6_forwards (arg_ : vvmfunct6) : (BitVec 6) :=
+  match arg_ with
+  | VVM_VMADC => 0b010001#6
+  | VVM_VMSBC => 0b010011#6
+
+def encdec_vvmsfunct6_forwards (arg_ : vvmsfunct6) : (BitVec 6) :=
+  match arg_ with
+  | VVMS_VADC => 0b010000#6
+  | VVMS_VSBC => 0b010010#6
+
+def encdec_vxcmpfunct6_forwards (arg_ : vxcmpfunct6) : (BitVec 6) :=
+  match arg_ with
+  | VXCMP_VMSEQ => 0b011000#6
+  | VXCMP_VMSNE => 0b011001#6
+  | VXCMP_VMSLTU => 0b011010#6
+  | VXCMP_VMSLT => 0b011011#6
+  | VXCMP_VMSLEU => 0b011100#6
+  | VXCMP_VMSLE => 0b011101#6
+  | VXCMP_VMSGTU => 0b011110#6
+  | VXCMP_VMSGT => 0b011111#6
+
+def encdec_vxfunct6_forwards (arg_ : vxfunct6) : (BitVec 6) :=
+  match arg_ with
+  | VX_VADD => 0b000000#6
+  | VX_VSUB => 0b000010#6
+  | VX_VRSUB => 0b000011#6
+  | VX_VMINU => 0b000100#6
+  | VX_VMIN => 0b000101#6
+  | VX_VMAXU => 0b000110#6
+  | VX_VMAX => 0b000111#6
+  | VX_VAND => 0b001001#6
+  | VX_VOR => 0b001010#6
+  | VX_VXOR => 0b001011#6
+  | VX_VSADDU => 0b100000#6
+  | VX_VSADD => 0b100001#6
+  | VX_VSSUBU => 0b100010#6
+  | VX_VSSUB => 0b100011#6
+  | VX_VSLL => 0b100101#6
+  | VX_VSMUL => 0b100111#6
+  | VX_VSRL => 0b101000#6
+  | VX_VSRA => 0b101001#6
+  | VX_VSSRL => 0b101010#6
+  | VX_VSSRA => 0b101011#6
+
+def encdec_vxmcfunct6_forwards (arg_ : vxmcfunct6) : (BitVec 6) :=
+  match arg_ with
+  | VXMC_VMADC => 0b010001#6
+  | VXMC_VMSBC => 0b010011#6
+
+def encdec_vxmfunct6_forwards (arg_ : vxmfunct6) : (BitVec 6) :=
+  match arg_ with
+  | VXM_VMADC => 0b010001#6
+  | VXM_VMSBC => 0b010011#6
+
+def encdec_vxmsfunct6_forwards (arg_ : vxmsfunct6) : (BitVec 6) :=
+  match arg_ with
+  | VXMS_VADC => 0b010000#6
+  | VXMS_VSBC => 0b010010#6
+
+def encdec_vxsgfunct6_forwards (arg_ : vxsgfunct6) : (BitVec 6) :=
+  match arg_ with
+  | VX_VSLIDEUP => 0b001110#6
+  | VX_VSLIDEDOWN => 0b001111#6
+  | VX_VRGATHER => 0b001100#6
+
+def encdec_wmvvfunct6_forwards (arg_ : wmvvfunct6) : (BitVec 6) :=
+  match arg_ with
+  | WMVV_VWMACCU => 0b111100#6
+  | WMVV_VWMACC => 0b111101#6
+  | WMVV_VWMACCSU => 0b111111#6
+
+def encdec_wmvxfunct6_forwards (arg_ : wmvxfunct6) : (BitVec 6) :=
+  match arg_ with
+  | WMVX_VWMACCU => 0b111100#6
+  | WMVX_VWMACC => 0b111101#6
+  | WMVX_VWMACCUS => 0b111110#6
+  | WMVX_VWMACCSU => 0b111111#6
+
+def encdec_wrsop_forwards (arg_ : wrsop) : (BitVec 12) :=
+  match arg_ with
+  | WRS_STO => 0b000000011101#12
+  | WRS_NTO => 0b000000001101#12
+
+def encdec_wvfunct6_forwards (arg_ : wvfunct6) : (BitVec 6) :=
+  match arg_ with
+  | WV_VADD => 0b110101#6
+  | WV_VSUB => 0b110111#6
+  | WV_VADDU => 0b110100#6
+  | WV_VSUBU => 0b110110#6
+
+def encdec_wvvfunct6_forwards (arg_ : wvvfunct6) : (BitVec 6) :=
+  match arg_ with
+  | WVV_VADD => 0b110001#6
+  | WVV_VSUB => 0b110011#6
+  | WVV_VADDU => 0b110000#6
+  | WVV_VSUBU => 0b110010#6
+  | WVV_VWMUL => 0b111011#6
+  | WVV_VWMULU => 0b111000#6
+  | WVV_VWMULSU => 0b111010#6
+
+def encdec_wvxfunct6_forwards (arg_ : wvxfunct6) : (BitVec 6) :=
+  match arg_ with
+  | WVX_VADD => 0b110001#6
+  | WVX_VSUB => 0b110011#6
+  | WVX_VADDU => 0b110000#6
+  | WVX_VSUBU => 0b110010#6
+  | WVX_VWMUL => 0b111011#6
+  | WVX_VWMULU => 0b111000#6
+  | WVX_VWMULSU => 0b111010#6
+
+def encdec_wxfunct6_forwards (arg_ : wxfunct6) : (BitVec 6) :=
+  match arg_ with
+  | WX_VADD => 0b110101#6
+  | WX_VSUB => 0b110111#6
+  | WX_VADDU => 0b110100#6
+  | WX_VSUBU => 0b110110#6
+
+def encdec_zicondop_forwards (arg_ : zicondop) : (BitVec 3) :=
+  match arg_ with
+  | CZERO_EQZ => 0b101#3
+  | CZERO_NEZ => 0b111#3
+
+/-- Type quantifiers: width : Nat, width ∈ {1, 2, 4, 8} -/
+def float_load_store_width_supported (width : Nat) : SailM Bool := do
+  match width with
+  | 1 => (pure false)
+  | 2 => (pure ((← (currentlyEnabled Ext_Zfhmin)) || (← (currentlyEnabled Ext_Zfbfmin))))
+  | 4 => (currentlyEnabled Ext_F)
+  | _ => (currentlyEnabled Ext_D)
+
+def _get_Vtype_vlmul (v : (BitVec 64)) : (BitVec 3) :=
+  (Sail.BitVec.extractLsb v 2 0)
+
+def get_lmul_pow (_ : Unit) : SailM Int := do
+  let lmul_pow ← do (pure (BitVec.toInt (_get_Vtype_vlmul (← readReg vtype))))
+  assert (lmul_pow >b (Neg.neg 4)) "Reserved LMUL stored in vtype register. This should be impossible."
+  (pure lmul_pow)
+
+def _get_Vtype_vsew (v : (BitVec 64)) : (BitVec 3) :=
+  (Sail.BitVec.extractLsb v 5 3)
+
+def get_sew_pow (_ : Unit) : SailM Nat := do
+  let sew_pow ← do (pure (BitVec.toNatInt (_get_Vtype_vsew (← readReg vtype))))
+  assert (sew_pow <b 4) "Reserved SEW stored in vtype register. This should be impossible."
+  (pure (sew_pow +i 3))
+
+def get_sew (_ : Unit) : SailM Int := do
+  (pure (2 ^i (← (get_sew_pow ()))))
+
+def haveDoubleFPU (_ : Unit) : SailM Bool := do
+  (pure ((← (currentlyEnabled Ext_D)) || (← (currentlyEnabled Ext_Zdinx))))
+
+def haveHalfFPU (_ : Unit) : SailM Bool := do
+  (pure ((← (currentlyEnabled Ext_Zfh)) || (← (currentlyEnabled Ext_Zhinx))))
+
+def haveHalfMin (_ : Unit) : SailM Bool := do
+  (pure ((← (haveHalfFPU ())) || ((← (currentlyEnabled Ext_Zfhmin)) || (← (currentlyEnabled
+            Ext_Zhinxmin)))))
+
+def haveSingleFPU (_ : Unit) : SailM Bool := do
+  (pure ((← (currentlyEnabled Ext_F)) || (← (currentlyEnabled Ext_Zfinx))))
+
+def _get_Misa_MXL (v : (BitVec 64)) : (BitVec (64 - 1 - (64 - 2) + 1)) :=
+  (Sail.BitVec.extractLsb v (64 -i 1) (64 -i 2))
+
+def _get_Mstatus_SXL (v : (BitVec 64)) : (BitVec 2) :=
+  (Sail.BitVec.extractLsb v 35 34)
+
+def _get_Mstatus_UXL (v : (BitVec 64)) : (BitVec 2) :=
+  (Sail.BitVec.extractLsb v 33 32)
+
+def architecture (priv : Privilege) : SailM Architecture := do
+  (architecture_bits_backwards
+    (← do
+      match priv with
+      | Machine => (pure (_get_Misa_MXL (← readReg misa)))
+      | Supervisor => (pure (_get_Mstatus_SXL (← readReg mstatus)))
+      | User => (pure (_get_Mstatus_UXL (← readReg mstatus)))
+      | VirtualUser =>
+        (internal_error "core/sys_regs.sail" 292 "Hypervisor extension not supported")
+      | VirtualSupervisor =>
+        (internal_error "core/sys_regs.sail" 293 "Hypervisor extension not supported")))
+
+def in32BitMode (_ : Unit) : SailM Bool := do
+  (pure ((← (architecture (← readReg cur_privilege))) == RV32))
+
+/-- Type quantifiers: width : Nat, width ∈ {1, 2, 4, 8} -/
+def lrsc_width_valid (width : Nat) : Bool :=
+  match width with
+  | 4 => true
+  | 8 => (xlen ≥b 64)
+  | _ => false
+
+/-- Type quantifiers: n : Nat, n ≥ 0, n > 0 -/
+def validDoubleRegs {n : _} (regs : (Vector fregidx n)) : Bool :=
+  true
+
+/-- Type quantifiers: k_ex649904_ : Bool, width : Nat, width ∈ {1, 2, 4, 8} -/
+def valid_load_encdec (width : Nat) (is_unsigned : Bool) : Bool :=
+  ((width <b xlen_bytes) || ((not is_unsigned) && (width ≤b xlen_bytes)))
+
+def valid_narrowing_fp_conversion (cvt : vfnunary0) : SailM Bool := do
+  match cvt with
+  | FNV_CVT_F_F =>
+    (pure (((← (currentlyEnabled Ext_Zvfhmin)) && (← do
+            (pure ((← (get_sew ())) == 16)))) || ((← (currentlyEnabled Ext_Zve64d)) && (← do
+            (pure ((← (get_sew ())) == 32))))))
+  | FNV_CVT_ROD_F_F =>
+    (pure (((← (currentlyEnabled Ext_Zvfh)) && (← do
+            (pure ((← (get_sew ())) == 16)))) || ((← (currentlyEnabled Ext_Zve64d)) && (← do
+            (pure ((← (get_sew ())) == 32))))))
+  | FNV_CVT_F_XU =>
+    (pure (((← (currentlyEnabled Ext_Zvfh)) && (← do
+            (pure ((← (get_sew ())) == 16)))) || ((← (currentlyEnabled Ext_Zve64f)) && (← do
+            (pure ((← (get_sew ())) == 32))))))
+  | FNV_CVT_F_X =>
+    (pure (((← (currentlyEnabled Ext_Zvfh)) && (← do
+            (pure ((← (get_sew ())) == 16)))) || ((← (currentlyEnabled Ext_Zve64f)) && (← do
+            (pure ((← (get_sew ())) == 32))))))
+  | _ =>
+    (pure (((← (currentlyEnabled Ext_Zvfh)) && (← do
+            (pure ((← (get_sew ())) == 8)))) || (((← (currentlyEnabled Ext_Zve32f)) && (← do
+              (pure ((← (get_sew ())) == 16)))) || ((← (currentlyEnabled Ext_Zve64d)) && (← do
+              (pure ((← (get_sew ())) == 32)))))))
+
+def valid_wide_mvvtype (mvvtype : mvvfunct6) : SailM Bool := do
+  match mvvtype with
+  | MVV_VMULH =>
+    (pure ((hartSupports Ext_V) && (((_get_Misa_V (← readReg misa)) == 1#1) && (← (currentlyEnabled
+              Ext_Zvl128b)))))
+  | MVV_VMULHU =>
+    (pure ((hartSupports Ext_V) && (((_get_Misa_V (← readReg misa)) == 1#1) && (← (currentlyEnabled
+              Ext_Zvl128b)))))
+  | MVV_VMULHSU =>
+    (pure ((hartSupports Ext_V) && (((_get_Misa_V (← readReg misa)) == 1#1) && (← (currentlyEnabled
+              Ext_Zvl128b)))))
+  | _ => (pure true)
+
+def valid_wide_mvxtype (mvxtype : mvxfunct6) : SailM Bool := do
+  match mvxtype with
+  | MVX_VMULH =>
+    (pure ((hartSupports Ext_V) && (((_get_Misa_V (← readReg misa)) == 1#1) && (← (currentlyEnabled
+              Ext_Zvl128b)))))
+  | MVX_VMULHU =>
+    (pure ((hartSupports Ext_V) && (((_get_Misa_V (← readReg misa)) == 1#1) && (← (currentlyEnabled
+              Ext_Zvl128b)))))
+  | MVX_VMULHSU =>
+    (pure ((hartSupports Ext_V) && (((_get_Misa_V (← readReg misa)) == 1#1) && (← (currentlyEnabled
+              Ext_Zvl128b)))))
+  | _ => (pure true)
+
+def valid_wide_vvtype (vvtype : vvfunct6) : SailM Bool := do
+  match vvtype with
+  | VV_VSMUL =>
+    (pure ((hartSupports Ext_V) && (((_get_Misa_V (← readReg misa)) == 1#1) && (← (currentlyEnabled
+              Ext_Zvl128b)))))
+  | _ => (pure true)
+
+def valid_wide_vxtype (vxtype : vxfunct6) : SailM Bool := do
+  match vxtype with
+  | VX_VSMUL =>
+    (pure ((hartSupports Ext_V) && (((_get_Misa_V (← readReg misa)) == 1#1) && (← (currentlyEnabled
+              Ext_Zvl128b)))))
+  | _ => (pure true)
+
+def valid_widening_fp_conversion (cvt : vfwunary0) : SailM Bool := do
+  match cvt with
+  | FWV_CVT_F_F =>
+    (pure (((← (currentlyEnabled Ext_Zvfhmin)) && (← do
+            (pure ((← (get_sew ())) == 16)))) || ((← (currentlyEnabled Ext_Zve64d)) && (← do
+            (pure ((← (get_sew ())) == 32))))))
+  | FWV_CVT_F_XU =>
+    (pure (((← (currentlyEnabled Ext_Zvfh)) && (← do
+            (pure ((← (get_sew ())) == 8)))) || (((← (currentlyEnabled Ext_Zve32f)) && (← do
+              (pure ((← (get_sew ())) == 16)))) || ((← (currentlyEnabled Ext_Zve64d)) && (← do
+              (pure ((← (get_sew ())) == 32)))))))
+  | FWV_CVT_F_X =>
+    (pure (((← (currentlyEnabled Ext_Zvfh)) && (← do
+            (pure ((← (get_sew ())) == 8)))) || (((← (currentlyEnabled Ext_Zve32f)) && (← do
+              (pure ((← (get_sew ())) == 16)))) || ((← (currentlyEnabled Ext_Zve64d)) && (← do
+              (pure ((← (get_sew ())) == 32)))))))
+  | _ =>
+    (pure (((← (currentlyEnabled Ext_Zvfh)) && (← do
+            (pure ((← (get_sew ())) == 16)))) || ((← (currentlyEnabled Ext_Zve64f)) && (← do
+            (pure ((← (get_sew ())) == 32))))))
+
+def vext_vs1_forwards (arg_ : vextfunct6) : (BitVec 5) :=
+  match arg_ with
+  | VEXT2_ZVF2 => 0b00110#5
+  | VEXT2_SVF2 => 0b00111#5
+  | VEXT4_ZVF4 => 0b00100#5
+  | VEXT4_SVF4 => 0b00101#5
+  | VEXT8_ZVF8 => 0b00010#5
+  | VEXT8_SVF8 => 0b00011#5
+
+def vlewidth_pow_forwards (arg_ : vlewidth) : Int :=
+  match arg_ with
+  | VLE8 => 3
+  | VLE16 => 4
+  | VLE32 => 5
+  | VLE64 => 6
+
+/-- Type quantifiers: arg_ : Nat, arg_ ∈ {1, 2, 4, 8} -/
+def width_enc_forwards (arg_ : Nat) : (BitVec 2) :=
+  match arg_ with
+  | 1 => 0b00#2
+  | 2 => 0b01#2
+  | 4 => 0b10#2
+  | _ => 0b11#2
+
+/-- Type quantifiers: arg_ : Nat, arg_ ∈ {1, 2, 4, 8, 16} -/
+def width_enc_wide_forwards (arg_ : Nat) : (BitVec 3) :=
+  match arg_ with
+  | 1 => 0b000#3
+  | 2 => 0b001#3
+  | 4 => 0b010#3
+  | 8 => 0b011#3
+  | _ => 0b100#3
+
+/-- Type quantifiers: EGS : Nat, EGW : Nat, 0 ≤ EGW, EGS > 0 -/
+def zvk_check_encdec (EGW : Nat) (EGS : Nat) : SailM Bool := do
+  let LMUL_pow ← do (get_lmul_pow ())
+  let LMUL_times_VLEN :=
+    if ((LMUL_pow <b 0) : Bool)
+    then (Int.tdiv vlen (2 ^i (Int.natAbs LMUL_pow)))
+    else ((2 ^i LMUL_pow) *i vlen)
+  (pure (((Int.tmod (BitVec.toNatInt (← readReg vl)) EGS) == 0) && (← do
+        (pure (((Int.tmod (BitVec.toNatInt (← readReg vstart)) EGS) == 0) && (LMUL_times_VLEN ≥b EGW))))))
+
+def vregidx_bits (app_0 : vregidx) : (BitVec 5) :=
+  let .Vregidx b := app_0
+  b
+
+/-- Type quantifiers: emul_pow : Int -/
+def zvk_valid_reg_overlap (rs : vregidx) (rd : vregidx) (emul_pow : Int) : Bool :=
+  let reg_group_size :=
+    if ((emul_pow >b 0) : Bool)
+    then (2 ^i emul_pow)
+    else 1
+  let rs_int := (BitVec.toNatInt (vregidx_bits rs))
+  let rd_int := (BitVec.toNatInt (vregidx_bits rd))
+  (((rs_int +i reg_group_size) ≤b rd_int) || ((rd_int +i reg_group_size) ≤b rs_int))
+
+def zvknhab_check_encdec (vs2 : vregidx) (vs1 : vregidx) (vd : vregidx) : SailM Bool := do
+  let SEW ← do (get_sew ())
+  let LMUL_pow ← do (get_lmul_pow ())
+  (pure ((← (zvk_check_encdec SEW 4)) && ((zvk_valid_reg_overlap vs1 vd LMUL_pow) && (zvk_valid_reg_overlap
+          vs2 vd LMUL_pow))))
+
+noncomputable def encdec_forwards (arg_ : instruction) : SailM (BitVec 32) := do
+  match arg_ with
+  | .ZICBOP (cbop, rs1, v__12) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zicbop)) && ((Sail.BitVec.extractLsb v__12 4 0) == (0b00000#5 : (BitVec 5)))) : Bool)
+      then
+        (let offset11_5 : (BitVec 7) := (Sail.BitVec.extractLsb v__12 11 5)
+        let offset11_5 : (BitVec 7) := (Sail.BitVec.extractLsb v__12 11 5)
+        (pure ((offset11_5 : (BitVec 7)) ++ ((encdec_cbop_zicbop_forwards cbop) ++ ((encdec_reg_forwards
+                  rs1) ++ (0b110#3 ++ (0b00000#5 ++ 0b0010011#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .NTL op =>
+    (do
+      if ((← (currentlyEnabled Ext_Zihintntl)) : Bool)
+      then
+        (pure (0b0000000#7 ++ ((encdec_ntl_forwards op) ++ (0b00000#5 ++ (0b000#3 ++ (0b00000#5 ++ 0b0110011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .PAUSE () =>
+    (do
+      if ((← (currentlyEnabled Ext_Zihintpause)) : Bool)
+      then
+        (pure (0b0000#4 ++ (0b0001#4 ++ (0b0000#4 ++ (0b00000#5 ++ (0b000#3 ++ (0b00000#5 ++ 0b0001111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .LPAD lpl =>
+    (do
+      if ((← (currentlyEnabled Ext_Zicfilp)) : Bool)
+      then (pure ((lpl : (BitVec 20)) ++ (0b00000#5 ++ 0b0010111#7)))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .UTYPE (imm, rd, op) =>
+    (pure ((imm : (BitVec 20)) ++ ((encdec_reg_forwards rd) ++ (encdec_uop_forwards op))))
+  | .JAL (v__14, rd) =>
+    (do
+      if (((Sail.BitVec.extractLsb v__14 0 0) == (0#1 : (BitVec 1))) : Bool)
+      then
+        (let imm := (Sail.BitVec.extractLsb v__14 20 1)
+        let imm := (Sail.BitVec.extractLsb v__14 20 1)
+        (pure ((Sail.BitVec.extractLsb imm 19 19) ++ ((Sail.BitVec.extractLsb imm 9 0) ++ ((Sail.BitVec.extractLsb
+                  imm 10 10) ++ ((Sail.BitVec.extractLsb imm 18 11) ++ ((encdec_reg_forwards rd) ++ 0b1101111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .JALR (imm, rs1, rd) =>
+    (pure ((imm : (BitVec 12)) ++ ((encdec_reg_forwards rs1) ++ (0b000#3 ++ ((encdec_reg_forwards rd) ++ 0b1100111#7)))))
+  | .BTYPE (v__16, rs2, rs1, op) =>
+    (do
+      if (((Sail.BitVec.extractLsb v__16 0 0) == (0#1 : (BitVec 1))) : Bool)
+      then
+        (let imm := (Sail.BitVec.extractLsb v__16 12 1)
+        let imm := (Sail.BitVec.extractLsb v__16 12 1)
+        (pure ((Sail.BitVec.extractLsb imm 11 11) ++ ((Sail.BitVec.extractLsb imm 9 4) ++ ((encdec_reg_forwards
+                  rs2) ++ ((encdec_reg_forwards rs1) ++ ((encdec_bop_forwards op) ++ ((Sail.BitVec.extractLsb
+                        imm 3 0) ++ ((Sail.BitVec.extractLsb imm 10 10) ++ 0b1100011#7)))))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .ITYPE (imm, rs1, rd, op) =>
+    (pure ((imm : (BitVec 12)) ++ ((encdec_reg_forwards rs1) ++ ((encdec_iop_forwards op) ++ ((encdec_reg_forwards
+                rd) ++ 0b0010011#7)))))
+  | .SHIFTIOP (shamt, rs1, rd, SLLI) =>
+    (pure (0b000000#6 ++ ((shamt : (BitVec 6)) ++ ((encdec_reg_forwards rs1) ++ (0b001#3 ++ ((encdec_reg_forwards
+                  rd) ++ 0b0010011#7))))))
+  | .SHIFTIOP (shamt, rs1, rd, SRLI) =>
+    (pure (0b000000#6 ++ ((shamt : (BitVec 6)) ++ ((encdec_reg_forwards rs1) ++ (0b101#3 ++ ((encdec_reg_forwards
+                  rd) ++ 0b0010011#7))))))
+  | .SHIFTIOP (shamt, rs1, rd, SRAI) =>
+    (pure (0b010000#6 ++ ((shamt : (BitVec 6)) ++ ((encdec_reg_forwards rs1) ++ (0b101#3 ++ ((encdec_reg_forwards
+                  rd) ++ 0b0010011#7))))))
+  | .RTYPE (rs2, rs1, rd, ADD) =>
+    (pure (0b0000000#7 ++ ((encdec_reg_forwards rs2) ++ ((encdec_reg_forwards rs1) ++ (0b000#3 ++ ((encdec_reg_forwards
+                  rd) ++ 0b0110011#7))))))
+  | .RTYPE (rs2, rs1, rd, SLT) =>
+    (pure (0b0000000#7 ++ ((encdec_reg_forwards rs2) ++ ((encdec_reg_forwards rs1) ++ (0b010#3 ++ ((encdec_reg_forwards
+                  rd) ++ 0b0110011#7))))))
+  | .RTYPE (rs2, rs1, rd, SLTU) =>
+    (pure (0b0000000#7 ++ ((encdec_reg_forwards rs2) ++ ((encdec_reg_forwards rs1) ++ (0b011#3 ++ ((encdec_reg_forwards
+                  rd) ++ 0b0110011#7))))))
+  | .RTYPE (rs2, rs1, rd, AND) =>
+    (pure (0b0000000#7 ++ ((encdec_reg_forwards rs2) ++ ((encdec_reg_forwards rs1) ++ (0b111#3 ++ ((encdec_reg_forwards
+                  rd) ++ 0b0110011#7))))))
+  | .RTYPE (rs2, rs1, rd, OR) =>
+    (pure (0b0000000#7 ++ ((encdec_reg_forwards rs2) ++ ((encdec_reg_forwards rs1) ++ (0b110#3 ++ ((encdec_reg_forwards
+                  rd) ++ 0b0110011#7))))))
+  | .RTYPE (rs2, rs1, rd, XOR) =>
+    (pure (0b0000000#7 ++ ((encdec_reg_forwards rs2) ++ ((encdec_reg_forwards rs1) ++ (0b100#3 ++ ((encdec_reg_forwards
+                  rd) ++ 0b0110011#7))))))
+  | .RTYPE (rs2, rs1, rd, SLL) =>
+    (pure (0b0000000#7 ++ ((encdec_reg_forwards rs2) ++ ((encdec_reg_forwards rs1) ++ (0b001#3 ++ ((encdec_reg_forwards
+                  rd) ++ 0b0110011#7))))))
+  | .RTYPE (rs2, rs1, rd, SRL) =>
+    (pure (0b0000000#7 ++ ((encdec_reg_forwards rs2) ++ ((encdec_reg_forwards rs1) ++ (0b101#3 ++ ((encdec_reg_forwards
+                  rd) ++ 0b0110011#7))))))
+  | .RTYPE (rs2, rs1, rd, SUB) =>
+    (pure (0b0100000#7 ++ ((encdec_reg_forwards rs2) ++ ((encdec_reg_forwards rs1) ++ (0b000#3 ++ ((encdec_reg_forwards
+                  rd) ++ 0b0110011#7))))))
+  | .RTYPE (rs2, rs1, rd, SRA) =>
+    (pure (0b0100000#7 ++ ((encdec_reg_forwards rs2) ++ ((encdec_reg_forwards rs1) ++ (0b101#3 ++ ((encdec_reg_forwards
+                  rd) ++ 0b0110011#7))))))
+  | .LOAD (imm, rs1, rd, is_unsigned, width) =>
+    (do
+      if ((valid_load_encdec width is_unsigned) : Bool)
+      then
+        (pure ((imm : (BitVec 12)) ++ ((encdec_reg_forwards rs1) ++ ((bool_bits_forwards is_unsigned) ++ ((width_enc_forwards
+                    width) ++ ((encdec_reg_forwards rd) ++ 0b0000011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .STORE (imm, rs2, rs1, width) =>
+    (pure ((Sail.BitVec.extractLsb imm 11 5) ++ ((encdec_reg_forwards rs2) ++ ((encdec_reg_forwards
+              rs1) ++ (0#1 ++ ((width_enc_forwards width) ++ ((Sail.BitVec.extractLsb imm 4 0) ++ 0b0100011#7)))))))
+  | .ADDIW (imm, rs1, rd) =>
+    (pure ((imm : (BitVec 12)) ++ ((encdec_reg_forwards rs1) ++ (0b000#3 ++ ((encdec_reg_forwards rd) ++ 0b0011011#7)))))
+  | .RTYPEW (rs2, rs1, rd, ADDW) =>
+    (pure (0b0000000#7 ++ ((encdec_reg_forwards rs2) ++ ((encdec_reg_forwards rs1) ++ (0b000#3 ++ ((encdec_reg_forwards
+                  rd) ++ 0b0111011#7))))))
+  | .RTYPEW (rs2, rs1, rd, SUBW) =>
+    (pure (0b0100000#7 ++ ((encdec_reg_forwards rs2) ++ ((encdec_reg_forwards rs1) ++ (0b000#3 ++ ((encdec_reg_forwards
+                  rd) ++ 0b0111011#7))))))
+  | .RTYPEW (rs2, rs1, rd, SLLW) =>
+    (pure (0b0000000#7 ++ ((encdec_reg_forwards rs2) ++ ((encdec_reg_forwards rs1) ++ (0b001#3 ++ ((encdec_reg_forwards
+                  rd) ++ 0b0111011#7))))))
+  | .RTYPEW (rs2, rs1, rd, SRLW) =>
+    (pure (0b0000000#7 ++ ((encdec_reg_forwards rs2) ++ ((encdec_reg_forwards rs1) ++ (0b101#3 ++ ((encdec_reg_forwards
+                  rd) ++ 0b0111011#7))))))
+  | .RTYPEW (rs2, rs1, rd, SRAW) =>
+    (pure (0b0100000#7 ++ ((encdec_reg_forwards rs2) ++ ((encdec_reg_forwards rs1) ++ (0b101#3 ++ ((encdec_reg_forwards
+                  rd) ++ 0b0111011#7))))))
+  | .SHIFTIWOP (shamt, rs1, rd, SLLIW) =>
+    (pure (0b0000000#7 ++ ((shamt : (BitVec 5)) ++ ((encdec_reg_forwards rs1) ++ (0b001#3 ++ ((encdec_reg_forwards
+                  rd) ++ 0b0011011#7))))))
+  | .SHIFTIWOP (shamt, rs1, rd, SRLIW) =>
+    (pure (0b0000000#7 ++ ((shamt : (BitVec 5)) ++ ((encdec_reg_forwards rs1) ++ (0b101#3 ++ ((encdec_reg_forwards
+                  rd) ++ 0b0011011#7))))))
+  | .SHIFTIWOP (shamt, rs1, rd, SRAIW) =>
+    (pure (0b0100000#7 ++ ((shamt : (BitVec 5)) ++ ((encdec_reg_forwards rs1) ++ (0b101#3 ++ ((encdec_reg_forwards
+                  rd) ++ 0b0011011#7))))))
+  | .FENCE_TSO () =>
+    (pure (0b1000#4 ++ (0b0011#4 ++ (0b0011#4 ++ (0b00000#5 ++ (0b000#3 ++ (0b00000#5 ++ 0b0001111#7)))))))
+  | .FENCE (fm, pred, succ, rs, rd) =>
+    (pure ((fm : (BitVec 4)) ++ ((pred : (BitVec 4)) ++ ((succ : (BitVec 4)) ++ ((encdec_reg_forwards
+                rs) ++ (0b000#3 ++ ((encdec_reg_forwards rd) ++ 0b0001111#7)))))))
+  | .ECALL () =>
+    (pure (0b000000000000#12 ++ (0b00000#5 ++ (0b000#3 ++ (0b00000#5 ++ 0b1110011#7)))))
+  | .MRET () =>
+    (pure (0b0011000#7 ++ (0b00010#5 ++ (0b00000#5 ++ (0b000#3 ++ (0b00000#5 ++ 0b1110011#7))))))
+  | .SRET () =>
+    (pure (0b0001000#7 ++ (0b00010#5 ++ (0b00000#5 ++ (0b000#3 ++ (0b00000#5 ++ 0b1110011#7))))))
+  | .EBREAK () =>
+    (pure (0b000000000001#12 ++ (0b00000#5 ++ (0b000#3 ++ (0b00000#5 ++ 0b1110011#7)))))
+  | .WFI () => (pure (0b000100000101#12 ++ (0b00000#5 ++ (0b000#3 ++ (0b00000#5 ++ 0b1110011#7)))))
+  | .SFENCE_VMA (rs1, rs2) =>
+    (do
+      if (((← (virtual_memory_supported ())) || (not (true : Bool))) : Bool)
+      then
+        (pure (0b0001001#7 ++ ((encdec_reg_forwards rs2) ++ ((encdec_reg_forwards rs1) ++ (0b000#3 ++ (0b00000#5 ++ 0b1110011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .AMO (op, aq, rl, rs2, rs1, size, rd) =>
+    (do
+      if ((← (amo_encoding_valid size op rs2 rd)) : Bool)
+      then
+        (pure ((encdec_amoop_forwards op) ++ ((bool_bits_forwards aq) ++ ((bool_bits_forwards rl) ++ ((encdec_reg_forwards
+                    rs2) ++ ((encdec_reg_forwards rs1) ++ ((width_enc_wide_forwards size) ++ ((encdec_reg_forwards
+                          rd) ++ 0b0101111#7))))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .LOADRES (aq, rl, rs1, width, rd) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zalrsc)) && (lrsc_width_valid width)) : Bool)
+      then
+        (pure (0b00010#5 ++ ((bool_bits_forwards aq) ++ ((bool_bits_forwards rl) ++ (0b00000#5 ++ ((encdec_reg_forwards
+                      rs1) ++ (0#1 ++ ((width_enc_forwards width) ++ ((encdec_reg_forwards rd) ++ 0b0101111#7)))))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .STORECON (aq, rl, rs2, rs1, width, rd) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zalrsc)) && (lrsc_width_valid width)) : Bool)
+      then
+        (pure (0b00011#5 ++ ((bool_bits_forwards aq) ++ ((bool_bits_forwards rl) ++ ((encdec_reg_forwards
+                    rs2) ++ ((encdec_reg_forwards rs1) ++ (0#1 ++ ((width_enc_forwards width) ++ ((encdec_reg_forwards
+                            rd) ++ 0b0101111#7)))))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .MUL (rs2, rs1, rd, mul_op) =>
+    (do
+      if (((← (currentlyEnabled Ext_M)) || (← (currentlyEnabled Ext_Zmmul))) : Bool)
+      then
+        (pure (0b0000001#7 ++ ((encdec_reg_forwards rs2) ++ ((encdec_reg_forwards rs1) ++ ((← (encdec_mul_op_forwards
+                      mul_op)) ++ ((encdec_reg_forwards rd) ++ 0b0110011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .DIV (rs2, rs1, rd, is_unsigned) =>
+    (do
+      if ((← (currentlyEnabled Ext_M)) : Bool)
+      then
+        (pure (0b0000001#7 ++ ((encdec_reg_forwards rs2) ++ ((encdec_reg_forwards rs1) ++ (0b10#2 ++ ((bool_bits_forwards
+                      is_unsigned) ++ ((encdec_reg_forwards rd) ++ 0b0110011#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .REM (rs2, rs1, rd, is_unsigned) =>
+    (do
+      if ((← (currentlyEnabled Ext_M)) : Bool)
+      then
+        (pure (0b0000001#7 ++ ((encdec_reg_forwards rs2) ++ ((encdec_reg_forwards rs1) ++ (0b11#2 ++ ((bool_bits_forwards
+                      is_unsigned) ++ ((encdec_reg_forwards rd) ++ 0b0110011#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .MULW (rs2, rs1, rd) =>
+    (do
+      if (((xlen == 64) && ((← (currentlyEnabled Ext_M)) || (← (currentlyEnabled Ext_Zmmul)))) : Bool)
+      then
+        (pure (0b0000001#7 ++ ((encdec_reg_forwards rs2) ++ ((encdec_reg_forwards rs1) ++ (0b000#3 ++ ((encdec_reg_forwards
+                      rd) ++ 0b0111011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .DIVW (rs2, rs1, rd, is_unsigned) =>
+    (do
+      if (((xlen == 64) && (← (currentlyEnabled Ext_M))) : Bool)
+      then
+        (pure (0b0000001#7 ++ ((encdec_reg_forwards rs2) ++ ((encdec_reg_forwards rs1) ++ (0b10#2 ++ ((bool_bits_forwards
+                      is_unsigned) ++ ((encdec_reg_forwards rd) ++ 0b0111011#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .REMW (rs2, rs1, rd, is_unsigned) =>
+    (do
+      if (((xlen == 64) && (← (currentlyEnabled Ext_M))) : Bool)
+      then
+        (pure (0b0000001#7 ++ ((encdec_reg_forwards rs2) ++ ((encdec_reg_forwards rs1) ++ (0b11#2 ++ ((bool_bits_forwards
+                      is_unsigned) ++ ((encdec_reg_forwards rd) ++ 0b0111011#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .SLLIUW (shamt, rs1, rd) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zba)) && (xlen == 64)) : Bool)
+      then
+        (pure (0b000010#6 ++ ((shamt : (BitVec 6)) ++ ((encdec_reg_forwards rs1) ++ (0b001#3 ++ ((encdec_reg_forwards
+                      rd) ++ 0b0011011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .ZBA_RTYPEUW (rs2, rs1, rd, 0b00) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zba)) && (xlen == 64)) : Bool)
+      then
+        (pure (0b0000100#7 ++ ((encdec_reg_forwards rs2) ++ ((encdec_reg_forwards rs1) ++ (0b00#2 ++ (0#1 ++ ((encdec_reg_forwards
+                        rd) ++ 0b0111011#7)))))))
+      else
+        (do
+          match (ZBA_RTYPEUW (rs2, rs1, rd, 0b00#2)) with
+          | .ZBA_RTYPEUW (rs2, rs1, rd, shamt) =>
+            (do
+              if (((← (currentlyEnabled Ext_Zba)) && (xlen == 64)) : Bool)
+              then
+                (pure (0b0010000#7 ++ ((encdec_reg_forwards rs2) ++ ((encdec_reg_forwards rs1) ++ ((shamt : (BitVec 2)) ++ (0#1 ++ ((encdec_reg_forwards
+                                rd) ++ 0b0111011#7)))))))
+              else
+                (do
+                  assert false "Pattern match failure at unknown location"
+                  throw Error.Exit))
+          | _ =>
+            (do
+              assert false "Pattern match failure at unknown location"
+              throw Error.Exit)))
+  | .ZBA_RTYPEUW (rs2, rs1, rd, shamt) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zba)) && (xlen == 64)) : Bool)
+      then
+        (pure (0b0010000#7 ++ ((encdec_reg_forwards rs2) ++ ((encdec_reg_forwards rs1) ++ ((shamt : (BitVec 2)) ++ (0#1 ++ ((encdec_reg_forwards
+                        rd) ++ 0b0111011#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .ZBA_RTYPE (rs2, rs1, rd, shamt) =>
+    (do
+      if (((shamt != 0b00#2) && (← (currentlyEnabled Ext_Zba))) : Bool)
+      then
+        (pure (0b0010000#7 ++ ((encdec_reg_forwards rs2) ++ ((encdec_reg_forwards rs1) ++ ((shamt : (BitVec 2)) ++ (0#1 ++ ((encdec_reg_forwards
+                        rd) ++ 0b0110011#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .RORIW (shamt, rs1, rd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zbb)) || (← (currentlyEnabled Ext_Zbkb))) && (xlen == 64)) : Bool)
+      then
+        (pure (0b0110000#7 ++ ((shamt : (BitVec 5)) ++ ((encdec_reg_forwards rs1) ++ (0b101#3 ++ ((encdec_reg_forwards
+                      rd) ++ 0b0011011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .RORI (shamt, rs1, rd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zbb)) || (← (currentlyEnabled Ext_Zbkb))) && ((xlen == 64) || ((BitVec.access
+                 shamt 5) == 0#1))) : Bool)
+      then
+        (pure (0b011000#6 ++ ((shamt : (BitVec 6)) ++ ((encdec_reg_forwards rs1) ++ (0b101#3 ++ ((encdec_reg_forwards
+                      rd) ++ 0b0010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .ZBB_RTYPEW (rs2, rs1, rd, ROLW) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zbb)) || (← (currentlyEnabled Ext_Zbkb))) && (xlen == 64)) : Bool)
+      then
+        (pure (0b0110000#7 ++ ((encdec_reg_forwards rs2) ++ ((encdec_reg_forwards rs1) ++ (0b001#3 ++ ((encdec_reg_forwards
+                      rd) ++ 0b0111011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .ZBB_RTYPEW (rs2, rs1, rd, RORW) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zbb)) || (← (currentlyEnabled Ext_Zbkb))) && (xlen == 64)) : Bool)
+      then
+        (pure (0b0110000#7 ++ ((encdec_reg_forwards rs2) ++ ((encdec_reg_forwards rs1) ++ (0b101#3 ++ ((encdec_reg_forwards
+                      rd) ++ 0b0111011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .ZBB_RTYPE (rs2, rs1, rd, ANDN) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zbb)) || (← (currentlyEnabled Ext_Zbkb))) : Bool)
+      then
+        (pure (0b0100000#7 ++ ((encdec_reg_forwards rs2) ++ ((encdec_reg_forwards rs1) ++ (0b111#3 ++ ((encdec_reg_forwards
+                      rd) ++ 0b0110011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .ZBB_RTYPE (rs2, rs1, rd, ORN) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zbb)) || (← (currentlyEnabled Ext_Zbkb))) : Bool)
+      then
+        (pure (0b0100000#7 ++ ((encdec_reg_forwards rs2) ++ ((encdec_reg_forwards rs1) ++ (0b110#3 ++ ((encdec_reg_forwards
+                      rd) ++ 0b0110011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .ZBB_RTYPE (rs2, rs1, rd, XNOR) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zbb)) || (← (currentlyEnabled Ext_Zbkb))) : Bool)
+      then
+        (pure (0b0100000#7 ++ ((encdec_reg_forwards rs2) ++ ((encdec_reg_forwards rs1) ++ (0b100#3 ++ ((encdec_reg_forwards
+                      rd) ++ 0b0110011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .ZBB_RTYPE (rs2, rs1, rd, MAX) =>
+    (do
+      if ((← (currentlyEnabled Ext_Zbb)) : Bool)
+      then
+        (pure (0b0000101#7 ++ ((encdec_reg_forwards rs2) ++ ((encdec_reg_forwards rs1) ++ (0b110#3 ++ ((encdec_reg_forwards
+                      rd) ++ 0b0110011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .ZBB_RTYPE (rs2, rs1, rd, MAXU) =>
+    (do
+      if ((← (currentlyEnabled Ext_Zbb)) : Bool)
+      then
+        (pure (0b0000101#7 ++ ((encdec_reg_forwards rs2) ++ ((encdec_reg_forwards rs1) ++ (0b111#3 ++ ((encdec_reg_forwards
+                      rd) ++ 0b0110011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .ZBB_RTYPE (rs2, rs1, rd, MIN) =>
+    (do
+      if ((← (currentlyEnabled Ext_Zbb)) : Bool)
+      then
+        (pure (0b0000101#7 ++ ((encdec_reg_forwards rs2) ++ ((encdec_reg_forwards rs1) ++ (0b100#3 ++ ((encdec_reg_forwards
+                      rd) ++ 0b0110011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .ZBB_RTYPE (rs2, rs1, rd, MINU) =>
+    (do
+      if ((← (currentlyEnabled Ext_Zbb)) : Bool)
+      then
+        (pure (0b0000101#7 ++ ((encdec_reg_forwards rs2) ++ ((encdec_reg_forwards rs1) ++ (0b101#3 ++ ((encdec_reg_forwards
+                      rd) ++ 0b0110011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .ZBB_RTYPE (rs2, rs1, rd, ROL) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zbb)) || (← (currentlyEnabled Ext_Zbkb))) : Bool)
+      then
+        (pure (0b0110000#7 ++ ((encdec_reg_forwards rs2) ++ ((encdec_reg_forwards rs1) ++ (0b001#3 ++ ((encdec_reg_forwards
+                      rd) ++ 0b0110011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .ZBB_RTYPE (rs2, rs1, rd, ROR) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zbb)) || (← (currentlyEnabled Ext_Zbkb))) : Bool)
+      then
+        (pure (0b0110000#7 ++ ((encdec_reg_forwards rs2) ++ ((encdec_reg_forwards rs1) ++ (0b101#3 ++ ((encdec_reg_forwards
+                      rd) ++ 0b0110011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .ZBB_EXTOP (rs1, rd, SEXTB) =>
+    (do
+      if ((← (currentlyEnabled Ext_Zbb)) : Bool)
+      then
+        (pure (0b0110000#7 ++ (0b00100#5 ++ ((encdec_reg_forwards rs1) ++ (0b001#3 ++ ((encdec_reg_forwards
+                      rd) ++ 0b0010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .ZBB_EXTOP (rs1, rd, SEXTH) =>
+    (do
+      if ((← (currentlyEnabled Ext_Zbb)) : Bool)
+      then
+        (pure (0b0110000#7 ++ (0b00101#5 ++ ((encdec_reg_forwards rs1) ++ (0b001#3 ++ ((encdec_reg_forwards
+                      rd) ++ 0b0010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .ZBB_EXTOP (rs1, rd, ZEXTH) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zbb)) && (xlen == 32)) : Bool)
+      then
+        (pure (0b0000100#7 ++ (0b00000#5 ++ ((encdec_reg_forwards rs1) ++ (0b100#3 ++ ((encdec_reg_forwards
+                      rd) ++ 0b0110011#7))))))
+      else
+        (do
+          if (((← (currentlyEnabled Ext_Zbb)) && (xlen == 64)) : Bool)
+          then
+            (pure (0b0000100#7 ++ (0b00000#5 ++ ((encdec_reg_forwards rs1) ++ (0b100#3 ++ ((encdec_reg_forwards
+                          rd) ++ 0b0111011#7))))))
+          else
+            (do
+              assert false "Pattern match failure at unknown location"
+              throw Error.Exit)))
+  | .REV8 (rs1, rd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zbb)) || (← (currentlyEnabled Ext_Zbkb))) && (xlen == 32)) : Bool)
+      then
+        (pure (0b011010011000#12 ++ ((encdec_reg_forwards rs1) ++ (0b101#3 ++ ((encdec_reg_forwards
+                    rd) ++ 0b0010011#7)))))
+      else
+        (do
+          if ((((← (currentlyEnabled Ext_Zbb)) || (← (currentlyEnabled Ext_Zbkb))) && (xlen == 64)) : Bool)
+          then
+            (pure (0b011010111000#12 ++ ((encdec_reg_forwards rs1) ++ (0b101#3 ++ ((encdec_reg_forwards
+                        rd) ++ 0b0010011#7)))))
+          else
+            (do
+              assert false "Pattern match failure at unknown location"
+              throw Error.Exit)))
+  | .ORCB (rs1, rd) =>
+    (do
+      if ((← (currentlyEnabled Ext_Zbb)) : Bool)
+      then
+        (pure (0b001010000111#12 ++ ((encdec_reg_forwards rs1) ++ (0b101#3 ++ ((encdec_reg_forwards
+                    rd) ++ 0b0010011#7)))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .CPOP (rs1, rd) =>
+    (do
+      if ((← (currentlyEnabled Ext_Zbb)) : Bool)
+      then
+        (pure (0b0110000#7 ++ (0b00010#5 ++ ((encdec_reg_forwards rs1) ++ (0b001#3 ++ ((encdec_reg_forwards
+                      rd) ++ 0b0010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .CPOPW (rs1, rd) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zbb)) && (xlen == 64)) : Bool)
+      then
+        (pure (0b0110000#7 ++ (0b00010#5 ++ ((encdec_reg_forwards rs1) ++ (0b001#3 ++ ((encdec_reg_forwards
+                      rd) ++ 0b0011011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .CLZ (rs1, rd) =>
+    (do
+      if ((← (currentlyEnabled Ext_Zbb)) : Bool)
+      then
+        (pure (0b0110000#7 ++ (0b00000#5 ++ ((encdec_reg_forwards rs1) ++ (0b001#3 ++ ((encdec_reg_forwards
+                      rd) ++ 0b0010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .CLZW (rs1, rd) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zbb)) && (xlen == 64)) : Bool)
+      then
+        (pure (0b0110000#7 ++ (0b00000#5 ++ ((encdec_reg_forwards rs1) ++ (0b001#3 ++ ((encdec_reg_forwards
+                      rd) ++ 0b0011011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .CTZ (rs1, rd) =>
+    (do
+      if ((← (currentlyEnabled Ext_Zbb)) : Bool)
+      then
+        (pure (0b0110000#7 ++ (0b00001#5 ++ ((encdec_reg_forwards rs1) ++ (0b001#3 ++ ((encdec_reg_forwards
+                      rd) ++ 0b0010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .CTZW (rs1, rd) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zbb)) && (xlen == 64)) : Bool)
+      then
+        (pure (0b0110000#7 ++ (0b00001#5 ++ ((encdec_reg_forwards rs1) ++ (0b001#3 ++ ((encdec_reg_forwards
+                      rd) ++ 0b0011011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .CLMUL (rs2, rs1, rd) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zbc)) || (← (currentlyEnabled Ext_Zbkc))) : Bool)
+      then
+        (pure (0b0000101#7 ++ ((encdec_reg_forwards rs2) ++ ((encdec_reg_forwards rs1) ++ (0b001#3 ++ ((encdec_reg_forwards
+                      rd) ++ 0b0110011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .CLMULH (rs2, rs1, rd) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zbc)) || (← (currentlyEnabled Ext_Zbkc))) : Bool)
+      then
+        (pure (0b0000101#7 ++ ((encdec_reg_forwards rs2) ++ ((encdec_reg_forwards rs1) ++ (0b011#3 ++ ((encdec_reg_forwards
+                      rd) ++ 0b0110011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .CLMULR (rs2, rs1, rd) =>
+    (do
+      if ((← (currentlyEnabled Ext_Zbc)) : Bool)
+      then
+        (pure (0b0000101#7 ++ ((encdec_reg_forwards rs2) ++ ((encdec_reg_forwards rs1) ++ (0b010#3 ++ ((encdec_reg_forwards
+                      rd) ++ 0b0110011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .ZBS_IOP (shamt, rs1, rd, BCLRI) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zbs)) && ((xlen == 64) || ((BitVec.access shamt 5) == 0#1))) : Bool)
+      then
+        (pure (0b010010#6 ++ ((shamt : (BitVec 6)) ++ ((encdec_reg_forwards rs1) ++ (0b001#3 ++ ((encdec_reg_forwards
+                      rd) ++ 0b0010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .ZBS_IOP (shamt, rs1, rd, BEXTI) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zbs)) && ((xlen == 64) || ((BitVec.access shamt 5) == 0#1))) : Bool)
+      then
+        (pure (0b010010#6 ++ ((shamt : (BitVec 6)) ++ ((encdec_reg_forwards rs1) ++ (0b101#3 ++ ((encdec_reg_forwards
+                      rd) ++ 0b0010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .ZBS_IOP (shamt, rs1, rd, BINVI) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zbs)) && ((xlen == 64) || ((BitVec.access shamt 5) == 0#1))) : Bool)
+      then
+        (pure (0b011010#6 ++ ((shamt : (BitVec 6)) ++ ((encdec_reg_forwards rs1) ++ (0b001#3 ++ ((encdec_reg_forwards
+                      rd) ++ 0b0010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .ZBS_IOP (shamt, rs1, rd, BSETI) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zbs)) && ((xlen == 64) || ((BitVec.access shamt 5) == 0#1))) : Bool)
+      then
+        (pure (0b001010#6 ++ ((shamt : (BitVec 6)) ++ ((encdec_reg_forwards rs1) ++ (0b001#3 ++ ((encdec_reg_forwards
+                      rd) ++ 0b0010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .ZBS_RTYPE (rs2, rs1, rd, BCLR) =>
+    (do
+      if ((← (currentlyEnabled Ext_Zbs)) : Bool)
+      then
+        (pure (0b0100100#7 ++ ((encdec_reg_forwards rs2) ++ ((encdec_reg_forwards rs1) ++ (0b001#3 ++ ((encdec_reg_forwards
+                      rd) ++ 0b0110011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .ZBS_RTYPE (rs2, rs1, rd, BEXT) =>
+    (do
+      if ((← (currentlyEnabled Ext_Zbs)) : Bool)
+      then
+        (pure (0b0100100#7 ++ ((encdec_reg_forwards rs2) ++ ((encdec_reg_forwards rs1) ++ (0b101#3 ++ ((encdec_reg_forwards
+                      rd) ++ 0b0110011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .ZBS_RTYPE (rs2, rs1, rd, BINV) =>
+    (do
+      if ((← (currentlyEnabled Ext_Zbs)) : Bool)
+      then
+        (pure (0b0110100#7 ++ ((encdec_reg_forwards rs2) ++ ((encdec_reg_forwards rs1) ++ (0b001#3 ++ ((encdec_reg_forwards
+                      rd) ++ 0b0110011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .ZBS_RTYPE (rs2, rs1, rd, BSET) =>
+    (do
+      if ((← (currentlyEnabled Ext_Zbs)) : Bool)
+      then
+        (pure (0b0010100#7 ++ ((encdec_reg_forwards rs2) ++ ((encdec_reg_forwards rs1) ++ (0b001#3 ++ ((encdec_reg_forwards
+                      rd) ++ 0b0110011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .LOAD_FP (imm, rs1, rd, width) =>
+    (do
+      if ((← (float_load_store_width_supported width)) : Bool)
+      then
+        (pure ((imm : (BitVec 12)) ++ ((encdec_reg_forwards rs1) ++ (0#1 ++ ((width_enc_forwards
+                    width) ++ ((encdec_freg_forwards rd) ++ 0b0000111#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .STORE_FP (imm, rs2, rs1, width) =>
+    (do
+      if ((← (float_load_store_width_supported width)) : Bool)
+      then
+        (pure ((Sail.BitVec.extractLsb imm 11 5) ++ ((encdec_freg_forwards rs2) ++ ((encdec_reg_forwards
+                  rs1) ++ (0#1 ++ ((width_enc_forwards width) ++ ((Sail.BitVec.extractLsb imm 4 0) ++ 0b0100111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_MADD_TYPE_S (rs3, rs2, rs1, rm, rd, FMADD_S) =>
+    (do
+      if ((← (haveSingleFPU ())) : Bool)
+      then
+        (pure ((encdec_freg_forwards rs3) ++ (0b00#2 ++ ((encdec_freg_forwards rs2) ++ ((encdec_freg_forwards
+                    rs1) ++ ((encdec_rounding_mode_forwards rm) ++ ((encdec_freg_forwards rd) ++ 0b1000011#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_MADD_TYPE_S (rs3, rs2, rs1, rm, rd, FMSUB_S) =>
+    (do
+      if ((← (haveSingleFPU ())) : Bool)
+      then
+        (pure ((encdec_freg_forwards rs3) ++ (0b00#2 ++ ((encdec_freg_forwards rs2) ++ ((encdec_freg_forwards
+                    rs1) ++ ((encdec_rounding_mode_forwards rm) ++ ((encdec_freg_forwards rd) ++ 0b1000111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_MADD_TYPE_S (rs3, rs2, rs1, rm, rd, FNMSUB_S) =>
+    (do
+      if ((← (haveSingleFPU ())) : Bool)
+      then
+        (pure ((encdec_freg_forwards rs3) ++ (0b00#2 ++ ((encdec_freg_forwards rs2) ++ ((encdec_freg_forwards
+                    rs1) ++ ((encdec_rounding_mode_forwards rm) ++ ((encdec_freg_forwards rd) ++ 0b1001011#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_MADD_TYPE_S (rs3, rs2, rs1, rm, rd, FNMADD_S) =>
+    (do
+      if ((← (haveSingleFPU ())) : Bool)
+      then
+        (pure ((encdec_freg_forwards rs3) ++ (0b00#2 ++ ((encdec_freg_forwards rs2) ++ ((encdec_freg_forwards
+                    rs1) ++ ((encdec_rounding_mode_forwards rm) ++ ((encdec_freg_forwards rd) ++ 0b1001111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_BIN_RM_TYPE_S (rs2, rs1, rm, rd, FADD_S) =>
+    (do
+      if ((← (haveSingleFPU ())) : Bool)
+      then
+        (pure (0b0000000#7 ++ ((encdec_freg_forwards rs2) ++ ((encdec_freg_forwards rs1) ++ ((encdec_rounding_mode_forwards
+                    rm) ++ ((encdec_freg_forwards rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_BIN_RM_TYPE_S (rs2, rs1, rm, rd, FSUB_S) =>
+    (do
+      if ((← (haveSingleFPU ())) : Bool)
+      then
+        (pure (0b0000100#7 ++ ((encdec_freg_forwards rs2) ++ ((encdec_freg_forwards rs1) ++ ((encdec_rounding_mode_forwards
+                    rm) ++ ((encdec_freg_forwards rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_BIN_RM_TYPE_S (rs2, rs1, rm, rd, FMUL_S) =>
+    (do
+      if ((← (haveSingleFPU ())) : Bool)
+      then
+        (pure (0b0001000#7 ++ ((encdec_freg_forwards rs2) ++ ((encdec_freg_forwards rs1) ++ ((encdec_rounding_mode_forwards
+                    rm) ++ ((encdec_freg_forwards rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_BIN_RM_TYPE_S (rs2, rs1, rm, rd, FDIV_S) =>
+    (do
+      if ((← (haveSingleFPU ())) : Bool)
+      then
+        (pure (0b0001100#7 ++ ((encdec_freg_forwards rs2) ++ ((encdec_freg_forwards rs1) ++ ((encdec_rounding_mode_forwards
+                    rm) ++ ((encdec_freg_forwards rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_UN_RM_FF_TYPE_S (rs1, rm, rd, FSQRT_S) =>
+    (do
+      if ((← (haveSingleFPU ())) : Bool)
+      then
+        (pure (0b0101100#7 ++ (0b00000#5 ++ ((encdec_freg_forwards rs1) ++ ((encdec_rounding_mode_forwards
+                    rm) ++ ((encdec_freg_forwards rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_UN_RM_FX_TYPE_S (rs1, rm, rd, FCVT_W_S) =>
+    (do
+      if ((← (haveSingleFPU ())) : Bool)
+      then
+        (pure (0b1100000#7 ++ (0b00000#5 ++ ((encdec_freg_forwards rs1) ++ ((encdec_rounding_mode_forwards
+                    rm) ++ ((encdec_reg_forwards rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_UN_RM_FX_TYPE_S (rs1, rm, rd, FCVT_WU_S) =>
+    (do
+      if ((← (haveSingleFPU ())) : Bool)
+      then
+        (pure (0b1100000#7 ++ (0b00001#5 ++ ((encdec_freg_forwards rs1) ++ ((encdec_rounding_mode_forwards
+                    rm) ++ ((encdec_reg_forwards rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_UN_RM_XF_TYPE_S (rs1, rm, rd, FCVT_S_W) =>
+    (do
+      if ((← (haveSingleFPU ())) : Bool)
+      then
+        (pure (0b1101000#7 ++ (0b00000#5 ++ ((encdec_reg_forwards rs1) ++ ((encdec_rounding_mode_forwards
+                    rm) ++ ((encdec_freg_forwards rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_UN_RM_XF_TYPE_S (rs1, rm, rd, FCVT_S_WU) =>
+    (do
+      if ((← (haveSingleFPU ())) : Bool)
+      then
+        (pure (0b1101000#7 ++ (0b00001#5 ++ ((encdec_reg_forwards rs1) ++ ((encdec_rounding_mode_forwards
+                    rm) ++ ((encdec_freg_forwards rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_UN_RM_FX_TYPE_S (rs1, rm, rd, FCVT_L_S) =>
+    (do
+      if (((← (haveSingleFPU ())) && (xlen ≥b 64)) : Bool)
+      then
+        (pure (0b1100000#7 ++ (0b00010#5 ++ ((encdec_freg_forwards rs1) ++ ((encdec_rounding_mode_forwards
+                    rm) ++ ((encdec_reg_forwards rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_UN_RM_FX_TYPE_S (rs1, rm, rd, FCVT_LU_S) =>
+    (do
+      if (((← (haveSingleFPU ())) && (xlen ≥b 64)) : Bool)
+      then
+        (pure (0b1100000#7 ++ (0b00011#5 ++ ((encdec_freg_forwards rs1) ++ ((encdec_rounding_mode_forwards
+                    rm) ++ ((encdec_reg_forwards rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_UN_RM_XF_TYPE_S (rs1, rm, rd, FCVT_S_L) =>
+    (do
+      if (((← (haveSingleFPU ())) && (xlen ≥b 64)) : Bool)
+      then
+        (pure (0b1101000#7 ++ (0b00010#5 ++ ((encdec_reg_forwards rs1) ++ ((encdec_rounding_mode_forwards
+                    rm) ++ ((encdec_freg_forwards rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_UN_RM_XF_TYPE_S (rs1, rm, rd, FCVT_S_LU) =>
+    (do
+      if (((← (haveSingleFPU ())) && (xlen ≥b 64)) : Bool)
+      then
+        (pure (0b1101000#7 ++ (0b00011#5 ++ ((encdec_reg_forwards rs1) ++ ((encdec_rounding_mode_forwards
+                    rm) ++ ((encdec_freg_forwards rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_BIN_TYPE_F_S (rs2, rs1, rd, FSGNJ_S) =>
+    (do
+      if ((← (haveSingleFPU ())) : Bool)
+      then
+        (pure (0b0010000#7 ++ ((encdec_freg_forwards rs2) ++ ((encdec_freg_forwards rs1) ++ (0b000#3 ++ ((encdec_freg_forwards
+                      rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_BIN_TYPE_F_S (rs2, rs1, rd, FSGNJN_S) =>
+    (do
+      if ((← (haveSingleFPU ())) : Bool)
+      then
+        (pure (0b0010000#7 ++ ((encdec_freg_forwards rs2) ++ ((encdec_freg_forwards rs1) ++ (0b001#3 ++ ((encdec_freg_forwards
+                      rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_BIN_TYPE_F_S (rs2, rs1, rd, FSGNJX_S) =>
+    (do
+      if ((← (haveSingleFPU ())) : Bool)
+      then
+        (pure (0b0010000#7 ++ ((encdec_freg_forwards rs2) ++ ((encdec_freg_forwards rs1) ++ (0b010#3 ++ ((encdec_freg_forwards
+                      rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_BIN_TYPE_F_S (rs2, rs1, rd, FMIN_S) =>
+    (do
+      if ((← (haveSingleFPU ())) : Bool)
+      then
+        (pure (0b0010100#7 ++ ((encdec_freg_forwards rs2) ++ ((encdec_freg_forwards rs1) ++ (0b000#3 ++ ((encdec_freg_forwards
+                      rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_BIN_TYPE_F_S (rs2, rs1, rd, FMAX_S) =>
+    (do
+      if ((← (haveSingleFPU ())) : Bool)
+      then
+        (pure (0b0010100#7 ++ ((encdec_freg_forwards rs2) ++ ((encdec_freg_forwards rs1) ++ (0b001#3 ++ ((encdec_freg_forwards
+                      rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_BIN_TYPE_X_S (rs2, rs1, rd, FEQ_S) =>
+    (do
+      if ((← (haveSingleFPU ())) : Bool)
+      then
+        (pure (0b1010000#7 ++ ((encdec_freg_forwards rs2) ++ ((encdec_freg_forwards rs1) ++ (0b010#3 ++ ((encdec_reg_forwards
+                      rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_BIN_TYPE_X_S (rs2, rs1, rd, FLT_S) =>
+    (do
+      if ((← (haveSingleFPU ())) : Bool)
+      then
+        (pure (0b1010000#7 ++ ((encdec_freg_forwards rs2) ++ ((encdec_freg_forwards rs1) ++ (0b001#3 ++ ((encdec_reg_forwards
+                      rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_BIN_TYPE_X_S (rs2, rs1, rd, FLE_S) =>
+    (do
+      if ((← (haveSingleFPU ())) : Bool)
+      then
+        (pure (0b1010000#7 ++ ((encdec_freg_forwards rs2) ++ ((encdec_freg_forwards rs1) ++ (0b000#3 ++ ((encdec_reg_forwards
+                      rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_UN_TYPE_X_S (rs1, rd, FCLASS_S) =>
+    (do
+      if ((← (haveSingleFPU ())) : Bool)
+      then
+        (pure (0b1110000#7 ++ (0b00000#5 ++ ((encdec_freg_forwards rs1) ++ (0b001#3 ++ ((encdec_reg_forwards
+                      rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_UN_TYPE_X_S (rs1, rd, FMV_X_W) =>
+    (do
+      if ((← (currentlyEnabled Ext_F)) : Bool)
+      then
+        (pure (0b1110000#7 ++ (0b00000#5 ++ ((encdec_freg_forwards rs1) ++ (0b000#3 ++ ((encdec_reg_forwards
+                      rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_UN_TYPE_F_S (rs1, rd, FMV_W_X) =>
+    (do
+      if ((← (currentlyEnabled Ext_F)) : Bool)
+      then
+        (pure (0b1111000#7 ++ (0b00000#5 ++ ((encdec_reg_forwards rs1) ++ (0b000#3 ++ ((encdec_freg_forwards
+                      rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_MADD_TYPE_D (rs3, rs2, rs1, rm, rd, FMADD_D) =>
+    (do
+      if (((← (haveDoubleFPU ())) && (validDoubleRegs (n := 4) #v[rd, rs1, rs2, rs3])) : Bool)
+      then
+        (pure ((encdec_freg_forwards rs3) ++ (0b01#2 ++ ((encdec_freg_forwards rs2) ++ ((encdec_freg_forwards
+                    rs1) ++ ((encdec_rounding_mode_forwards rm) ++ ((encdec_freg_forwards rd) ++ 0b1000011#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_MADD_TYPE_D (rs3, rs2, rs1, rm, rd, FMSUB_D) =>
+    (do
+      if (((← (haveDoubleFPU ())) && (validDoubleRegs (n := 4) #v[rd, rs1, rs2, rs3])) : Bool)
+      then
+        (pure ((encdec_freg_forwards rs3) ++ (0b01#2 ++ ((encdec_freg_forwards rs2) ++ ((encdec_freg_forwards
+                    rs1) ++ ((encdec_rounding_mode_forwards rm) ++ ((encdec_freg_forwards rd) ++ 0b1000111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_MADD_TYPE_D (rs3, rs2, rs1, rm, rd, FNMSUB_D) =>
+    (do
+      if (((← (haveDoubleFPU ())) && (validDoubleRegs (n := 4) #v[rd, rs1, rs2, rs3])) : Bool)
+      then
+        (pure ((encdec_freg_forwards rs3) ++ (0b01#2 ++ ((encdec_freg_forwards rs2) ++ ((encdec_freg_forwards
+                    rs1) ++ ((encdec_rounding_mode_forwards rm) ++ ((encdec_freg_forwards rd) ++ 0b1001011#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_MADD_TYPE_D (rs3, rs2, rs1, rm, rd, FNMADD_D) =>
+    (do
+      if (((← (haveDoubleFPU ())) && (validDoubleRegs (n := 4) #v[rd, rs1, rs2, rs3])) : Bool)
+      then
+        (pure ((encdec_freg_forwards rs3) ++ (0b01#2 ++ ((encdec_freg_forwards rs2) ++ ((encdec_freg_forwards
+                    rs1) ++ ((encdec_rounding_mode_forwards rm) ++ ((encdec_freg_forwards rd) ++ 0b1001111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_BIN_RM_TYPE_D (rs2, rs1, rm, rd, FADD_D) =>
+    (do
+      if (((← (haveDoubleFPU ())) && (validDoubleRegs (n := 3) #v[rd, rs1, rs2])) : Bool)
+      then
+        (pure (0b0000001#7 ++ ((encdec_freg_forwards rs2) ++ ((encdec_freg_forwards rs1) ++ ((encdec_rounding_mode_forwards
+                    rm) ++ ((encdec_freg_forwards rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_BIN_RM_TYPE_D (rs2, rs1, rm, rd, FSUB_D) =>
+    (do
+      if (((← (haveDoubleFPU ())) && (validDoubleRegs (n := 3) #v[rd, rs1, rs2])) : Bool)
+      then
+        (pure (0b0000101#7 ++ ((encdec_freg_forwards rs2) ++ ((encdec_freg_forwards rs1) ++ ((encdec_rounding_mode_forwards
+                    rm) ++ ((encdec_freg_forwards rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_BIN_RM_TYPE_D (rs2, rs1, rm, rd, FMUL_D) =>
+    (do
+      if (((← (haveDoubleFPU ())) && (validDoubleRegs (n := 3) #v[rd, rs1, rs2])) : Bool)
+      then
+        (pure (0b0001001#7 ++ ((encdec_freg_forwards rs2) ++ ((encdec_freg_forwards rs1) ++ ((encdec_rounding_mode_forwards
+                    rm) ++ ((encdec_freg_forwards rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_BIN_RM_TYPE_D (rs2, rs1, rm, rd, FDIV_D) =>
+    (do
+      if (((← (haveDoubleFPU ())) && (validDoubleRegs (n := 3) #v[rd, rs1, rs2])) : Bool)
+      then
+        (pure (0b0001101#7 ++ ((encdec_freg_forwards rs2) ++ ((encdec_freg_forwards rs1) ++ ((encdec_rounding_mode_forwards
+                    rm) ++ ((encdec_freg_forwards rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_UN_RM_FF_TYPE_D (rs1, rm, rd, FSQRT_D) =>
+    (do
+      if (((← (haveDoubleFPU ())) && (validDoubleRegs (n := 2) #v[rd, rs1])) : Bool)
+      then
+        (pure (0b0101101#7 ++ (0b00000#5 ++ ((encdec_freg_forwards rs1) ++ ((encdec_rounding_mode_forwards
+                    rm) ++ ((encdec_freg_forwards rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_UN_RM_FX_TYPE_D (rs1, rm, rd, FCVT_W_D) =>
+    (do
+      if (((← (haveDoubleFPU ())) && (validDoubleRegs (n := 1) #v[rs1])) : Bool)
+      then
+        (pure (0b1100001#7 ++ (0b00000#5 ++ ((encdec_freg_forwards rs1) ++ ((encdec_rounding_mode_forwards
+                    rm) ++ ((encdec_reg_forwards rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_UN_RM_FX_TYPE_D (rs1, rm, rd, FCVT_WU_D) =>
+    (do
+      if (((← (haveDoubleFPU ())) && (validDoubleRegs (n := 1) #v[rs1])) : Bool)
+      then
+        (pure (0b1100001#7 ++ (0b00001#5 ++ ((encdec_freg_forwards rs1) ++ ((encdec_rounding_mode_forwards
+                    rm) ++ ((encdec_reg_forwards rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_UN_RM_XF_TYPE_D (rs1, rm, rd, FCVT_D_W) =>
+    (do
+      if (((← (haveDoubleFPU ())) && (validDoubleRegs (n := 1) #v[rd])) : Bool)
+      then
+        (pure (0b1101001#7 ++ (0b00000#5 ++ ((encdec_reg_forwards rs1) ++ ((encdec_rounding_mode_forwards
+                    rm) ++ ((encdec_freg_forwards rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_UN_RM_XF_TYPE_D (rs1, rm, rd, FCVT_D_WU) =>
+    (do
+      if (((← (haveDoubleFPU ())) && (validDoubleRegs (n := 1) #v[rd])) : Bool)
+      then
+        (pure (0b1101001#7 ++ (0b00001#5 ++ ((encdec_reg_forwards rs1) ++ ((encdec_rounding_mode_forwards
+                    rm) ++ ((encdec_freg_forwards rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_UN_RM_FF_TYPE_D (rs1, rm, rd, FCVT_S_D) =>
+    (do
+      if (((← (haveDoubleFPU ())) && (validDoubleRegs (n := 1) #v[rs1])) : Bool)
+      then
+        (pure (0b0100000#7 ++ (0b00001#5 ++ ((encdec_freg_forwards rs1) ++ ((encdec_rounding_mode_forwards
+                    rm) ++ ((encdec_freg_forwards rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_UN_RM_FF_TYPE_D (rs1, rm, rd, FCVT_D_S) =>
+    (do
+      if (((← (haveDoubleFPU ())) && (validDoubleRegs (n := 1) #v[rd])) : Bool)
+      then
+        (pure (0b0100001#7 ++ (0b00000#5 ++ ((encdec_freg_forwards rs1) ++ ((encdec_rounding_mode_forwards
+                    rm) ++ ((encdec_freg_forwards rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_UN_RM_FX_TYPE_D (rs1, rm, rd, FCVT_L_D) =>
+    (do
+      if (((← (haveDoubleFPU ())) && (xlen ≥b 64)) : Bool)
+      then
+        (pure (0b1100001#7 ++ (0b00010#5 ++ ((encdec_freg_forwards rs1) ++ ((encdec_rounding_mode_forwards
+                    rm) ++ ((encdec_reg_forwards rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_UN_RM_FX_TYPE_D (rs1, rm, rd, FCVT_LU_D) =>
+    (do
+      if (((← (haveDoubleFPU ())) && (xlen ≥b 64)) : Bool)
+      then
+        (pure (0b1100001#7 ++ (0b00011#5 ++ ((encdec_freg_forwards rs1) ++ ((encdec_rounding_mode_forwards
+                    rm) ++ ((encdec_reg_forwards rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_UN_RM_XF_TYPE_D (rs1, rm, rd, FCVT_D_L) =>
+    (do
+      if (((← (haveDoubleFPU ())) && (xlen ≥b 64)) : Bool)
+      then
+        (pure (0b1101001#7 ++ (0b00010#5 ++ ((encdec_reg_forwards rs1) ++ ((encdec_rounding_mode_forwards
+                    rm) ++ ((encdec_freg_forwards rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_UN_RM_XF_TYPE_D (rs1, rm, rd, FCVT_D_LU) =>
+    (do
+      if (((← (haveDoubleFPU ())) && (xlen ≥b 64)) : Bool)
+      then
+        (pure (0b1101001#7 ++ (0b00011#5 ++ ((encdec_reg_forwards rs1) ++ ((encdec_rounding_mode_forwards
+                    rm) ++ ((encdec_freg_forwards rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_BIN_F_TYPE_D (rs2, rs1, rd, FSGNJ_D) =>
+    (do
+      if (((← (haveDoubleFPU ())) && (validDoubleRegs (n := 3) #v[rd, rs1, rs2])) : Bool)
+      then
+        (pure (0b0010001#7 ++ ((encdec_freg_forwards rs2) ++ ((encdec_freg_forwards rs1) ++ (0b000#3 ++ ((encdec_freg_forwards
+                      rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_BIN_F_TYPE_D (rs2, rs1, rd, FSGNJN_D) =>
+    (do
+      if (((← (haveDoubleFPU ())) && (validDoubleRegs (n := 3) #v[rd, rs1, rs2])) : Bool)
+      then
+        (pure (0b0010001#7 ++ ((encdec_freg_forwards rs2) ++ ((encdec_freg_forwards rs1) ++ (0b001#3 ++ ((encdec_freg_forwards
+                      rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_BIN_F_TYPE_D (rs2, rs1, rd, FSGNJX_D) =>
+    (do
+      if (((← (haveDoubleFPU ())) && (validDoubleRegs (n := 3) #v[rd, rs1, rs2])) : Bool)
+      then
+        (pure (0b0010001#7 ++ ((encdec_freg_forwards rs2) ++ ((encdec_freg_forwards rs1) ++ (0b010#3 ++ ((encdec_freg_forwards
+                      rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_BIN_F_TYPE_D (rs2, rs1, rd, FMIN_D) =>
+    (do
+      if (((← (haveDoubleFPU ())) && (validDoubleRegs (n := 3) #v[rd, rs1, rs2])) : Bool)
+      then
+        (pure (0b0010101#7 ++ ((encdec_freg_forwards rs2) ++ ((encdec_freg_forwards rs1) ++ (0b000#3 ++ ((encdec_freg_forwards
+                      rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_BIN_F_TYPE_D (rs2, rs1, rd, FMAX_D) =>
+    (do
+      if (((← (haveDoubleFPU ())) && (validDoubleRegs (n := 3) #v[rd, rs1, rs2])) : Bool)
+      then
+        (pure (0b0010101#7 ++ ((encdec_freg_forwards rs2) ++ ((encdec_freg_forwards rs1) ++ (0b001#3 ++ ((encdec_freg_forwards
+                      rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_BIN_X_TYPE_D (rs2, rs1, rd, FEQ_D) =>
+    (do
+      if (((← (haveDoubleFPU ())) && (validDoubleRegs (n := 2) #v[rs1, rs2])) : Bool)
+      then
+        (pure (0b1010001#7 ++ ((encdec_freg_forwards rs2) ++ ((encdec_freg_forwards rs1) ++ (0b010#3 ++ ((encdec_reg_forwards
+                      rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_BIN_X_TYPE_D (rs2, rs1, rd, FLT_D) =>
+    (do
+      if (((← (haveDoubleFPU ())) && (validDoubleRegs (n := 2) #v[rs1, rs2])) : Bool)
+      then
+        (pure (0b1010001#7 ++ ((encdec_freg_forwards rs2) ++ ((encdec_freg_forwards rs1) ++ (0b001#3 ++ ((encdec_reg_forwards
+                      rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_BIN_X_TYPE_D (rs2, rs1, rd, FLE_D) =>
+    (do
+      if (((← (haveDoubleFPU ())) && (validDoubleRegs (n := 2) #v[rs1, rs2])) : Bool)
+      then
+        (pure (0b1010001#7 ++ ((encdec_freg_forwards rs2) ++ ((encdec_freg_forwards rs1) ++ (0b000#3 ++ ((encdec_reg_forwards
+                      rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_UN_X_TYPE_D (rs1, rd, FCLASS_D) =>
+    (do
+      if (((← (haveDoubleFPU ())) && (validDoubleRegs (n := 1) #v[rs1])) : Bool)
+      then
+        (pure (0b1110001#7 ++ (0b00000#5 ++ ((encdec_freg_forwards rs1) ++ (0b001#3 ++ ((encdec_reg_forwards
+                      rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_UN_X_TYPE_D (rs1, rd, FMV_X_D) =>
+    (do
+      if (((← (currentlyEnabled Ext_D)) && (xlen ≥b 64)) : Bool)
+      then
+        (pure (0b1110001#7 ++ (0b00000#5 ++ ((encdec_freg_forwards rs1) ++ (0b000#3 ++ ((encdec_reg_forwards
+                      rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_UN_F_TYPE_D (rs1, rd, FMV_D_X) =>
+    (do
+      if (((← (currentlyEnabled Ext_D)) && (xlen ≥b 64)) : Bool)
+      then
+        (pure (0b1111001#7 ++ (0b00000#5 ++ ((encdec_reg_forwards rs1) ++ (0b000#3 ++ ((encdec_freg_forwards
+                      rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_BIN_RM_TYPE_H (rs2, rs1, rm, rd, FADD_H) =>
+    (do
+      if ((← (haveHalfFPU ())) : Bool)
+      then
+        (pure (0b0000010#7 ++ ((encdec_freg_forwards rs2) ++ ((encdec_freg_forwards rs1) ++ ((encdec_rounding_mode_forwards
+                    rm) ++ ((encdec_freg_forwards rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_BIN_RM_TYPE_H (rs2, rs1, rm, rd, FSUB_H) =>
+    (do
+      if ((← (haveHalfFPU ())) : Bool)
+      then
+        (pure (0b0000110#7 ++ ((encdec_freg_forwards rs2) ++ ((encdec_freg_forwards rs1) ++ ((encdec_rounding_mode_forwards
+                    rm) ++ ((encdec_freg_forwards rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_BIN_RM_TYPE_H (rs2, rs1, rm, rd, FMUL_H) =>
+    (do
+      if ((← (haveHalfFPU ())) : Bool)
+      then
+        (pure (0b0001010#7 ++ ((encdec_freg_forwards rs2) ++ ((encdec_freg_forwards rs1) ++ ((encdec_rounding_mode_forwards
+                    rm) ++ ((encdec_freg_forwards rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_BIN_RM_TYPE_H (rs2, rs1, rm, rd, FDIV_H) =>
+    (do
+      if ((← (haveHalfFPU ())) : Bool)
+      then
+        (pure (0b0001110#7 ++ ((encdec_freg_forwards rs2) ++ ((encdec_freg_forwards rs1) ++ ((encdec_rounding_mode_forwards
+                    rm) ++ ((encdec_freg_forwards rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_MADD_TYPE_H (rs3, rs2, rs1, rm, rd, FMADD_H) =>
+    (do
+      if ((← (haveHalfFPU ())) : Bool)
+      then
+        (pure ((encdec_freg_forwards rs3) ++ (0b10#2 ++ ((encdec_freg_forwards rs2) ++ ((encdec_freg_forwards
+                    rs1) ++ ((encdec_rounding_mode_forwards rm) ++ ((encdec_freg_forwards rd) ++ 0b1000011#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_MADD_TYPE_H (rs3, rs2, rs1, rm, rd, FMSUB_H) =>
+    (do
+      if ((← (haveHalfFPU ())) : Bool)
+      then
+        (pure ((encdec_freg_forwards rs3) ++ (0b10#2 ++ ((encdec_freg_forwards rs2) ++ ((encdec_freg_forwards
+                    rs1) ++ ((encdec_rounding_mode_forwards rm) ++ ((encdec_freg_forwards rd) ++ 0b1000111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_MADD_TYPE_H (rs3, rs2, rs1, rm, rd, FNMSUB_H) =>
+    (do
+      if ((← (haveHalfFPU ())) : Bool)
+      then
+        (pure ((encdec_freg_forwards rs3) ++ (0b10#2 ++ ((encdec_freg_forwards rs2) ++ ((encdec_freg_forwards
+                    rs1) ++ ((encdec_rounding_mode_forwards rm) ++ ((encdec_freg_forwards rd) ++ 0b1001011#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_MADD_TYPE_H (rs3, rs2, rs1, rm, rd, FNMADD_H) =>
+    (do
+      if ((← (haveHalfFPU ())) : Bool)
+      then
+        (pure ((encdec_freg_forwards rs3) ++ (0b10#2 ++ ((encdec_freg_forwards rs2) ++ ((encdec_freg_forwards
+                    rs1) ++ ((encdec_rounding_mode_forwards rm) ++ ((encdec_freg_forwards rd) ++ 0b1001111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_BIN_F_TYPE_H (rs2, rs1, rd, FSGNJ_H) =>
+    (do
+      if ((← (haveHalfFPU ())) : Bool)
+      then
+        (pure (0b0010010#7 ++ ((encdec_freg_forwards rs2) ++ ((encdec_freg_forwards rs1) ++ (0b000#3 ++ ((encdec_freg_forwards
+                      rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_BIN_F_TYPE_H (rs2, rs1, rd, FSGNJN_H) =>
+    (do
+      if ((← (haveHalfFPU ())) : Bool)
+      then
+        (pure (0b0010010#7 ++ ((encdec_freg_forwards rs2) ++ ((encdec_freg_forwards rs1) ++ (0b001#3 ++ ((encdec_freg_forwards
+                      rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_BIN_F_TYPE_H (rs2, rs1, rd, FSGNJX_H) =>
+    (do
+      if ((← (haveHalfFPU ())) : Bool)
+      then
+        (pure (0b0010010#7 ++ ((encdec_freg_forwards rs2) ++ ((encdec_freg_forwards rs1) ++ (0b010#3 ++ ((encdec_freg_forwards
+                      rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_BIN_F_TYPE_H (rs2, rs1, rd, FMIN_H) =>
+    (do
+      if ((← (haveHalfFPU ())) : Bool)
+      then
+        (pure (0b0010110#7 ++ ((encdec_freg_forwards rs2) ++ ((encdec_freg_forwards rs1) ++ (0b000#3 ++ ((encdec_freg_forwards
+                      rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_BIN_F_TYPE_H (rs2, rs1, rd, FMAX_H) =>
+    (do
+      if ((← (haveHalfFPU ())) : Bool)
+      then
+        (pure (0b0010110#7 ++ ((encdec_freg_forwards rs2) ++ ((encdec_freg_forwards rs1) ++ (0b001#3 ++ ((encdec_freg_forwards
+                      rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_BIN_X_TYPE_H (rs2, rs1, rd, FEQ_H) =>
+    (do
+      if ((← (haveHalfFPU ())) : Bool)
+      then
+        (pure (0b1010010#7 ++ ((encdec_freg_forwards rs2) ++ ((encdec_freg_forwards rs1) ++ (0b010#3 ++ ((encdec_reg_forwards
+                      rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_BIN_X_TYPE_H (rs2, rs1, rd, FLT_H) =>
+    (do
+      if ((← (haveHalfFPU ())) : Bool)
+      then
+        (pure (0b1010010#7 ++ ((encdec_freg_forwards rs2) ++ ((encdec_freg_forwards rs1) ++ (0b001#3 ++ ((encdec_reg_forwards
+                      rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_BIN_X_TYPE_H (rs2, rs1, rd, FLE_H) =>
+    (do
+      if ((← (haveHalfFPU ())) : Bool)
+      then
+        (pure (0b1010010#7 ++ ((encdec_freg_forwards rs2) ++ ((encdec_freg_forwards rs1) ++ (0b000#3 ++ ((encdec_reg_forwards
+                      rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_UN_RM_FF_TYPE_H (rs1, rm, rd, FSQRT_H) =>
+    (do
+      if ((← (haveHalfFPU ())) : Bool)
+      then
+        (pure (0b0101110#7 ++ (0b00000#5 ++ ((encdec_freg_forwards rs1) ++ ((encdec_rounding_mode_forwards
+                    rm) ++ ((encdec_freg_forwards rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_UN_RM_FX_TYPE_H (rs1, rm, rd, FCVT_W_H) =>
+    (do
+      if ((← (haveHalfFPU ())) : Bool)
+      then
+        (pure (0b1100010#7 ++ (0b00000#5 ++ ((encdec_freg_forwards rs1) ++ ((encdec_rounding_mode_forwards
+                    rm) ++ ((encdec_reg_forwards rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_UN_RM_FX_TYPE_H (rs1, rm, rd, FCVT_WU_H) =>
+    (do
+      if ((← (haveHalfFPU ())) : Bool)
+      then
+        (pure (0b1100010#7 ++ (0b00001#5 ++ ((encdec_freg_forwards rs1) ++ ((encdec_rounding_mode_forwards
+                    rm) ++ ((encdec_reg_forwards rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_UN_RM_XF_TYPE_H (rs1, rm, rd, FCVT_H_W) =>
+    (do
+      if ((← (haveHalfFPU ())) : Bool)
+      then
+        (pure (0b1101010#7 ++ (0b00000#5 ++ ((encdec_reg_forwards rs1) ++ ((encdec_rounding_mode_forwards
+                    rm) ++ ((encdec_freg_forwards rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_UN_RM_XF_TYPE_H (rs1, rm, rd, FCVT_H_WU) =>
+    (do
+      if ((← (haveHalfFPU ())) : Bool)
+      then
+        (pure (0b1101010#7 ++ (0b00001#5 ++ ((encdec_reg_forwards rs1) ++ ((encdec_rounding_mode_forwards
+                    rm) ++ ((encdec_freg_forwards rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_UN_RM_FF_TYPE_H (rs1, rm, rd, FCVT_H_S) =>
+    (do
+      if ((← (haveHalfMin ())) : Bool)
+      then
+        (pure (0b0100010#7 ++ (0b00000#5 ++ ((encdec_freg_forwards rs1) ++ ((encdec_rounding_mode_forwards
+                    rm) ++ ((encdec_freg_forwards rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_UN_RM_FF_TYPE_H (rs1, rm, rd, FCVT_H_D) =>
+    (do
+      if (((← (haveHalfMin ())) && ((← (haveDoubleFPU ())) && (validDoubleRegs (n := 1) #v[rs1]))) : Bool)
+      then
+        (pure (0b0100010#7 ++ (0b00001#5 ++ ((encdec_freg_forwards rs1) ++ ((encdec_rounding_mode_forwards
+                    rm) ++ ((encdec_freg_forwards rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_UN_RM_FF_TYPE_H (rs1, rm, rd, FCVT_S_H) =>
+    (do
+      if ((← (haveHalfMin ())) : Bool)
+      then
+        (pure (0b0100000#7 ++ (0b00010#5 ++ ((encdec_freg_forwards rs1) ++ ((encdec_rounding_mode_forwards
+                    rm) ++ ((encdec_freg_forwards rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_UN_RM_FF_TYPE_H (rs1, rm, rd, FCVT_D_H) =>
+    (do
+      if (((← (haveHalfMin ())) && ((← (haveDoubleFPU ())) && (validDoubleRegs (n := 1) #v[rd]))) : Bool)
+      then
+        (pure (0b0100001#7 ++ (0b00010#5 ++ ((encdec_freg_forwards rs1) ++ ((encdec_rounding_mode_forwards
+                    rm) ++ ((encdec_freg_forwards rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_UN_RM_FX_TYPE_H (rs1, rm, rd, FCVT_L_H) =>
+    (do
+      if (((← (haveHalfFPU ())) && (xlen ≥b 64)) : Bool)
+      then
+        (pure (0b1100010#7 ++ (0b00010#5 ++ ((encdec_freg_forwards rs1) ++ ((encdec_rounding_mode_forwards
+                    rm) ++ ((encdec_reg_forwards rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_UN_RM_FX_TYPE_H (rs1, rm, rd, FCVT_LU_H) =>
+    (do
+      if (((← (haveHalfFPU ())) && (xlen ≥b 64)) : Bool)
+      then
+        (pure (0b1100010#7 ++ (0b00011#5 ++ ((encdec_freg_forwards rs1) ++ ((encdec_rounding_mode_forwards
+                    rm) ++ ((encdec_reg_forwards rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_UN_RM_XF_TYPE_H (rs1, rm, rd, FCVT_H_L) =>
+    (do
+      if (((← (haveHalfFPU ())) && (xlen ≥b 64)) : Bool)
+      then
+        (pure (0b1101010#7 ++ (0b00010#5 ++ ((encdec_reg_forwards rs1) ++ ((encdec_rounding_mode_forwards
+                    rm) ++ ((encdec_freg_forwards rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_UN_RM_XF_TYPE_H (rs1, rm, rd, FCVT_H_LU) =>
+    (do
+      if (((← (haveHalfFPU ())) && (xlen ≥b 64)) : Bool)
+      then
+        (pure (0b1101010#7 ++ (0b00011#5 ++ ((encdec_reg_forwards rs1) ++ ((encdec_rounding_mode_forwards
+                    rm) ++ ((encdec_freg_forwards rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_UN_X_TYPE_H (rs1, rd, FCLASS_H) =>
+    (do
+      if ((← (haveHalfFPU ())) : Bool)
+      then
+        (pure (0b1110010#7 ++ (0b00000#5 ++ ((encdec_freg_forwards rs1) ++ (0b001#3 ++ ((encdec_reg_forwards
+                      rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_UN_X_TYPE_H (rs1, rd, FMV_X_H) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zfhmin)) || (← (currentlyEnabled Ext_Zfbfmin))) : Bool)
+      then
+        (pure (0b1110010#7 ++ (0b00000#5 ++ ((encdec_freg_forwards rs1) ++ (0b000#3 ++ ((encdec_reg_forwards
+                      rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .F_UN_F_TYPE_H (rs1, rd, FMV_H_X) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zfhmin)) || (← (currentlyEnabled Ext_Zfbfmin))) : Bool)
+      then
+        (pure (0b1111010#7 ++ (0b00000#5 ++ ((encdec_reg_forwards rs1) ++ (0b000#3 ++ ((encdec_freg_forwards
+                      rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .FLI_H (constantidx, rd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zfh)) || (← (currentlyEnabled Ext_Zvfh))) && (← (currentlyEnabled
+               Ext_Zfa))) : Bool)
+      then
+        (pure (0b1111010#7 ++ (0b00001#5 ++ ((constantidx : (BitVec 5)) ++ (0b000#3 ++ ((encdec_freg_forwards
+                      rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .FLI_S (constantidx, rd) =>
+    (do
+      if ((← (currentlyEnabled Ext_Zfa)) : Bool)
+      then
+        (pure (0b1111000#7 ++ (0b00001#5 ++ ((constantidx : (BitVec 5)) ++ (0b000#3 ++ ((encdec_freg_forwards
+                      rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .FLI_D (constantidx, rd) =>
+    (do
+      if (((← (currentlyEnabled Ext_D)) && (← (currentlyEnabled Ext_Zfa))) : Bool)
+      then
+        (pure (0b1111001#7 ++ (0b00001#5 ++ ((constantidx : (BitVec 5)) ++ (0b000#3 ++ ((encdec_freg_forwards
+                      rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .FMINM_H (rs2, rs1, rd) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zfh)) && (← (currentlyEnabled Ext_Zfa))) : Bool)
+      then
+        (pure (0b0010110#7 ++ ((encdec_freg_forwards rs2) ++ ((encdec_freg_forwards rs1) ++ (0b010#3 ++ ((encdec_freg_forwards
+                      rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .FMAXM_H (rs2, rs1, rd) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zfh)) && (← (currentlyEnabled Ext_Zfa))) : Bool)
+      then
+        (pure (0b0010110#7 ++ ((encdec_freg_forwards rs2) ++ ((encdec_freg_forwards rs1) ++ (0b011#3 ++ ((encdec_freg_forwards
+                      rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .FMINM_S (rs2, rs1, rd) =>
+    (do
+      if ((← (currentlyEnabled Ext_Zfa)) : Bool)
+      then
+        (pure (0b0010100#7 ++ ((encdec_freg_forwards rs2) ++ ((encdec_freg_forwards rs1) ++ (0b010#3 ++ ((encdec_freg_forwards
+                      rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .FMAXM_S (rs2, rs1, rd) =>
+    (do
+      if ((← (currentlyEnabled Ext_Zfa)) : Bool)
+      then
+        (pure (0b0010100#7 ++ ((encdec_freg_forwards rs2) ++ ((encdec_freg_forwards rs1) ++ (0b011#3 ++ ((encdec_freg_forwards
+                      rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .FMINM_D (rs2, rs1, rd) =>
+    (do
+      if (((← (currentlyEnabled Ext_D)) && (← (currentlyEnabled Ext_Zfa))) : Bool)
+      then
+        (pure (0b0010101#7 ++ ((encdec_freg_forwards rs2) ++ ((encdec_freg_forwards rs1) ++ (0b010#3 ++ ((encdec_freg_forwards
+                      rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .FMAXM_D (rs2, rs1, rd) =>
+    (do
+      if (((← (currentlyEnabled Ext_D)) && (← (currentlyEnabled Ext_Zfa))) : Bool)
+      then
+        (pure (0b0010101#7 ++ ((encdec_freg_forwards rs2) ++ ((encdec_freg_forwards rs1) ++ (0b011#3 ++ ((encdec_freg_forwards
+                      rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .FROUND_H (rs1, rm, rd) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zfh)) && (← (currentlyEnabled Ext_Zfa))) : Bool)
+      then
+        (pure (0b0100010#7 ++ (0b00100#5 ++ ((encdec_freg_forwards rs1) ++ ((encdec_rounding_mode_forwards
+                    rm) ++ ((encdec_freg_forwards rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .FROUNDNX_H (rs1, rm, rd) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zfh)) && (← (currentlyEnabled Ext_Zfa))) : Bool)
+      then
+        (pure (0b0100010#7 ++ (0b00101#5 ++ ((encdec_freg_forwards rs1) ++ ((encdec_rounding_mode_forwards
+                    rm) ++ ((encdec_freg_forwards rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .FROUND_S (rs1, rm, rd) =>
+    (do
+      if ((← (currentlyEnabled Ext_Zfa)) : Bool)
+      then
+        (pure (0b0100000#7 ++ (0b00100#5 ++ ((encdec_freg_forwards rs1) ++ ((encdec_rounding_mode_forwards
+                    rm) ++ ((encdec_freg_forwards rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .FROUNDNX_S (rs1, rm, rd) =>
+    (do
+      if ((← (currentlyEnabled Ext_Zfa)) : Bool)
+      then
+        (pure (0b0100000#7 ++ (0b00101#5 ++ ((encdec_freg_forwards rs1) ++ ((encdec_rounding_mode_forwards
+                    rm) ++ ((encdec_freg_forwards rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .FROUND_D (rs1, rm, rd) =>
+    (do
+      if (((← (currentlyEnabled Ext_D)) && (← (currentlyEnabled Ext_Zfa))) : Bool)
+      then
+        (pure (0b0100001#7 ++ (0b00100#5 ++ ((encdec_freg_forwards rs1) ++ ((encdec_rounding_mode_forwards
+                    rm) ++ ((encdec_freg_forwards rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .FROUNDNX_D (rs1, rm, rd) =>
+    (do
+      if (((← (currentlyEnabled Ext_D)) && (← (currentlyEnabled Ext_Zfa))) : Bool)
+      then
+        (pure (0b0100001#7 ++ (0b00101#5 ++ ((encdec_freg_forwards rs1) ++ ((encdec_rounding_mode_forwards
+                    rm) ++ ((encdec_freg_forwards rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .FMVH_X_D (rs1, rd) =>
+    (do
+      if (((← (currentlyEnabled Ext_D)) && ((← (currentlyEnabled Ext_Zfa)) && (← (in32BitMode
+                 ())))) : Bool)
+      then
+        (pure (0b1110001#7 ++ (0b00001#5 ++ ((encdec_freg_forwards rs1) ++ (0b000#3 ++ ((encdec_reg_forwards
+                      rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .FMVP_D_X (rs2, rs1, rd) =>
+    (do
+      if (((← (currentlyEnabled Ext_D)) && ((← (currentlyEnabled Ext_Zfa)) && (← (in32BitMode
+                 ())))) : Bool)
+      then
+        (pure (0b1011001#7 ++ ((encdec_reg_forwards rs2) ++ ((encdec_reg_forwards rs1) ++ (0b000#3 ++ ((encdec_freg_forwards
+                      rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .FLEQ_H (rs2, rs1, rd) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zfh)) && (← (currentlyEnabled Ext_Zfa))) : Bool)
+      then
+        (pure (0b1010010#7 ++ ((encdec_freg_forwards rs2) ++ ((encdec_freg_forwards rs1) ++ (0b100#3 ++ ((encdec_reg_forwards
+                      rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .FLTQ_H (rs2, rs1, rd) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zfh)) && (← (currentlyEnabled Ext_Zfa))) : Bool)
+      then
+        (pure (0b1010010#7 ++ ((encdec_freg_forwards rs2) ++ ((encdec_freg_forwards rs1) ++ (0b101#3 ++ ((encdec_reg_forwards
+                      rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .FLEQ_S (rs2, rs1, rd) =>
+    (do
+      if ((← (currentlyEnabled Ext_Zfa)) : Bool)
+      then
+        (pure (0b1010000#7 ++ ((encdec_freg_forwards rs2) ++ ((encdec_freg_forwards rs1) ++ (0b100#3 ++ ((encdec_reg_forwards
+                      rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .FLTQ_S (rs2, rs1, rd) =>
+    (do
+      if ((← (currentlyEnabled Ext_Zfa)) : Bool)
+      then
+        (pure (0b1010000#7 ++ ((encdec_freg_forwards rs2) ++ ((encdec_freg_forwards rs1) ++ (0b101#3 ++ ((encdec_reg_forwards
+                      rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .FLEQ_D (rs2, rs1, rd) =>
+    (do
+      if (((← (currentlyEnabled Ext_D)) && (← (currentlyEnabled Ext_Zfa))) : Bool)
+      then
+        (pure (0b1010001#7 ++ ((encdec_freg_forwards rs2) ++ ((encdec_freg_forwards rs1) ++ (0b100#3 ++ ((encdec_reg_forwards
+                      rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .FLTQ_D (rs2, rs1, rd) =>
+    (do
+      if (((← (currentlyEnabled Ext_D)) && (← (currentlyEnabled Ext_Zfa))) : Bool)
+      then
+        (pure (0b1010001#7 ++ ((encdec_freg_forwards rs2) ++ ((encdec_freg_forwards rs1) ++ (0b101#3 ++ ((encdec_reg_forwards
+                      rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .FCVTMOD_W_D (rs1, rd) =>
+    (do
+      if (((← (currentlyEnabled Ext_D)) && (← (currentlyEnabled Ext_Zfa))) : Bool)
+      then
+        (pure (0b1100001#7 ++ (0b01000#5 ++ ((encdec_freg_forwards rs1) ++ (0b001#3 ++ ((encdec_reg_forwards
+                      rd) ++ 0b1010011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VSETVLI (ma, ta, sew, lmul, rs1, rd) =>
+    (do
+      if ((← (currentlyEnabled Ext_Zve32x)) : Bool)
+      then
+        (pure (0b0000#4 ++ ((ma : (BitVec 1)) ++ ((ta : (BitVec 1)) ++ ((sew : (BitVec 3)) ++ ((lmul : (BitVec 3)) ++ ((encdec_reg_forwards
+                        rs1) ++ (0b111#3 ++ ((encdec_reg_forwards rd) ++ 0b1010111#7)))))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VSETVL (rs2, rs1, rd) =>
+    (do
+      if ((← (currentlyEnabled Ext_Zve32x)) : Bool)
+      then
+        (pure (0b1000000#7 ++ ((encdec_reg_forwards rs2) ++ ((encdec_reg_forwards rs1) ++ (0b111#3 ++ ((encdec_reg_forwards
+                      rd) ++ 0b1010111#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VSETIVLI (ma, ta, sew, lmul, uimm, rd) =>
+    (do
+      if ((← (currentlyEnabled Ext_Zve32x)) : Bool)
+      then
+        (pure (0b1100#4 ++ ((ma : (BitVec 1)) ++ ((ta : (BitVec 1)) ++ ((sew : (BitVec 3)) ++ ((lmul : (BitVec 3)) ++ ((uimm : (BitVec 5)) ++ (0b111#3 ++ ((encdec_reg_forwards
+                            rd) ++ 0b1010111#7)))))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VVTYPE (funct6, vm, vs2, vs1, vd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zve32x)) && (← do
+               (pure ((← (get_sew ())) ≤b 32)))) || ((← (currentlyEnabled Ext_Zve64x)) && (← do
+               (pure (((← (get_sew ())) ≤b 64) && (← (valid_wide_vvtype funct6))))))) : Bool)
+      then
+        (pure ((encdec_vvfunct6_forwards funct6) ++ ((vm : (BitVec 1)) ++ ((encdec_vreg_forwards vs2) ++ ((encdec_vreg_forwards
+                    vs1) ++ (0b000#3 ++ ((encdec_vreg_forwards vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .NVSTYPE (funct6, vm, vs2, vs1, vd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zve32x)) && (← do
+               (pure ((← (get_sew ())) ≤b 16)))) || ((← (currentlyEnabled Ext_Zve64x)) && (← do
+               (pure ((← (get_sew ())) ≤b 32))))) : Bool)
+      then
+        (pure ((encdec_nvsfunct6_forwards funct6) ++ ((vm : (BitVec 1)) ++ ((encdec_vreg_forwards
+                  vs2) ++ ((encdec_vreg_forwards vs1) ++ (0b000#3 ++ ((encdec_vreg_forwards vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .NVTYPE (funct6, vm, vs2, vs1, vd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zve32x)) && (← do
+               (pure ((← (get_sew ())) ≤b 16)))) || ((← (currentlyEnabled Ext_Zve64x)) && (← do
+               (pure ((← (get_sew ())) ≤b 32))))) : Bool)
+      then
+        (pure ((encdec_nvfunct6_forwards funct6) ++ ((vm : (BitVec 1)) ++ ((encdec_vreg_forwards vs2) ++ ((encdec_vreg_forwards
+                    vs1) ++ (0b000#3 ++ ((encdec_vreg_forwards vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .MASKTYPEV (vs2, vs1, vd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zve32x)) && (← do
+               (pure ((← (get_sew ())) ≤b 32)))) || ((← (currentlyEnabled Ext_Zve64x)) && (← do
+               (pure ((← (get_sew ())) ≤b 64))))) : Bool)
+      then
+        (pure (0b010111#6 ++ (0#1 ++ ((encdec_vreg_forwards vs2) ++ ((encdec_vreg_forwards vs1) ++ (0b000#3 ++ ((encdec_vreg_forwards
+                        vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .MOVETYPEV (vs1, vd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zve32x)) && (← do
+               (pure ((← (get_sew ())) ≤b 32)))) || ((← (currentlyEnabled Ext_Zve64x)) && (← do
+               (pure ((← (get_sew ())) ≤b 64))))) : Bool)
+      then
+        (pure (0b010111#6 ++ (1#1 ++ (0b00000#5 ++ ((encdec_vreg_forwards vs1) ++ (0b000#3 ++ ((encdec_vreg_forwards
+                        vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VXTYPE (funct6, vm, vs2, rs1, vd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zve32x)) && (← do
+               (pure ((← (get_sew ())) ≤b 32)))) || ((← (currentlyEnabled Ext_Zve64x)) && (← do
+               (pure (((← (get_sew ())) ≤b 64) && (← (valid_wide_vxtype funct6))))))) : Bool)
+      then
+        (pure ((encdec_vxfunct6_forwards funct6) ++ ((vm : (BitVec 1)) ++ ((encdec_vreg_forwards vs2) ++ ((encdec_reg_forwards
+                    rs1) ++ (0b100#3 ++ ((encdec_vreg_forwards vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .NXSTYPE (funct6, vm, vs2, rs1, vd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zve32x)) && (← do
+               (pure ((← (get_sew ())) ≤b 16)))) || ((← (currentlyEnabled Ext_Zve64x)) && (← do
+               (pure ((← (get_sew ())) ≤b 32))))) : Bool)
+      then
+        (pure ((encdec_nxsfunct6_forwards funct6) ++ ((vm : (BitVec 1)) ++ ((encdec_vreg_forwards
+                  vs2) ++ ((encdec_reg_forwards rs1) ++ (0b100#3 ++ ((encdec_vreg_forwards vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .NXTYPE (funct6, vm, vs2, rs1, vd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zve32x)) && (← do
+               (pure ((← (get_sew ())) ≤b 16)))) || ((← (currentlyEnabled Ext_Zve64x)) && (← do
+               (pure ((← (get_sew ())) ≤b 32))))) : Bool)
+      then
+        (pure ((encdec_nxfunct6_forwards funct6) ++ ((vm : (BitVec 1)) ++ ((encdec_vreg_forwards vs2) ++ ((encdec_reg_forwards
+                    rs1) ++ (0b100#3 ++ ((encdec_vreg_forwards vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VXSG (funct6, vm, vs2, rs1, vd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zve32x)) && (← do
+               (pure ((← (get_sew ())) ≤b 32)))) || ((← (currentlyEnabled Ext_Zve64x)) && (← do
+               (pure ((← (get_sew ())) ≤b 64))))) : Bool)
+      then
+        (pure ((encdec_vxsgfunct6_forwards funct6) ++ ((vm : (BitVec 1)) ++ ((encdec_vreg_forwards
+                  vs2) ++ ((encdec_reg_forwards rs1) ++ (0b100#3 ++ ((encdec_vreg_forwards vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .MASKTYPEX (vs2, rs1, vd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zve32x)) && (← do
+               (pure ((← (get_sew ())) ≤b 32)))) || ((← (currentlyEnabled Ext_Zve64x)) && (← do
+               (pure ((← (get_sew ())) ≤b 64))))) : Bool)
+      then
+        (pure (0b010111#6 ++ (0#1 ++ ((encdec_vreg_forwards vs2) ++ ((encdec_reg_forwards rs1) ++ (0b100#3 ++ ((encdec_vreg_forwards
+                        vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .MOVETYPEX (rs1, vd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zve32x)) && (← do
+               (pure ((← (get_sew ())) ≤b 32)))) || ((← (currentlyEnabled Ext_Zve64x)) && (← do
+               (pure ((← (get_sew ())) ≤b 64))))) : Bool)
+      then
+        (pure (0b010111#6 ++ (1#1 ++ (0b00000#5 ++ ((encdec_reg_forwards rs1) ++ (0b100#3 ++ ((encdec_vreg_forwards
+                        vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VITYPE (funct6, vm, vs2, simm, vd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zve32x)) && (← do
+               (pure ((← (get_sew ())) ≤b 32)))) || ((← (currentlyEnabled Ext_Zve64x)) && (← do
+               (pure ((← (get_sew ())) ≤b 64))))) : Bool)
+      then
+        (pure ((encdec_vifunct6_forwards funct6) ++ ((vm : (BitVec 1)) ++ ((encdec_vreg_forwards vs2) ++ ((simm : (BitVec 5)) ++ (0b011#3 ++ ((encdec_vreg_forwards
+                        vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .NISTYPE (funct6, vm, vs2, uimm, vd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zve32x)) && (← do
+               (pure ((← (get_sew ())) ≤b 16)))) || ((← (currentlyEnabled Ext_Zve64x)) && (← do
+               (pure ((← (get_sew ())) ≤b 32))))) : Bool)
+      then
+        (pure ((encdec_nisfunct6_forwards funct6) ++ ((vm : (BitVec 1)) ++ ((encdec_vreg_forwards
+                  vs2) ++ ((uimm : (BitVec 5)) ++ (0b011#3 ++ ((encdec_vreg_forwards vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .NITYPE (funct6, vm, vs2, uimm, vd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zve32x)) && (← do
+               (pure ((← (get_sew ())) ≤b 16)))) || ((← (currentlyEnabled Ext_Zve64x)) && (← do
+               (pure ((← (get_sew ())) ≤b 32))))) : Bool)
+      then
+        (pure ((encdec_nifunct6_forwards funct6) ++ ((vm : (BitVec 1)) ++ ((encdec_vreg_forwards vs2) ++ ((uimm : (BitVec 5)) ++ (0b011#3 ++ ((encdec_vreg_forwards
+                        vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VISG (funct6, vm, vs2, simm, vd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zve32x)) && (← do
+               (pure ((← (get_sew ())) ≤b 32)))) || ((← (currentlyEnabled Ext_Zve64x)) && (← do
+               (pure ((← (get_sew ())) ≤b 64))))) : Bool)
+      then
+        (pure ((encdec_visgfunct6_forwards funct6) ++ ((vm : (BitVec 1)) ++ ((encdec_vreg_forwards
+                  vs2) ++ ((simm : (BitVec 5)) ++ (0b011#3 ++ ((encdec_vreg_forwards vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .MASKTYPEI (vs2, simm, vd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zve32x)) && (← do
+               (pure ((← (get_sew ())) ≤b 32)))) || ((← (currentlyEnabled Ext_Zve64x)) && (← do
+               (pure ((← (get_sew ())) ≤b 64))))) : Bool)
+      then
+        (pure (0b010111#6 ++ (0#1 ++ ((encdec_vreg_forwards vs2) ++ ((simm : (BitVec 5)) ++ (0b011#3 ++ ((encdec_vreg_forwards
+                        vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .MOVETYPEI (vd, simm) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zve32x)) && (← do
+               (pure ((← (get_sew ())) ≤b 32)))) || ((← (currentlyEnabled Ext_Zve64x)) && (← do
+               (pure ((← (get_sew ())) ≤b 64))))) : Bool)
+      then
+        (pure (0b010111#6 ++ (1#1 ++ (0b00000#5 ++ ((simm : (BitVec 5)) ++ (0b011#3 ++ ((encdec_vreg_forwards
+                        vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VMVRTYPE (vs2, nreg, vd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zve32x)) && (← do
+               (pure ((← (get_sew ())) ≤b 32)))) || ((← (currentlyEnabled Ext_Zve64x)) && (← do
+               (pure ((← (get_sew ())) ≤b 64))))) : Bool)
+      then
+        (pure (0b100111#6 ++ (1#1 ++ ((encdec_vreg_forwards vs2) ++ ((encdec_nreg_backwards nreg) ++ (0b011#3 ++ ((encdec_vreg_forwards
+                        vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .MVVTYPE (funct6, vm, vs2, vs1, vd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zve32x)) && (← do
+               (pure ((← (get_sew ())) ≤b 32)))) || ((← (currentlyEnabled Ext_Zve64x)) && (← do
+               (pure (((← (get_sew ())) ≤b 64) && (← (valid_wide_mvvtype funct6))))))) : Bool)
+      then
+        (pure ((encdec_mvvfunct6_forwards funct6) ++ ((vm : (BitVec 1)) ++ ((encdec_vreg_forwards
+                  vs2) ++ ((encdec_vreg_forwards vs1) ++ (0b010#3 ++ ((encdec_vreg_forwards vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .MVVMATYPE (funct6, vm, vs2, vs1, vd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zve32x)) && (← do
+               (pure ((← (get_sew ())) ≤b 32)))) || ((← (currentlyEnabled Ext_Zve64x)) && (← do
+               (pure ((← (get_sew ())) ≤b 64))))) : Bool)
+      then
+        (pure ((encdec_mvvmafunct6_forwards funct6) ++ ((vm : (BitVec 1)) ++ ((encdec_vreg_forwards
+                  vs2) ++ ((encdec_vreg_forwards vs1) ++ (0b010#3 ++ ((encdec_vreg_forwards vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .WVVTYPE (funct6, vm, vs2, vs1, vd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zve32x)) && (← do
+               (pure ((← (get_sew ())) ≤b 16)))) || ((← (currentlyEnabled Ext_Zve64x)) && (← do
+               (pure ((← (get_sew ())) ≤b 32))))) : Bool)
+      then
+        (pure ((encdec_wvvfunct6_forwards funct6) ++ ((vm : (BitVec 1)) ++ ((encdec_vreg_forwards
+                  vs2) ++ ((encdec_vreg_forwards vs1) ++ (0b010#3 ++ ((encdec_vreg_forwards vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .WVTYPE (funct6, vm, vs2, vs1, vd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zve32x)) && (← do
+               (pure ((← (get_sew ())) ≤b 16)))) || ((← (currentlyEnabled Ext_Zve64x)) && (← do
+               (pure ((← (get_sew ())) ≤b 32))))) : Bool)
+      then
+        (pure ((encdec_wvfunct6_forwards funct6) ++ ((vm : (BitVec 1)) ++ ((encdec_vreg_forwards vs2) ++ ((encdec_vreg_forwards
+                    vs1) ++ (0b010#3 ++ ((encdec_vreg_forwards vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .WMVVTYPE (funct6, vm, vs2, vs1, vd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zve32x)) && (← do
+               (pure ((← (get_sew ())) ≤b 16)))) || ((← (currentlyEnabled Ext_Zve64x)) && (← do
+               (pure ((← (get_sew ())) ≤b 32))))) : Bool)
+      then
+        (pure ((encdec_wmvvfunct6_forwards funct6) ++ ((vm : (BitVec 1)) ++ ((encdec_vreg_forwards
+                  vs2) ++ ((encdec_vreg_forwards vs1) ++ (0b010#3 ++ ((encdec_vreg_forwards vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VEXTTYPE (funct6, vm, vs2, vd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zve32x)) && (← do
+               (pure ((← (get_sew ())) ≤b 32)))) || ((← (currentlyEnabled Ext_Zve64x)) && (← do
+               (pure ((← (get_sew ())) ≤b 64))))) : Bool)
+      then
+        (pure (0b010010#6 ++ ((vm : (BitVec 1)) ++ ((encdec_vreg_forwards vs2) ++ ((vext_vs1_forwards
+                    funct6) ++ (0b010#3 ++ ((encdec_vreg_forwards vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VMVXS (vs2, rd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zve32x)) && (← do
+               (pure ((← (get_sew ())) ≤b 32)))) || ((← (currentlyEnabled Ext_Zve64x)) && (← do
+               (pure ((← (get_sew ())) ≤b 64))))) : Bool)
+      then
+        (pure (0b010000#6 ++ (1#1 ++ ((encdec_vreg_forwards vs2) ++ (0b00000#5 ++ (0b010#3 ++ ((encdec_reg_forwards
+                        rd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .MVVCOMPRESS (vs2, vs1, vd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zve32x)) && (← do
+               (pure ((← (get_sew ())) ≤b 32)))) || ((← (currentlyEnabled Ext_Zve64x)) && (← do
+               (pure ((← (get_sew ())) ≤b 64))))) : Bool)
+      then
+        (pure (0b010111#6 ++ (1#1 ++ ((encdec_vreg_forwards vs2) ++ ((encdec_vreg_forwards vs1) ++ (0b010#3 ++ ((encdec_vreg_forwards
+                        vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .MVXTYPE (funct6, vm, vs2, rs1, vd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zve32x)) && (← do
+               (pure ((← (get_sew ())) ≤b 32)))) || ((← (currentlyEnabled Ext_Zve64x)) && (← do
+               (pure (((← (get_sew ())) ≤b 64) && (← (valid_wide_mvxtype funct6))))))) : Bool)
+      then
+        (pure ((encdec_mvxfunct6_forwards funct6) ++ ((vm : (BitVec 1)) ++ ((encdec_vreg_forwards
+                  vs2) ++ ((encdec_reg_forwards rs1) ++ (0b110#3 ++ ((encdec_vreg_forwards vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .MVXMATYPE (funct6, vm, vs2, rs1, vd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zve32x)) && (← do
+               (pure ((← (get_sew ())) ≤b 32)))) || ((← (currentlyEnabled Ext_Zve64x)) && (← do
+               (pure ((← (get_sew ())) ≤b 64))))) : Bool)
+      then
+        (pure ((encdec_mvxmafunct6_forwards funct6) ++ ((vm : (BitVec 1)) ++ ((encdec_vreg_forwards
+                  vs2) ++ ((encdec_reg_forwards rs1) ++ (0b110#3 ++ ((encdec_vreg_forwards vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .WVXTYPE (funct6, vm, vs2, rs1, vd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zve32x)) && (← do
+               (pure ((← (get_sew ())) ≤b 16)))) || ((← (currentlyEnabled Ext_Zve64x)) && (← do
+               (pure ((← (get_sew ())) ≤b 32))))) : Bool)
+      then
+        (pure ((encdec_wvxfunct6_forwards funct6) ++ ((vm : (BitVec 1)) ++ ((encdec_vreg_forwards
+                  vs2) ++ ((encdec_reg_forwards rs1) ++ (0b110#3 ++ ((encdec_vreg_forwards vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .WXTYPE (funct6, vm, vs2, rs1, vd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zve32x)) && (← do
+               (pure ((← (get_sew ())) ≤b 16)))) || ((← (currentlyEnabled Ext_Zve64x)) && (← do
+               (pure ((← (get_sew ())) ≤b 32))))) : Bool)
+      then
+        (pure ((encdec_wxfunct6_forwards funct6) ++ ((vm : (BitVec 1)) ++ ((encdec_vreg_forwards vs2) ++ ((encdec_reg_forwards
+                    rs1) ++ (0b110#3 ++ ((encdec_vreg_forwards vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .WMVXTYPE (funct6, vm, vs2, rs1, vd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zve32x)) && (← do
+               (pure ((← (get_sew ())) ≤b 16)))) || ((← (currentlyEnabled Ext_Zve64x)) && (← do
+               (pure ((← (get_sew ())) ≤b 32))))) : Bool)
+      then
+        (pure ((encdec_wmvxfunct6_forwards funct6) ++ ((vm : (BitVec 1)) ++ ((encdec_vreg_forwards
+                  vs2) ++ ((encdec_reg_forwards rs1) ++ (0b110#3 ++ ((encdec_vreg_forwards vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VMVSX (rs1, vd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zve32x)) && (← do
+               (pure ((← (get_sew ())) ≤b 32)))) || ((← (currentlyEnabled Ext_Zve64x)) && (← do
+               (pure ((← (get_sew ())) ≤b 64))))) : Bool)
+      then
+        (pure (0b010000#6 ++ (1#1 ++ (0b00000#5 ++ ((encdec_reg_forwards rs1) ++ (0b110#3 ++ ((encdec_vreg_forwards
+                        vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .FVVTYPE (funct6, vm, vs2, vs1, vd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zvfh)) && (← do
+               (pure ((← (get_sew ())) == 16)))) || (((← (currentlyEnabled Ext_Zve32f)) && (← do
+                 (pure ((← (get_sew ())) == 32)))) || ((← (currentlyEnabled Ext_Zve64d)) && (← do
+                 (pure ((← (get_sew ())) == 64)))))) : Bool)
+      then
+        (pure ((encdec_fvvfunct6_forwards funct6) ++ ((vm : (BitVec 1)) ++ ((encdec_vreg_forwards
+                  vs2) ++ ((encdec_vreg_forwards vs1) ++ (0b001#3 ++ ((encdec_vreg_forwards vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .FVVMATYPE (funct6, vm, vs2, vs1, vd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zvfh)) && (← do
+               (pure ((← (get_sew ())) == 16)))) || (((← (currentlyEnabled Ext_Zve32f)) && (← do
+                 (pure ((← (get_sew ())) == 32)))) || ((← (currentlyEnabled Ext_Zve64d)) && (← do
+                 (pure ((← (get_sew ())) == 64)))))) : Bool)
+      then
+        (pure ((encdec_fvvmafunct6_forwards funct6) ++ ((vm : (BitVec 1)) ++ ((encdec_vreg_forwards
+                  vs2) ++ ((encdec_vreg_forwards vs1) ++ (0b001#3 ++ ((encdec_vreg_forwards vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .FWVVTYPE (funct6, vm, vs2, vs1, vd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zvfh)) && (← do
+               (pure ((← (get_sew ())) == 16)))) || ((← (currentlyEnabled Ext_Zve64d)) && (← do
+               (pure ((← (get_sew ())) == 32))))) : Bool)
+      then
+        (pure ((encdec_fwvvfunct6_forwards funct6) ++ ((vm : (BitVec 1)) ++ ((encdec_vreg_forwards
+                  vs2) ++ ((encdec_vreg_forwards vs1) ++ (0b001#3 ++ ((encdec_vreg_forwards vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .FWVVMATYPE (funct6, vm, vs1, vs2, vd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zvfh)) && (← do
+               (pure ((← (get_sew ())) == 16)))) || ((← (currentlyEnabled Ext_Zve64d)) && (← do
+               (pure ((← (get_sew ())) == 32))))) : Bool)
+      then
+        (pure ((encdec_fwvvmafunct6_forwards funct6) ++ ((vm : (BitVec 1)) ++ ((encdec_vreg_forwards
+                  vs1) ++ ((encdec_vreg_forwards vs2) ++ (0b001#3 ++ ((encdec_vreg_forwards vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .FWVTYPE (funct6, vm, vs2, vs1, vd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zvfh)) && (← do
+               (pure ((← (get_sew ())) == 16)))) || ((← (currentlyEnabled Ext_Zve64d)) && (← do
+               (pure ((← (get_sew ())) == 32))))) : Bool)
+      then
+        (pure ((encdec_fwvfunct6_forwards funct6) ++ ((vm : (BitVec 1)) ++ ((encdec_vreg_forwards
+                  vs2) ++ ((encdec_vreg_forwards vs1) ++ (0b001#3 ++ ((encdec_vreg_forwards vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VFUNARY0 (vm, vs2, vfunary0, vd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zvfh)) && (← do
+               (pure ((← (get_sew ())) == 16)))) || (((← (currentlyEnabled Ext_Zve32f)) && (← do
+                 (pure ((← (get_sew ())) == 32)))) || ((← (currentlyEnabled Ext_Zve64d)) && (← do
+                 (pure ((← (get_sew ())) == 64)))))) : Bool)
+      then
+        (pure (0b010010#6 ++ ((vm : (BitVec 1)) ++ ((encdec_vreg_forwards vs2) ++ ((encdec_vfunary0_vs1_forwards
+                    vfunary0) ++ (0b001#3 ++ ((encdec_vreg_forwards vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VFWUNARY0 (vm, vs2, vfwunary0, vd) =>
+    (do
+      if ((← (valid_widening_fp_conversion vfwunary0)) : Bool)
+      then
+        (pure (0b010010#6 ++ ((vm : (BitVec 1)) ++ ((encdec_vreg_forwards vs2) ++ ((encdec_vfwunary0_vs1_forwards
+                    vfwunary0) ++ (0b001#3 ++ ((encdec_vreg_forwards vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VFNUNARY0 (vm, vs2, vfnunary0, vd) =>
+    (do
+      if ((← (valid_narrowing_fp_conversion vfnunary0)) : Bool)
+      then
+        (pure (0b010010#6 ++ ((vm : (BitVec 1)) ++ ((encdec_vreg_forwards vs2) ++ ((encdec_vfnunary0_vs1_forwards
+                    vfnunary0) ++ (0b001#3 ++ ((encdec_vreg_forwards vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VFUNARY1 (vm, vs2, vfunary1, vd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zvfh)) && (← do
+               (pure ((← (get_sew ())) == 16)))) || (((← (currentlyEnabled Ext_Zve32f)) && (← do
+                 (pure ((← (get_sew ())) == 32)))) || ((← (currentlyEnabled Ext_Zve64d)) && (← do
+                 (pure ((← (get_sew ())) == 64)))))) : Bool)
+      then
+        (pure (0b010011#6 ++ ((vm : (BitVec 1)) ++ ((encdec_vreg_forwards vs2) ++ ((encdec_vfunary1_vs1_forwards
+                    vfunary1) ++ (0b001#3 ++ ((encdec_vreg_forwards vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VFMVFS (vs2, rd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zvfh)) && (← do
+               (pure ((← (get_sew ())) == 16)))) || (((← (currentlyEnabled Ext_Zve32f)) && (← do
+                 (pure ((← (get_sew ())) == 32)))) || ((← (currentlyEnabled Ext_Zve64d)) && (← do
+                 (pure ((← (get_sew ())) == 64)))))) : Bool)
+      then
+        (pure (0b010000#6 ++ (1#1 ++ ((encdec_vreg_forwards vs2) ++ (0b00000#5 ++ (0b001#3 ++ ((encdec_freg_forwards
+                        rd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .FVFTYPE (funct6, vm, vs2, rs1, vd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zvfh)) && (← do
+               (pure ((← (get_sew ())) == 16)))) || (((← (currentlyEnabled Ext_Zve32f)) && (← do
+                 (pure ((← (get_sew ())) == 32)))) || ((← (currentlyEnabled Ext_Zve64d)) && (← do
+                 (pure ((← (get_sew ())) == 64)))))) : Bool)
+      then
+        (pure ((encdec_fvffunct6_forwards funct6) ++ ((vm : (BitVec 1)) ++ ((encdec_vreg_forwards
+                  vs2) ++ ((encdec_freg_forwards rs1) ++ (0b101#3 ++ ((encdec_vreg_forwards vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .FVFMATYPE (funct6, vm, vs2, rs1, vd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zvfh)) && (← do
+               (pure ((← (get_sew ())) == 16)))) || (((← (currentlyEnabled Ext_Zve32f)) && (← do
+                 (pure ((← (get_sew ())) == 32)))) || ((← (currentlyEnabled Ext_Zve64d)) && (← do
+                 (pure ((← (get_sew ())) == 64)))))) : Bool)
+      then
+        (pure ((encdec_fvfmafunct6_forwards funct6) ++ ((vm : (BitVec 1)) ++ ((encdec_vreg_forwards
+                  vs2) ++ ((encdec_freg_forwards rs1) ++ (0b101#3 ++ ((encdec_vreg_forwards vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .FWVFTYPE (funct6, vm, vs2, rs1, vd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zvfh)) && (← do
+               (pure ((← (get_sew ())) == 16)))) || ((← (currentlyEnabled Ext_Zve64d)) && (← do
+               (pure ((← (get_sew ())) == 32))))) : Bool)
+      then
+        (pure ((encdec_fwvffunct6_forwards funct6) ++ ((vm : (BitVec 1)) ++ ((encdec_vreg_forwards
+                  vs2) ++ ((encdec_freg_forwards rs1) ++ (0b101#3 ++ ((encdec_vreg_forwards vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .FWVFMATYPE (funct6, vm, rs1, vs2, vd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zvfh)) && (← do
+               (pure ((← (get_sew ())) == 16)))) || ((← (currentlyEnabled Ext_Zve64d)) && (← do
+               (pure ((← (get_sew ())) == 32))))) : Bool)
+      then
+        (pure ((encdec_fwvfmafunct6_forwards funct6) ++ ((vm : (BitVec 1)) ++ ((encdec_vreg_forwards
+                  vs2) ++ ((encdec_freg_forwards rs1) ++ (0b101#3 ++ ((encdec_vreg_forwards vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .FWFTYPE (funct6, vm, vs2, rs1, vd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zvfh)) && (← do
+               (pure ((← (get_sew ())) == 16)))) || ((← (currentlyEnabled Ext_Zve64d)) && (← do
+               (pure ((← (get_sew ())) == 32))))) : Bool)
+      then
+        (pure ((encdec_fwffunct6_forwards funct6) ++ ((vm : (BitVec 1)) ++ ((encdec_vreg_forwards
+                  vs2) ++ ((encdec_freg_forwards rs1) ++ (0b101#3 ++ ((encdec_vreg_forwards vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VFMERGE (vs2, rs1, vd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zvfh)) && (← do
+               (pure ((← (get_sew ())) == 16)))) || (((← (currentlyEnabled Ext_Zve32f)) && (← do
+                 (pure ((← (get_sew ())) == 32)))) || ((← (currentlyEnabled Ext_Zve64d)) && (← do
+                 (pure ((← (get_sew ())) == 64)))))) : Bool)
+      then
+        (pure (0b010111#6 ++ (0#1 ++ ((encdec_vreg_forwards vs2) ++ ((encdec_freg_forwards rs1) ++ (0b101#3 ++ ((encdec_vreg_forwards
+                        vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VFMV (rs1, vd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zvfh)) && (← do
+               (pure ((← (get_sew ())) == 16)))) || (((← (currentlyEnabled Ext_Zve32f)) && (← do
+                 (pure ((← (get_sew ())) == 32)))) || ((← (currentlyEnabled Ext_Zve64d)) && (← do
+                 (pure ((← (get_sew ())) == 64)))))) : Bool)
+      then
+        (pure (0b010111#6 ++ (1#1 ++ (0b00000#5 ++ ((encdec_freg_forwards rs1) ++ (0b101#3 ++ ((encdec_vreg_forwards
+                        vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VFMVSF (rs1, vd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zvfh)) && (← do
+               (pure ((← (get_sew ())) == 16)))) || (((← (currentlyEnabled Ext_Zve32f)) && (← do
+                 (pure ((← (get_sew ())) == 32)))) || ((← (currentlyEnabled Ext_Zve64d)) && (← do
+                 (pure ((← (get_sew ())) == 64)))))) : Bool)
+      then
+        (pure (0b010000#6 ++ (1#1 ++ (0b00000#5 ++ ((encdec_freg_forwards rs1) ++ (0b101#3 ++ ((encdec_vreg_forwards
+                        vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VLSEGTYPE (nf, vm, rs1, width, vd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zve32x)) && (((vlewidth_pow_forwards width) ≤b 5) : Bool)) || ((← (currentlyEnabled
+                 Ext_Zve64x)) && (((vlewidth_pow_forwards width) ≤b 6) : Bool))) : Bool)
+      then
+        (pure ((encdec_nfields_backwards nf) ++ (0#1 ++ (0b00#2 ++ ((vm : (BitVec 1)) ++ (0b00000#5 ++ ((encdec_reg_forwards
+                        rs1) ++ ((encdec_vlewidth_forwards width) ++ ((encdec_vreg_forwards vd) ++ 0b0000111#7)))))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VLSEGFFTYPE (nf, vm, rs1, width, vd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zve32x)) && (((vlewidth_pow_forwards width) ≤b 5) : Bool)) || ((← (currentlyEnabled
+                 Ext_Zve64x)) && (((vlewidth_pow_forwards width) ≤b 6) : Bool))) : Bool)
+      then
+        (pure ((encdec_nfields_backwards nf) ++ (0#1 ++ (0b00#2 ++ ((vm : (BitVec 1)) ++ (0b10000#5 ++ ((encdec_reg_forwards
+                        rs1) ++ ((encdec_vlewidth_forwards width) ++ ((encdec_vreg_forwards vd) ++ 0b0000111#7)))))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VSSEGTYPE (nf, vm, rs1, width, vs3) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zve32x)) && (((vlewidth_pow_forwards width) ≤b 5) : Bool)) || ((← (currentlyEnabled
+                 Ext_Zve64x)) && (((vlewidth_pow_forwards width) ≤b 6) : Bool))) : Bool)
+      then
+        (pure ((encdec_nfields_backwards nf) ++ (0#1 ++ (0b00#2 ++ ((vm : (BitVec 1)) ++ (0b00000#5 ++ ((encdec_reg_forwards
+                        rs1) ++ ((encdec_vlewidth_forwards width) ++ ((encdec_vreg_forwards vs3) ++ 0b0100111#7)))))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VLSSEGTYPE (nf, vm, rs2, rs1, width, vd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zve32x)) && (((vlewidth_pow_forwards width) ≤b 5) : Bool)) || ((← (currentlyEnabled
+                 Ext_Zve64x)) && (((vlewidth_pow_forwards width) ≤b 6) : Bool))) : Bool)
+      then
+        (pure ((encdec_nfields_backwards nf) ++ (0#1 ++ (0b10#2 ++ ((vm : (BitVec 1)) ++ ((encdec_reg_forwards
+                      rs2) ++ ((encdec_reg_forwards rs1) ++ ((encdec_vlewidth_forwards width) ++ ((encdec_vreg_forwards
+                            vd) ++ 0b0000111#7)))))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VSSSEGTYPE (nf, vm, rs2, rs1, width, vs3) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zve32x)) && (((vlewidth_pow_forwards width) ≤b 5) : Bool)) || ((← (currentlyEnabled
+                 Ext_Zve64x)) && (((vlewidth_pow_forwards width) ≤b 6) : Bool))) : Bool)
+      then
+        (pure ((encdec_nfields_backwards nf) ++ (0#1 ++ (0b10#2 ++ ((vm : (BitVec 1)) ++ ((encdec_reg_forwards
+                      rs2) ++ ((encdec_reg_forwards rs1) ++ ((encdec_vlewidth_forwards width) ++ ((encdec_vreg_forwards
+                            vs3) ++ 0b0100111#7)))))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VLXSEGTYPE (nf, vm, vs2, rs1, width, vd, mop) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zve32x)) && (((vlewidth_pow_forwards width) ≤b 5) : Bool)) || ((← (currentlyEnabled
+                 Ext_Zve64x)) && ((((vlewidth_pow_forwards width) ≤b 6) && (xlen == 64)) : Bool))) : Bool)
+      then
+        (pure ((encdec_nfields_backwards nf) ++ (0#1 ++ ((encdec_indexed_mop_forwards mop) ++ ((vm : (BitVec 1)) ++ ((encdec_vreg_forwards
+                      vs2) ++ ((encdec_reg_forwards rs1) ++ ((encdec_vlewidth_forwards width) ++ ((encdec_vreg_forwards
+                            vd) ++ 0b0000111#7)))))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VSXSEGTYPE (nf, vm, vs2, rs1, width, vs3, mop) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zve32x)) && (((vlewidth_pow_forwards width) ≤b 5) : Bool)) || ((← (currentlyEnabled
+                 Ext_Zve64x)) && ((((vlewidth_pow_forwards width) ≤b 6) && (xlen == 64)) : Bool))) : Bool)
+      then
+        (pure ((encdec_nfields_backwards nf) ++ (0#1 ++ ((encdec_indexed_mop_forwards mop) ++ ((vm : (BitVec 1)) ++ ((encdec_vreg_forwards
+                      vs2) ++ ((encdec_reg_forwards rs1) ++ ((encdec_vlewidth_forwards width) ++ ((encdec_vreg_forwards
+                            vs3) ++ 0b0100111#7)))))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VLRETYPE (nf, rs1, width, vd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zve32x)) && (((vlewidth_pow_forwards width) ≤b 5) : Bool)) || ((← (currentlyEnabled
+                 Ext_Zve64x)) && (((vlewidth_pow_forwards width) ≤b 6) : Bool))) : Bool)
+      then
+        (pure ((encdec_nfields_pow2_backwards nf) ++ (0#1 ++ (0b00#2 ++ (1#1 ++ (0b01000#5 ++ ((encdec_reg_forwards
+                        rs1) ++ ((encdec_vlewidth_forwards width) ++ ((encdec_vreg_forwards vd) ++ 0b0000111#7)))))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VSRETYPE (nf, rs1, vs3) =>
+    (do
+      if ((← (currentlyEnabled Ext_Zve32x)) : Bool)
+      then
+        (pure ((encdec_nfields_pow2_backwards nf) ++ (0#1 ++ (0b00#2 ++ (1#1 ++ (0b01000#5 ++ ((encdec_reg_forwards
+                        rs1) ++ (0b000#3 ++ ((encdec_vreg_forwards vs3) ++ 0b0100111#7)))))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VMTYPE (rs1, vd_or_vs3, op) =>
+    (do
+      if ((← (currentlyEnabled Ext_Zve32x)) : Bool)
+      then
+        (pure (0b000#3 ++ (0#1 ++ (0b00#2 ++ (1#1 ++ (0b01011#5 ++ ((encdec_reg_forwards rs1) ++ (0b000#3 ++ ((encdec_vreg_forwards
+                            vd_or_vs3) ++ (encdec_lsop_forwards op))))))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .MMTYPE (funct6, vs2, vs1, vd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zve32x)) && (← do
+               (pure ((← (get_sew ())) ≤b 32)))) || ((← (currentlyEnabled Ext_Zve64x)) && (← do
+               (pure ((← (get_sew ())) ≤b 64))))) : Bool)
+      then
+        (pure ((encdec_mmfunct6_forwards funct6) ++ (1#1 ++ ((encdec_vreg_forwards vs2) ++ ((encdec_vreg_forwards
+                    vs1) ++ (0b010#3 ++ ((encdec_vreg_forwards vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VCPOP_M (vm, vs2, rd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zve32x)) && (← do
+               (pure ((← (get_sew ())) ≤b 32)))) || ((← (currentlyEnabled Ext_Zve64x)) && (← do
+               (pure ((← (get_sew ())) ≤b 64))))) : Bool)
+      then
+        (pure (0b010000#6 ++ ((vm : (BitVec 1)) ++ ((encdec_vreg_forwards vs2) ++ (0b10000#5 ++ (0b010#3 ++ ((encdec_reg_forwards
+                        rd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VFIRST_M (vm, vs2, rd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zve32x)) && (← do
+               (pure ((← (get_sew ())) ≤b 32)))) || ((← (currentlyEnabled Ext_Zve64x)) && (← do
+               (pure ((← (get_sew ())) ≤b 64))))) : Bool)
+      then
+        (pure (0b010000#6 ++ ((vm : (BitVec 1)) ++ ((encdec_vreg_forwards vs2) ++ (0b10001#5 ++ (0b010#3 ++ ((encdec_reg_forwards
+                        rd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VMSBF_M (vm, vs2, vd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zve32x)) && (← do
+               (pure ((← (get_sew ())) ≤b 32)))) || ((← (currentlyEnabled Ext_Zve64x)) && (← do
+               (pure ((← (get_sew ())) ≤b 64))))) : Bool)
+      then
+        (pure (0b010100#6 ++ ((vm : (BitVec 1)) ++ ((encdec_vreg_forwards vs2) ++ (0b00001#5 ++ (0b010#3 ++ ((encdec_vreg_forwards
+                        vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VMSIF_M (vm, vs2, vd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zve32x)) && (← do
+               (pure ((← (get_sew ())) ≤b 32)))) || ((← (currentlyEnabled Ext_Zve64x)) && (← do
+               (pure ((← (get_sew ())) ≤b 64))))) : Bool)
+      then
+        (pure (0b010100#6 ++ ((vm : (BitVec 1)) ++ ((encdec_vreg_forwards vs2) ++ (0b00011#5 ++ (0b010#3 ++ ((encdec_vreg_forwards
+                        vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VMSOF_M (vm, vs2, vd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zve32x)) && (← do
+               (pure ((← (get_sew ())) ≤b 32)))) || ((← (currentlyEnabled Ext_Zve64x)) && (← do
+               (pure ((← (get_sew ())) ≤b 64))))) : Bool)
+      then
+        (pure (0b010100#6 ++ ((vm : (BitVec 1)) ++ ((encdec_vreg_forwards vs2) ++ (0b00010#5 ++ (0b010#3 ++ ((encdec_vreg_forwards
+                        vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VIOTA_M (vm, vs2, vd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zve32x)) && (← do
+               (pure ((← (get_sew ())) ≤b 32)))) || ((← (currentlyEnabled Ext_Zve64x)) && (← do
+               (pure ((← (get_sew ())) ≤b 64))))) : Bool)
+      then
+        (pure (0b010100#6 ++ ((vm : (BitVec 1)) ++ ((encdec_vreg_forwards vs2) ++ (0b10000#5 ++ (0b010#3 ++ ((encdec_vreg_forwards
+                        vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VID_V (vm, vd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zve32x)) && (← do
+               (pure ((← (get_sew ())) ≤b 32)))) || ((← (currentlyEnabled Ext_Zve64x)) && (← do
+               (pure ((← (get_sew ())) ≤b 64))))) : Bool)
+      then
+        (pure (0b010100#6 ++ ((vm : (BitVec 1)) ++ (0b00000#5 ++ (0b10001#5 ++ (0b010#3 ++ ((encdec_vreg_forwards
+                        vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VVMTYPE (funct6, vs2, vs1, vd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zve32x)) && (← do
+               (pure ((← (get_sew ())) ≤b 32)))) || ((← (currentlyEnabled Ext_Zve64x)) && (← do
+               (pure ((← (get_sew ())) ≤b 64))))) : Bool)
+      then
+        (pure ((encdec_vvmfunct6_forwards funct6) ++ (0#1 ++ ((encdec_vreg_forwards vs2) ++ ((encdec_vreg_forwards
+                    vs1) ++ (0b000#3 ++ ((encdec_vreg_forwards vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VVMCTYPE (funct6, vs2, vs1, vd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zve32x)) && (← do
+               (pure ((← (get_sew ())) ≤b 32)))) || ((← (currentlyEnabled Ext_Zve64x)) && (← do
+               (pure ((← (get_sew ())) ≤b 64))))) : Bool)
+      then
+        (pure ((encdec_vvmcfunct6_forwards funct6) ++ (1#1 ++ ((encdec_vreg_forwards vs2) ++ ((encdec_vreg_forwards
+                    vs1) ++ (0b000#3 ++ ((encdec_vreg_forwards vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VVMSTYPE (funct6, vs2, vs1, vd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zve32x)) && (← do
+               (pure ((← (get_sew ())) ≤b 32)))) || ((← (currentlyEnabled Ext_Zve64x)) && (← do
+               (pure ((← (get_sew ())) ≤b 64))))) : Bool)
+      then
+        (pure ((encdec_vvmsfunct6_forwards funct6) ++ (0#1 ++ ((encdec_vreg_forwards vs2) ++ ((encdec_vreg_forwards
+                    vs1) ++ (0b000#3 ++ ((encdec_vreg_forwards vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VVCMPTYPE (funct6, vm, vs2, vs1, vd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zve32x)) && (← do
+               (pure ((← (get_sew ())) ≤b 32)))) || ((← (currentlyEnabled Ext_Zve64x)) && (← do
+               (pure ((← (get_sew ())) ≤b 64))))) : Bool)
+      then
+        (pure ((encdec_vvcmpfunct6_forwards funct6) ++ ((vm : (BitVec 1)) ++ ((encdec_vreg_forwards
+                  vs2) ++ ((encdec_vreg_forwards vs1) ++ (0b000#3 ++ ((encdec_vreg_forwards vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VXMTYPE (funct6, vs2, rs1, vd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zve32x)) && (← do
+               (pure ((← (get_sew ())) ≤b 32)))) || ((← (currentlyEnabled Ext_Zve64x)) && (← do
+               (pure ((← (get_sew ())) ≤b 64))))) : Bool)
+      then
+        (pure ((encdec_vxmfunct6_forwards funct6) ++ (0#1 ++ ((encdec_vreg_forwards vs2) ++ ((encdec_reg_forwards
+                    rs1) ++ (0b100#3 ++ ((encdec_vreg_forwards vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VXMCTYPE (funct6, vs2, rs1, vd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zve32x)) && (← do
+               (pure ((← (get_sew ())) ≤b 32)))) || ((← (currentlyEnabled Ext_Zve64x)) && (← do
+               (pure ((← (get_sew ())) ≤b 64))))) : Bool)
+      then
+        (pure ((encdec_vxmcfunct6_forwards funct6) ++ (1#1 ++ ((encdec_vreg_forwards vs2) ++ ((encdec_reg_forwards
+                    rs1) ++ (0b100#3 ++ ((encdec_vreg_forwards vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VXMSTYPE (funct6, vs2, rs1, vd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zve32x)) && (← do
+               (pure ((← (get_sew ())) ≤b 32)))) || ((← (currentlyEnabled Ext_Zve64x)) && (← do
+               (pure ((← (get_sew ())) ≤b 64))))) : Bool)
+      then
+        (pure ((encdec_vxmsfunct6_forwards funct6) ++ (0#1 ++ ((encdec_vreg_forwards vs2) ++ ((encdec_reg_forwards
+                    rs1) ++ (0b100#3 ++ ((encdec_vreg_forwards vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VXCMPTYPE (funct6, vm, vs2, rs1, vd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zve32x)) && (← do
+               (pure ((← (get_sew ())) ≤b 32)))) || ((← (currentlyEnabled Ext_Zve64x)) && (← do
+               (pure ((← (get_sew ())) ≤b 64))))) : Bool)
+      then
+        (pure ((encdec_vxcmpfunct6_forwards funct6) ++ ((vm : (BitVec 1)) ++ ((encdec_vreg_forwards
+                  vs2) ++ ((encdec_reg_forwards rs1) ++ (0b100#3 ++ ((encdec_vreg_forwards vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VIMTYPE (funct6, vs2, simm, vd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zve32x)) && (← do
+               (pure ((← (get_sew ())) ≤b 32)))) || ((← (currentlyEnabled Ext_Zve64x)) && (← do
+               (pure ((← (get_sew ())) ≤b 64))))) : Bool)
+      then
+        (pure ((encdec_vimfunct6_forwards funct6) ++ (0#1 ++ ((encdec_vreg_forwards vs2) ++ ((simm : (BitVec 5)) ++ (0b011#3 ++ ((encdec_vreg_forwards
+                        vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VIMCTYPE (funct6, vs2, simm, vd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zve32x)) && (← do
+               (pure ((← (get_sew ())) ≤b 32)))) || ((← (currentlyEnabled Ext_Zve64x)) && (← do
+               (pure ((← (get_sew ())) ≤b 64))))) : Bool)
+      then
+        (pure ((encdec_vimcfunct6_forwards funct6) ++ (1#1 ++ ((encdec_vreg_forwards vs2) ++ ((simm : (BitVec 5)) ++ (0b011#3 ++ ((encdec_vreg_forwards
+                        vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VIMSTYPE (funct6, vs2, simm, vd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zve32x)) && (← do
+               (pure ((← (get_sew ())) ≤b 32)))) || ((← (currentlyEnabled Ext_Zve64x)) && (← do
+               (pure ((← (get_sew ())) ≤b 64))))) : Bool)
+      then
+        (pure ((encdec_vimsfunct6_forwards funct6) ++ (0#1 ++ ((encdec_vreg_forwards vs2) ++ ((simm : (BitVec 5)) ++ (0b011#3 ++ ((encdec_vreg_forwards
+                        vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VICMPTYPE (funct6, vm, vs2, simm, vd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zve32x)) && (← do
+               (pure ((← (get_sew ())) ≤b 32)))) || ((← (currentlyEnabled Ext_Zve64x)) && (← do
+               (pure ((← (get_sew ())) ≤b 64))))) : Bool)
+      then
+        (pure ((encdec_vicmpfunct6_forwards funct6) ++ ((vm : (BitVec 1)) ++ ((encdec_vreg_forwards
+                  vs2) ++ ((simm : (BitVec 5)) ++ (0b011#3 ++ ((encdec_vreg_forwards vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .FVVMTYPE (funct6, vm, vs2, vs1, vd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zvfh)) && (← do
+               (pure ((← (get_sew ())) == 16)))) || (((← (currentlyEnabled Ext_Zve32f)) && (← do
+                 (pure ((← (get_sew ())) == 32)))) || ((← (currentlyEnabled Ext_Zve64d)) && (← do
+                 (pure ((← (get_sew ())) == 64)))))) : Bool)
+      then
+        (pure ((encdec_fvvmfunct6_forwards funct6) ++ ((vm : (BitVec 1)) ++ ((encdec_vreg_forwards
+                  vs2) ++ ((encdec_vreg_forwards vs1) ++ (0b001#3 ++ ((encdec_vreg_forwards vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .FVFMTYPE (funct6, vm, vs2, rs1, vd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zvfh)) && (← do
+               (pure ((← (get_sew ())) == 16)))) || (((← (currentlyEnabled Ext_Zve32f)) && (← do
+                 (pure ((← (get_sew ())) == 32)))) || ((← (currentlyEnabled Ext_Zve64d)) && (← do
+                 (pure ((← (get_sew ())) == 64)))))) : Bool)
+      then
+        (pure ((encdec_fvfmfunct6_forwards funct6) ++ ((vm : (BitVec 1)) ++ ((encdec_vreg_forwards
+                  vs2) ++ ((encdec_freg_forwards rs1) ++ (0b101#3 ++ ((encdec_vreg_forwards vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .RIVVTYPE (funct6, vm, vs2, vs1, vd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zve32x)) && (← do
+               (pure ((← (get_sew ())) ≤b 16)))) || ((← (currentlyEnabled Ext_Zve64x)) && (← do
+               (pure ((← (get_sew ())) ≤b 32))))) : Bool)
+      then
+        (pure ((encdec_rivvfunct6_forwards funct6) ++ ((vm : (BitVec 1)) ++ ((encdec_vreg_forwards
+                  vs2) ++ ((encdec_vreg_forwards vs1) ++ (0b000#3 ++ ((encdec_vreg_forwards vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .RMVVTYPE (funct6, vm, vs2, vs1, vd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zve32x)) && (← do
+               (pure ((← (get_sew ())) ≤b 32)))) || ((← (currentlyEnabled Ext_Zve64x)) && (← do
+               (pure ((← (get_sew ())) ≤b 64))))) : Bool)
+      then
+        (pure ((encdec_rmvvfunct6_forwards funct6) ++ ((vm : (BitVec 1)) ++ ((encdec_vreg_forwards
+                  vs2) ++ ((encdec_vreg_forwards vs1) ++ (0b010#3 ++ ((encdec_vreg_forwards vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .RFVVTYPE (funct6, vm, vs2, vs1, vd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zvfh)) && (← do
+               (pure ((← (get_sew ())) == 16)))) || (((← (currentlyEnabled Ext_Zve32f)) && (← do
+                 (pure ((← (get_sew ())) == 32)))) || ((← (currentlyEnabled Ext_Zve64d)) && (← do
+                 (pure ((← (get_sew ())) == 64)))))) : Bool)
+      then
+        (pure ((encdec_rfvvfunct6_forwards funct6) ++ ((vm : (BitVec 1)) ++ ((encdec_vreg_forwards
+                  vs2) ++ ((encdec_vreg_forwards vs1) ++ (0b001#3 ++ ((encdec_vreg_forwards vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .RFWVVTYPE (funct6, vm, vs2, vs1, vd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zvfh)) && (← do
+               (pure ((← (get_sew ())) == 16)))) || ((← (currentlyEnabled Ext_Zve64d)) && (← do
+               (pure ((← (get_sew ())) == 32))))) : Bool)
+      then
+        (pure ((encdec_rfwvvfunct6_forwards funct6) ++ ((vm : (BitVec 1)) ++ ((encdec_vreg_forwards
+                  vs2) ++ ((encdec_vreg_forwards vs1) ++ (0b001#3 ++ ((encdec_vreg_forwards vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .SHA256SUM0 (rs1, rd) =>
+    (do
+      if ((← (currentlyEnabled Ext_Zknh)) : Bool)
+      then
+        (pure (0b00#2 ++ (0b01000#5 ++ (0b00000#5 ++ ((encdec_reg_forwards rs1) ++ (0b001#3 ++ ((encdec_reg_forwards
+                        rd) ++ 0b0010011#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .SHA256SUM1 (rs1, rd) =>
+    (do
+      if ((← (currentlyEnabled Ext_Zknh)) : Bool)
+      then
+        (pure (0b00#2 ++ (0b01000#5 ++ (0b00001#5 ++ ((encdec_reg_forwards rs1) ++ (0b001#3 ++ ((encdec_reg_forwards
+                        rd) ++ 0b0010011#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .SHA256SIG0 (rs1, rd) =>
+    (do
+      if ((← (currentlyEnabled Ext_Zknh)) : Bool)
+      then
+        (pure (0b00#2 ++ (0b01000#5 ++ (0b00010#5 ++ ((encdec_reg_forwards rs1) ++ (0b001#3 ++ ((encdec_reg_forwards
+                        rd) ++ 0b0010011#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .SHA256SIG1 (rs1, rd) =>
+    (do
+      if ((← (currentlyEnabled Ext_Zknh)) : Bool)
+      then
+        (pure (0b00#2 ++ (0b01000#5 ++ (0b00011#5 ++ ((encdec_reg_forwards rs1) ++ (0b001#3 ++ ((encdec_reg_forwards
+                        rd) ++ 0b0010011#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .AES32ESMI (bs, rs2, rs1, rd) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zkne)) && (xlen == 32)) : Bool)
+      then
+        (pure ((bs : (BitVec 2)) ++ (0b10011#5 ++ ((encdec_reg_forwards rs2) ++ ((encdec_reg_forwards
+                    rs1) ++ (0b000#3 ++ ((encdec_reg_forwards rd) ++ 0b0110011#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .AES32ESI (bs, rs2, rs1, rd) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zkne)) && (xlen == 32)) : Bool)
+      then
+        (pure ((bs : (BitVec 2)) ++ (0b10001#5 ++ ((encdec_reg_forwards rs2) ++ ((encdec_reg_forwards
+                    rs1) ++ (0b000#3 ++ ((encdec_reg_forwards rd) ++ 0b0110011#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .AES32DSMI (bs, rs2, rs1, rd) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zknd)) && (xlen == 32)) : Bool)
+      then
+        (pure ((bs : (BitVec 2)) ++ (0b10111#5 ++ ((encdec_reg_forwards rs2) ++ ((encdec_reg_forwards
+                    rs1) ++ (0b000#3 ++ ((encdec_reg_forwards rd) ++ 0b0110011#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .AES32DSI (bs, rs2, rs1, rd) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zknd)) && (xlen == 32)) : Bool)
+      then
+        (pure ((bs : (BitVec 2)) ++ (0b10101#5 ++ ((encdec_reg_forwards rs2) ++ ((encdec_reg_forwards
+                    rs1) ++ (0b000#3 ++ ((encdec_reg_forwards rd) ++ 0b0110011#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .SHA512SUM0R (rs2, rs1, rd) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zknh)) && (xlen == 32)) : Bool)
+      then
+        (pure (0b01#2 ++ (0b01000#5 ++ ((encdec_reg_forwards rs2) ++ ((encdec_reg_forwards rs1) ++ (0b000#3 ++ ((encdec_reg_forwards
+                        rd) ++ 0b0110011#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .SHA512SUM1R (rs2, rs1, rd) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zknh)) && (xlen == 32)) : Bool)
+      then
+        (pure (0b01#2 ++ (0b01001#5 ++ ((encdec_reg_forwards rs2) ++ ((encdec_reg_forwards rs1) ++ (0b000#3 ++ ((encdec_reg_forwards
+                        rd) ++ 0b0110011#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .SHA512SIG0L (rs2, rs1, rd) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zknh)) && (xlen == 32)) : Bool)
+      then
+        (pure (0b01#2 ++ (0b01010#5 ++ ((encdec_reg_forwards rs2) ++ ((encdec_reg_forwards rs1) ++ (0b000#3 ++ ((encdec_reg_forwards
+                        rd) ++ 0b0110011#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .SHA512SIG0H (rs2, rs1, rd) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zknh)) && (xlen == 32)) : Bool)
+      then
+        (pure (0b01#2 ++ (0b01110#5 ++ ((encdec_reg_forwards rs2) ++ ((encdec_reg_forwards rs1) ++ (0b000#3 ++ ((encdec_reg_forwards
+                        rd) ++ 0b0110011#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .SHA512SIG1L (rs2, rs1, rd) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zknh)) && (xlen == 32)) : Bool)
+      then
+        (pure (0b01#2 ++ (0b01011#5 ++ ((encdec_reg_forwards rs2) ++ ((encdec_reg_forwards rs1) ++ (0b000#3 ++ ((encdec_reg_forwards
+                        rd) ++ 0b0110011#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .SHA512SIG1H (rs2, rs1, rd) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zknh)) && (xlen == 32)) : Bool)
+      then
+        (pure (0b01#2 ++ (0b01111#5 ++ ((encdec_reg_forwards rs2) ++ ((encdec_reg_forwards rs1) ++ (0b000#3 ++ ((encdec_reg_forwards
+                        rd) ++ 0b0110011#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .AES64KS1I (rnum, rs1, rd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zkne)) || (← (currentlyEnabled Ext_Zknd))) && ((xlen == 64) && (zopz0zI_u
+               rnum 0xB#4))) : Bool)
+      then
+        (pure (0b00#2 ++ (0b11000#5 ++ (1#1 ++ ((rnum : (BitVec 4)) ++ ((encdec_reg_forwards rs1) ++ (0b001#3 ++ ((encdec_reg_forwards
+                          rd) ++ 0b0010011#7))))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .AES64IM (rs1, rd) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zknd)) && (xlen == 64)) : Bool)
+      then
+        (pure (0b00#2 ++ (0b11000#5 ++ (0b00000#5 ++ ((encdec_reg_forwards rs1) ++ (0b001#3 ++ ((encdec_reg_forwards
+                        rd) ++ 0b0010011#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .AES64KS2 (rs2, rs1, rd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zkne)) || (← (currentlyEnabled Ext_Zknd))) && (xlen == 64)) : Bool)
+      then
+        (pure (0b01#2 ++ (0b11111#5 ++ ((encdec_reg_forwards rs2) ++ ((encdec_reg_forwards rs1) ++ (0b000#3 ++ ((encdec_reg_forwards
+                        rd) ++ 0b0110011#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .AES64ESM (rs2, rs1, rd) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zkne)) && (xlen == 64)) : Bool)
+      then
+        (pure (0b00#2 ++ (0b11011#5 ++ ((encdec_reg_forwards rs2) ++ ((encdec_reg_forwards rs1) ++ (0b000#3 ++ ((encdec_reg_forwards
+                        rd) ++ 0b0110011#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .AES64ES (rs2, rs1, rd) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zkne)) && (xlen == 64)) : Bool)
+      then
+        (pure (0b00#2 ++ (0b11001#5 ++ ((encdec_reg_forwards rs2) ++ ((encdec_reg_forwards rs1) ++ (0b000#3 ++ ((encdec_reg_forwards
+                        rd) ++ 0b0110011#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .AES64DSM (rs2, rs1, rd) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zknd)) && (xlen == 64)) : Bool)
+      then
+        (pure (0b00#2 ++ (0b11111#5 ++ ((encdec_reg_forwards rs2) ++ ((encdec_reg_forwards rs1) ++ (0b000#3 ++ ((encdec_reg_forwards
+                        rd) ++ 0b0110011#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .AES64DS (rs2, rs1, rd) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zknd)) && (xlen == 64)) : Bool)
+      then
+        (pure (0b00#2 ++ (0b11101#5 ++ ((encdec_reg_forwards rs2) ++ ((encdec_reg_forwards rs1) ++ (0b000#3 ++ ((encdec_reg_forwards
+                        rd) ++ 0b0110011#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .SHA512SUM0 (rs1, rd) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zknh)) && (xlen == 64)) : Bool)
+      then
+        (pure (0b00#2 ++ (0b01000#5 ++ (0b00100#5 ++ ((encdec_reg_forwards rs1) ++ (0b001#3 ++ ((encdec_reg_forwards
+                        rd) ++ 0b0010011#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .SHA512SUM1 (rs1, rd) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zknh)) && (xlen == 64)) : Bool)
+      then
+        (pure (0b00#2 ++ (0b01000#5 ++ (0b00101#5 ++ ((encdec_reg_forwards rs1) ++ (0b001#3 ++ ((encdec_reg_forwards
+                        rd) ++ 0b0010011#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .SHA512SIG0 (rs1, rd) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zknh)) && (xlen == 64)) : Bool)
+      then
+        (pure (0b00#2 ++ (0b01000#5 ++ (0b00110#5 ++ ((encdec_reg_forwards rs1) ++ (0b001#3 ++ ((encdec_reg_forwards
+                        rd) ++ 0b0010011#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .SHA512SIG1 (rs1, rd) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zknh)) && (xlen == 64)) : Bool)
+      then
+        (pure (0b00#2 ++ (0b01000#5 ++ (0b00111#5 ++ ((encdec_reg_forwards rs1) ++ (0b001#3 ++ ((encdec_reg_forwards
+                        rd) ++ 0b0010011#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .SM3P0 (rs1, rd) =>
+    (do
+      if ((← (currentlyEnabled Ext_Zksh)) : Bool)
+      then
+        (pure (0b00#2 ++ (0b01000#5 ++ (0b01000#5 ++ ((encdec_reg_forwards rs1) ++ (0b001#3 ++ ((encdec_reg_forwards
+                        rd) ++ 0b0010011#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .SM3P1 (rs1, rd) =>
+    (do
+      if ((← (currentlyEnabled Ext_Zksh)) : Bool)
+      then
+        (pure (0b00#2 ++ (0b01000#5 ++ (0b01001#5 ++ ((encdec_reg_forwards rs1) ++ (0b001#3 ++ ((encdec_reg_forwards
+                        rd) ++ 0b0010011#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .SM4ED (bs, rs2, rs1, rd) =>
+    (do
+      if ((← (currentlyEnabled Ext_Zksed)) : Bool)
+      then
+        (pure ((bs : (BitVec 2)) ++ (0b11000#5 ++ ((encdec_reg_forwards rs2) ++ ((encdec_reg_forwards
+                    rs1) ++ (0b000#3 ++ ((encdec_reg_forwards rd) ++ 0b0110011#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .SM4KS (bs, rs2, rs1, rd) =>
+    (do
+      if ((← (currentlyEnabled Ext_Zksed)) : Bool)
+      then
+        (pure ((bs : (BitVec 2)) ++ (0b11010#5 ++ ((encdec_reg_forwards rs2) ++ ((encdec_reg_forwards
+                    rs1) ++ (0b000#3 ++ ((encdec_reg_forwards rd) ++ 0b0110011#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .ZBKB_RTYPE (rs2, rs1, rd, PACK) =>
+    (do
+      if ((← (currentlyEnabled Ext_Zbkb)) : Bool)
+      then
+        (pure (0b0000100#7 ++ ((encdec_reg_forwards rs2) ++ ((encdec_reg_forwards rs1) ++ (0b100#3 ++ ((encdec_reg_forwards
+                      rd) ++ 0b0110011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .ZBKB_RTYPE (rs2, rs1, rd, PACKH) =>
+    (do
+      if ((← (currentlyEnabled Ext_Zbkb)) : Bool)
+      then
+        (pure (0b0000100#7 ++ ((encdec_reg_forwards rs2) ++ ((encdec_reg_forwards rs1) ++ (0b111#3 ++ ((encdec_reg_forwards
+                      rd) ++ 0b0110011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .ZBKB_PACKW (rs2, rs1, rd) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zbkb)) && (xlen == 64)) : Bool)
+      then
+        (pure (0b0000100#7 ++ ((encdec_reg_forwards rs2) ++ ((encdec_reg_forwards rs1) ++ (0b100#3 ++ ((encdec_reg_forwards
+                      rd) ++ 0b0111011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .ZIP (rs1, rd) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zbkb)) && (xlen == 32)) : Bool)
+      then
+        (pure (0b000010001111#12 ++ ((encdec_reg_forwards rs1) ++ (0b001#3 ++ ((encdec_reg_forwards
+                    rd) ++ 0b0010011#7)))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .UNZIP (rs1, rd) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zbkb)) && (xlen == 32)) : Bool)
+      then
+        (pure (0b000010001111#12 ++ ((encdec_reg_forwards rs1) ++ (0b101#3 ++ ((encdec_reg_forwards
+                    rd) ++ 0b0010011#7)))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .BREV8 (rs1, rd) =>
+    (do
+      if ((← (currentlyEnabled Ext_Zbkb)) : Bool)
+      then
+        (pure (0b011010000111#12 ++ ((encdec_reg_forwards rs1) ++ (0b101#3 ++ ((encdec_reg_forwards
+                    rd) ++ 0b0010011#7)))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .XPERM8 (rs2, rs1, rd) =>
+    (do
+      if ((← (currentlyEnabled Ext_Zbkx)) : Bool)
+      then
+        (pure (0b0010100#7 ++ ((encdec_reg_forwards rs2) ++ ((encdec_reg_forwards rs1) ++ (0b100#3 ++ ((encdec_reg_forwards
+                      rd) ++ 0b0110011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .XPERM4 (rs2, rs1, rd) =>
+    (do
+      if ((← (currentlyEnabled Ext_Zbkx)) : Bool)
+      then
+        (pure (0b0010100#7 ++ ((encdec_reg_forwards rs2) ++ ((encdec_reg_forwards rs1) ++ (0b010#3 ++ ((encdec_reg_forwards
+                      rd) ++ 0b0110011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VANDN_VV (vm, vs1, vs2, vd) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zvkb)) && (← do
+             (pure (((← (get_sew ())) ≤b 32) || (← do
+                   (pure (((← (get_sew ())) == 64) && (← (currentlyEnabled Ext_Zve64x))))))))) : Bool)
+      then
+        (pure (0b000001#6 ++ ((vm : (BitVec 1)) ++ ((encdec_vreg_forwards vs2) ++ ((encdec_vreg_forwards
+                    vs1) ++ (0b000#3 ++ ((encdec_vreg_forwards vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VANDN_VX (vm, vs2, rs1, vd) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zvkb)) && (← do
+             (pure (((← (get_sew ())) ≤b 32) || (← do
+                   (pure (((← (get_sew ())) == 64) && (← (currentlyEnabled Ext_Zve64x))))))))) : Bool)
+      then
+        (pure (0b000001#6 ++ ((vm : (BitVec 1)) ++ ((encdec_vreg_forwards vs2) ++ ((encdec_reg_forwards
+                    rs1) ++ (0b100#3 ++ ((encdec_vreg_forwards vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VBREV_V (vm, vs2, vd) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zvbb)) && (← do
+             (pure (((← (get_sew ())) ≤b 32) || (← do
+                   (pure (((← (get_sew ())) == 64) && (← (currentlyEnabled Ext_Zve64x))))))))) : Bool)
+      then
+        (pure (0b010010#6 ++ ((vm : (BitVec 1)) ++ ((encdec_vreg_forwards vs2) ++ (0b01010#5 ++ (0b010#3 ++ ((encdec_vreg_forwards
+                        vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VBREV8_V (vm, vs2, vd) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zvkb)) && (← do
+             (pure (((← (get_sew ())) ≤b 32) || (← do
+                   (pure (((← (get_sew ())) == 64) && (← (currentlyEnabled Ext_Zve64x))))))))) : Bool)
+      then
+        (pure (0b010010#6 ++ ((vm : (BitVec 1)) ++ ((encdec_vreg_forwards vs2) ++ (0b01000#5 ++ (0b010#3 ++ ((encdec_vreg_forwards
+                        vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VREV8_V (vm, vs2, vd) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zvkb)) && (← do
+             (pure (((← (get_sew ())) ≤b 32) || (← do
+                   (pure (((← (get_sew ())) == 64) && (← (currentlyEnabled Ext_Zve64x))))))))) : Bool)
+      then
+        (pure (0b010010#6 ++ ((vm : (BitVec 1)) ++ ((encdec_vreg_forwards vs2) ++ (0b01001#5 ++ (0b010#3 ++ ((encdec_vreg_forwards
+                        vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VCLZ_V (vm, vs2, vd) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zvbb)) && (← do
+             (pure (((← (get_sew ())) ≤b 32) || (← do
+                   (pure (((← (get_sew ())) == 64) && (← (currentlyEnabled Ext_Zve64x))))))))) : Bool)
+      then
+        (pure (0b010010#6 ++ ((vm : (BitVec 1)) ++ ((encdec_vreg_forwards vs2) ++ (0b01100#5 ++ (0b010#3 ++ ((encdec_vreg_forwards
+                        vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VCTZ_V (vm, vs2, vd) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zvbb)) && (← do
+             (pure (((← (get_sew ())) ≤b 32) || (← do
+                   (pure (((← (get_sew ())) == 64) && (← (currentlyEnabled Ext_Zve64x))))))))) : Bool)
+      then
+        (pure (0b010010#6 ++ ((vm : (BitVec 1)) ++ ((encdec_vreg_forwards vs2) ++ (0b01101#5 ++ (0b010#3 ++ ((encdec_vreg_forwards
+                        vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VCPOP_V (vm, vs2, vd) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zvbb)) && (← do
+             (pure (((← (get_sew ())) ≤b 32) || (← do
+                   (pure (((← (get_sew ())) == 64) && (← (currentlyEnabled Ext_Zve64x))))))))) : Bool)
+      then
+        (pure (0b010010#6 ++ ((vm : (BitVec 1)) ++ ((encdec_vreg_forwards vs2) ++ (0b01110#5 ++ (0b010#3 ++ ((encdec_vreg_forwards
+                        vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VROL_VV (vm, vs1, vs2, vd) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zvkb)) && (← do
+             (pure (((← (get_sew ())) ≤b 32) || (← do
+                   (pure (((← (get_sew ())) == 64) && (← (currentlyEnabled Ext_Zve64x))))))))) : Bool)
+      then
+        (pure (0b010101#6 ++ ((vm : (BitVec 1)) ++ ((encdec_vreg_forwards vs2) ++ ((encdec_vreg_forwards
+                    vs1) ++ (0b000#3 ++ ((encdec_vreg_forwards vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VROL_VX (vm, vs2, rs1, vd) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zvkb)) && (← do
+             (pure (((← (get_sew ())) ≤b 32) || (← do
+                   (pure (((← (get_sew ())) == 64) && (← (currentlyEnabled Ext_Zve64x))))))))) : Bool)
+      then
+        (pure (0b010101#6 ++ ((vm : (BitVec 1)) ++ ((encdec_vreg_forwards vs2) ++ ((encdec_reg_forwards
+                    rs1) ++ (0b100#3 ++ ((encdec_vreg_forwards vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VROR_VV (vm, vs1, vs2, vd) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zvkb)) && (← do
+             (pure (((← (get_sew ())) ≤b 32) || (← do
+                   (pure (((← (get_sew ())) == 64) && (← (currentlyEnabled Ext_Zve64x))))))))) : Bool)
+      then
+        (pure (0b010100#6 ++ ((vm : (BitVec 1)) ++ ((encdec_vreg_forwards vs2) ++ ((encdec_vreg_forwards
+                    vs1) ++ (0b000#3 ++ ((encdec_vreg_forwards vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VROR_VX (vm, vs2, rs1, vd) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zvkb)) && (← do
+             (pure (((← (get_sew ())) ≤b 32) || (← do
+                   (pure (((← (get_sew ())) == 64) && (← (currentlyEnabled Ext_Zve64x))))))))) : Bool)
+      then
+        (pure (0b010100#6 ++ ((vm : (BitVec 1)) ++ ((encdec_vreg_forwards vs2) ++ ((encdec_reg_forwards
+                    rs1) ++ (0b100#3 ++ ((encdec_vreg_forwards vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VROR_VI (vm, vs2, uimm, vd) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zvkb)) && (← do
+             (pure (((← (get_sew ())) ≤b 32) || (← do
+                   (pure (((← (get_sew ())) == 64) && (← (currentlyEnabled Ext_Zve64x))))))))) : Bool)
+      then
+        (pure (0b01010#5 ++ ((Sail.BitVec.extractLsb uimm 5 5) ++ ((vm : (BitVec 1)) ++ ((encdec_vreg_forwards
+                    vs2) ++ ((Sail.BitVec.extractLsb uimm 4 0) ++ (0b011#3 ++ ((encdec_vreg_forwards
+                          vd) ++ 0b1010111#7))))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VWSLL_VV (vm, vs2, vs1, vd) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zvbb)) && (← do
+             (pure (((← (get_sew ())) ≤b 32) || (← do
+                   (pure (((← (get_sew ())) == 64) && (← (currentlyEnabled Ext_Zve64x))))))))) : Bool)
+      then
+        (pure (0b110101#6 ++ ((vm : (BitVec 1)) ++ ((encdec_vreg_forwards vs2) ++ ((encdec_vreg_forwards
+                    vs1) ++ (0b000#3 ++ ((encdec_vreg_forwards vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VWSLL_VX (vm, vs2, rs1, vd) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zvbb)) && (← do
+             (pure (((← (get_sew ())) ≤b 32) || (← do
+                   (pure (((← (get_sew ())) == 64) && (← (currentlyEnabled Ext_Zve64x))))))))) : Bool)
+      then
+        (pure (0b110101#6 ++ ((vm : (BitVec 1)) ++ ((encdec_vreg_forwards vs2) ++ ((encdec_reg_forwards
+                    rs1) ++ (0b100#3 ++ ((encdec_vreg_forwards vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VWSLL_VI (vm, vs2, uimm, vd) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zvbb)) && (← do
+             (pure (((← (get_sew ())) ≤b 32) || (← do
+                   (pure (((← (get_sew ())) == 64) && (← (currentlyEnabled Ext_Zve64x))))))))) : Bool)
+      then
+        (pure (0b110101#6 ++ ((vm : (BitVec 1)) ++ ((encdec_vreg_forwards vs2) ++ ((uimm : (BitVec 5)) ++ (0b011#3 ++ ((encdec_vreg_forwards
+                        vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VCLMUL_VV (vm, vs2, vs1, vd) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zvbc)) && (← do
+             (pure ((← (get_sew ())) == 64)))) : Bool)
+      then
+        (pure (0b001100#6 ++ ((vm : (BitVec 1)) ++ ((encdec_vreg_forwards vs2) ++ ((encdec_vreg_forwards
+                    vs1) ++ (0b010#3 ++ ((encdec_vreg_forwards vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VCLMUL_VX (vm, vs2, rs1, vd) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zvbc)) && (← do
+             (pure ((← (get_sew ())) == 64)))) : Bool)
+      then
+        (pure (0b001100#6 ++ ((vm : (BitVec 1)) ++ ((encdec_vreg_forwards vs2) ++ ((encdec_reg_forwards
+                    rs1) ++ (0b110#3 ++ ((encdec_vreg_forwards vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VCLMULH_VV (vm, vs2, vs1, vd) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zvbc)) && (← do
+             (pure ((← (get_sew ())) == 64)))) : Bool)
+      then
+        (pure (0b001101#6 ++ ((vm : (BitVec 1)) ++ ((encdec_vreg_forwards vs2) ++ ((encdec_vreg_forwards
+                    vs1) ++ (0b010#3 ++ ((encdec_vreg_forwards vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VCLMULH_VX (vm, vs2, rs1, vd) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zvbc)) && (← do
+             (pure ((← (get_sew ())) == 64)))) : Bool)
+      then
+        (pure (0b001101#6 ++ ((vm : (BitVec 1)) ++ ((encdec_vreg_forwards vs2) ++ ((encdec_reg_forwards
+                    rs1) ++ (0b110#3 ++ ((encdec_vreg_forwards vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VGHSH_VV (vs2, vs1, vd) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zvkg)) && (← do
+             (pure (((← (get_sew ())) == 32) && (← (zvk_check_encdec 128 4)))))) : Bool)
+      then
+        (pure (0b1011001#7 ++ ((encdec_vreg_forwards vs2) ++ ((encdec_vreg_forwards vs1) ++ (0b010#3 ++ ((encdec_vreg_forwards
+                      vd) ++ 0b1110111#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VGMUL_VV (vs2, vd) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zvkg)) && (← do
+             (pure (((← (get_sew ())) == 32) && (← (zvk_check_encdec 128 4)))))) : Bool)
+      then
+        (pure (0b1010001#7 ++ ((encdec_vreg_forwards vs2) ++ (0b10001#5 ++ (0b010#3 ++ ((encdec_vreg_forwards
+                      vd) ++ 0b1110111#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VAESDF (funct6, vs2, vd) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zvkned)) && (← do
+             (pure (((← (get_sew ())) == 32) && ((← (zvk_check_encdec 128 4)) && ((funct6 == ZVK_VAESDF_VV) || (zvk_valid_reg_overlap
+                       vs2 vd (← (get_lmul_pow ()))))))))) : Bool)
+      then
+        (pure ((encdec_vaesdf_forwards funct6) ++ (1#1 ++ ((encdec_vreg_forwards vs2) ++ (0b00001#5 ++ (0b010#3 ++ ((encdec_vreg_forwards
+                        vd) ++ 0b1110111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VAESDM (funct6, vs2, vd) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zvkned)) && (← do
+             (pure (((← (get_sew ())) == 32) && ((← (zvk_check_encdec 128 4)) && ((funct6 == ZVK_VAESDM_VV) || (zvk_valid_reg_overlap
+                       vs2 vd (← (get_lmul_pow ()))))))))) : Bool)
+      then
+        (pure ((encdec_vaesdm_forwards funct6) ++ (1#1 ++ ((encdec_vreg_forwards vs2) ++ (0b00000#5 ++ (0b010#3 ++ ((encdec_vreg_forwards
+                        vd) ++ 0b1110111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VAESEF (funct6, vs2, vd) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zvkned)) && (← do
+             (pure (((← (get_sew ())) == 32) && ((← (zvk_check_encdec 128 4)) && ((funct6 == ZVK_VAESEF_VV) || (zvk_valid_reg_overlap
+                       vs2 vd (← (get_lmul_pow ()))))))))) : Bool)
+      then
+        (pure ((encdec_vaesef_forwards funct6) ++ (1#1 ++ ((encdec_vreg_forwards vs2) ++ (0b00011#5 ++ (0b010#3 ++ ((encdec_vreg_forwards
+                        vd) ++ 0b1110111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VAESEM (funct6, vs2, vd) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zvkned)) && (← do
+             (pure (((← (get_sew ())) == 32) && ((← (zvk_check_encdec 128 4)) && ((funct6 == ZVK_VAESEM_VV) || (zvk_valid_reg_overlap
+                       vs2 vd (← (get_lmul_pow ()))))))))) : Bool)
+      then
+        (pure ((encdec_vaesem_forwards funct6) ++ (1#1 ++ ((encdec_vreg_forwards vs2) ++ (0b00010#5 ++ (0b010#3 ++ ((encdec_vreg_forwards
+                        vd) ++ 0b1110111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VAESKF1_VI (vs2, rnd, vd) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zvkned)) && (← do
+             (pure (((← (get_sew ())) == 32) && (← (zvk_check_encdec 128 4)))))) : Bool)
+      then
+        (pure (0b1000101#7 ++ ((encdec_vreg_forwards vs2) ++ ((rnd : (BitVec 5)) ++ (0b010#3 ++ ((encdec_vreg_forwards
+                      vd) ++ 0b1110111#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VAESKF2_VI (vs2, rnd, vd) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zvkned)) && (← do
+             (pure (((← (get_sew ())) == 32) && (← (zvk_check_encdec 128 4)))))) : Bool)
+      then
+        (pure (0b101010#6 ++ (1#1 ++ ((encdec_vreg_forwards vs2) ++ ((rnd : (BitVec 5)) ++ (0b010#3 ++ ((encdec_vreg_forwards
+                        vd) ++ 0b1110111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VAESZ_VS (vs2, vd) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zvkned)) && (← do
+             (pure (((← (get_sew ())) == 32) && ((← (zvk_check_encdec 128 4)) && (zvk_valid_reg_overlap
+                     vs2 vd (← (get_lmul_pow ())))))))) : Bool)
+      then
+        (pure (0b101001#6 ++ (1#1 ++ ((encdec_vreg_forwards vs2) ++ (0b00111#5 ++ (0b010#3 ++ ((encdec_vreg_forwards
+                        vd) ++ 0b1110111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VSM4K_VI (vs2, uimm, vd) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zvksed)) && (← do
+             (pure (((← (get_sew ())) == 32) && (← (zvk_check_encdec 128 4)))))) : Bool)
+      then
+        (pure (0b100001#6 ++ (1#1 ++ ((encdec_vreg_forwards vs2) ++ ((uimm : (BitVec 5)) ++ (0b010#3 ++ ((encdec_vreg_forwards
+                        vd) ++ 0b1110111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .ZVKSM4RTYPE (ZVK_VSM4R_VV, vs2, vd) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zvksed)) && (← do
+             (pure (((← (get_sew ())) == 32) && (← (zvk_check_encdec 128 4)))))) : Bool)
+      then
+        (pure (0b101000#6 ++ (1#1 ++ ((encdec_vreg_forwards vs2) ++ (0b10000#5 ++ (0b010#3 ++ ((encdec_vreg_forwards
+                        vd) ++ 0b1110111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .ZVKSM4RTYPE (ZVK_VSM4R_VS, vs2, vd) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zvksed)) && (← do
+             (pure (((← (get_sew ())) == 32) && ((← (zvk_check_encdec 128 4)) && (zvk_valid_reg_overlap
+                     vs2 vd (← (get_lmul_pow ())))))))) : Bool)
+      then
+        (pure (0b101001#6 ++ (1#1 ++ ((encdec_vreg_forwards vs2) ++ (0b10000#5 ++ (0b010#3 ++ ((encdec_vreg_forwards
+                        vd) ++ 0b1110111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VSHA2MS_VV (vs2, vs1, vd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zvknha)) && (← do
+               (pure ((← (get_sew ())) == 32)))) || (((← (currentlyEnabled Ext_Zvknhb)) && (← do
+                 (pure (((← (get_sew ())) == 32) || (← do
+                       (pure ((← (get_sew ())) == 64))))))) && (← (zvknhab_check_encdec vs2 vs1
+                 vd)))) : Bool)
+      then
+        (pure (0b101101#6 ++ (1#1 ++ ((encdec_vreg_forwards vs2) ++ ((encdec_vreg_forwards vs1) ++ (0b010#3 ++ ((encdec_vreg_forwards
+                        vd) ++ 0b1110111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .ZVKSHA2TYPE (funct6, vs2, vs1, vd) =>
+    (do
+      if ((((← (currentlyEnabled Ext_Zvknha)) && (← do
+               (pure ((← (get_sew ())) == 32)))) || (((← (currentlyEnabled Ext_Zvknhb)) && (← do
+                 (pure (((← (get_sew ())) == 32) || (← do
+                       (pure ((← (get_sew ())) == 64))))))) && (← (zvknhab_check_encdec vs2 vs1
+                 vd)))) : Bool)
+      then
+        (pure ((encdec_vsha2_forwards funct6) ++ (1#1 ++ ((encdec_vreg_forwards vs2) ++ ((encdec_vreg_forwards
+                    vs1) ++ (0b010#3 ++ ((encdec_vreg_forwards vd) ++ 0b1110111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VSM3ME_VV (vs2, vs1, vd) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zvksh)) && (← do
+             (pure (((← (get_sew ())) == 32) && ((← (zvk_check_encdec 256 8)) && (zvk_valid_reg_overlap
+                     vs2 vd (← (get_lmul_pow ())))))))) : Bool)
+      then
+        (pure (0b100000#6 ++ (1#1 ++ ((encdec_vreg_forwards vs2) ++ ((encdec_vreg_forwards vs1) ++ (0b010#3 ++ ((encdec_vreg_forwards
+                        vd) ++ 0b1110111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VSM3C_VI (vs2, uimm, vd) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zvksh)) && (← do
+             (pure (((← (get_sew ())) == 32) && ((← (zvk_check_encdec 256 8)) && (zvk_valid_reg_overlap
+                     vs2 vd (← (get_lmul_pow ())))))))) : Bool)
+      then
+        (pure (0b1010111#7 ++ ((encdec_vreg_forwards vs2) ++ ((uimm : (BitVec 5)) ++ (0b010#3 ++ ((encdec_vreg_forwards
+                      vd) ++ 0b1110111#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .CSRReg (csr, rs1, rd, op) =>
+    (do
+      if ((← (currentlyEnabled Ext_Zicsr)) : Bool)
+      then
+        (pure ((csr : (BitVec 12)) ++ ((encdec_reg_forwards rs1) ++ (0#1 ++ ((encdec_csrop_forwards
+                    op) ++ ((encdec_reg_forwards rd) ++ 0b1110011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .CSRImm (csr, imm, rd, op) =>
+    (do
+      if ((← (currentlyEnabled Ext_Zicsr)) : Bool)
+      then
+        (pure ((csr : (BitVec 12)) ++ ((imm : (BitVec 5)) ++ (1#1 ++ ((encdec_csrop_forwards op) ++ ((encdec_reg_forwards
+                      rd) ++ 0b1110011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .SINVAL_VMA (rs1, rs2) =>
+    (do
+      if ((← (currentlyEnabled Ext_Svinval)) : Bool)
+      then
+        (pure (0b0001011#7 ++ ((encdec_reg_forwards rs2) ++ ((encdec_reg_forwards rs1) ++ (0b000#3 ++ (0b00000#5 ++ 0b1110011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .SFENCE_W_INVAL () =>
+    (do
+      if ((← (currentlyEnabled Ext_Svinval)) : Bool)
+      then
+        (pure (0b0001100#7 ++ (0b00000#5 ++ (0b00000#5 ++ (0b000#3 ++ (0b00000#5 ++ 0b1110011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .SFENCE_INVAL_IR () =>
+    (do
+      if ((← (currentlyEnabled Ext_Svinval)) : Bool)
+      then
+        (pure (0b0001100#7 ++ (0b00001#5 ++ (0b00000#5 ++ (0b000#3 ++ (0b00000#5 ++ 0b1110011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .WRS op =>
+    (do
+      if ((← (currentlyEnabled Ext_Zawrs)) : Bool)
+      then
+        (pure ((encdec_wrsop_forwards op) ++ (0b00000#5 ++ (0b000#3 ++ (0b00000#5 ++ 0b1110011#7)))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .ZICOND_RTYPE (rs2, rs1, rd, op) =>
+    (do
+      if ((← (currentlyEnabled Ext_Zicond)) : Bool)
+      then
+        (pure (0b0000111#7 ++ ((encdec_reg_forwards rs2) ++ ((encdec_reg_forwards rs1) ++ ((encdec_zicondop_forwards
+                    op) ++ ((encdec_reg_forwards rd) ++ 0b0110011#7))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .ZICBOM (cbop, rs1) =>
+    (do
+      if ((← (currentlyEnabled Ext_Zicbom)) : Bool)
+      then
+        (pure ((encdec_cbop_forwards cbop) ++ ((encdec_reg_forwards rs1) ++ (0b010#3 ++ (0b00000#5 ++ 0b0001111#7)))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .ZICBOZ rs1 =>
+    (do
+      if ((← (currentlyEnabled Ext_Zicboz)) : Bool)
+      then
+        (pure (0b000000000100#12 ++ ((encdec_reg_forwards rs1) ++ (0b010#3 ++ (0b00000#5 ++ 0b0001111#7)))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .FENCEI (imm, rs, rd) =>
+    (pure ((imm : (BitVec 12)) ++ ((encdec_reg_forwards rs) ++ (0b001#3 ++ ((encdec_reg_forwards rd) ++ 0b0001111#7)))))
+  | .FCVT_BF16_S (rs1, rm, rd) =>
+    (do
+      if ((← (currentlyEnabled Ext_Zfbfmin)) : Bool)
+      then
+        (pure (0b01000#5 ++ (0b10#2 ++ (0b01000#5 ++ ((encdec_freg_forwards rs1) ++ ((encdec_rounding_mode_forwards
+                      rm) ++ ((encdec_freg_forwards rd) ++ 0b1010011#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .FCVT_S_BF16 (rs1, rm, rd) =>
+    (do
+      if ((← (currentlyEnabled Ext_Zfbfmin)) : Bool)
+      then
+        (pure (0b01000#5 ++ (0b00#2 ++ (0b00110#5 ++ ((encdec_freg_forwards rs1) ++ ((encdec_rounding_mode_forwards
+                      rm) ++ ((encdec_freg_forwards rd) ++ 0b1010011#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VFNCVTBF16_F_F_W (vm, vs2, vd) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zvfbfmin)) && (← do
+             (pure ((← (get_sew ())) == 16)))) : Bool)
+      then
+        (pure (0b010010#6 ++ ((vm : (BitVec 1)) ++ ((encdec_vreg_forwards vs2) ++ (0b11101#5 ++ (0b001#3 ++ ((encdec_vreg_forwards
+                        vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VFWCVTBF16_F_F_V (vm, vs2, vd) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zvfbfmin)) && (← do
+             (pure ((← (get_sew ())) == 16)))) : Bool)
+      then
+        (pure (0b010010#6 ++ ((vm : (BitVec 1)) ++ ((encdec_vreg_forwards vs2) ++ (0b01101#5 ++ (0b001#3 ++ ((encdec_vreg_forwards
+                        vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VFWMACCBF16_VV (vm, vs2, vs1, vd) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zvfbfwma)) && (← do
+             (pure ((← (get_sew ())) == 16)))) : Bool)
+      then
+        (pure (0b111011#6 ++ ((vm : (BitVec 1)) ++ ((encdec_vreg_forwards vs2) ++ ((encdec_vreg_forwards
+                    vs1) ++ (0b001#3 ++ ((encdec_vreg_forwards vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .VFWMACCBF16_VF (vm, vs2, rs1, vd) =>
+    (do
+      if (((← (currentlyEnabled Ext_Zvfbfwma)) && (← do
+             (pure ((← (get_sew ())) == 16)))) : Bool)
+      then
+        (pure (0b111011#6 ++ ((vm : (BitVec 1)) ++ ((encdec_vreg_forwards vs2) ++ ((encdec_freg_forwards
+                    rs1) ++ (0b101#3 ++ ((encdec_vreg_forwards vd) ++ 0b1010111#7)))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .ZIMOP_MOP_R (v__18, rs1, rd) =>
+    (do
+      if ((← (currentlyEnabled Ext_Zimop)) : Bool)
+      then
+        (let mop_30 : (BitVec 1) := (Sail.BitVec.extractLsb v__18 4 4)
+        let mop_30 : (BitVec 1) := (Sail.BitVec.extractLsb v__18 4 4)
+        let mop_27_26 : (BitVec 2) := (Sail.BitVec.extractLsb v__18 3 2)
+        let mop_21_20 : (BitVec 2) := (Sail.BitVec.extractLsb v__18 1 0)
+        (pure (1#1 ++ ((mop_30 : (BitVec 1)) ++ (0b00#2 ++ ((mop_27_26 : (BitVec 2)) ++ (0b0111#4 ++ ((mop_21_20 : (BitVec 2)) ++ ((encdec_reg_forwards
+                          rs1) ++ (0b100#3 ++ ((encdec_reg_forwards rd) ++ 0b1110011#7)))))))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .ZIMOP_MOP_RR (v__19, rs2, rs1, rd) =>
+    (do
+      if ((← (currentlyEnabled Ext_Zimop)) : Bool)
+      then
+        (let mop_30 : (BitVec 1) := (Sail.BitVec.extractLsb v__19 2 2)
+        let mop_30 : (BitVec 1) := (Sail.BitVec.extractLsb v__19 2 2)
+        let mop_27_26 : (BitVec 2) := (Sail.BitVec.extractLsb v__19 1 0)
+        (pure (1#1 ++ ((mop_30 : (BitVec 1)) ++ (0b00#2 ++ ((mop_27_26 : (BitVec 2)) ++ (1#1 ++ ((encdec_reg_forwards
+                        rs2) ++ ((encdec_reg_forwards rs1) ++ (0b100#3 ++ ((encdec_reg_forwards rd) ++ 0b1110011#7)))))))))))
+      else
+        (do
+          assert false "Pattern match failure at unknown location"
+          throw Error.Exit))
+  | .ILLEGAL s => (pure s)
+  | _ =>
+    (do
+      assert false "Pattern match failure at unknown location"
+      throw Error.Exit)
+
+def instruction_to_str (insn : instruction) : SailM String := do
+  if ((assembly_forwards_matches insn) : Bool)
+  then (assembly_forwards insn)
+  else (pure (HAppend.hAppend ".insn " (BitVec.toFormatted (← (encdec_forwards insn)))))
+
+def interruptType_to_str (i : InterruptType) : String :=
+  match i with
+  | I_U_Software => "user-software-interrupt"
+  | I_S_Software => "supervisor-software-interrupt"
+  | I_M_Software => "machine-software-interrupt"
+  | I_U_Timer => "user-timer-interrupt"
+  | I_S_Timer => "supervisor-timer-interrupt"
+  | I_M_Timer => "machine-timer-interrupt"
+  | I_U_External => "user-external-interrupt"
+  | I_S_External => "supervisor-external-interrupt"
+  | I_M_External => "machine-external-interrupt"
+
+def misaligned_fault_str_backwards (arg_ : String) : SailM misaligned_fault := do
+  match arg_ with
+  | "NoFault" => (pure NoFault)
+  | "AccessFault" => (pure AccessFault)
+  | "AlignmentFault" => (pure AlignmentFault)
+  | _ =>
+    (do
+      assert false "Pattern match failure at unknown location"
+      throw Error.Exit)
+
+def misaligned_fault_str_forwards (arg_ : misaligned_fault) : String :=
+  match arg_ with
+  | NoFault => "NoFault"
+  | AccessFault => "AccessFault"
+  | AlignmentFault => "AlignmentFault"
+
+def reservability_str_forwards (arg_ : Reservability) : String :=
+  match arg_ with
+  | RsrvNone => "RsrvNone"
+  | RsrvNonEventual => "RsrvNonEventual"
+  | RsrvEventual => "RsrvEventual"
+
+def pma_attributes_to_str (attr : PMA) : String :=
+  (HAppend.hAppend
+    (if (attr.cacheable : Bool)
+    then " cacheable"
+    else "")
+    (HAppend.hAppend
+      (if (attr.coherent : Bool)
+      then " coherent"
+      else "")
+      (HAppend.hAppend
+        (if (attr.executable : Bool)
+        then " executable"
+        else "")
+        (HAppend.hAppend
+          (if (attr.readable : Bool)
+          then " readable"
+          else "")
+          (HAppend.hAppend
+            (if (attr.writable : Bool)
+            then " writable"
+            else "")
+            (HAppend.hAppend
+              (if (attr.read_idempotent : Bool)
+              then " read-idempotent"
+              else "")
+              (HAppend.hAppend
+                (if (attr.write_idempotent : Bool)
+                then " write-idempotent"
+                else "")
+                (HAppend.hAppend " misaligned_fault:"
+                  (HAppend.hAppend (misaligned_fault_str_forwards attr.misaligned_fault)
+                    (HAppend.hAppend " "
+                      (HAppend.hAppend (reservability_str_forwards attr.reservability)
+                        (if (attr.supports_cbo_zero : Bool)
+                        then " supports_cbo_zero"
+                        else ""))))))))))))
+
+def pma_region_to_str (region : PMA_Region) : String :=
+  (HAppend.hAppend "base: "
+    (HAppend.hAppend (BitVec.toFormatted region.base)
+      (HAppend.hAppend " size: "
+        (HAppend.hAppend (BitVec.toFormatted region.size) (pma_attributes_to_str region.attributes)))))
 
 def ptw_error_to_str (e : PTW_Error) : String :=
   match e with
@@ -5555,14 +10693,6 @@ def wait_name_backwards_matches (arg_ : String) : Bool :=
   | "WAIT-WRS-NTO" => true
   | _ => false
 
-/-- Type quantifiers: arg_ : Nat, arg_ ∈ {1, 2, 4, 8} -/
-def width_enc_forwards (arg_ : Nat) : (BitVec 2) :=
-  match arg_ with
-  | 1 => 0b00#2
-  | 2 => 0b01#2
-  | 4 => 0b10#2
-  | _ => 0b11#2
-
 def width_enc_backwards (arg_ : (BitVec 2)) : Int :=
   match arg_ with
   | 0b00 => 1
@@ -5614,15 +10744,6 @@ def width_mnemonic_backwards_matches (arg_ : String) : Bool :=
   | "w" => true
   | "d" => true
   | _ => false
-
-/-- Type quantifiers: arg_ : Nat, arg_ ∈ {1, 2, 4, 8, 16} -/
-def width_enc_wide_forwards (arg_ : Nat) : (BitVec 3) :=
-  match arg_ with
-  | 1 => 0b000#3
-  | 2 => 0b001#3
-  | 4 => 0b010#3
-  | 8 => 0b011#3
-  | _ => 0b100#3
 
 def width_enc_wide_backwards (arg_ : (BitVec 3)) : SailM Int := do
   match arg_ with

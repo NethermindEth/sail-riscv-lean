@@ -204,7 +204,7 @@ open CSRAccessType
 open AtomicSupport
 open Architecture
 
-/-- Type quantifiers: k_ex741990_ : Bool, _step_no : Int -/
+/-- Type quantifiers: k_ex738672_ : Bool, _step_no : Int -/
 def run_hart_waiting (_step_no : Int) (wr : WaitReason) (instbits : (BitVec 32)) (exit_wait : Bool) : SailM Step := do
   if ((← (shouldWakeForInterrupt ())) : Bool)
   then
@@ -317,7 +317,7 @@ def run_hart_active (step_no : Nat) : SailM Step := do
                           (HAppend.hAppend (BitVec.toFormatted (← readReg PC))
                             (HAppend.hAppend " ("
                               (HAppend.hAppend (BitVec.toFormatted h)
-                                (HAppend.hAppend ") " (← (print_insn instruction)))))))))))
+                                (HAppend.hAppend ") " (← (instruction_to_str instruction)))))))))))
                 (zero_extend (m := 64) (← readReg PC))))
           else (pure ())
           if ((← (is_landing_pad_expected ())) : Bool)
@@ -356,7 +356,7 @@ def run_hart_active (step_no : Nat) : SailM Step := do
                           (HAppend.hAppend (BitVec.toFormatted (← readReg PC))
                             (HAppend.hAppend " ("
                               (HAppend.hAppend (BitVec.toFormatted w)
-                                (HAppend.hAppend ") " (← (print_insn instruction)))))))))))
+                                (HAppend.hAppend ") " (← (instruction_to_str instruction)))))))))))
                 (zero_extend (m := 64) (← readReg PC))))
           else (pure ())
           if (((← (is_landing_pad_expected ())) && (not (is_lpad_instruction instruction))) : Bool)
@@ -381,7 +381,7 @@ def wait_is_nop (wr : WaitReason) : Bool :=
   | WAIT_WRS_STO => false
   | WAIT_WRS_NTO => false
 
-/-- Type quantifiers: k_ex742040_ : Bool, step_no : Nat, 0 ≤ step_no -/
+/-- Type quantifiers: k_ex738722_ : Bool, step_no : Nat, 0 ≤ step_no -/
 def try_step (step_no : Nat) (exit_wait : Bool) : SailM Bool := do
   let _ : Unit := (ext_pre_step_hook ())
   writeReg minstret_increment (← (should_inc_minstret (← readReg cur_privilege)))

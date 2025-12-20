@@ -4,7 +4,6 @@ import LeanRV64D.Prelude
 import LeanRV64D.Xlen
 import LeanRV64D.Vlen
 import LeanRV64D.Arithmetic
-import LeanRV64D.Extensions
 import LeanRV64D.Types
 import LeanRV64D.Regs
 import LeanRV64D.VextRegs
@@ -248,91 +247,6 @@ def valid_segment (nf : Nat) (EMUL_pow : Int) : Bool :=
   if ((EMUL_pow <b 0) : Bool)
   then ((Int.tdiv nf (2 ^i (0 -i EMUL_pow))) ≤b 8)
   else ((nf *i (2 ^i EMUL_pow)) ≤b 8)
-
-def valid_wide_vvtype (vvtype : vvfunct6) : SailM Bool := do
-  match vvtype with
-  | VV_VSMUL =>
-    (pure ((hartSupports Ext_V) && (((_get_Misa_V (← readReg misa)) == 1#1) && (← (currentlyEnabled
-              Ext_Zvl128b)))))
-  | _ => (pure true)
-
-def valid_wide_vxtype (vxtype : vxfunct6) : SailM Bool := do
-  match vxtype with
-  | VX_VSMUL =>
-    (pure ((hartSupports Ext_V) && (((_get_Misa_V (← readReg misa)) == 1#1) && (← (currentlyEnabled
-              Ext_Zvl128b)))))
-  | _ => (pure true)
-
-def valid_wide_mvvtype (mvvtype : mvvfunct6) : SailM Bool := do
-  match mvvtype with
-  | MVV_VMULH =>
-    (pure ((hartSupports Ext_V) && (((_get_Misa_V (← readReg misa)) == 1#1) && (← (currentlyEnabled
-              Ext_Zvl128b)))))
-  | MVV_VMULHU =>
-    (pure ((hartSupports Ext_V) && (((_get_Misa_V (← readReg misa)) == 1#1) && (← (currentlyEnabled
-              Ext_Zvl128b)))))
-  | MVV_VMULHSU =>
-    (pure ((hartSupports Ext_V) && (((_get_Misa_V (← readReg misa)) == 1#1) && (← (currentlyEnabled
-              Ext_Zvl128b)))))
-  | _ => (pure true)
-
-def valid_wide_mvxtype (mvxtype : mvxfunct6) : SailM Bool := do
-  match mvxtype with
-  | MVX_VMULH =>
-    (pure ((hartSupports Ext_V) && (((_get_Misa_V (← readReg misa)) == 1#1) && (← (currentlyEnabled
-              Ext_Zvl128b)))))
-  | MVX_VMULHU =>
-    (pure ((hartSupports Ext_V) && (((_get_Misa_V (← readReg misa)) == 1#1) && (← (currentlyEnabled
-              Ext_Zvl128b)))))
-  | MVX_VMULHSU =>
-    (pure ((hartSupports Ext_V) && (((_get_Misa_V (← readReg misa)) == 1#1) && (← (currentlyEnabled
-              Ext_Zvl128b)))))
-  | _ => (pure true)
-
-def valid_widening_fp_conversion (cvt : vfwunary0) : SailM Bool := do
-  match cvt with
-  | FWV_CVT_F_F =>
-    (pure (((← (currentlyEnabled Ext_Zvfhmin)) && (← do
-            (pure ((← (get_sew ())) == 16)))) || ((← (currentlyEnabled Ext_Zve64d)) && (← do
-            (pure ((← (get_sew ())) == 32))))))
-  | FWV_CVT_F_XU =>
-    (pure (((← (currentlyEnabled Ext_Zvfh)) && (← do
-            (pure ((← (get_sew ())) == 8)))) || (((← (currentlyEnabled Ext_Zve32f)) && (← do
-              (pure ((← (get_sew ())) == 16)))) || ((← (currentlyEnabled Ext_Zve64d)) && (← do
-              (pure ((← (get_sew ())) == 32)))))))
-  | FWV_CVT_F_X =>
-    (pure (((← (currentlyEnabled Ext_Zvfh)) && (← do
-            (pure ((← (get_sew ())) == 8)))) || (((← (currentlyEnabled Ext_Zve32f)) && (← do
-              (pure ((← (get_sew ())) == 16)))) || ((← (currentlyEnabled Ext_Zve64d)) && (← do
-              (pure ((← (get_sew ())) == 32)))))))
-  | _ =>
-    (pure (((← (currentlyEnabled Ext_Zvfh)) && (← do
-            (pure ((← (get_sew ())) == 16)))) || ((← (currentlyEnabled Ext_Zve64f)) && (← do
-            (pure ((← (get_sew ())) == 32))))))
-
-def valid_narrowing_fp_conversion (cvt : vfnunary0) : SailM Bool := do
-  match cvt with
-  | FNV_CVT_F_F =>
-    (pure (((← (currentlyEnabled Ext_Zvfhmin)) && (← do
-            (pure ((← (get_sew ())) == 16)))) || ((← (currentlyEnabled Ext_Zve64d)) && (← do
-            (pure ((← (get_sew ())) == 32))))))
-  | FNV_CVT_ROD_F_F =>
-    (pure (((← (currentlyEnabled Ext_Zvfh)) && (← do
-            (pure ((← (get_sew ())) == 16)))) || ((← (currentlyEnabled Ext_Zve64d)) && (← do
-            (pure ((← (get_sew ())) == 32))))))
-  | FNV_CVT_F_XU =>
-    (pure (((← (currentlyEnabled Ext_Zvfh)) && (← do
-            (pure ((← (get_sew ())) == 16)))) || ((← (currentlyEnabled Ext_Zve64f)) && (← do
-            (pure ((← (get_sew ())) == 32))))))
-  | FNV_CVT_F_X =>
-    (pure (((← (currentlyEnabled Ext_Zvfh)) && (← do
-            (pure ((← (get_sew ())) == 16)))) || ((← (currentlyEnabled Ext_Zve64f)) && (← do
-            (pure ((← (get_sew ())) == 32))))))
-  | _ =>
-    (pure (((← (currentlyEnabled Ext_Zvfh)) && (← do
-            (pure ((← (get_sew ())) == 8)))) || (((← (currentlyEnabled Ext_Zve32f)) && (← do
-              (pure ((← (get_sew ())) == 16)))) || ((← (currentlyEnabled Ext_Zve64d)) && (← do
-              (pure ((← (get_sew ())) == 32)))))))
 
 def illegal_normal (vd : vregidx) (vm : (BitVec 1)) : SailM Bool := do
   (pure ((not (← (valid_vtype ()))) || (not (valid_rd_mask vd vm))))

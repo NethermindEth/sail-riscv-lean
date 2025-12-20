@@ -189,11 +189,6 @@ open CSRAccessType
 open AtomicSupport
 open Architecture
 
-def encdec_zicondop_forwards (arg_ : zicondop) : (BitVec 3) :=
-  match arg_ with
-  | CZERO_EQZ => 0b101#3
-  | CZERO_NEZ => 0b111#3
-
 def encdec_zicondop_backwards (arg_ : (BitVec 3)) : SailM zicondop := do
   match arg_ with
   | 0b101 => (pure CZERO_EQZ)

@@ -256,38 +256,6 @@ inductive ExceptionType where
   deriving Inhabited, BEq, Repr
   open ExceptionType
 
-inductive InterruptType where | I_U_Software | I_S_Software | I_M_Software | I_U_Timer | I_S_Timer | I_M_Timer | I_U_External | I_S_External | I_M_External
-  deriving BEq, Inhabited, Repr
-  open InterruptType
-
-inductive misaligned_fault where | NoFault | AccessFault | AlignmentFault
-  deriving BEq, Inhabited, Repr
-  open misaligned_fault
-
-inductive Reservability where | RsrvNone | RsrvNonEventual | RsrvEventual
-  deriving BEq, Inhabited, Repr
-  open Reservability
-
-structure PMA where
-  cacheable : Bool
-  coherent : Bool
-  executable : Bool
-  readable : Bool
-  writable : Bool
-  read_idempotent : Bool
-  write_idempotent : Bool
-  misaligned_fault : misaligned_fault
-  reservability : Reservability
-  supports_cbo_zero : Bool
-  deriving BEq, Inhabited, Repr
-
-structure PMA_Region where
-  base : (BitVec 64)
-  size : (BitVec 64)
-  attributes : PMA
-  include_in_device_tree : Bool
-  deriving BEq, Inhabited, Repr
-
 inductive amoop where | AMOSWAP | AMOADD | AMOXOR | AMOAND | AMOOR | AMOMIN | AMOMAX | AMOMINU | AMOMAXU | AMOCAS
   deriving BEq, Inhabited, Repr
   open amoop
@@ -788,16 +756,14 @@ inductive instruction where
   | ADDIW (_ : ((BitVec 12) × regidx × regidx))
   | RTYPEW (_ : (regidx × regidx × regidx × ropw))
   | SHIFTIWOP (_ : ((BitVec 5) × regidx × regidx × sopw))
-  | FENCE (_ : ((BitVec 4) × (BitVec 4)))
   | FENCE_TSO (_ : Unit)
+  | FENCE (_ : ((BitVec 4) × (BitVec 4) × (BitVec 4) × regidx × regidx))
   | ECALL (_ : Unit)
   | MRET (_ : Unit)
   | SRET (_ : Unit)
   | EBREAK (_ : Unit)
   | WFI (_ : Unit)
   | SFENCE_VMA (_ : (regidx × regidx))
-  | FENCE_RESERVED (_ : ((BitVec 4) × (BitVec 4) × (BitVec 4) × regidx × regidx))
-  | FENCEI_RESERVED (_ : ((BitVec 12) × regidx × regidx))
   | AMO (_ : (amoop × Bool × Bool × regidx × regidx × word_width_wide × regidx))
   | LOADRES (_ : (Bool × Bool × regidx × word_width × regidx))
   | STORECON (_ : (Bool × Bool × regidx × regidx × word_width × regidx))
@@ -1104,7 +1070,7 @@ inductive instruction where
   | ZICOND_RTYPE (_ : (regidx × regidx × regidx × zicondop))
   | ZICBOM (_ : (cbop_zicbom × regidx))
   | ZICBOZ (_ : regidx)
-  | FENCEI (_ : Unit)
+  | FENCEI (_ : ((BitVec 12) × regidx × regidx))
   | FCVT_BF16_S (_ : (fregidx × rounding_mode × fregidx))
   | FCVT_S_BF16 (_ : (fregidx × rounding_mode × fregidx))
   | VFNCVTBF16_F_F_W (_ : ((BitVec 1) × vregidx × vregidx))
@@ -1116,6 +1082,40 @@ inductive instruction where
   | ZCMOP (_ : (BitVec 3))
   deriving Inhabited, Repr
   open instruction
+
+abbrev Vtype := (BitVec 64)
+
+inductive InterruptType where | I_U_Software | I_S_Software | I_M_Software | I_U_Timer | I_S_Timer | I_M_Timer | I_U_External | I_S_External | I_M_External
+  deriving BEq, Inhabited, Repr
+  open InterruptType
+
+inductive misaligned_fault where | NoFault | AccessFault | AlignmentFault
+  deriving BEq, Inhabited, Repr
+  open misaligned_fault
+
+inductive Reservability where | RsrvNone | RsrvNonEventual | RsrvEventual
+  deriving BEq, Inhabited, Repr
+  open Reservability
+
+structure PMA where
+  cacheable : Bool
+  coherent : Bool
+  executable : Bool
+  readable : Bool
+  writable : Bool
+  read_idempotent : Bool
+  write_idempotent : Bool
+  misaligned_fault : misaligned_fault
+  reservability : Reservability
+  supports_cbo_zero : Bool
+  deriving BEq, Inhabited, Repr
+
+structure PMA_Region where
+  base : (BitVec 64)
+  size : (BitVec 64)
+  attributes : PMA
+  include_in_device_tree : Bool
+  deriving BEq, Inhabited, Repr
 
 inductive PTW_Error where
   | PTW_Invalid_Addr (_ : Unit)
@@ -1274,8 +1274,6 @@ inductive vregno where
   | Vregno (_ : Nat)
   deriving Inhabited, BEq, Repr
   open vregno
-
-abbrev Vtype := (BitVec 64)
 
 abbrev SEW_pow := Nat
 
@@ -1444,9 +1442,6 @@ inductive Register : Type where
   | minstretcfg
   | mcyclecfg
   | vcsr
-  | vtype
-  | vl
-  | vstart
   | vr31
   | vr30
   | vr29
@@ -1575,6 +1570,9 @@ inductive Register : Type where
   | x1
   | nextPC
   | PC
+  | vstart
+  | vl
+  | vtype
   | menvcfg
   | mseccfg
   | senvcfg
@@ -1612,9 +1610,6 @@ abbrev RegisterType : Register → Type
   | .minstretcfg => (BitVec 64)
   | .mcyclecfg => (BitVec 64)
   | .vcsr => (BitVec 3)
-  | .vtype => (BitVec 64)
-  | .vl => (BitVec 64)
-  | .vstart => (BitVec 64)
   | .vr31 => (BitVec (2 ^ 8))
   | .vr30 => (BitVec (2 ^ 8))
   | .vr29 => (BitVec (2 ^ 8))
@@ -1743,6 +1738,9 @@ abbrev RegisterType : Register → Type
   | .x1 => (BitVec 64)
   | .nextPC => (BitVec 64)
   | .PC => (BitVec 64)
+  | .vstart => (BitVec 64)
+  | .vl => (BitVec 64)
+  | .vtype => (BitVec 64)
   | .menvcfg => (BitVec 64)
   | .mseccfg => (BitVec 64)
   | .senvcfg => (BitVec 64)

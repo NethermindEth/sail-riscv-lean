@@ -189,12 +189,6 @@ open CSRAccessType
 open AtomicSupport
 open Architecture
 
-def encdec_cbop_zicbop_forwards (arg_ : cbop_zicbop) : (BitVec 5) :=
-  match arg_ with
-  | PREFETCH_I => 0b00000#5
-  | PREFETCH_R => 0b00001#5
-  | PREFETCH_W => 0b00011#5
-
 def encdec_cbop_zicbop_backwards (arg_ : (BitVec 5)) : SailM cbop_zicbop := do
   match arg_ with
   | 0b00000 => (pure PREFETCH_I)

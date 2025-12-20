@@ -1,5 +1,10 @@
-import LeanRV64D.Xlen
-import LeanRV64D.Types
+import LeanRV64D.Sail.Sail
+import LeanRV64D.Sail.BitVec
+import LeanRV64D.Sail.IntRange
+import LeanRV64D.Defs
+import LeanRV64D.Specialization
+import LeanRV64D.FakeReal
+import LeanRV64D.RiscvExtras
 
 set_option maxHeartbeats 1_000_000_000
 set_option maxRecDepth 1_000_000
@@ -183,33 +188,6 @@ open ExceptionType
 open CSRAccessType
 open AtomicSupport
 open Architecture
-
-/-- Type quantifiers: width : Nat, width ∈ {1, 2, 4, 8, 16} -/
-def amo_encoding_valid (width : Nat) (op : amoop) (typ_2 : regidx) (typ_3 : regidx) : SailM Bool := do
-  let .Regidx rs2 : regidx := typ_2
-  let .Regidx rd : regidx := typ_3
-  (pure ((← do
-        if ((op == AMOCAS) : Bool)
-        then (currentlyEnabled Ext_Zacas)
-        else (currentlyEnabled Ext_Zaamo)) && (← do
-        if ((width <b 4) : Bool)
-        then (currentlyEnabled Ext_Zabha)
-        else
-          (pure ((width ≤b xlen_bytes) || ((op == AMOCAS) && ((width ≤b (xlen_bytes *i 2)) && (((BitVec.access
-                        rs2 0) == 0#1) && ((BitVec.access rd 0) == 0#1)))))))))
-
-def encdec_amoop_forwards (arg_ : amoop) : (BitVec 5) :=
-  match arg_ with
-  | AMOSWAP => 0b00001#5
-  | AMOADD => 0b00000#5
-  | AMOXOR => 0b00100#5
-  | AMOAND => 0b01100#5
-  | AMOOR => 0b01000#5
-  | AMOMIN => 0b10000#5
-  | AMOMAX => 0b10100#5
-  | AMOMINU => 0b11000#5
-  | AMOMAXU => 0b11100#5
-  | AMOCAS => 0b00101#5
 
 def encdec_amoop_backwards (arg_ : (BitVec 5)) : SailM amoop := do
   match arg_ with

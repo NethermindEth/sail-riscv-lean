@@ -189,11 +189,6 @@ open CSRAccessType
 open AtomicSupport
 open Architecture
 
-def encdec_vsha2_forwards (arg_ : zvk_vsha2_funct6) : (BitVec 6) :=
-  match arg_ with
-  | ZVK_VSHA2CH_VV => 0b101110#6
-  | ZVK_VSHA2CL_VV => 0b101111#6
-
 def encdec_vsha2_backwards (arg_ : (BitVec 6)) : SailM zvk_vsha2_funct6 := do
   match arg_ with
   | 0b101110 => (pure ZVK_VSHA2CH_VV)

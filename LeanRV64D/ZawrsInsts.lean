@@ -189,11 +189,6 @@ open CSRAccessType
 open AtomicSupport
 open Architecture
 
-def encdec_wrsop_forwards (arg_ : wrsop) : (BitVec 12) :=
-  match arg_ with
-  | WRS_STO => 0b000000011101#12
-  | WRS_NTO => 0b000000001101#12
-
 def encdec_wrsop_backwards (arg_ : (BitVec 12)) : SailM wrsop := do
   match arg_ with
   | 0b000000011101 => (pure WRS_STO)

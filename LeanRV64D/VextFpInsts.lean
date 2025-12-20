@@ -189,18 +189,6 @@ open CSRAccessType
 open AtomicSupport
 open Architecture
 
-def encdec_fvvfunct6_forwards (arg_ : fvvfunct6) : (BitVec 6) :=
-  match arg_ with
-  | FVV_VADD => 0b000000#6
-  | FVV_VSUB => 0b000010#6
-  | FVV_VMIN => 0b000100#6
-  | FVV_VMAX => 0b000110#6
-  | FVV_VSGNJ => 0b001000#6
-  | FVV_VSGNJN => 0b001001#6
-  | FVV_VSGNJX => 0b001010#6
-  | FVV_VDIV => 0b100000#6
-  | FVV_VMUL => 0b100100#6
-
 def encdec_fvvfunct6_backwards (arg_ : (BitVec 6)) : SailM fvvfunct6 := do
   match arg_ with
   | 0b000000 => (pure FVV_VADD)
@@ -283,17 +271,6 @@ def fvvtype_mnemonic_backwards_matches (arg_ : String) : Bool :=
   | "vfmul.vv" => true
   | _ => false
 
-def encdec_fvvmafunct6_forwards (arg_ : fvvmafunct6) : (BitVec 6) :=
-  match arg_ with
-  | FVV_VMADD => 0b101000#6
-  | FVV_VNMADD => 0b101001#6
-  | FVV_VMSUB => 0b101010#6
-  | FVV_VNMSUB => 0b101011#6
-  | FVV_VMACC => 0b101100#6
-  | FVV_VNMACC => 0b101101#6
-  | FVV_VMSAC => 0b101110#6
-  | FVV_VNMSAC => 0b101111#6
-
 def encdec_fvvmafunct6_backwards (arg_ : (BitVec 6)) : SailM fvvmafunct6 := do
   match arg_ with
   | 0b101000 => (pure FVV_VMADD)
@@ -370,12 +347,6 @@ def fvvmatype_mnemonic_backwards_matches (arg_ : String) : Bool :=
   | "vfnmsac.vv" => true
   | _ => false
 
-def encdec_fwvvfunct6_forwards (arg_ : fwvvfunct6) : (BitVec 6) :=
-  match arg_ with
-  | FWVV_VADD => 0b110000#6
-  | FWVV_VSUB => 0b110010#6
-  | FWVV_VMUL => 0b111000#6
-
 def encdec_fwvvfunct6_backwards (arg_ : (BitVec 6)) : SailM fwvvfunct6 := do
   match arg_ with
   | 0b110000 => (pure FWVV_VADD)
@@ -421,13 +392,6 @@ def fwvvtype_mnemonic_backwards_matches (arg_ : String) : Bool :=
   | "vfwsub.vv" => true
   | "vfwmul.vv" => true
   | _ => false
-
-def encdec_fwvvmafunct6_forwards (arg_ : fwvvmafunct6) : (BitVec 6) :=
-  match arg_ with
-  | FWVV_VMACC => 0b111100#6
-  | FWVV_VNMACC => 0b111101#6
-  | FWVV_VMSAC => 0b111110#6
-  | FWVV_VNMSAC => 0b111111#6
 
 def encdec_fwvvmafunct6_backwards (arg_ : (BitVec 6)) : SailM fwvvmafunct6 := do
   match arg_ with
@@ -481,11 +445,6 @@ def fwvvmatype_mnemonic_backwards_matches (arg_ : String) : Bool :=
   | "vfwnmsac.vv" => true
   | _ => false
 
-def encdec_fwvfunct6_forwards (arg_ : fwvfunct6) : (BitVec 6) :=
-  match arg_ with
-  | FWV_VADD => 0b110100#6
-  | FWV_VSUB => 0b110110#6
-
 def encdec_fwvfunct6_backwards (arg_ : (BitVec 6)) : SailM fwvfunct6 := do
   match arg_ with
   | 0b110100 => (pure FWV_VADD)
@@ -525,15 +484,6 @@ def fwvtype_mnemonic_backwards_matches (arg_ : String) : Bool :=
   | "vfwadd.wv" => true
   | "vfwsub.wv" => true
   | _ => false
-
-def encdec_vfunary0_vs1_forwards (arg_ : vfunary0) : (BitVec 5) :=
-  match arg_ with
-  | FV_CVT_XU_F => 0b00000#5
-  | FV_CVT_X_F => 0b00001#5
-  | FV_CVT_F_XU => 0b00010#5
-  | FV_CVT_F_X => 0b00011#5
-  | FV_CVT_RTZ_XU_F => 0b00110#5
-  | FV_CVT_RTZ_X_F => 0b00111#5
 
 def encdec_vfunary0_vs1_backwards (arg_ : (BitVec 5)) : SailM vfunary0 := do
   match arg_ with
@@ -598,16 +548,6 @@ def vfunary0_mnemonic_backwards_matches (arg_ : String) : Bool :=
   | "vfcvt.rtz.xu.f.v" => true
   | "vfcvt.rtz.x.f.v" => true
   | _ => false
-
-def encdec_vfwunary0_vs1_forwards (arg_ : vfwunary0) : (BitVec 5) :=
-  match arg_ with
-  | FWV_CVT_XU_F => 0b01000#5
-  | FWV_CVT_X_F => 0b01001#5
-  | FWV_CVT_F_XU => 0b01010#5
-  | FWV_CVT_F_X => 0b01011#5
-  | FWV_CVT_F_F => 0b01100#5
-  | FWV_CVT_RTZ_XU_F => 0b01110#5
-  | FWV_CVT_RTZ_X_F => 0b01111#5
 
 def encdec_vfwunary0_vs1_backwards (arg_ : (BitVec 5)) : SailM vfwunary0 := do
   match arg_ with
@@ -678,17 +618,6 @@ def vfwunary0_mnemonic_backwards_matches (arg_ : String) : Bool :=
   | "vfwcvt.rtz.xu.f.v" => true
   | "vfwcvt.rtz.x.f.v" => true
   | _ => false
-
-def encdec_vfnunary0_vs1_forwards (arg_ : vfnunary0) : (BitVec 5) :=
-  match arg_ with
-  | FNV_CVT_XU_F => 0b10000#5
-  | FNV_CVT_X_F => 0b10001#5
-  | FNV_CVT_F_XU => 0b10010#5
-  | FNV_CVT_F_X => 0b10011#5
-  | FNV_CVT_F_F => 0b10100#5
-  | FNV_CVT_ROD_F_F => 0b10101#5
-  | FNV_CVT_RTZ_XU_F => 0b10110#5
-  | FNV_CVT_RTZ_X_F => 0b10111#5
 
 def encdec_vfnunary0_vs1_backwards (arg_ : (BitVec 5)) : SailM vfnunary0 := do
   match arg_ with
@@ -766,13 +695,6 @@ def vfnunary0_mnemonic_backwards_matches (arg_ : String) : Bool :=
   | "vfncvt.rtz.x.f.w" => true
   | _ => false
 
-def encdec_vfunary1_vs1_forwards (arg_ : vfunary1) : (BitVec 5) :=
-  match arg_ with
-  | FVV_VSQRT => 0b00000#5
-  | FVV_VRSQRT7 => 0b00100#5
-  | FVV_VREC7 => 0b00101#5
-  | FVV_VCLASS => 0b10000#5
-
 def encdec_vfunary1_vs1_backwards (arg_ : (BitVec 5)) : SailM vfunary1 := do
   match arg_ with
   | 0b00000 => (pure FVV_VSQRT)
@@ -824,22 +746,6 @@ def vfunary1_mnemonic_backwards_matches (arg_ : String) : Bool :=
   | "vfrec7.v" => true
   | "vfclass.v" => true
   | _ => false
-
-def encdec_fvffunct6_forwards (arg_ : fvffunct6) : (BitVec 6) :=
-  match arg_ with
-  | VF_VADD => 0b000000#6
-  | VF_VSUB => 0b000010#6
-  | VF_VMIN => 0b000100#6
-  | VF_VMAX => 0b000110#6
-  | VF_VSGNJ => 0b001000#6
-  | VF_VSGNJN => 0b001001#6
-  | VF_VSGNJX => 0b001010#6
-  | VF_VSLIDE1UP => 0b001110#6
-  | VF_VSLIDE1DOWN => 0b001111#6
-  | VF_VDIV => 0b100000#6
-  | VF_VRDIV => 0b100001#6
-  | VF_VMUL => 0b100100#6
-  | VF_VRSUB => 0b100111#6
 
 def encdec_fvffunct6_backwards (arg_ : (BitVec 6)) : SailM fvffunct6 := do
   match arg_ with
@@ -947,17 +853,6 @@ def fvftype_mnemonic_backwards_matches (arg_ : String) : Bool :=
   | "vfrsub.vf" => true
   | _ => false
 
-def encdec_fvfmafunct6_forwards (arg_ : fvfmafunct6) : (BitVec 6) :=
-  match arg_ with
-  | VF_VMADD => 0b101000#6
-  | VF_VNMADD => 0b101001#6
-  | VF_VMSUB => 0b101010#6
-  | VF_VNMSUB => 0b101011#6
-  | VF_VMACC => 0b101100#6
-  | VF_VNMACC => 0b101101#6
-  | VF_VMSAC => 0b101110#6
-  | VF_VNMSAC => 0b101111#6
-
 def encdec_fvfmafunct6_backwards (arg_ : (BitVec 6)) : SailM fvfmafunct6 := do
   match arg_ with
   | 0b101000 => (pure VF_VMADD)
@@ -1034,12 +929,6 @@ def fvfmatype_mnemonic_backwards_matches (arg_ : String) : Bool :=
   | "vfnmsac.vf" => true
   | _ => false
 
-def encdec_fwvffunct6_forwards (arg_ : fwvffunct6) : (BitVec 6) :=
-  match arg_ with
-  | FWVF_VADD => 0b110000#6
-  | FWVF_VSUB => 0b110010#6
-  | FWVF_VMUL => 0b111000#6
-
 def encdec_fwvffunct6_backwards (arg_ : (BitVec 6)) : SailM fwvffunct6 := do
   match arg_ with
   | 0b110000 => (pure FWVF_VADD)
@@ -1085,13 +974,6 @@ def fwvftype_mnemonic_backwards_matches (arg_ : String) : Bool :=
   | "vfwsub.vf" => true
   | "vfwmul.vf" => true
   | _ => false
-
-def encdec_fwvfmafunct6_forwards (arg_ : fwvfmafunct6) : (BitVec 6) :=
-  match arg_ with
-  | FWVF_VMACC => 0b111100#6
-  | FWVF_VNMACC => 0b111101#6
-  | FWVF_VMSAC => 0b111110#6
-  | FWVF_VNMSAC => 0b111111#6
 
 def encdec_fwvfmafunct6_backwards (arg_ : (BitVec 6)) : SailM fwvfmafunct6 := do
   match arg_ with
@@ -1144,11 +1026,6 @@ def fwvfmatype_mnemonic_backwards_matches (arg_ : String) : Bool :=
   | "vfwmsac.vf" => true
   | "vfwnmsac.vf" => true
   | _ => false
-
-def encdec_fwffunct6_forwards (arg_ : fwffunct6) : (BitVec 6) :=
-  match arg_ with
-  | FWF_VADD => 0b110100#6
-  | FWF_VSUB => 0b110110#6
 
 def encdec_fwffunct6_backwards (arg_ : (BitVec 6)) : SailM fwffunct6 := do
   match arg_ with

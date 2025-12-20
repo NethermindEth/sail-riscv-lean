@@ -188,11 +188,6 @@ open CSRAccessType
 open AtomicSupport
 open Architecture
 
-def encdec_uop_forwards (arg_ : uop) : (BitVec 7) :=
-  match arg_ with
-  | LUI => 0b0110111#7
-  | AUIPC => 0b0010111#7
-
 def encdec_uop_backwards (arg_ : (BitVec 7)) : SailM uop := do
   match arg_ with
   | 0b0110111 => (pure LUI)
@@ -244,15 +239,6 @@ def jump_to (target : (BitVec 64)) : SailM ExecutionResult := SailME.run do
     (do
       (set_next_pc target)
       (pure RETIRE_SUCCESS))
-
-def encdec_bop_forwards (arg_ : bop) : (BitVec 3) :=
-  match arg_ with
-  | BEQ => 0b000#3
-  | BNE => 0b001#3
-  | BLT => 0b100#3
-  | BGE => 0b101#3
-  | BLTU => 0b110#3
-  | BGEU => 0b111#3
 
 def encdec_bop_backwards (arg_ : (BitVec 3)) : SailM bop := do
   match arg_ with
@@ -317,15 +303,6 @@ def btype_mnemonic_backwards_matches (arg_ : String) : Bool :=
   | "bltu" => true
   | "bgeu" => true
   | _ => false
-
-def encdec_iop_forwards (arg_ : iop) : (BitVec 3) :=
-  match arg_ with
-  | ADDI => 0b000#3
-  | SLTI => 0b010#3
-  | SLTIU => 0b011#3
-  | ANDI => 0b111#3
-  | ORI => 0b110#3
-  | XORI => 0b100#3
 
 def encdec_iop_backwards (arg_ : (BitVec 3)) : SailM iop := do
   match arg_ with
@@ -486,11 +463,7 @@ def rtype_mnemonic_backwards_matches (arg_ : String) : Bool :=
   | "sra" => true
   | _ => false
 
-/-- Type quantifiers: k_ex657380_ : Bool, width : Nat, width ∈ {1, 2, 4, 8} -/
-def valid_load_encdec (width : Nat) (is_unsigned : Bool) : Bool :=
-  ((width <b xlen_bytes) || ((not is_unsigned) && (width ≤b xlen_bytes)))
-
-/-- Type quantifiers: k_ex657383_ : Bool, k_n : Nat, k_n ≥ 0, 0 < k_n ∧ k_n ≤ xlen -/
+/-- Type quantifiers: k_ex662964_ : Bool, k_n : Nat, k_n ≥ 0, 0 < k_n ∧ k_n ≤ xlen -/
 def extend_value (is_unsigned : Bool) (value : (BitVec k_n)) : (BitVec 64) :=
   if (is_unsigned : Bool)
   then (zero_extend (m := 64) value)
@@ -505,7 +478,7 @@ def maybe_u_backwards (arg_ : String) : SailM Bool := do
       assert false "Pattern match failure at unknown location"
       throw Error.Exit)
 
-/-- Type quantifiers: k_ex657384_ : Bool -/
+/-- Type quantifiers: k_ex662965_ : Bool -/
 def maybe_u_forwards_matches (arg_ : Bool) : Bool :=
   match arg_ with
   | true => true
@@ -569,7 +542,7 @@ def shiftiwop_mnemonic_backwards_matches (arg_ : String) : Bool :=
   | "sraiw" => true
   | _ => false
 
-/-- Type quantifiers: k_ex657385_ : Bool -/
+/-- Type quantifiers: k_ex662966_ : Bool -/
 def effective_fence_set (set : (BitVec 4)) (fiom : Bool) : (BitVec 4) :=
   if (fiom : Bool)
   then

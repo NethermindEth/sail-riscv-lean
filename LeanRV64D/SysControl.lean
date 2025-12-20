@@ -258,39 +258,39 @@ def is_CSR_accessible (arg0 : (BitVec 12)) (arg1 : Privilege) (arg2 : CSRAccessT
   | (0x141, g__66, g__67) => (currentlyEnabled Ext_S)
   | (0x305, g__68, g__69) => (pure true)
   | (0x341, g__70, g__71) => (pure true)
-  | (v__3814, g__72, g__73) =>
+  | (v__3750, g__72, g__73) =>
     (do
-      if (((Sail.BitVec.extractLsb v__3814 11 4) == (0x3A#8 : (BitVec 8))) : Bool)
+      if (((Sail.BitVec.extractLsb v__3750 11 4) == (0x3A#8 : (BitVec 8))) : Bool)
       then
-        (let idx : (BitVec 4) := (Sail.BitVec.extractLsb v__3814 3 0)
+        (let idx : (BitVec 4) := (Sail.BitVec.extractLsb v__3750 3 0)
         (pure ((sys_pmp_count >b (4 *i (BitVec.toNatInt idx))) && (((BitVec.access idx 0) == 0#1) || (xlen == 32)))))
       else
         (do
-          if (((Sail.BitVec.extractLsb v__3814 11 4) == (0x3B#8 : (BitVec 8))) : Bool)
+          if (((Sail.BitVec.extractLsb v__3750 11 4) == (0x3B#8 : (BitVec 8))) : Bool)
           then
-            (let idx : (BitVec 4) := (Sail.BitVec.extractLsb v__3814 3 0)
+            (let idx : (BitVec 4) := (Sail.BitVec.extractLsb v__3750 3 0)
             (pure (sys_pmp_count >b (BitVec.toNatInt (0b00#2 ++ idx)))))
           else
             (do
-              if (((Sail.BitVec.extractLsb v__3814 11 4) == (0x3C#8 : (BitVec 8))) : Bool)
+              if (((Sail.BitVec.extractLsb v__3750 11 4) == (0x3C#8 : (BitVec 8))) : Bool)
               then
-                (let idx : (BitVec 4) := (Sail.BitVec.extractLsb v__3814 3 0)
+                (let idx : (BitVec 4) := (Sail.BitVec.extractLsb v__3750 3 0)
                 (pure (sys_pmp_count >b (BitVec.toNatInt (0b01#2 ++ idx)))))
               else
                 (do
-                  if (((Sail.BitVec.extractLsb v__3814 11 4) == (0x3D#8 : (BitVec 8))) : Bool)
+                  if (((Sail.BitVec.extractLsb v__3750 11 4) == (0x3D#8 : (BitVec 8))) : Bool)
                   then
-                    (let idx : (BitVec 4) := (Sail.BitVec.extractLsb v__3814 3 0)
+                    (let idx : (BitVec 4) := (Sail.BitVec.extractLsb v__3750 3 0)
                     (pure (sys_pmp_count >b (BitVec.toNatInt (0b10#2 ++ idx)))))
                   else
                     (do
-                      if (((Sail.BitVec.extractLsb v__3814 11 4) == (0x3E#8 : (BitVec 8))) : Bool)
+                      if (((Sail.BitVec.extractLsb v__3750 11 4) == (0x3E#8 : (BitVec 8))) : Bool)
                       then
-                        (let idx : (BitVec 4) := (Sail.BitVec.extractLsb v__3814 3 0)
+                        (let idx : (BitVec 4) := (Sail.BitVec.extractLsb v__3750 3 0)
                         (pure (sys_pmp_count >b (BitVec.toNatInt (0b11#2 ++ idx)))))
                       else
                         (do
-                          match (v__3814, g__72, g__73) with
+                          match (v__3750, g__72, g__73) with
                           | (0x001, g__74, g__75) =>
                             (pure ((← (currentlyEnabled Ext_F)) || (← (currentlyEnabled
                                     Ext_Zfinx))))
@@ -330,59 +330,59 @@ def is_CSR_accessible (arg0 : (BitVec 12)) (arg1 : Privilege) (arg2 : CSRAccessT
                                     | VirtualUser =>
                                       (internal_error "extensions/K/zkr_control.sail" 53
                                         "Hypervisor extension not supported")))))
-                          | (v__3814, g__103, g__104) =>
+                          | (v__3750, g__103, g__104) =>
                             (do
-                              if ((((Sail.BitVec.extractLsb v__3814 11 5) == (0b0011001#7 : (BitVec 7))) && (let index : (BitVec 5) :=
-                                     (Sail.BitVec.extractLsb v__3814 4 0)
+                              if ((((Sail.BitVec.extractLsb v__3750 11 5) == (0b0011001#7 : (BitVec 7))) && (let index : (BitVec 5) :=
+                                     (Sail.BitVec.extractLsb v__3750 4 0)
                                    ((BitVec.toNatInt index) ≥b 3) : Bool)) : Bool)
                               then (currentlyEnabled Ext_Zihpm)
                               else
                                 (do
-                                  if ((((Sail.BitVec.extractLsb v__3814 11 5) == (0b1011000#7 : (BitVec 7))) && (let index : (BitVec 5) :=
-                                         (Sail.BitVec.extractLsb v__3814 4 0)
+                                  if ((((Sail.BitVec.extractLsb v__3750 11 5) == (0b1011000#7 : (BitVec 7))) && (let index : (BitVec 5) :=
+                                         (Sail.BitVec.extractLsb v__3750 4 0)
                                        ((BitVec.toNatInt index) ≥b 3) : Bool)) : Bool)
                                   then (currentlyEnabled Ext_Zihpm)
                                   else
                                     (do
-                                      if ((((Sail.BitVec.extractLsb v__3814 11 5) == (0b1011100#7 : (BitVec 7))) && (let index : (BitVec 5) :=
-                                             (Sail.BitVec.extractLsb v__3814 4 0)
+                                      if ((((Sail.BitVec.extractLsb v__3750 11 5) == (0b1011100#7 : (BitVec 7))) && (let index : (BitVec 5) :=
+                                             (Sail.BitVec.extractLsb v__3750 4 0)
                                            ((BitVec.toNatInt index) ≥b 3) : Bool)) : Bool)
                                       then
                                         (pure ((← (currentlyEnabled Ext_Zihpm)) && (xlen == 32)))
                                       else
                                         (do
-                                          if ((((Sail.BitVec.extractLsb v__3814 11 5) == (0b1100000#7 : (BitVec 7))) && (let index : (BitVec 5) :=
-                                                 (Sail.BitVec.extractLsb v__3814 4 0)
+                                          if ((((Sail.BitVec.extractLsb v__3750 11 5) == (0b1100000#7 : (BitVec 7))) && (let index : (BitVec 5) :=
+                                                 (Sail.BitVec.extractLsb v__3750 4 0)
                                                ((BitVec.toNatInt index) ≥b 3) : Bool)) : Bool)
                                           then
                                             (do
                                               let index : (BitVec 5) :=
-                                                (Sail.BitVec.extractLsb v__3814 4 0)
+                                                (Sail.BitVec.extractLsb v__3750 4 0)
                                               (pure ((← (currentlyEnabled Ext_Zihpm)) && ((← (currentlyEnabled
                                                         Ext_U)) && (← (counter_enabled
                                                         (BitVec.toNatInt index) g__103))))))
                                           else
                                             (do
-                                              if ((((Sail.BitVec.extractLsb v__3814 11 5) == (0b1100100#7 : (BitVec 7))) && (let index : (BitVec 5) :=
-                                                     (Sail.BitVec.extractLsb v__3814 4 0)
+                                              if ((((Sail.BitVec.extractLsb v__3750 11 5) == (0b1100100#7 : (BitVec 7))) && (let index : (BitVec 5) :=
+                                                     (Sail.BitVec.extractLsb v__3750 4 0)
                                                    ((BitVec.toNatInt index) ≥b 3) : Bool)) : Bool)
                                               then
                                                 (do
                                                   let index : (BitVec 5) :=
-                                                    (Sail.BitVec.extractLsb v__3814 4 0)
+                                                    (Sail.BitVec.extractLsb v__3750 4 0)
                                                   (pure ((← (currentlyEnabled Ext_Zihpm)) && ((← (currentlyEnabled
                                                             Ext_U)) && ((xlen == 32) && (← (counter_enabled
                                                               (BitVec.toNatInt index) g__103)))))))
                                               else
                                                 (do
-                                                  if ((((Sail.BitVec.extractLsb v__3814 11 5) == (0b0111001#7 : (BitVec 7))) && (let index : (BitVec 5) :=
-                                                         (Sail.BitVec.extractLsb v__3814 4 0)
+                                                  if ((((Sail.BitVec.extractLsb v__3750 11 5) == (0b0111001#7 : (BitVec 7))) && (let index : (BitVec 5) :=
+                                                         (Sail.BitVec.extractLsb v__3750 4 0)
                                                        ((BitVec.toNatInt index) ≥b 3) : Bool)) : Bool)
                                                   then
                                                     (pure ((← (currentlyEnabled Ext_Sscofpmf)) && (xlen == 32)))
                                                   else
                                                     (do
-                                                      match (v__3814, g__103, g__104) with
+                                                      match (v__3750, g__103, g__104) with
                                                       | (0xDA0, g__105, g__106) =>
                                                         (pure ((← (currentlyEnabled Ext_Sscofpmf)) && (← (currentlyEnabled
                                                                 Ext_S))))

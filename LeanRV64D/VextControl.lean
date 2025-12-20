@@ -2,6 +2,7 @@ import LeanRV64D.Flow
 import LeanRV64D.Arith
 import LeanRV64D.Prelude
 import LeanRV64D.Vlen
+import LeanRV64D.Types
 import LeanRV64D.VextRegs
 
 set_option maxHeartbeats 1_000_000_000

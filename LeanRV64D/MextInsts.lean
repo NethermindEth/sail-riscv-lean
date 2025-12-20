@@ -189,17 +189,6 @@ open CSRAccessType
 open AtomicSupport
 open Architecture
 
-def encdec_mul_op_forwards (arg_ : mul_op) : SailM (BitVec 3) := do
-  match arg_ with
-  | { result_part := Low, signed_rs1 := Signed, signed_rs2 := Signed } => (pure 0b000#3)
-  | { result_part := High, signed_rs1 := Signed, signed_rs2 := Signed } => (pure 0b001#3)
-  | { result_part := High, signed_rs1 := Signed, signed_rs2 := Unsigned } => (pure 0b010#3)
-  | { result_part := High, signed_rs1 := Unsigned, signed_rs2 := Unsigned } => (pure 0b011#3)
-  | _ =>
-    (do
-      assert false "Pattern match failure at unknown location"
-      throw Error.Exit)
-
 def encdec_mul_op_backwards (arg_ : (BitVec 3)) : SailM mul_op := do
   match arg_ with
   | 0b000 =>

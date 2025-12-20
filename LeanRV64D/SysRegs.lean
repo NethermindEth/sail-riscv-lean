@@ -349,9 +349,6 @@ def _set_Misa_M (r_ref : (RegisterRef (BitVec 64))) (v : (BitVec 1)) : SailM Uni
   let r ← do (reg_deref r_ref)
   writeRegRef r_ref (_update_Misa_M r v)
 
-def _get_Misa_MXL (v : (BitVec 64)) : (BitVec (64 - 1 - (64 - 2) + 1)) :=
-  (Sail.BitVec.extractLsb v (64 -i 1) (64 -i 2))
-
 def _set_Misa_MXL (r_ref : (RegisterRef (BitVec 64))) (v : (BitVec (64 - 1 - (64 - 2) + 1))) : SailM Unit := do
   let r ← do (reg_deref r_ref)
   writeRegRef r_ref (_update_Misa_MXL r v)
@@ -865,9 +862,6 @@ def _set_Sstatus_SUM (r_ref : (RegisterRef (BitVec 64))) (v : (BitVec 1)) : Sail
   let r ← do (reg_deref r_ref)
   writeRegRef r_ref (_update_Sstatus_SUM r v)
 
-def _get_Mstatus_SXL (v : (BitVec 64)) : (BitVec 2) :=
-  (Sail.BitVec.extractLsb v 35 34)
-
 def _set_Mstatus_SXL (r_ref : (RegisterRef (BitVec 64))) (v : (BitVec 2)) : SailM Unit := do
   let r ← do (reg_deref r_ref)
   writeRegRef r_ref (_update_Mstatus_SXL r v)
@@ -901,9 +895,6 @@ def _update_Mstatus_TW (v : (BitVec 64)) (x : (BitVec 1)) : (BitVec 64) :=
 def _set_Mstatus_TW (r_ref : (RegisterRef (BitVec 64))) (v : (BitVec 1)) : SailM Unit := do
   let r ← do (reg_deref r_ref)
   writeRegRef r_ref (_update_Mstatus_TW r v)
-
-def _get_Mstatus_UXL (v : (BitVec 64)) : (BitVec 2) :=
-  (Sail.BitVec.extractLsb v 33 32)
 
 def _update_Sstatus_UXL (v : (BitVec 64)) (x : (BitVec 2)) : (BitVec 64) :=
   (Sail.BitVec.updateSubrange v 33 32 x)
@@ -1032,21 +1023,6 @@ def legalize_mstatus (o : (BitVec 64)) (v : (BitVec 64)) : SailM (BitVec 64) := 
     (((extStatus_of_bits (_get_Mstatus_FS o)) == Dirty) || (((extStatus_of_bits (_get_Mstatus_XS o)) == Dirty) || ((extStatus_of_bits
             (_get_Mstatus_VS o)) == Dirty)))
   (pure (_update_Mstatus_SD o (bool_to_bits dirty)))
-
-def architecture (priv : Privilege) : SailM Architecture := do
-  (architecture_bits_backwards
-    (← do
-      match priv with
-      | Machine => (pure (_get_Misa_MXL (← readReg misa)))
-      | Supervisor => (pure (_get_Mstatus_SXL (← readReg mstatus)))
-      | User => (pure (_get_Mstatus_UXL (← readReg mstatus)))
-      | VirtualUser =>
-        (internal_error "core/sys_regs.sail" 292 "Hypervisor extension not supported")
-      | VirtualSupervisor =>
-        (internal_error "core/sys_regs.sail" 293 "Hypervisor extension not supported")))
-
-def in32BitMode (_ : Unit) : SailM Bool := do
-  (pure ((← (architecture (← readReg cur_privilege))) == RV32))
 
 def undefined_Seccfg (_ : Unit) : SailM (BitVec 64) := do
   (undefined_bitvector 64)
