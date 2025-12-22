@@ -876,4 +876,6 @@ def accrue_fflags (flags : (BitVec 5)) : SailM Unit := do
       writeReg fcsr (Sail.BitVec.updateSubrange (← readReg fcsr) 4 0 f)
       (dirty_fd_context_if_present ()))
   else (pure ())
+  (csr_name_write_callback "fflags" (zero_extend (m := 64) (_get_Fcsr_FFLAGS (← readReg fcsr))))
+  (csr_name_write_callback "fcsr" (zero_extend (m := 64) (← readReg fcsr)))
 

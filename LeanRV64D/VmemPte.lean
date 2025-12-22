@@ -257,10 +257,10 @@ def check_PTE_permission (ac : (MemoryAccessType Unit)) (priv : Privilege) (mxr 
     match priv with
     | User => (pure pte_U)
     | Supervisor => (pure ((not pte_U) || (do_sum && (is_load_store ac))))
-    | Machine => (internal_error "sys/vmem_pte.sail" 131 "m-mode mem perm check")
-    | VirtualUser => (internal_error "sys/vmem_pte.sail" 132 "Hypervisor extension not supported")
+    | Machine => (internal_error "sys/vmem_pte.sail" 133 "m-mode mem perm check")
+    | VirtualUser => (internal_error "sys/vmem_pte.sail" 134 "Hypervisor extension not supported")
     | VirtualSupervisor =>
-      (internal_error "sys/vmem_pte.sail" 133 "Hypervisor extension not supported") ) : SailM Bool )
+      (internal_error "sys/vmem_pte.sail" 135 "Hypervisor extension not supported") ) : SailM Bool )
   if ((not priv_ok) : Bool)
   then (pure (PTE_Check_Failure ((), (PTE_No_Permission ()))))
   else
