@@ -306,13 +306,16 @@ def undefined_PMA_Region (_ : Unit) : SailM PMA_Region := do
           attributes := ← (undefined_PMA ())
           include_in_device_tree := ← (undefined_bool ()) })
 
-/-- Type quantifiers: width : Nat, 1 ≤ width ∧ width ≤ 4096 -/
-def matching_pma (pmas : (List PMA_Region)) (addr : physaddr) (width : Nat) : (Option PMA_Region) :=
+def matching_pma_bits_range (pmas : (List PMA_Region)) (base : (BitVec 64)) (size : (BitVec 64)) : (Option PMA_Region) :=
   match pmas with
   | [] => none
   | (pma :: rest) =>
-    (if ((range_subset (zero_extend (m := 64) (bits_of_physaddr addr)) (to_bits (l := 64) width)
-         pma.base pma.size) : Bool)
+    (if ((range_subset base size pma.base pma.size) : Bool)
     then (some pma)
-    else (matching_pma rest addr width))
+    else (matching_pma_bits_range rest base size))
+
+/-- Type quantifiers: width : Nat, 1 ≤ width ∧ width ≤ 4096 -/
+def matching_pma (pmas : (List PMA_Region)) (addr : physaddr) (width : Nat) : (Option PMA_Region) :=
+  (matching_pma_bits_range pmas (zero_extend (m := 64) (bits_of_physaddr addr))
+    (to_bits (l := 64) width))
 

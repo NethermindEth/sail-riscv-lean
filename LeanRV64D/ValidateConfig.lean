@@ -1,3 +1,4 @@
+import LeanRV64D.Option
 import LeanRV64D.Flow
 import LeanRV64D.Prelude
 import LeanRV64D.Xlen
@@ -462,6 +463,9 @@ def check_pma_regions (pmas : (List PMA_Region)) (prev_base : (BitVec 64)) (prev
       false)
     else (check_pma_regions rest pma.base pma.size))
 
+def dtb_within_configured_pma_memory (addr : (BitVec 64)) (size : (BitVec 64)) : SailM Bool := do
+  (pure (is_some (matching_pma_bits_range (← readReg pma_regions) addr size)))
+
 def check_mem_layout (_ : Unit) : SailM Bool := do
   if (((← readReg pma_regions) == []) : Bool)
   then
@@ -487,7 +491,7 @@ def check_pmp (_ : Unit) : Bool :=
     valid)
   else valid
 
-/-- Type quantifiers: k_ex739319_ : Bool -/
+/-- Type quantifiers: k_ex739491_ : Bool -/
 def check_required_sstvala_option (name : String) (value : Bool) : Bool :=
   if ((not value) : Bool)
   then
