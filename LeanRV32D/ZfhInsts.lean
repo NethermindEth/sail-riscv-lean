@@ -1,6 +1,5 @@
 import LeanRV32D.Flow
 import LeanRV32D.Prelude
-import LeanRV32D.Types
 import LeanRV32D.FextInsts
 
 set_option maxHeartbeats 1_000_000_000
@@ -9,6 +8,7 @@ set_option linter.unusedVariables false
 set_option match.ignoreUnusedAlts true
 
 open Sail
+open ConcurrencyInterfaceV1
 
 noncomputable section
 
@@ -21,6 +21,7 @@ open zvk_vaesef_funct6
 open zvk_vaesdm_funct6
 open zvk_vaesdf_funct6
 open zicondop
+open xRET_type
 open wxfunct6
 open wvxfunct6
 open wvvfunct6
@@ -56,6 +57,7 @@ open vfunary1
 open vfunary0
 open vfnunary0
 open vextfunct6
+open vector_support
 open uop
 open sopw
 open sop
@@ -65,10 +67,12 @@ open ropw
 open rop
 open rmvvfunct6
 open rivvfunct6
+open rfwvvfunct6
 open rfvvfunct6
 open regno
 open regidx
 open read_kind
+open pte_check_failure
 open pmpAddrMatch
 open physaddr
 open option
@@ -84,9 +88,12 @@ open mvxfunct6
 open mvvmafunct6
 open mvvfunct6
 open mmfunct6
+open misaligned_fault
 open maskfunct3
+open landing_pad_expectation
 open iop
 open instruction
+open indexed_mop
 open fwvvmafunct6
 open fwvvfunct6
 open fwvfunct6
@@ -101,6 +108,7 @@ open fvfmafunct6
 open fvffunct6
 open fregno
 open fregidx
+open float_class
 open f_un_x_op_H
 open f_un_x_op_D
 open f_un_rm_xf_op_S
@@ -143,20 +151,28 @@ open bropw_zbb
 open brop_zbs
 open brop_zbkb
 open brop_zbb
+open breakpoint_cause
 open bop
 open biop_zbs
 open barrier_kind
 open amoop
 open agtype
 open WaitReason
+open VectorHalf
 open TrapVectorMode
+open TrapCause
 open Step
+open Software_Check_Code
+open Signedness
+open SWCheckCodes
 open SATPMode
+open Reservability
 open Register
 open Privilege
 open PmpAddrMatchType
 open PTW_Error
 open PTE_Check
+open MemoryAccessType
 open InterruptType
 open ISA_Format
 open HartState
@@ -165,8 +181,9 @@ open Ext_DataAddr_Check
 open ExtStatus
 open ExecutionResult
 open ExceptionType
+open CSRAccessType
+open AtomicSupport
 open Architecture
-open AccessType
 
 def fsplit_H (xf16 : (BitVec 16)) : ((BitVec 1) × (BitVec 5) × (BitVec 10)) :=
   ((Sail.BitVec.extractLsb xf16 15 15), (Sail.BitVec.extractLsb xf16 14 10), (Sail.BitVec.extractLsb
@@ -178,22 +195,22 @@ def fmake_H (sign : (BitVec 1)) (exp : (BitVec 5)) (mant : (BitVec 10)) : (BitVe
 def negate_H (xf16 : (BitVec 16)) : (BitVec 16) :=
   let (sign, exp, mant) := (fsplit_H xf16)
   let new_sign :=
-    if ((sign == (0b0 : (BitVec 1))) : Bool)
-    then (0b1 : (BitVec 1))
-    else (0b0 : (BitVec 1))
+    if ((sign == 0#1) : Bool)
+    then 1#1
+    else 0#1
   (fmake_H new_sign exp mant)
 
 def f_is_neg_inf_H (xf16 : (BitVec 16)) : Bool :=
   let (sign, exp, mant) := (fsplit_H xf16)
-  ((sign == (0b1 : (BitVec 1))) && ((exp == (ones (n := 5))) && (mant == (zeros (n := 10)))))
+  ((sign == 1#1) && ((exp == (ones (n := 5))) && (mant == (zeros (n := 10)))))
 
 def f_is_neg_norm_H (xf16 : (BitVec 16)) : Bool :=
   let (sign, exp, mant) := (fsplit_H xf16)
-  ((sign == (0b1 : (BitVec 1))) && ((exp != (zeros (n := 5))) && (exp != (ones (n := 5)))))
+  ((sign == 1#1) && ((exp != (zeros (n := 5))) && (exp != (ones (n := 5)))))
 
 def f_is_neg_subnorm_H (xf16 : (BitVec 16)) : Bool :=
   let (sign, exp, mant) := (fsplit_H xf16)
-  ((sign == (0b1 : (BitVec 1))) && ((exp == (zeros (n := 5))) && (mant != (zeros (n := 10)))))
+  ((sign == 1#1) && ((exp == (zeros (n := 5))) && (mant != (zeros (n := 10)))))
 
 def f_is_pos_subnorm_H (xf16 : (BitVec 16)) : Bool :=
   let (sign, exp, mant) := (fsplit_H xf16)
@@ -227,28 +244,28 @@ def f_is_NaN_H (xf16 : (BitVec 16)) : Bool :=
   let (sign, exp, mant) := (fsplit_H xf16)
   ((exp == (ones (n := 5))) && (mant != (zeros (n := 10))))
 
-/-- Type quantifiers: k_ex377849# : Bool -/
+/-- Type quantifiers: k_ex625070_ : Bool -/
 def fle_H (v1 : (BitVec 16)) (v2 : (BitVec 16)) (is_quiet : Bool) : (Bool × (BitVec 5)) :=
   let (s1, e1, m1) := (fsplit_H v1)
   let (s2, e2, m2) := (fsplit_H v2)
   let v1Is0 := ((f_is_neg_zero_H v1) || (f_is_pos_zero_H v1))
   let v2Is0 := ((f_is_neg_zero_H v2) || (f_is_pos_zero_H v2))
   let result : Bool :=
-    if (((s1 == (0b0 : (BitVec 1))) && (s2 == (0b0 : (BitVec 1)))) : Bool)
+    if (((s1 == 0#1) && (s2 == 0#1)) : Bool)
     then
       (if ((e1 == e2) : Bool)
-      then ((BitVec.toNat m1) ≤b (BitVec.toNat m2))
-      else ((BitVec.toNat e1) <b (BitVec.toNat e2)))
+      then ((BitVec.toNatInt m1) ≤b (BitVec.toNatInt m2))
+      else ((BitVec.toNatInt e1) <b (BitVec.toNatInt e2)))
     else
-      (if (((s1 == (0b0 : (BitVec 1))) && (s2 == (0b1 : (BitVec 1)))) : Bool)
+      (if (((s1 == 0#1) && (s2 == 1#1)) : Bool)
       then (v1Is0 && v2Is0)
       else
-        (if (((s1 == (0b1 : (BitVec 1))) && (s2 == (0b0 : (BitVec 1)))) : Bool)
+        (if (((s1 == 1#1) && (s2 == 0#1)) : Bool)
         then true
         else
           (if ((e1 == e2) : Bool)
-          then ((BitVec.toNat m1) ≥b (BitVec.toNat m2))
-          else ((BitVec.toNat e1) >b (BitVec.toNat e2)))))
+          then ((BitVec.toNatInt m1) ≥b (BitVec.toNatInt m2))
+          else ((BitVec.toNatInt e1) >b (BitVec.toNatInt e2)))))
   let fflags :=
     if (is_quiet : Bool)
     then
@@ -260,13 +277,6 @@ def fle_H (v1 : (BitVec 16)) (v2 : (BitVec 16)) (is_quiet : Bool) : (Bool × (Bi
       then (nvFlag ())
       else (zeros (n := 5)))
   (result, fflags)
-
-def haveHalfFPU (_ : Unit) : SailM Bool := do
-  (pure ((← (currentlyEnabled Ext_Zfh)) || (← (currentlyEnabled Ext_Zhinx))))
-
-def haveHalfMin (_ : Unit) : SailM Bool := do
-  (pure ((← (haveHalfFPU ())) || ((← (currentlyEnabled Ext_Zfhmin)) || (← (currentlyEnabled
-            Ext_Zhinxmin)))))
 
 def f_bin_rm_type_mnemonic_H_backwards (arg_ : String) : SailM f_bin_rm_op_H := do
   match arg_ with

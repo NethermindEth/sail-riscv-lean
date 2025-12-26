@@ -12,6 +12,7 @@ set_option linter.unusedVariables false
 set_option match.ignoreUnusedAlts true
 
 open Sail
+open ConcurrencyInterfaceV1
 
 noncomputable section
 
@@ -24,6 +25,7 @@ open zvk_vaesef_funct6
 open zvk_vaesdm_funct6
 open zvk_vaesdf_funct6
 open zicondop
+open xRET_type
 open wxfunct6
 open wvxfunct6
 open wvvfunct6
@@ -59,6 +61,7 @@ open vfunary1
 open vfunary0
 open vfnunary0
 open vextfunct6
+open vector_support
 open uop
 open sopw
 open sop
@@ -68,10 +71,12 @@ open ropw
 open rop
 open rmvvfunct6
 open rivvfunct6
+open rfwvvfunct6
 open rfvvfunct6
 open regno
 open regidx
 open read_kind
+open pte_check_failure
 open pmpAddrMatch
 open physaddr
 open option
@@ -87,9 +92,12 @@ open mvxfunct6
 open mvvmafunct6
 open mvvfunct6
 open mmfunct6
+open misaligned_fault
 open maskfunct3
+open landing_pad_expectation
 open iop
 open instruction
+open indexed_mop
 open fwvvmafunct6
 open fwvvfunct6
 open fwvfunct6
@@ -104,6 +112,7 @@ open fvfmafunct6
 open fvffunct6
 open fregno
 open fregidx
+open float_class
 open f_un_x_op_H
 open f_un_x_op_D
 open f_un_rm_xf_op_S
@@ -139,44 +148,53 @@ open csrop
 open cregidx
 open checked_cbop
 open cfregidx
+open cbop_zicbop
 open cbop_zicbom
 open cbie
 open bropw_zbb
 open brop_zbs
 open brop_zbkb
 open brop_zbb
+open breakpoint_cause
 open bop
 open biop_zbs
 open barrier_kind
 open amoop
 open agtype
 open WaitReason
+open VectorHalf
 open TrapVectorMode
+open TrapCause
 open Step
+open Software_Check_Code
+open Signedness
+open SWCheckCodes
 open SATPMode
+open Reservability
 open Register
 open Privilege
 open PmpAddrMatchType
 open PTW_Error
 open PTE_Check
+open MemoryAccessType
 open InterruptType
 open ISA_Format
 open HartState
 open FetchResult
 open Ext_DataAddr_Check
-open Ext_ControlAddr_Check
 open ExtStatus
 open ExecutionResult
 open ExceptionType
+open CSRAccessType
+open AtomicSupport
 open Architecture
-open AccessType
 
 /-- Type quantifiers: k_n : Nat, k_n ≥ 0, k_n > 0 -/
 def dec_bits_forwards (bv : (BitVec k_n)) : (Nat × String) :=
-  ((Sail.BitVec.length bv), (Int.repr (BitVec.toNat bv)))
+  ((Sail.BitVec.length bv), (Int.repr (BitVec.toNatInt bv)))
 
 /-- Type quantifiers: k_n : Nat, k_n ≥ 0, k_n > 0 -/
-def dec_bits_forwards_matches (bv : (BitVec k_n)) : Bool :=
+def dec_bits_forwards_matches (x_0 : (BitVec k_n)) : Bool :=
   true
 
 /-- Type quantifiers: tuple_0.1 : Nat, tuple_0.1 ≥ 0, tuple_0.1 > 0 -/
@@ -209,7 +227,7 @@ def dec_bits_1_backwards (arg_ : String) : (BitVec 1) :=
   match arg_ with
   | s => (dec_bits_backwards (1, s))
 
-def dec_bits_1_forwards_matches (arg_ : (BitVec 1)) : Bool :=
+def dec_bits_1_forwards_matches (arg_ : (BitVec 1)) : SailM Bool := do
   let head_exp_ := arg_
   match (match head_exp_ with
   | mapping0_ =>
@@ -219,10 +237,10 @@ def dec_bits_1_forwards_matches (arg_ : (BitVec 1)) : Bool :=
       | (1, s) => (some true)
       | _ => none)
     else none)) with
-  | .some result => result
+  | .some result => (pure result)
   | none =>
     (match head_exp_ with
-    | _ => false)
+    | _ => (pure false))
 
 def dec_bits_1_backwards_matches (arg_ : String) : Bool :=
   match arg_ with
@@ -248,7 +266,7 @@ def dec_bits_2_backwards (arg_ : String) : (BitVec 2) :=
   match arg_ with
   | s => (dec_bits_backwards (2, s))
 
-def dec_bits_2_forwards_matches (arg_ : (BitVec 2)) : Bool :=
+def dec_bits_2_forwards_matches (arg_ : (BitVec 2)) : SailM Bool := do
   let head_exp_ := arg_
   match (match head_exp_ with
   | mapping0_ =>
@@ -258,10 +276,10 @@ def dec_bits_2_forwards_matches (arg_ : (BitVec 2)) : Bool :=
       | (2, s) => (some true)
       | _ => none)
     else none)) with
-  | .some result => result
+  | .some result => (pure result)
   | none =>
     (match head_exp_ with
-    | _ => false)
+    | _ => (pure false))
 
 def dec_bits_2_backwards_matches (arg_ : String) : Bool :=
   match arg_ with
@@ -287,7 +305,7 @@ def dec_bits_3_backwards (arg_ : String) : (BitVec 3) :=
   match arg_ with
   | s => (dec_bits_backwards (3, s))
 
-def dec_bits_3_forwards_matches (arg_ : (BitVec 3)) : Bool :=
+def dec_bits_3_forwards_matches (arg_ : (BitVec 3)) : SailM Bool := do
   let head_exp_ := arg_
   match (match head_exp_ with
   | mapping0_ =>
@@ -297,10 +315,10 @@ def dec_bits_3_forwards_matches (arg_ : (BitVec 3)) : Bool :=
       | (3, s) => (some true)
       | _ => none)
     else none)) with
-  | .some result => result
+  | .some result => (pure result)
   | none =>
     (match head_exp_ with
-    | _ => false)
+    | _ => (pure false))
 
 def dec_bits_3_backwards_matches (arg_ : String) : Bool :=
   match arg_ with
@@ -326,7 +344,7 @@ def dec_bits_4_backwards (arg_ : String) : (BitVec 4) :=
   match arg_ with
   | s => (dec_bits_backwards (4, s))
 
-def dec_bits_4_forwards_matches (arg_ : (BitVec 4)) : Bool :=
+def dec_bits_4_forwards_matches (arg_ : (BitVec 4)) : SailM Bool := do
   let head_exp_ := arg_
   match (match head_exp_ with
   | mapping0_ =>
@@ -336,10 +354,10 @@ def dec_bits_4_forwards_matches (arg_ : (BitVec 4)) : Bool :=
       | (4, s) => (some true)
       | _ => none)
     else none)) with
-  | .some result => result
+  | .some result => (pure result)
   | none =>
     (match head_exp_ with
-    | _ => false)
+    | _ => (pure false))
 
 def dec_bits_4_backwards_matches (arg_ : String) : Bool :=
   match arg_ with
@@ -365,7 +383,7 @@ def dec_bits_5_backwards (arg_ : String) : (BitVec 5) :=
   match arg_ with
   | s => (dec_bits_backwards (5, s))
 
-def dec_bits_5_forwards_matches (arg_ : (BitVec 5)) : Bool :=
+def dec_bits_5_forwards_matches (arg_ : (BitVec 5)) : SailM Bool := do
   let head_exp_ := arg_
   match (match head_exp_ with
   | mapping0_ =>
@@ -375,10 +393,10 @@ def dec_bits_5_forwards_matches (arg_ : (BitVec 5)) : Bool :=
       | (5, s) => (some true)
       | _ => none)
     else none)) with
-  | .some result => result
+  | .some result => (pure result)
   | none =>
     (match head_exp_ with
-    | _ => false)
+    | _ => (pure false))
 
 def dec_bits_5_backwards_matches (arg_ : String) : Bool :=
   match arg_ with
@@ -404,7 +422,7 @@ def dec_bits_6_backwards (arg_ : String) : (BitVec 6) :=
   match arg_ with
   | s => (dec_bits_backwards (6, s))
 
-def dec_bits_6_forwards_matches (arg_ : (BitVec 6)) : Bool :=
+def dec_bits_6_forwards_matches (arg_ : (BitVec 6)) : SailM Bool := do
   let head_exp_ := arg_
   match (match head_exp_ with
   | mapping0_ =>
@@ -414,10 +432,10 @@ def dec_bits_6_forwards_matches (arg_ : (BitVec 6)) : Bool :=
       | (6, s) => (some true)
       | _ => none)
     else none)) with
-  | .some result => result
+  | .some result => (pure result)
   | none =>
     (match head_exp_ with
-    | _ => false)
+    | _ => (pure false))
 
 def dec_bits_6_backwards_matches (arg_ : String) : Bool :=
   match arg_ with
@@ -443,7 +461,7 @@ def dec_bits_7_backwards (arg_ : String) : (BitVec 7) :=
   match arg_ with
   | s => (dec_bits_backwards (7, s))
 
-def dec_bits_7_forwards_matches (arg_ : (BitVec 7)) : Bool :=
+def dec_bits_7_forwards_matches (arg_ : (BitVec 7)) : SailM Bool := do
   let head_exp_ := arg_
   match (match head_exp_ with
   | mapping0_ =>
@@ -453,10 +471,10 @@ def dec_bits_7_forwards_matches (arg_ : (BitVec 7)) : Bool :=
       | (7, s) => (some true)
       | _ => none)
     else none)) with
-  | .some result => result
+  | .some result => (pure result)
   | none =>
     (match head_exp_ with
-    | _ => false)
+    | _ => (pure false))
 
 def dec_bits_7_backwards_matches (arg_ : String) : Bool :=
   match arg_ with
@@ -482,7 +500,7 @@ def dec_bits_8_backwards (arg_ : String) : (BitVec 8) :=
   match arg_ with
   | s => (dec_bits_backwards (8, s))
 
-def dec_bits_8_forwards_matches (arg_ : (BitVec 8)) : Bool :=
+def dec_bits_8_forwards_matches (arg_ : (BitVec 8)) : SailM Bool := do
   let head_exp_ := arg_
   match (match head_exp_ with
   | mapping0_ =>
@@ -492,10 +510,10 @@ def dec_bits_8_forwards_matches (arg_ : (BitVec 8)) : Bool :=
       | (8, s) => (some true)
       | _ => none)
     else none)) with
-  | .some result => result
+  | .some result => (pure result)
   | none =>
     (match head_exp_ with
-    | _ => false)
+    | _ => (pure false))
 
 def dec_bits_8_backwards_matches (arg_ : String) : Bool :=
   match arg_ with
@@ -521,7 +539,7 @@ def dec_bits_9_backwards (arg_ : String) : (BitVec 9) :=
   match arg_ with
   | s => (dec_bits_backwards (9, s))
 
-def dec_bits_9_forwards_matches (arg_ : (BitVec 9)) : Bool :=
+def dec_bits_9_forwards_matches (arg_ : (BitVec 9)) : SailM Bool := do
   let head_exp_ := arg_
   match (match head_exp_ with
   | mapping0_ =>
@@ -531,10 +549,10 @@ def dec_bits_9_forwards_matches (arg_ : (BitVec 9)) : Bool :=
       | (9, s) => (some true)
       | _ => none)
     else none)) with
-  | .some result => result
+  | .some result => (pure result)
   | none =>
     (match head_exp_ with
-    | _ => false)
+    | _ => (pure false))
 
 def dec_bits_9_backwards_matches (arg_ : String) : Bool :=
   match arg_ with
@@ -560,7 +578,7 @@ def dec_bits_10_backwards (arg_ : String) : (BitVec 10) :=
   match arg_ with
   | s => (dec_bits_backwards (10, s))
 
-def dec_bits_10_forwards_matches (arg_ : (BitVec 10)) : Bool :=
+def dec_bits_10_forwards_matches (arg_ : (BitVec 10)) : SailM Bool := do
   let head_exp_ := arg_
   match (match head_exp_ with
   | mapping0_ =>
@@ -570,10 +588,10 @@ def dec_bits_10_forwards_matches (arg_ : (BitVec 10)) : Bool :=
       | (10, s) => (some true)
       | _ => none)
     else none)) with
-  | .some result => result
+  | .some result => (pure result)
   | none =>
     (match head_exp_ with
-    | _ => false)
+    | _ => (pure false))
 
 def dec_bits_10_backwards_matches (arg_ : String) : Bool :=
   match arg_ with
@@ -599,7 +617,7 @@ def dec_bits_32_backwards (arg_ : String) : (BitVec 32) :=
   match arg_ with
   | s => (dec_bits_backwards (32, s))
 
-def dec_bits_32_forwards_matches (arg_ : (BitVec 32)) : Bool :=
+def dec_bits_32_forwards_matches (arg_ : (BitVec 32)) : SailM Bool := do
   let head_exp_ := arg_
   match (match head_exp_ with
   | mapping0_ =>
@@ -609,10 +627,10 @@ def dec_bits_32_forwards_matches (arg_ : (BitVec 32)) : Bool :=
       | (32, s) => (some true)
       | _ => none)
     else none)) with
-  | .some result => result
+  | .some result => (pure result)
   | none =>
     (match head_exp_ with
-    | _ => false)
+    | _ => (pure false))
 
 def dec_bits_32_backwards_matches (arg_ : String) : Bool :=
   match arg_ with

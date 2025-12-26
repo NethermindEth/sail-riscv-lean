@@ -1,3 +1,4 @@
+import LeanRV32D.Common
 import LeanRV32D.Prelude
 import LeanRV32D.RvfiDii
 import LeanRV32D.Types
@@ -7,8 +8,10 @@ import LeanRV32D.PmpRegs
 import LeanRV32D.FdextRegs
 import LeanRV32D.VextRegs
 import LeanRV32D.Smcntrpmf
+import LeanRV32D.ZicfilpRegs
 import LeanRV32D.SysControl
 import LeanRV32D.Platform
+import LeanRV32D.Pma
 import LeanRV32D.VmemTlb
 import LeanRV32D.Vmem
 import LeanRV32D.ZicsrInsts
@@ -22,6 +25,7 @@ set_option linter.unusedVariables false
 set_option match.ignoreUnusedAlts true
 
 open Sail
+open ConcurrencyInterfaceV1
 
 noncomputable section
 
@@ -34,6 +38,7 @@ open zvk_vaesef_funct6
 open zvk_vaesdm_funct6
 open zvk_vaesdf_funct6
 open zicondop
+open xRET_type
 open wxfunct6
 open wvxfunct6
 open wvvfunct6
@@ -69,6 +74,7 @@ open vfunary1
 open vfunary0
 open vfnunary0
 open vextfunct6
+open vector_support
 open uop
 open sopw
 open sop
@@ -78,10 +84,12 @@ open ropw
 open rop
 open rmvvfunct6
 open rivvfunct6
+open rfwvvfunct6
 open rfvvfunct6
 open regno
 open regidx
 open read_kind
+open pte_check_failure
 open pmpAddrMatch
 open physaddr
 open option
@@ -97,9 +105,12 @@ open mvxfunct6
 open mvvmafunct6
 open mvvfunct6
 open mmfunct6
+open misaligned_fault
 open maskfunct3
+open landing_pad_expectation
 open iop
 open instruction
+open indexed_mop
 open fwvvmafunct6
 open fwvvfunct6
 open fwvfunct6
@@ -114,6 +125,7 @@ open fvfmafunct6
 open fvffunct6
 open fregno
 open fregidx
+open float_class
 open f_un_x_op_H
 open f_un_x_op_D
 open f_un_rm_xf_op_S
@@ -156,20 +168,28 @@ open bropw_zbb
 open brop_zbs
 open brop_zbkb
 open brop_zbb
+open breakpoint_cause
 open bop
 open biop_zbs
 open barrier_kind
 open amoop
 open agtype
 open WaitReason
+open VectorHalf
 open TrapVectorMode
+open TrapCause
 open Step
+open Software_Check_Code
+open Signedness
+open SWCheckCodes
 open SATPMode
+open Reservability
 open Register
 open Privilege
 open PmpAddrMatchType
 open PTW_Error
 open PTE_Check
+open MemoryAccessType
 open InterruptType
 open ISA_Format
 open HartState
@@ -178,8 +198,9 @@ open Ext_DataAddr_Check
 open ExtStatus
 open ExecutionResult
 open ExceptionType
+open CSRAccessType
+open AtomicSupport
 open Architecture
-open AccessType
 
 def initialize_registers (_ : Unit) : SailM Unit := do
   writeReg rvfi_instruction (← (undefined_RVFI_DII_Instruction_Packet ()))
@@ -319,38 +340,71 @@ def initialize_registers (_ : Unit) : SailM Unit := do
   writeReg vcsr (← (undefined_Vcsr ()))
   writeReg mcyclecfg (← (undefined_CountSmcntrpmf ()))
   writeReg minstretcfg (← (undefined_CountSmcntrpmf ()))
+  writeReg elp (← (undefined_bitvector 1))
   writeReg mtimecmp (← (undefined_bitvector 64))
   writeReg stimecmp (← (undefined_bitvector 64))
   writeReg htif_tohost (← (undefined_bitvector 64))
   writeReg htif_done (← (undefined_bool ()))
   writeReg htif_exit_code (← (undefined_bitvector 64))
-  writeReg htif_cmd_write (← (undefined_bit ()))
+  writeReg htif_cmd_write (← (undefined_bitvector 1))
   writeReg htif_payload_writes (← (undefined_bitvector 4))
   writeReg satp (← (undefined_bitvector 32))
   writeReg mhpmevent (← (undefined_vector 32 (← (undefined_HpmEvent ()))))
   writeReg mhpmcounter (← (undefined_vector 32 (← (undefined_bitvector 64))))
 
 def sail_model_init (x_0 : Unit) : SailM Unit := do
-  writeReg misa (_update_Misa_MXL (Mk_Misa (zeros (n := 32))) (architecture_forwards RV32))
-  writeReg mstatus (let mxl := (architecture_forwards RV32)
+  writeReg fp_rounding_global fp_rounding_default
+  writeReg misa (_update_Misa_MXL (Mk_Misa (zeros (n := 32))) (architecture_bits_forwards RV32))
+  writeReg mstatus (let mxl := (architecture_bits_forwards RV32)
   (_update_Mstatus_UXL (_update_Mstatus_SXL (Mk_Mstatus (zeros (n := 64))) (zeros (n := 2)))
     (zeros (n := 2))))
+  writeReg senvcfg (← (legalize_senvcfg (Mk_SEnvcfg (zeros (n := 32))) (zeros (n := 32))))
   writeReg mseccfg (← (legalize_mseccfg (Mk_Seccfg (zeros (n := 64))) (zeros (n := 64))))
   writeReg menvcfg (← (legalize_menvcfg (Mk_MEnvcfg (zeros (n := 64))) (zeros (n := 64))))
-  writeReg senvcfg (← (legalize_senvcfg (Mk_SEnvcfg (zeros (n := 32))) (zeros (n := 32))))
   writeReg mvendorid (← (to_bits_checked (l := 32) (0 : Int)))
   writeReg mimpid (← (to_bits_checked (l := 32) (0 : Int)))
   writeReg marchid (← (to_bits_checked (l := 32) (0 : Int)))
   writeReg mhartid (← (to_bits_checked (l := 32) (0 : Int)))
   writeReg mconfigptr (zeros (n := 32))
   writeReg pc_reset_address (zeros (n := 32))
-  writeReg plat_ram_base (← (to_bits_checked (l := 34) (2147483648 : Int)))
-  writeReg plat_ram_size (← (to_bits_checked (l := 34) (2147483648 : Int)))
-  writeReg plat_rom_base (← (to_bits_checked (l := 34) (4096 : Int)))
-  writeReg plat_rom_size (← (to_bits_checked (l := 34) (4096 : Int)))
-  writeReg plat_clint_base (← (to_bits_checked (l := 34) (33554432 : Int)))
-  writeReg plat_clint_size (← (to_bits_checked (l := 34) (786432 : Int)))
   writeReg htif_tohost_base none
+  writeReg pma_regions [{ base := 0b0000000000000000000000000000000000000000000000000001000000000000#64
+                          size := 0b0000000000000000000000000000000000000000000000000001000000000000#64
+                          attributes := { cacheable := true
+                                          coherent := true
+                                          executable := false
+                                          readable := true
+                                          writable := false
+                                          read_idempotent := true
+                                          write_idempotent := true
+                                          misaligned_fault := NoFault
+                                          reservability := RsrvNone
+                                          supports_cbo_zero := false }
+                          include_in_device_tree := false }, { base := 0b0000000000000000000000000000000000000010000000000000000000000000#64
+                                                               size := 0b0000000000000000000000000000000000000010000000000000000000000000#64
+                                                               attributes := { cacheable := false
+                                                                               coherent := true
+                                                                               executable := false
+                                                                               readable := true
+                                                                               writable := true
+                                                                               read_idempotent := false
+                                                                               write_idempotent := false
+                                                                               misaligned_fault := AlignmentFault
+                                                                               reservability := RsrvNone
+                                                                               supports_cbo_zero := false }
+                                                               include_in_device_tree := false }, { base := 0b0000000000000000000000000000000010000000000000000000000000000000#64
+                                                                                                    size := 0b0000000000000000000000000000000010000000000000000000000000000000#64
+                                                                                                    attributes := { cacheable := true
+                                                                                                                    coherent := true
+                                                                                                                    executable := true
+                                                                                                                    readable := true
+                                                                                                                    writable := true
+                                                                                                                    read_idempotent := true
+                                                                                                                    write_idempotent := true
+                                                                                                                    misaligned_fault := NoFault
+                                                                                                                    reservability := RsrvEventual
+                                                                                                                    supports_cbo_zero := true }
+                                                                                                    include_in_device_tree := true }]
   writeReg tlb (vectorInit none)
   writeReg hart_state (HART_ACTIVE ())
   (initialize_registers ())

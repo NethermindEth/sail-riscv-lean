@@ -12,6 +12,7 @@ set_option linter.unusedVariables false
 set_option match.ignoreUnusedAlts true
 
 open Sail
+open ConcurrencyInterfaceV1
 
 noncomputable section
 
@@ -24,6 +25,7 @@ open zvk_vaesef_funct6
 open zvk_vaesdm_funct6
 open zvk_vaesdf_funct6
 open zicondop
+open xRET_type
 open wxfunct6
 open wvxfunct6
 open wvvfunct6
@@ -59,6 +61,7 @@ open vfunary1
 open vfunary0
 open vfnunary0
 open vextfunct6
+open vector_support
 open uop
 open sopw
 open sop
@@ -68,10 +71,12 @@ open ropw
 open rop
 open rmvvfunct6
 open rivvfunct6
+open rfwvvfunct6
 open rfvvfunct6
 open regno
 open regidx
 open read_kind
+open pte_check_failure
 open pmpAddrMatch
 open physaddr
 open option
@@ -87,9 +92,12 @@ open mvxfunct6
 open mvvmafunct6
 open mvvfunct6
 open mmfunct6
+open misaligned_fault
 open maskfunct3
+open landing_pad_expectation
 open iop
 open instruction
+open indexed_mop
 open fwvvmafunct6
 open fwvvfunct6
 open fwvfunct6
@@ -104,6 +112,7 @@ open fvfmafunct6
 open fvffunct6
 open fregno
 open fregidx
+open float_class
 open f_un_x_op_H
 open f_un_x_op_D
 open f_un_rm_xf_op_S
@@ -146,20 +155,28 @@ open bropw_zbb
 open brop_zbs
 open brop_zbkb
 open brop_zbb
+open breakpoint_cause
 open bop
 open biop_zbs
 open barrier_kind
 open amoop
 open agtype
 open WaitReason
+open VectorHalf
 open TrapVectorMode
+open TrapCause
 open Step
+open Software_Check_Code
+open Signedness
+open SWCheckCodes
 open SATPMode
+open Reservability
 open Register
 open Privilege
 open PmpAddrMatchType
 open PTW_Error
 open PTE_Check
+open MemoryAccessType
 open InterruptType
 open ISA_Format
 open HartState
@@ -168,94 +185,67 @@ open Ext_DataAddr_Check
 open ExtStatus
 open ExecutionResult
 open ExceptionType
+open CSRAccessType
+open AtomicSupport
 open Architecture
-open AccessType
 
-def encdec_mul_op_forwards (arg_ : mul_op) : SailM (BitVec 3) := do
+def encdec_mul_op_backwards (arg_ : (BitVec 3)) : SailM mul_op := do
   match arg_ with
-  | { high := false, signed_rs1 := true, signed_rs2 := true } => (pure (0b000 : (BitVec 3)))
-  | { high := true, signed_rs1 := true, signed_rs2 := true } => (pure (0b001 : (BitVec 3)))
-  | { high := true, signed_rs1 := true, signed_rs2 := false } => (pure (0b010 : (BitVec 3)))
-  | { high := true, signed_rs1 := false, signed_rs2 := false } => (pure (0b011 : (BitVec 3)))
+  | 0b000 =>
+    (pure { result_part := Low
+            signed_rs1 := Signed
+            signed_rs2 := Signed })
+  | 0b001 =>
+    (pure { result_part := High
+            signed_rs1 := Signed
+            signed_rs2 := Signed })
+  | 0b010 =>
+    (pure { result_part := High
+            signed_rs1 := Signed
+            signed_rs2 := Unsigned })
+  | 0b011 =>
+    (pure { result_part := High
+            signed_rs1 := Unsigned
+            signed_rs2 := Unsigned })
   | _ =>
     (do
       assert false "Pattern match failure at unknown location"
       throw Error.Exit)
 
-def encdec_mul_op_backwards (arg_ : (BitVec 3)) : SailM mul_op := do
-  let b__0 := arg_
-  if ((b__0 == (0b000 : (BitVec 3))) : Bool)
-  then
-    (pure { high := false
-            signed_rs1 := true
-            signed_rs2 := true })
-  else
-    (do
-      if ((b__0 == (0b001 : (BitVec 3))) : Bool)
-      then
-        (pure { high := true
-                signed_rs1 := true
-                signed_rs2 := true })
-      else
-        (do
-          if ((b__0 == (0b010 : (BitVec 3))) : Bool)
-          then
-            (pure { high := true
-                    signed_rs1 := true
-                    signed_rs2 := false })
-          else
-            (do
-              if ((b__0 == (0b011 : (BitVec 3))) : Bool)
-              then
-                (pure { high := true
-                        signed_rs1 := false
-                        signed_rs2 := false })
-              else
-                (do
-                  assert false "Pattern match failure at unknown location"
-                  throw Error.Exit))))
-
 def encdec_mul_op_forwards_matches (arg_ : mul_op) : Bool :=
   match arg_ with
-  | { high := false, signed_rs1 := true, signed_rs2 := true } => true
-  | { high := true, signed_rs1 := true, signed_rs2 := true } => true
-  | { high := true, signed_rs1 := true, signed_rs2 := false } => true
-  | { high := true, signed_rs1 := false, signed_rs2 := false } => true
+  | { result_part := Low, signed_rs1 := Signed, signed_rs2 := Signed } => true
+  | { result_part := High, signed_rs1 := Signed, signed_rs2 := Signed } => true
+  | { result_part := High, signed_rs1 := Signed, signed_rs2 := Unsigned } => true
+  | { result_part := High, signed_rs1 := Unsigned, signed_rs2 := Unsigned } => true
   | _ => false
 
 def encdec_mul_op_backwards_matches (arg_ : (BitVec 3)) : Bool :=
-  let b__0 := arg_
-  if ((b__0 == (0b000 : (BitVec 3))) : Bool)
-  then true
-  else
-    (if ((b__0 == (0b001 : (BitVec 3))) : Bool)
-    then true
-    else
-      (if ((b__0 == (0b010 : (BitVec 3))) : Bool)
-      then true
-      else
-        (if ((b__0 == (0b011 : (BitVec 3))) : Bool)
-        then true
-        else false)))
+  match arg_ with
+  | 0b000 => true
+  | 0b001 => true
+  | 0b010 => true
+  | 0b011 => true
+  | _ => false
 
 def mul_mnemonic_backwards (arg_ : String) : SailM mul_op := do
   match arg_ with
   | "mul" =>
-    (pure { high := false
-            signed_rs1 := true
-            signed_rs2 := true })
+    (pure { result_part := Low
+            signed_rs1 := Signed
+            signed_rs2 := Signed })
   | "mulh" =>
-    (pure { high := true
-            signed_rs1 := true
-            signed_rs2 := true })
+    (pure { result_part := High
+            signed_rs1 := Signed
+            signed_rs2 := Signed })
   | "mulhsu" =>
-    (pure { high := true
-            signed_rs1 := true
-            signed_rs2 := false })
+    (pure { result_part := High
+            signed_rs1 := Signed
+            signed_rs2 := Unsigned })
   | "mulhu" =>
-    (pure { high := true
-            signed_rs1 := false
-            signed_rs2 := false })
+    (pure { result_part := High
+            signed_rs1 := Unsigned
+            signed_rs2 := Unsigned })
   | _ =>
     (do
       assert false "Pattern match failure at unknown location"
@@ -263,10 +253,10 @@ def mul_mnemonic_backwards (arg_ : String) : SailM mul_op := do
 
 def mul_mnemonic_forwards_matches (arg_ : mul_op) : Bool :=
   match arg_ with
-  | { high := false, signed_rs1 := true, signed_rs2 := true } => true
-  | { high := true, signed_rs1 := true, signed_rs2 := true } => true
-  | { high := true, signed_rs1 := true, signed_rs2 := false } => true
-  | { high := true, signed_rs1 := false, signed_rs2 := false } => true
+  | { result_part := Low, signed_rs1 := Signed, signed_rs2 := Signed } => true
+  | { result_part := High, signed_rs1 := Signed, signed_rs2 := Signed } => true
+  | { result_part := High, signed_rs1 := Signed, signed_rs2 := Unsigned } => true
+  | { result_part := High, signed_rs1 := Unsigned, signed_rs2 := Unsigned } => true
   | _ => false
 
 def mul_mnemonic_backwards_matches (arg_ : String) : Bool :=

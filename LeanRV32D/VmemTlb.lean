@@ -8,6 +8,7 @@ set_option linter.unusedVariables false
 set_option match.ignoreUnusedAlts true
 
 open Sail
+open ConcurrencyInterfaceV1
 
 noncomputable section
 
@@ -20,6 +21,7 @@ open zvk_vaesef_funct6
 open zvk_vaesdm_funct6
 open zvk_vaesdf_funct6
 open zicondop
+open xRET_type
 open wxfunct6
 open wvxfunct6
 open wvvfunct6
@@ -55,6 +57,7 @@ open vfunary1
 open vfunary0
 open vfnunary0
 open vextfunct6
+open vector_support
 open uop
 open sopw
 open sop
@@ -64,10 +67,12 @@ open ropw
 open rop
 open rmvvfunct6
 open rivvfunct6
+open rfwvvfunct6
 open rfvvfunct6
 open regno
 open regidx
 open read_kind
+open pte_check_failure
 open pmpAddrMatch
 open physaddr
 open option
@@ -83,9 +88,12 @@ open mvxfunct6
 open mvvmafunct6
 open mvvfunct6
 open mmfunct6
+open misaligned_fault
 open maskfunct3
+open landing_pad_expectation
 open iop
 open instruction
+open indexed_mop
 open fwvvmafunct6
 open fwvvfunct6
 open fwvfunct6
@@ -100,6 +108,7 @@ open fvfmafunct6
 open fvffunct6
 open fregno
 open fregidx
+open float_class
 open f_un_x_op_H
 open f_un_x_op_D
 open f_un_rm_xf_op_S
@@ -142,20 +151,28 @@ open bropw_zbb
 open brop_zbs
 open brop_zbkb
 open brop_zbb
+open breakpoint_cause
 open bop
 open biop_zbs
 open barrier_kind
 open amoop
 open agtype
 open WaitReason
+open VectorHalf
 open TrapVectorMode
+open TrapCause
 open Step
+open Software_Check_Code
+open Signedness
+open SWCheckCodes
 open SATPMode
+open Reservability
 open Register
 open Privilege
 open PmpAddrMatchType
 open PTW_Error
 open PTE_Check
+open MemoryAccessType
 open InterruptType
 open ISA_Format
 open HartState
@@ -164,8 +181,9 @@ open Ext_DataAddr_Check
 open ExtStatus
 open ExecutionResult
 open ExceptionType
+open CSRAccessType
+open AtomicSupport
 open Architecture
-open AccessType
 
 def tlb_vpn_bits := (57 -i 12)
 
@@ -190,14 +208,16 @@ def tlb_get_ppn (sv_width : Nat) (ent : TLB_Entry) (vpn : (BitVec (sv_width - 12
     then 22
     else 44)) (ppn ||| (vpn &&& levelMask)))
 
-/-- Type quantifiers: sv_mode : Nat, is_sv_mode(sv_mode) -/
-def tlb_hash (sv_mode : Nat) (vpn : (BitVec (sv_mode - 12))) : Nat :=
-  (BitVec.toNat (Sail.BitVec.extractLsb vpn 5 0))
+def num_tlb_entries_exp := 6
+
+/-- Type quantifiers: _sv_mode : Nat, is_sv_mode(_sv_mode) -/
+def tlb_hash (_sv_mode : Nat) (vpn : (BitVec (_sv_mode - 12))) : Nat :=
+  (BitVec.toNatInt (Sail.BitVec.extractLsb vpn (num_tlb_entries_exp -i 1) 0))
 
 def reset_TLB (_ : Unit) : SailM Unit := do
   writeReg tlb (vectorInit none)
 
-/-- Type quantifiers: index : Nat, 0 ≤ index ∧ index ≤ (64 - 1) -/
+/-- Type quantifiers: index : Nat, 0 ≤ index ∧ index ≤ (2 ^ 6 - 1) -/
 def write_TLB (index : Nat) (entry : TLB_Entry) : SailM Unit := do
   writeReg tlb (vectorUpdate (← readReg tlb) index (some entry))
 
@@ -228,7 +248,7 @@ def lookup_TLB (sv_width : Nat) (asid : (BitVec (if ( 32 = 32  : Bool) then 9 el
     then (pure (some (index, entry)))
     else (pure none))
 
-/-- Type quantifiers: k_ex376488# : Bool, level : Nat, sv_width : Nat, is_sv_mode(sv_width), 0 ≤
+/-- Type quantifiers: k_ex623760_ : Bool, level : Nat, sv_width : Nat, is_sv_mode(sv_width), 0 ≤
   level ∧
   level ≤
   (if ( sv_width = 32  : Bool) then 1 else (if ( sv_width = 39  : Bool) then 2 else (if ( sv_width =

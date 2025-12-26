@@ -12,6 +12,7 @@ set_option linter.unusedVariables false
 set_option match.ignoreUnusedAlts true
 
 open Sail
+open ConcurrencyInterfaceV1
 
 noncomputable section
 
@@ -24,6 +25,7 @@ open zvk_vaesef_funct6
 open zvk_vaesdm_funct6
 open zvk_vaesdf_funct6
 open zicondop
+open xRET_type
 open wxfunct6
 open wvxfunct6
 open wvvfunct6
@@ -59,6 +61,7 @@ open vfunary1
 open vfunary0
 open vfnunary0
 open vextfunct6
+open vector_support
 open uop
 open sopw
 open sop
@@ -68,10 +71,12 @@ open ropw
 open rop
 open rmvvfunct6
 open rivvfunct6
+open rfwvvfunct6
 open rfvvfunct6
 open regno
 open regidx
 open read_kind
+open pte_check_failure
 open pmpAddrMatch
 open physaddr
 open option
@@ -87,9 +92,12 @@ open mvxfunct6
 open mvvmafunct6
 open mvvfunct6
 open mmfunct6
+open misaligned_fault
 open maskfunct3
+open landing_pad_expectation
 open iop
 open instruction
+open indexed_mop
 open fwvvmafunct6
 open fwvvfunct6
 open fwvfunct6
@@ -104,6 +112,7 @@ open fvfmafunct6
 open fvffunct6
 open fregno
 open fregidx
+open float_class
 open f_un_x_op_H
 open f_un_x_op_D
 open f_un_rm_xf_op_S
@@ -146,20 +155,28 @@ open bropw_zbb
 open brop_zbs
 open brop_zbkb
 open brop_zbb
+open breakpoint_cause
 open bop
 open biop_zbs
 open barrier_kind
 open amoop
 open agtype
 open WaitReason
+open VectorHalf
 open TrapVectorMode
+open TrapCause
 open Step
+open Software_Check_Code
+open Signedness
+open SWCheckCodes
 open SATPMode
+open Reservability
 open Register
 open Privilege
 open PmpAddrMatchType
 open PTW_Error
 open PTE_Check
+open MemoryAccessType
 open InterruptType
 open ISA_Format
 open HartState
@@ -168,26 +185,18 @@ open Ext_DataAddr_Check
 open ExtStatus
 open ExecutionResult
 open ExceptionType
+open CSRAccessType
+open AtomicSupport
 open Architecture
-open AccessType
-
-def encdec_vaesdf_forwards (arg_ : zvk_vaesdf_funct6) : (BitVec 6) :=
-  match arg_ with
-  | ZVK_VAESDF_VV => (0b101000 : (BitVec 6))
-  | ZVK_VAESDF_VS => (0b101001 : (BitVec 6))
 
 def encdec_vaesdf_backwards (arg_ : (BitVec 6)) : SailM zvk_vaesdf_funct6 := do
-  let b__0 := arg_
-  if ((b__0 == (0b101000 : (BitVec 6))) : Bool)
-  then (pure ZVK_VAESDF_VV)
-  else
+  match arg_ with
+  | 0b101000 => (pure ZVK_VAESDF_VV)
+  | 0b101001 => (pure ZVK_VAESDF_VS)
+  | _ =>
     (do
-      if ((b__0 == (0b101001 : (BitVec 6))) : Bool)
-      then (pure ZVK_VAESDF_VS)
-      else
-        (do
-          assert false "Pattern match failure at unknown location"
-          throw Error.Exit))
+      assert false "Pattern match failure at unknown location"
+      throw Error.Exit)
 
 def encdec_vaesdf_forwards_matches (arg_ : zvk_vaesdf_funct6) : Bool :=
   match arg_ with
@@ -195,13 +204,10 @@ def encdec_vaesdf_forwards_matches (arg_ : zvk_vaesdf_funct6) : Bool :=
   | ZVK_VAESDF_VS => true
 
 def encdec_vaesdf_backwards_matches (arg_ : (BitVec 6)) : Bool :=
-  let b__0 := arg_
-  if ((b__0 == (0b101000 : (BitVec 6))) : Bool)
-  then true
-  else
-    (if ((b__0 == (0b101001 : (BitVec 6))) : Bool)
-    then true
-    else false)
+  match arg_ with
+  | 0b101000 => true
+  | 0b101001 => true
+  | _ => false
 
 def vaesdf_mnemonic_backwards (arg_ : String) : SailM zvk_vaesdf_funct6 := do
   match arg_ with
@@ -223,23 +229,14 @@ def vaesdf_mnemonic_backwards_matches (arg_ : String) : Bool :=
   | "vaesdf.vs" => true
   | _ => false
 
-def encdec_vaesdm_forwards (arg_ : zvk_vaesdm_funct6) : (BitVec 6) :=
-  match arg_ with
-  | ZVK_VAESDM_VV => (0b101000 : (BitVec 6))
-  | ZVK_VAESDM_VS => (0b101001 : (BitVec 6))
-
 def encdec_vaesdm_backwards (arg_ : (BitVec 6)) : SailM zvk_vaesdm_funct6 := do
-  let b__0 := arg_
-  if ((b__0 == (0b101000 : (BitVec 6))) : Bool)
-  then (pure ZVK_VAESDM_VV)
-  else
+  match arg_ with
+  | 0b101000 => (pure ZVK_VAESDM_VV)
+  | 0b101001 => (pure ZVK_VAESDM_VS)
+  | _ =>
     (do
-      if ((b__0 == (0b101001 : (BitVec 6))) : Bool)
-      then (pure ZVK_VAESDM_VS)
-      else
-        (do
-          assert false "Pattern match failure at unknown location"
-          throw Error.Exit))
+      assert false "Pattern match failure at unknown location"
+      throw Error.Exit)
 
 def encdec_vaesdm_forwards_matches (arg_ : zvk_vaesdm_funct6) : Bool :=
   match arg_ with
@@ -247,13 +244,10 @@ def encdec_vaesdm_forwards_matches (arg_ : zvk_vaesdm_funct6) : Bool :=
   | ZVK_VAESDM_VS => true
 
 def encdec_vaesdm_backwards_matches (arg_ : (BitVec 6)) : Bool :=
-  let b__0 := arg_
-  if ((b__0 == (0b101000 : (BitVec 6))) : Bool)
-  then true
-  else
-    (if ((b__0 == (0b101001 : (BitVec 6))) : Bool)
-    then true
-    else false)
+  match arg_ with
+  | 0b101000 => true
+  | 0b101001 => true
+  | _ => false
 
 def vaesdm_mnemonic_backwards (arg_ : String) : SailM zvk_vaesdm_funct6 := do
   match arg_ with
@@ -275,23 +269,14 @@ def vaesdm_mnemonic_backwards_matches (arg_ : String) : Bool :=
   | "vaesdm.vs" => true
   | _ => false
 
-def encdec_vaesef_forwards (arg_ : zvk_vaesef_funct6) : (BitVec 6) :=
-  match arg_ with
-  | ZVK_VAESEF_VV => (0b101000 : (BitVec 6))
-  | ZVK_VAESEF_VS => (0b101001 : (BitVec 6))
-
 def encdec_vaesef_backwards (arg_ : (BitVec 6)) : SailM zvk_vaesef_funct6 := do
-  let b__0 := arg_
-  if ((b__0 == (0b101000 : (BitVec 6))) : Bool)
-  then (pure ZVK_VAESEF_VV)
-  else
+  match arg_ with
+  | 0b101000 => (pure ZVK_VAESEF_VV)
+  | 0b101001 => (pure ZVK_VAESEF_VS)
+  | _ =>
     (do
-      if ((b__0 == (0b101001 : (BitVec 6))) : Bool)
-      then (pure ZVK_VAESEF_VS)
-      else
-        (do
-          assert false "Pattern match failure at unknown location"
-          throw Error.Exit))
+      assert false "Pattern match failure at unknown location"
+      throw Error.Exit)
 
 def encdec_vaesef_forwards_matches (arg_ : zvk_vaesef_funct6) : Bool :=
   match arg_ with
@@ -299,13 +284,10 @@ def encdec_vaesef_forwards_matches (arg_ : zvk_vaesef_funct6) : Bool :=
   | ZVK_VAESEF_VS => true
 
 def encdec_vaesef_backwards_matches (arg_ : (BitVec 6)) : Bool :=
-  let b__0 := arg_
-  if ((b__0 == (0b101000 : (BitVec 6))) : Bool)
-  then true
-  else
-    (if ((b__0 == (0b101001 : (BitVec 6))) : Bool)
-    then true
-    else false)
+  match arg_ with
+  | 0b101000 => true
+  | 0b101001 => true
+  | _ => false
 
 def vaesef_mnemonic_backwards (arg_ : String) : SailM zvk_vaesef_funct6 := do
   match arg_ with
@@ -327,23 +309,14 @@ def vaesef_mnemonic_backwards_matches (arg_ : String) : Bool :=
   | "vaesef.vs" => true
   | _ => false
 
-def encdec_vaesem_forwards (arg_ : zvk_vaesem_funct6) : (BitVec 6) :=
-  match arg_ with
-  | ZVK_VAESEM_VV => (0b101000 : (BitVec 6))
-  | ZVK_VAESEM_VS => (0b101001 : (BitVec 6))
-
 def encdec_vaesem_backwards (arg_ : (BitVec 6)) : SailM zvk_vaesem_funct6 := do
-  let b__0 := arg_
-  if ((b__0 == (0b101000 : (BitVec 6))) : Bool)
-  then (pure ZVK_VAESEM_VV)
-  else
+  match arg_ with
+  | 0b101000 => (pure ZVK_VAESEM_VV)
+  | 0b101001 => (pure ZVK_VAESEM_VS)
+  | _ =>
     (do
-      if ((b__0 == (0b101001 : (BitVec 6))) : Bool)
-      then (pure ZVK_VAESEM_VS)
-      else
-        (do
-          assert false "Pattern match failure at unknown location"
-          throw Error.Exit))
+      assert false "Pattern match failure at unknown location"
+      throw Error.Exit)
 
 def encdec_vaesem_forwards_matches (arg_ : zvk_vaesem_funct6) : Bool :=
   match arg_ with
@@ -351,13 +324,10 @@ def encdec_vaesem_forwards_matches (arg_ : zvk_vaesem_funct6) : Bool :=
   | ZVK_VAESEM_VS => true
 
 def encdec_vaesem_backwards_matches (arg_ : (BitVec 6)) : Bool :=
-  let b__0 := arg_
-  if ((b__0 == (0b101000 : (BitVec 6))) : Bool)
-  then true
-  else
-    (if ((b__0 == (0b101001 : (BitVec 6))) : Bool)
-    then true
-    else false)
+  match arg_ with
+  | 0b101000 => true
+  | 0b101001 => true
+  | _ => false
 
 def vaesem_mnemonic_backwards (arg_ : String) : SailM zvk_vaesem_funct6 := do
   match arg_ with

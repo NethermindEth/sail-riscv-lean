@@ -1,5 +1,10 @@
-import LeanRV32D.Xlen
-import LeanRV32D.Types
+import LeanRV32D.Sail.Sail
+import LeanRV32D.Sail.BitVec
+import LeanRV32D.Sail.IntRange
+import LeanRV32D.Defs
+import LeanRV32D.Specialization
+import LeanRV32D.FakeReal
+import LeanRV32D.RiscvExtras
 
 set_option maxHeartbeats 1_000_000_000
 set_option maxRecDepth 1_000_000
@@ -7,6 +12,7 @@ set_option linter.unusedVariables false
 set_option match.ignoreUnusedAlts true
 
 open Sail
+open ConcurrencyInterfaceV1
 
 noncomputable section
 
@@ -19,6 +25,7 @@ open zvk_vaesef_funct6
 open zvk_vaesdm_funct6
 open zvk_vaesdf_funct6
 open zicondop
+open xRET_type
 open wxfunct6
 open wvxfunct6
 open wvvfunct6
@@ -54,6 +61,7 @@ open vfunary1
 open vfunary0
 open vfnunary0
 open vextfunct6
+open vector_support
 open uop
 open sopw
 open sop
@@ -63,10 +71,12 @@ open ropw
 open rop
 open rmvvfunct6
 open rivvfunct6
+open rfwvvfunct6
 open rfvvfunct6
 open regno
 open regidx
 open read_kind
+open pte_check_failure
 open pmpAddrMatch
 open physaddr
 open option
@@ -82,9 +92,12 @@ open mvxfunct6
 open mvvmafunct6
 open mvvfunct6
 open mmfunct6
+open misaligned_fault
 open maskfunct3
+open landing_pad_expectation
 open iop
 open instruction
+open indexed_mop
 open fwvvmafunct6
 open fwvvfunct6
 open fwvfunct6
@@ -99,6 +112,7 @@ open fvfmafunct6
 open fvffunct6
 open fregno
 open fregidx
+open float_class
 open f_un_x_op_H
 open f_un_x_op_D
 open f_un_rm_xf_op_S
@@ -141,20 +155,28 @@ open bropw_zbb
 open brop_zbs
 open brop_zbkb
 open brop_zbb
+open breakpoint_cause
 open bop
 open biop_zbs
 open barrier_kind
 open amoop
 open agtype
 open WaitReason
+open VectorHalf
 open TrapVectorMode
+open TrapCause
 open Step
+open Software_Check_Code
+open Signedness
+open SWCheckCodes
 open SATPMode
+open Reservability
 open Register
 open Privilege
 open PmpAddrMatchType
 open PTW_Error
 open PTE_Check
+open MemoryAccessType
 open InterruptType
 open ISA_Format
 open HartState
@@ -163,80 +185,26 @@ open Ext_DataAddr_Check
 open ExtStatus
 open ExecutionResult
 open ExceptionType
+open CSRAccessType
+open AtomicSupport
 open Architecture
-open AccessType
-
-/-- Type quantifiers: width : Nat, width ∈ {1, 2, 4, 8, 16} -/
-def amo_encoding_valid (width : Nat) (op : amoop) (typ_2 : regidx) (typ_3 : regidx) : SailM Bool := do
-  let .Regidx rs2 : regidx := typ_2
-  let .Regidx rd : regidx := typ_3
-  (pure ((← do
-        if ((op == AMOCAS) : Bool)
-        then (currentlyEnabled Ext_Zacas)
-        else (currentlyEnabled Ext_Zaamo)) && (← do
-        if ((width <b 4) : Bool)
-        then (currentlyEnabled Ext_Zabha)
-        else
-          (pure ((width ≤b xlen_bytes) || ((op == AMOCAS) && ((width ≤b (xlen_bytes *i 2)) && (((BitVec.access
-                        rs2 0) == 0#1) && ((BitVec.access rd 0) == 0#1)))))))))
-
-def encdec_amoop_forwards (arg_ : amoop) : (BitVec 5) :=
-  match arg_ with
-  | AMOSWAP => (0b00001 : (BitVec 5))
-  | AMOADD => (0b00000 : (BitVec 5))
-  | AMOXOR => (0b00100 : (BitVec 5))
-  | AMOAND => (0b01100 : (BitVec 5))
-  | AMOOR => (0b01000 : (BitVec 5))
-  | AMOMIN => (0b10000 : (BitVec 5))
-  | AMOMAX => (0b10100 : (BitVec 5))
-  | AMOMINU => (0b11000 : (BitVec 5))
-  | AMOMAXU => (0b11100 : (BitVec 5))
-  | AMOCAS => (0b00101 : (BitVec 5))
 
 def encdec_amoop_backwards (arg_ : (BitVec 5)) : SailM amoop := do
-  let b__0 := arg_
-  if ((b__0 == (0b00001 : (BitVec 5))) : Bool)
-  then (pure AMOSWAP)
-  else
+  match arg_ with
+  | 0b00001 => (pure AMOSWAP)
+  | 0b00000 => (pure AMOADD)
+  | 0b00100 => (pure AMOXOR)
+  | 0b01100 => (pure AMOAND)
+  | 0b01000 => (pure AMOOR)
+  | 0b10000 => (pure AMOMIN)
+  | 0b10100 => (pure AMOMAX)
+  | 0b11000 => (pure AMOMINU)
+  | 0b11100 => (pure AMOMAXU)
+  | 0b00101 => (pure AMOCAS)
+  | _ =>
     (do
-      if ((b__0 == (0b00000 : (BitVec 5))) : Bool)
-      then (pure AMOADD)
-      else
-        (do
-          if ((b__0 == (0b00100 : (BitVec 5))) : Bool)
-          then (pure AMOXOR)
-          else
-            (do
-              if ((b__0 == (0b01100 : (BitVec 5))) : Bool)
-              then (pure AMOAND)
-              else
-                (do
-                  if ((b__0 == (0b01000 : (BitVec 5))) : Bool)
-                  then (pure AMOOR)
-                  else
-                    (do
-                      if ((b__0 == (0b10000 : (BitVec 5))) : Bool)
-                      then (pure AMOMIN)
-                      else
-                        (do
-                          if ((b__0 == (0b10100 : (BitVec 5))) : Bool)
-                          then (pure AMOMAX)
-                          else
-                            (do
-                              if ((b__0 == (0b11000 : (BitVec 5))) : Bool)
-                              then (pure AMOMINU)
-                              else
-                                (do
-                                  if ((b__0 == (0b11100 : (BitVec 5))) : Bool)
-                                  then (pure AMOMAXU)
-                                  else
-                                    (do
-                                      if ((b__0 == (0b00101 : (BitVec 5))) : Bool)
-                                      then (pure AMOCAS)
-                                      else
-                                        (do
-                                          assert false "Pattern match failure at unknown location"
-                                          throw Error.Exit))))))))))
+      assert false "Pattern match failure at unknown location"
+      throw Error.Exit)
 
 def encdec_amoop_forwards_matches (arg_ : amoop) : Bool :=
   match arg_ with
@@ -252,37 +220,18 @@ def encdec_amoop_forwards_matches (arg_ : amoop) : Bool :=
   | AMOCAS => true
 
 def encdec_amoop_backwards_matches (arg_ : (BitVec 5)) : Bool :=
-  let b__0 := arg_
-  if ((b__0 == (0b00001 : (BitVec 5))) : Bool)
-  then true
-  else
-    (if ((b__0 == (0b00000 : (BitVec 5))) : Bool)
-    then true
-    else
-      (if ((b__0 == (0b00100 : (BitVec 5))) : Bool)
-      then true
-      else
-        (if ((b__0 == (0b01100 : (BitVec 5))) : Bool)
-        then true
-        else
-          (if ((b__0 == (0b01000 : (BitVec 5))) : Bool)
-          then true
-          else
-            (if ((b__0 == (0b10000 : (BitVec 5))) : Bool)
-            then true
-            else
-              (if ((b__0 == (0b10100 : (BitVec 5))) : Bool)
-              then true
-              else
-                (if ((b__0 == (0b11000 : (BitVec 5))) : Bool)
-                then true
-                else
-                  (if ((b__0 == (0b11100 : (BitVec 5))) : Bool)
-                  then true
-                  else
-                    (if ((b__0 == (0b00101 : (BitVec 5))) : Bool)
-                    then true
-                    else false)))))))))
+  match arg_ with
+  | 0b00001 => true
+  | 0b00000 => true
+  | 0b00100 => true
+  | 0b01100 => true
+  | 0b01000 => true
+  | 0b10000 => true
+  | 0b10100 => true
+  | 0b11000 => true
+  | 0b11100 => true
+  | 0b00101 => true
+  | _ => false
 
 def amo_mnemonic_backwards (arg_ : String) : SailM amoop := do
   match arg_ with

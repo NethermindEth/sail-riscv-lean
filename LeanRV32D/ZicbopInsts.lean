@@ -12,6 +12,7 @@ set_option linter.unusedVariables false
 set_option match.ignoreUnusedAlts true
 
 open Sail
+open ConcurrencyInterfaceV1
 
 noncomputable section
 
@@ -24,6 +25,7 @@ open zvk_vaesef_funct6
 open zvk_vaesdm_funct6
 open zvk_vaesdf_funct6
 open zicondop
+open xRET_type
 open wxfunct6
 open wvxfunct6
 open wvvfunct6
@@ -59,6 +61,7 @@ open vfunary1
 open vfunary0
 open vfnunary0
 open vextfunct6
+open vector_support
 open uop
 open sopw
 open sop
@@ -68,10 +71,12 @@ open ropw
 open rop
 open rmvvfunct6
 open rivvfunct6
+open rfwvvfunct6
 open rfvvfunct6
 open regno
 open regidx
 open read_kind
+open pte_check_failure
 open pmpAddrMatch
 open physaddr
 open option
@@ -87,9 +92,12 @@ open mvxfunct6
 open mvvmafunct6
 open mvvfunct6
 open mmfunct6
+open misaligned_fault
 open maskfunct3
+open landing_pad_expectation
 open iop
 open instruction
+open indexed_mop
 open fwvvmafunct6
 open fwvvfunct6
 open fwvfunct6
@@ -104,6 +112,7 @@ open fvfmafunct6
 open fvffunct6
 open fregno
 open fregidx
+open float_class
 open f_un_x_op_H
 open f_un_x_op_D
 open f_un_rm_xf_op_S
@@ -146,20 +155,28 @@ open bropw_zbb
 open brop_zbs
 open brop_zbkb
 open brop_zbb
+open breakpoint_cause
 open bop
 open biop_zbs
 open barrier_kind
 open amoop
 open agtype
 open WaitReason
+open VectorHalf
 open TrapVectorMode
+open TrapCause
 open Step
+open Software_Check_Code
+open Signedness
+open SWCheckCodes
 open SATPMode
+open Reservability
 open Register
 open Privilege
 open PmpAddrMatchType
 open PTW_Error
 open PTE_Check
+open MemoryAccessType
 open InterruptType
 open ISA_Format
 open HartState
@@ -168,31 +185,19 @@ open Ext_DataAddr_Check
 open ExtStatus
 open ExecutionResult
 open ExceptionType
+open CSRAccessType
+open AtomicSupport
 open Architecture
-open AccessType
-
-def encdec_cbop_zicbop_forwards (arg_ : cbop_zicbop) : (BitVec 5) :=
-  match arg_ with
-  | PREFETCH_I => (0b00000 : (BitVec 5))
-  | PREFETCH_R => (0b00001 : (BitVec 5))
-  | PREFETCH_W => (0b00011 : (BitVec 5))
 
 def encdec_cbop_zicbop_backwards (arg_ : (BitVec 5)) : SailM cbop_zicbop := do
-  let b__0 := arg_
-  if ((b__0 == (0b00000 : (BitVec 5))) : Bool)
-  then (pure PREFETCH_I)
-  else
+  match arg_ with
+  | 0b00000 => (pure PREFETCH_I)
+  | 0b00001 => (pure PREFETCH_R)
+  | 0b00011 => (pure PREFETCH_W)
+  | _ =>
     (do
-      if ((b__0 == (0b00001 : (BitVec 5))) : Bool)
-      then (pure PREFETCH_R)
-      else
-        (do
-          if ((b__0 == (0b00011 : (BitVec 5))) : Bool)
-          then (pure PREFETCH_W)
-          else
-            (do
-              assert false "Pattern match failure at unknown location"
-              throw Error.Exit)))
+      assert false "Pattern match failure at unknown location"
+      throw Error.Exit)
 
 def encdec_cbop_zicbop_forwards_matches (arg_ : cbop_zicbop) : Bool :=
   match arg_ with
@@ -201,16 +206,11 @@ def encdec_cbop_zicbop_forwards_matches (arg_ : cbop_zicbop) : Bool :=
   | PREFETCH_W => true
 
 def encdec_cbop_zicbop_backwards_matches (arg_ : (BitVec 5)) : Bool :=
-  let b__0 := arg_
-  if ((b__0 == (0b00000 : (BitVec 5))) : Bool)
-  then true
-  else
-    (if ((b__0 == (0b00001 : (BitVec 5))) : Bool)
-    then true
-    else
-      (if ((b__0 == (0b00011 : (BitVec 5))) : Bool)
-      then true
-      else false))
+  match arg_ with
+  | 0b00000 => true
+  | 0b00001 => true
+  | 0b00011 => true
+  | _ => false
 
 def prefetch_mnemonic_backwards (arg_ : String) : SailM cbop_zicbop := do
   match arg_ with

@@ -7,6 +7,7 @@ set_option linter.unusedVariables false
 set_option match.ignoreUnusedAlts true
 
 open Sail
+open ConcurrencyInterfaceV1
 
 noncomputable section
 
@@ -19,6 +20,7 @@ open zvk_vaesef_funct6
 open zvk_vaesdm_funct6
 open zvk_vaesdf_funct6
 open zicondop
+open xRET_type
 open wxfunct6
 open wvxfunct6
 open wvvfunct6
@@ -54,6 +56,7 @@ open vfunary1
 open vfunary0
 open vfnunary0
 open vextfunct6
+open vector_support
 open uop
 open sopw
 open sop
@@ -63,10 +66,12 @@ open ropw
 open rop
 open rmvvfunct6
 open rivvfunct6
+open rfwvvfunct6
 open rfvvfunct6
 open regno
 open regidx
 open read_kind
+open pte_check_failure
 open pmpAddrMatch
 open physaddr
 open option
@@ -82,9 +87,12 @@ open mvxfunct6
 open mvvmafunct6
 open mvvfunct6
 open mmfunct6
+open misaligned_fault
 open maskfunct3
+open landing_pad_expectation
 open iop
 open instruction
+open indexed_mop
 open fwvvmafunct6
 open fwvvfunct6
 open fwvfunct6
@@ -99,6 +107,7 @@ open fvfmafunct6
 open fvffunct6
 open fregno
 open fregidx
+open float_class
 open f_un_x_op_H
 open f_un_x_op_D
 open f_un_rm_xf_op_S
@@ -134,37 +143,46 @@ open csrop
 open cregidx
 open checked_cbop
 open cfregidx
+open cbop_zicbop
 open cbop_zicbom
 open cbie
 open bropw_zbb
 open brop_zbs
 open brop_zbkb
 open brop_zbb
+open breakpoint_cause
 open bop
 open biop_zbs
 open barrier_kind
 open amoop
 open agtype
 open WaitReason
+open VectorHalf
 open TrapVectorMode
+open TrapCause
 open Step
+open Software_Check_Code
+open Signedness
+open SWCheckCodes
 open SATPMode
+open Reservability
 open Register
 open Privilege
 open PmpAddrMatchType
 open PTW_Error
 open PTE_Check
+open MemoryAccessType
 open InterruptType
 open ISA_Format
 open HartState
 open FetchResult
 open Ext_DataAddr_Check
-open Ext_ControlAddr_Check
 open ExtStatus
 open ExecutionResult
 open ExceptionType
+open CSRAccessType
+open AtomicSupport
 open Architecture
-open AccessType
 
 /-- Type quantifiers: k_m : Nat, k_m ≥ 0, k_m ≥ 0 ∧ (k_m % 8) = 0 -/
 def brev8 (input : (BitVec k_m)) : (BitVec k_m) := Id.run do
@@ -212,6 +230,21 @@ def carryless_mul_reversed (a : (BitVec k_n)) (b : (BitVec k_n)) : (BitVec k_n) 
   let prod := (carryless_mul (reverse_bits a) (reverse_bits b))
   (reverse_bits (Sail.BitVec.extractLsb prod ((Sail.BitVec.length b) -i 1) 0))
 
+/-- Type quantifiers: l : Nat, l ≥ 0, l > 0 -/
+def mult_to_bits_half {l : _} (sign1 : Signedness) (sign2 : Signedness) (rs1_bits : (BitVec l)) (rs2_bits : (BitVec l)) (result_part : VectorHalf) : (BitVec l) :=
+  let rs1_int : Int :=
+    match sign1 with
+    | Signed => (BitVec.toInt rs1_bits)
+    | Unsigned => (BitVec.toNatInt rs1_bits)
+  let rs2_int : Int :=
+    match sign2 with
+    | Signed => (BitVec.toInt rs2_bits)
+    | Unsigned => (BitVec.toNatInt rs2_bits)
+  let result_wide := (to_bits_truncate (l := (2 *i l)) (rs1_int *i rs2_int))
+  match result_part with
+  | High => (Sail.BitVec.extractLsb result_wide ((2 *i l) -i 1) l)
+  | Low => (Sail.BitVec.extractLsb result_wide (l -i 1) 0)
+
 def cmulr_equivalence (a : (BitVec 16)) (b : (BitVec 16)) : Bool :=
   ((carryless_mul_reversed a b) == (carryless_mulr a b))
 
@@ -242,7 +275,7 @@ def count_ones (x : (BitVec k_n)) : SailM Nat := do
       then
         (do
           let new_count := (count +i 1)
-          assert (new_count ≤b (Sail.BitVec.length x)) "arithmetic.sail:67.28-67.29"
+          assert (new_count ≤b (Sail.BitVec.length x)) "core/arithmetic.sail:85.28-85.29"
           (pure new_count))
       else (pure count)
   (pure loop_vars)

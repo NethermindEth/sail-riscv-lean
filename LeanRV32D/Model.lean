@@ -1,6 +1,7 @@
 import LeanRV32D.Prelude
 import LeanRV32D.Regs
 import LeanRV32D.SysRegs
+import LeanRV32D.ZicfilpRegs
 import LeanRV32D.SysControl
 import LeanRV32D.Platform
 import LeanRV32D.Vmem
@@ -14,6 +15,7 @@ set_option linter.unusedVariables false
 set_option match.ignoreUnusedAlts true
 
 open Sail
+open ConcurrencyInterfaceV1
 
 noncomputable section
 
@@ -26,6 +28,7 @@ open zvk_vaesef_funct6
 open zvk_vaesdm_funct6
 open zvk_vaesdf_funct6
 open zicondop
+open xRET_type
 open wxfunct6
 open wvxfunct6
 open wvvfunct6
@@ -61,6 +64,7 @@ open vfunary1
 open vfunary0
 open vfnunary0
 open vextfunct6
+open vector_support
 open uop
 open sopw
 open sop
@@ -70,10 +74,12 @@ open ropw
 open rop
 open rmvvfunct6
 open rivvfunct6
+open rfwvvfunct6
 open rfvvfunct6
 open regno
 open regidx
 open read_kind
+open pte_check_failure
 open pmpAddrMatch
 open physaddr
 open option
@@ -89,9 +95,12 @@ open mvxfunct6
 open mvvmafunct6
 open mvvfunct6
 open mmfunct6
+open misaligned_fault
 open maskfunct3
+open landing_pad_expectation
 open iop
 open instruction
+open indexed_mop
 open fwvvmafunct6
 open fwvvfunct6
 open fwvfunct6
@@ -106,6 +115,7 @@ open fvfmafunct6
 open fvffunct6
 open fregno
 open fregidx
+open float_class
 open f_un_x_op_H
 open f_un_x_op_D
 open f_un_rm_xf_op_S
@@ -148,20 +158,28 @@ open bropw_zbb
 open brop_zbs
 open brop_zbkb
 open brop_zbb
+open breakpoint_cause
 open bop
 open biop_zbs
 open barrier_kind
 open amoop
 open agtype
 open WaitReason
+open VectorHalf
 open TrapVectorMode
+open TrapCause
 open Step
+open Software_Check_Code
+open Signedness
+open SWCheckCodes
 open SATPMode
+open Reservability
 open Register
 open Privilege
 open PmpAddrMatchType
 open PTW_Error
 open PTE_Check
+open MemoryAccessType
 open InterruptType
 open ISA_Format
 open HartState
@@ -170,13 +188,15 @@ open Ext_DataAddr_Check
 open ExtStatus
 open ExecutionResult
 open ExceptionType
+open CSRAccessType
+open AtomicSupport
 open Architecture
-open AccessType
 
 def reset (_ : Unit) : SailM Unit := do
   writeReg hart_state (HART_ACTIVE ())
   (reset_sys ())
   (reset_vmem ())
+  (reset_elp ())
   (pure (ext_reset ()))
 
 def init_model (config_filename : String) : SailM Unit := do
@@ -189,5 +209,7 @@ def init_model (config_filename : String) : SailM Unit := do
 
 def init_boot_requirements (_ : Unit) : SailM Unit := do
   (wX (Regno 10) (← readReg mhartid))
-  (wX (Regno 11) (← (to_bits_checked (l := 32) (4096 : Int))))
+  (wX (Regno 11)
+    (trunc (m := 32)
+      (0b0000000000000000000000000000000000000000000000000001000000000000#64 : (BitVec 64))))
 

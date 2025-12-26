@@ -1,10 +1,5 @@
-import LeanRV64D.Sail.Sail
-import LeanRV64D.Sail.BitVec
-import LeanRV64D.Sail.IntRange
-import LeanRV64D.Defs
-import LeanRV64D.Specialization
-import LeanRV64D.FakeReal
-import LeanRV64D.RiscvExtras
+import LeanRV64D.Flow
+import LeanRV64D.Vector
 
 set_option maxHeartbeats 1_000_000_000
 set_option maxRecDepth 1_000_000
@@ -12,6 +7,7 @@ set_option linter.unusedVariables false
 set_option match.ignoreUnusedAlts true
 
 open Sail
+open ConcurrencyInterfaceV1
 
 noncomputable section
 
@@ -24,6 +20,7 @@ open zvk_vaesef_funct6
 open zvk_vaesdm_funct6
 open zvk_vaesdf_funct6
 open zicondop
+open xRET_type
 open wxfunct6
 open wvxfunct6
 open wvvfunct6
@@ -59,6 +56,7 @@ open vfunary1
 open vfunary0
 open vfnunary0
 open vextfunct6
+open vector_support
 open uop
 open sopw
 open sop
@@ -68,10 +66,12 @@ open ropw
 open rop
 open rmvvfunct6
 open rivvfunct6
+open rfwvvfunct6
 open rfvvfunct6
 open regno
 open regidx
 open read_kind
+open pte_check_failure
 open pmpAddrMatch
 open physaddr
 open option
@@ -87,9 +87,12 @@ open mvxfunct6
 open mvvmafunct6
 open mvvfunct6
 open mmfunct6
+open misaligned_fault
 open maskfunct3
+open landing_pad_expectation
 open iop
 open instruction
+open indexed_mop
 open fwvvmafunct6
 open fwvvfunct6
 open fwvfunct6
@@ -104,6 +107,7 @@ open fvfmafunct6
 open fvffunct6
 open fregno
 open fregidx
+open float_class
 open f_un_x_op_H
 open f_un_x_op_D
 open f_un_rm_xf_op_S
@@ -139,77 +143,151 @@ open csrop
 open cregidx
 open checked_cbop
 open cfregidx
+open cbop_zicbop
 open cbop_zicbom
 open cbie
 open bropw_zbb
 open brop_zbs
 open brop_zbkb
 open brop_zbb
+open breakpoint_cause
 open bop
 open biop_zbs
 open barrier_kind
 open amoop
 open agtype
 open WaitReason
+open VectorHalf
 open TrapVectorMode
+open TrapCause
 open Step
+open Software_Check_Code
+open Signedness
+open SWCheckCodes
 open SATPMode
+open Reservability
 open Register
 open Privilege
 open PmpAddrMatchType
 open PTW_Error
 open PTE_Check
+open MemoryAccessType
 open InterruptType
 open ISA_Format
 open HartState
 open FetchResult
 open Ext_DataAddr_Check
-open Ext_ControlAddr_Check
 open ExtStatus
 open ExecutionResult
 open ExceptionType
+open CSRAccessType
+open AtomicSupport
 open Architecture
-open AccessType
 
-/-- Type quantifiers: k_n : Nat, k_n ≥ 0, k_n > 0 -/
-def sail_instr_announce (x_0 : (BitVec k_n)) : Unit :=
-  ()
+def fp_eflag_none : fp_exception_flags := 0b00000#5
 
-/-- Type quantifiers: x_0 : Nat, x_0 ≥ 0, x_0 ∈ {32, 64} -/
-def sail_branch_announce (x_0 : Nat) (x_1 : (BitVec x_0)) : Unit :=
-  ()
+def fp_eflag_invalid : fp_exception_flags := 0b00001#5
 
-def sail_reset_registers (_ : Unit) : Unit :=
-  ()
+def fp_eflag_divide_by_zero : fp_exception_flags := 0b00010#5
 
-def sail_synchronize_registers (_ : Unit) : Unit :=
-  ()
+def fp_eflag_oveflow : fp_exception_flags := 0b00100#5
 
-/-- Type quantifiers: k_a : Type -/
-def sail_mark_register (x_0 : (RegisterRef k_a)) (x_1 : String) : Unit :=
-  ()
+def fp_eflag_underflow : fp_exception_flags := 0b01000#5
 
-/-- Type quantifiers: k_a : Type, k_b : Type -/
-def sail_mark_register_pair (x_0 : (RegisterRef k_a)) (x_1 : (RegisterRef k_b)) (x_2 : String) : Unit :=
-  ()
+def fp_eflag_inexact : fp_exception_flags := 0b10000#5
 
-/-- Type quantifiers: k_a : Type -/
-def sail_ignore_write_to (reg : (RegisterRef k_a)) : Unit :=
-  (sail_mark_register reg "ignore_write")
+def fp_eflag_overflow_and_inexact : fp_exception_flags := (fp_eflag_oveflow ||| fp_eflag_inexact)
 
-/-- Type quantifiers: k_a : Type -/
-def sail_pick_dependency (reg : (RegisterRef k_a)) : Unit :=
-  (sail_mark_register reg "pick")
+def fp_rounding_rne : fp_rounding_modes := 0b00001#5
 
-/-- Type quantifiers: k_n : Nat, k_n ≥ 0, k_n ≥ 0 -/
-def __monomorphize (bv : (BitVec k_n)) : (BitVec k_n) :=
-  bv
+def fp_rounding_rna : fp_rounding_modes := 0b00010#5
 
-/-- Type quantifiers: n : Int -/
-def __monomorphize_int (n : Int) : Int :=
-  n
+def fp_rounding_rdn : fp_rounding_modes := 0b00011#5
 
-/-- Type quantifiers: k_b : Bool -/
-def __monomorphize_bool (b : Bool) : Bool :=
-  b
+def fp_rounding_rup : fp_rounding_modes := 0b00100#5
+
+def fp_rounding_rtz : fp_rounding_modes := 0b00101#5
+
+def fp_rounding_default : fp_rounding_modes := fp_rounding_rne
+
+/-- Type quantifiers: atom_n : Int -/
+def undefined_float_bits (atom_n : Int) : SailM (float_bits atom_n) := do
+  (pure { sign := ← (undefined_bitvector 1)
+          exp := ← (undefined_bitvector
+              (if ((atom_n == 16) : Bool)
+              then 5
+              else
+                (if ((atom_n == 32) : Bool)
+                then 8
+                else
+                  (if ((atom_n == 64) : Bool)
+                  then 11
+                  else 15))))
+          mantissa := ← (undefined_bitvector
+              (if ((atom_n == 16) : Bool)
+              then 10
+              else
+                (if ((atom_n == 32) : Bool)
+                then 23
+                else
+                  (if ((atom_n == 64) : Bool)
+                  then 52
+                  else 112)))) })
+
+/-- Type quantifiers: k_n : Nat, k_n ≥ 0, is_fp_bits(k_n) -/
+def float_decompose (op : (BitVec k_n)) : (float_bits k_n) :=
+  match (Sail.BitVec.length op) with
+  | 16 =>
+    { sign := (Sail.BitVec.extractLsb op 15 15)
+      exp := (Sail.BitVec.extractLsb op 14 10)
+      mantissa := (Sail.BitVec.extractLsb op 9 0) }
+  | 32 =>
+    { sign := (Sail.BitVec.extractLsb op 31 31)
+      exp := (Sail.BitVec.extractLsb op 30 23)
+      mantissa := (Sail.BitVec.extractLsb op 22 0) }
+  | 64 =>
+    { sign := (Sail.BitVec.extractLsb op 63 63)
+      exp := (Sail.BitVec.extractLsb op 62 52)
+      mantissa := (Sail.BitVec.extractLsb op 51 0) }
+  | _ =>
+    { sign := (Sail.BitVec.extractLsb op 127 127)
+      exp := (Sail.BitVec.extractLsb op 126 112)
+      mantissa := (Sail.BitVec.extractLsb op 111 0) }
+
+/-- Type quantifiers: k_n : Nat, k_n ≥ 0, is_fp_bits(k_n) -/
+def float_compose (op : (float_bits k_n)) : (BitVec k_n) :=
+  (op.sign ++ (op.exp ++ op.mantissa))
+
+/-- Type quantifiers: k_n : Nat, k_n ≥ 0, is_fp_bits(k_n) -/
+def float_has_max_exp (op : (BitVec k_n)) : Bool :=
+  let fp := (float_decompose op)
+  let bitsize := (Sail.BitVec.length op)
+  let one := (Sail.BitVec.zeroExtend (1#1 : (BitVec 1)) bitsize)
+  let two := (one <<< 1)
+  let max_exp := ((one <<< (Sail.BitVec.length fp.exp)) - two)
+  (max_exp == (Sail.BitVec.zeroExtend fp.exp bitsize))
+
+/-- Type quantifiers: k_n : Nat, k_n ≥ 0, 0 < k_n -/
+def is_lowest_one (op : (BitVec k_n)) : Bool :=
+  ((BitVec.access op 0) == 1#1)
+
+/-- Type quantifiers: k_n : Nat, k_n ≥ 0, 0 < k_n -/
+def is_highest_one (op : (BitVec k_n)) : Bool :=
+  ((BitVec.access op ((Sail.BitVec.length op) -i 1)) == 1#1)
+
+/-- Type quantifiers: k_n : Nat, k_n ≥ 0, 0 < k_n -/
+def is_all_ones (op : (BitVec k_n)) : Bool :=
+  (op == (sail_ones (Sail.BitVec.length op)))
+
+/-- Type quantifiers: k_n : Nat, k_n ≥ 0, 0 < k_n -/
+def is_lowest_zero (op : (BitVec k_n)) : Bool :=
+  ((BitVec.access op 0) == 0#1)
+
+/-- Type quantifiers: k_n : Nat, k_n ≥ 0, 0 < k_n -/
+def is_highest_zero (op : (BitVec k_n)) : Bool :=
+  ((BitVec.access op ((Sail.BitVec.length op) -i 1)) == 0#1)
+
+/-- Type quantifiers: k_n : Nat, k_n ≥ 0, 0 < k_n -/
+def is_all_zeros (op : (BitVec k_n)) : Bool :=
+  (op == (BitVec.zero (Sail.BitVec.length op)))
 

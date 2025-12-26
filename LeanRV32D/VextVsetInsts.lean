@@ -2,8 +2,12 @@ import LeanRV32D.Flow
 import LeanRV32D.Prelude
 import LeanRV32D.Xlen
 import LeanRV32D.Vlen
+import LeanRV32D.Types
 import LeanRV32D.Callbacks
+import LeanRV32D.Regs
 import LeanRV32D.VextRegs
+import LeanRV32D.InstsBegin
+import LeanRV32D.VextUtilsInsts
 
 set_option maxHeartbeats 1_000_000_000
 set_option maxRecDepth 1_000_000
@@ -11,6 +15,7 @@ set_option linter.unusedVariables false
 set_option match.ignoreUnusedAlts true
 
 open Sail
+open ConcurrencyInterfaceV1
 
 noncomputable section
 
@@ -23,6 +28,7 @@ open zvk_vaesef_funct6
 open zvk_vaesdm_funct6
 open zvk_vaesdf_funct6
 open zicondop
+open xRET_type
 open wxfunct6
 open wvxfunct6
 open wvvfunct6
@@ -58,6 +64,7 @@ open vfunary1
 open vfunary0
 open vfnunary0
 open vextfunct6
+open vector_support
 open uop
 open sopw
 open sop
@@ -67,10 +74,12 @@ open ropw
 open rop
 open rmvvfunct6
 open rivvfunct6
+open rfwvvfunct6
 open rfvvfunct6
 open regno
 open regidx
 open read_kind
+open pte_check_failure
 open pmpAddrMatch
 open physaddr
 open option
@@ -86,9 +95,12 @@ open mvxfunct6
 open mvvmafunct6
 open mvvfunct6
 open mmfunct6
+open misaligned_fault
 open maskfunct3
+open landing_pad_expectation
 open iop
 open instruction
+open indexed_mop
 open fwvvmafunct6
 open fwvvfunct6
 open fwvfunct6
@@ -103,6 +115,7 @@ open fvfmafunct6
 open fvffunct6
 open fregno
 open fregidx
+open float_class
 open f_un_x_op_H
 open f_un_x_op_D
 open f_un_rm_xf_op_S
@@ -145,20 +158,28 @@ open bropw_zbb
 open brop_zbs
 open brop_zbkb
 open brop_zbb
+open breakpoint_cause
 open bop
 open biop_zbs
 open barrier_kind
 open amoop
 open agtype
 open WaitReason
+open VectorHalf
 open TrapVectorMode
+open TrapCause
 open Step
+open Software_Check_Code
+open Signedness
+open SWCheckCodes
 open SATPMode
+open Reservability
 open Register
 open Privilege
 open PmpAddrMatchType
 open PTW_Error
 open PTE_Check
+open MemoryAccessType
 open InterruptType
 open ISA_Format
 open HartState
@@ -167,15 +188,16 @@ open Ext_DataAddr_Check
 open ExtStatus
 open ExecutionResult
 open ExceptionType
+open CSRAccessType
+open AtomicSupport
 open Architecture
-open AccessType
 
 def sew_flag_forwards (arg_ : String) : SailM (BitVec 3) := do
   match arg_ with
-  | "e8" => (pure (0b000 : (BitVec 3)))
-  | "e16" => (pure (0b001 : (BitVec 3)))
-  | "e32" => (pure (0b010 : (BitVec 3)))
-  | "e64" => (pure (0b011 : (BitVec 3)))
+  | "e8" => (pure 0b000#3)
+  | "e16" => (pure 0b001#3)
+  | "e32" => (pure 0b010#3)
+  | "e64" => (pure 0b011#3)
   | _ =>
     (do
       assert false "Pattern match failure at unknown location"
@@ -190,19 +212,12 @@ def sew_flag_forwards_matches (arg_ : String) : Bool :=
   | _ => false
 
 def sew_flag_backwards_matches (arg_ : (BitVec 3)) : Bool :=
-  let b__0 := arg_
-  if ((b__0 == (0b000 : (BitVec 3))) : Bool)
-  then true
-  else
-    (if ((b__0 == (0b001 : (BitVec 3))) : Bool)
-    then true
-    else
-      (if ((b__0 == (0b010 : (BitVec 3))) : Bool)
-      then true
-      else
-        (if ((b__0 == (0b011 : (BitVec 3))) : Bool)
-        then true
-        else false)))
+  match arg_ with
+  | 0b000 => true
+  | 0b001 => true
+  | 0b010 => true
+  | 0b011 => true
+  | _ => false
 
 def maybe_lmul_flag_forwards (arg_ : String) : SailM (BitVec 3) := do
   match arg_ with
@@ -213,28 +228,15 @@ def maybe_lmul_flag_forwards_matches (arg_ : String) : SailM Bool := do
   | _ => throw Error.Exit
 
 def maybe_lmul_flag_backwards_matches (arg_ : (BitVec 3)) : Bool :=
-  let b__0 := arg_
-  if ((b__0 == (0b101 : (BitVec 3))) : Bool)
-  then true
-  else
-    (if ((b__0 == (0b110 : (BitVec 3))) : Bool)
-    then true
-    else
-      (if ((b__0 == (0b111 : (BitVec 3))) : Bool)
-      then true
-      else
-        (if ((b__0 == (0b000 : (BitVec 3))) : Bool)
-        then true
-        else
-          (if ((b__0 == (0b001 : (BitVec 3))) : Bool)
-          then true
-          else
-            (if ((b__0 == (0b010 : (BitVec 3))) : Bool)
-            then true
-            else
-              (if ((b__0 == (0b011 : (BitVec 3))) : Bool)
-              then true
-              else false))))))
+  match arg_ with
+  | 0b101 => true
+  | 0b110 => true
+  | 0b111 => true
+  | 0b000 => true
+  | 0b001 => true
+  | 0b010 => true
+  | 0b011 => true
+  | _ => false
 
 def ta_flag_forwards (arg_ : String) : SailM (BitVec 1) := do
   match arg_ with
@@ -245,13 +247,10 @@ def ta_flag_forwards_matches (arg_ : String) : SailM Bool := do
   | _ => throw Error.Exit
 
 def ta_flag_backwards_matches (arg_ : (BitVec 1)) : Bool :=
-  let b__0 := arg_
-  if ((b__0 == (0b1 : (BitVec 1))) : Bool)
-  then true
-  else
-    (if ((b__0 == (0b0 : (BitVec 1))) : Bool)
-    then true
-    else false)
+  match arg_ with
+  | 1 => true
+  | 0 => true
+  | _ => false
 
 def ma_flag_forwards (arg_ : String) : SailM (BitVec 1) := do
   match arg_ with
@@ -262,13 +261,10 @@ def ma_flag_forwards_matches (arg_ : String) : SailM Bool := do
   | _ => throw Error.Exit
 
 def ma_flag_backwards_matches (arg_ : (BitVec 1)) : Bool :=
-  let b__0 := arg_
-  if ((b__0 == (0b1 : (BitVec 1))) : Bool)
-  then true
-  else
-    (if ((b__0 == (0b0 : (BitVec 1))) : Bool)
-    then true
-    else false)
+  match arg_ with
+  | 1 => true
+  | 0 => true
+  | _ => false
 
 def vtype_assembly_forwards (arg_ : String) : SailM ((BitVec 1) × (BitVec 1) × (BitVec 3) × (BitVec 3)) := do
   throw Error.Exit
@@ -279,22 +275,23 @@ def vtype_assembly_forwards_matches (arg_ : String) : SailM Bool := do
 def vtype_assembly_backwards_matches (arg_ : ((BitVec 1) × (BitVec 1) × (BitVec 3) × (BitVec 3))) : Bool :=
   match arg_ with
   | (ma, ta, sew, lmul) =>
-    (if (((bne (BitVec.access sew 2) 1#1) && (lmul != (0b100 : (BitVec 3)))) : Bool)
+    (if ((((BitVec.access sew 2) != 1#1) && (lmul != 0b100#3)) : Bool)
     then true
     else true)
 
-def handle_illegal_vtype (_ : Unit) : SailM Unit := do
-  writeReg vtype ((0b1 : (BitVec 1)) ++ (zeros (n := (xlen -i 1))))
+def handle_illegal_vtype (rd : regidx) : SailM Unit := do
+  writeReg vtype (1#1 ++ (zeros (n := (xlen -i 1))))
   writeReg vl (zeros (n := 32))
   (csr_name_write_callback "vtype" (← readReg vtype))
   (csr_name_write_callback "vl" (← readReg vl))
   (set_vstart (zeros (n := 16)))
+  (wX_bits rd (← readReg vl))
 
 def vl_use_ceil : Bool := false
 
 /-- Type quantifiers: VLMAX : Nat, 1 ≤ VLMAX ∧ VLMAX ≤ (2 ^ 8) -/
 def calculate_new_vl (AVL : (BitVec 32)) (VLMAX : Nat) : Nat :=
-  let AVL := (BitVec.toNat AVL)
+  let AVL := (BitVec.toNatInt AVL)
   if ((AVL ≤b VLMAX) : Bool)
   then AVL
   else
@@ -304,4 +301,39 @@ def calculate_new_vl (AVL : (BitVec 32)) (VLMAX : Nat) : Nat :=
       then (Int.tdiv (AVL +i 1) 2)
       else VLMAX)
     else VLMAX)
+
+/-- Type quantifiers: k_ex627385_ : Bool -/
+def execute_vsetvl_type (ma : (BitVec 1)) (ta : (BitVec 1)) (sew : (BitVec 3)) (lmul : (BitVec 3)) (avl : (BitVec 32)) (requires_fixed_vlmax : Bool) (rd : regidx) : SailM ExecutionResult := do
+  if (((is_invalid_lmul_pow lmul) || (is_invalid_sew_pow sew)) : Bool)
+  then
+    (do
+      (handle_illegal_vtype rd)
+      (pure RETIRE_SUCCESS))
+  else
+    (do
+      let LMUL_pow_new := (BitVec.toInt lmul)
+      let SEW_pow_new := ((BitVec.toNatInt sew) +i 3)
+      let lmul_sew_ratio ← do (pure ((← (get_lmul_pow ())) -i (← (get_sew_pow ()))))
+      let lmul_sew_ratio_new := (LMUL_pow_new -i SEW_pow_new)
+      if (((SEW_pow_new >b (LMUL_pow_new +i elen_exp)) || (requires_fixed_vlmax && ((lmul_sew_ratio != lmul_sew_ratio_new) || (not
+                 (← (valid_vtype ())))))) : Bool)
+      then
+        (do
+          (handle_illegal_vtype rd)
+          (pure RETIRE_SUCCESS))
+      else
+        (do
+          let VLMAX := (2 ^i ((LMUL_pow_new +i vlen_exp) -i SEW_pow_new))
+          writeReg vl (to_bits (l := 32) (calculate_new_vl avl VLMAX))
+          (wX_bits rd (← readReg vl))
+          writeReg vtype (_update_Vtype_vlmul
+            (_update_Vtype_vsew
+              (_update_Vtype_vta
+                (_update_Vtype_vma (_update_Vtype_vill (Mk_Vtype (zeros (n := 32))) 0#1) ma) ta) sew)
+            lmul)
+          (set_vstart (zeros (n := 16)))
+          (csr_name_write_callback "vtype" (← readReg vtype))
+          (csr_name_write_callback "vl" (← readReg vl))
+          (csr_name_write_callback "vstart" (← readReg vstart))
+          (pure RETIRE_SUCCESS)))
 

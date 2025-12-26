@@ -9,6 +9,7 @@ set_option linter.unusedVariables false
 set_option match.ignoreUnusedAlts true
 
 open Sail
+open ConcurrencyInterfaceV1
 
 noncomputable section
 
@@ -21,6 +22,7 @@ open zvk_vaesef_funct6
 open zvk_vaesdm_funct6
 open zvk_vaesdf_funct6
 open zicondop
+open xRET_type
 open wxfunct6
 open wvxfunct6
 open wvvfunct6
@@ -56,6 +58,7 @@ open vfunary1
 open vfunary0
 open vfnunary0
 open vextfunct6
+open vector_support
 open uop
 open sopw
 open sop
@@ -65,10 +68,12 @@ open ropw
 open rop
 open rmvvfunct6
 open rivvfunct6
+open rfwvvfunct6
 open rfvvfunct6
 open regno
 open regidx
 open read_kind
+open pte_check_failure
 open pmpAddrMatch
 open physaddr
 open option
@@ -84,9 +89,12 @@ open mvxfunct6
 open mvvmafunct6
 open mvvfunct6
 open mmfunct6
+open misaligned_fault
 open maskfunct3
+open landing_pad_expectation
 open iop
 open instruction
+open indexed_mop
 open fwvvmafunct6
 open fwvvfunct6
 open fwvfunct6
@@ -101,6 +109,7 @@ open fvfmafunct6
 open fvffunct6
 open fregno
 open fregidx
+open float_class
 open f_un_x_op_H
 open f_un_x_op_D
 open f_un_rm_xf_op_S
@@ -143,20 +152,28 @@ open bropw_zbb
 open brop_zbs
 open brop_zbkb
 open brop_zbb
+open breakpoint_cause
 open bop
 open biop_zbs
 open barrier_kind
 open amoop
 open agtype
 open WaitReason
+open VectorHalf
 open TrapVectorMode
+open TrapCause
 open Step
+open Software_Check_Code
+open Signedness
+open SWCheckCodes
 open SATPMode
+open Reservability
 open Register
 open Privilege
 open PmpAddrMatchType
 open PTW_Error
 open PTE_Check
+open MemoryAccessType
 open InterruptType
 open ISA_Format
 open HartState
@@ -165,16 +182,16 @@ open Ext_DataAddr_Check
 open ExtStatus
 open ExecutionResult
 open ExceptionType
+open CSRAccessType
+open AtomicSupport
 open Architecture
-open AccessType
 
-def pmpCheckRWX (ent : (BitVec 8)) (acc : (AccessType Unit)) : Bool :=
+def pmpCheckRWX (ent : (BitVec 8)) (acc : (MemoryAccessType Unit)) : Bool :=
   match acc with
-  | .Read _ => ((_get_Pmpcfg_ent_R ent) == (0b1 : (BitVec 1)))
-  | .Write _ => ((_get_Pmpcfg_ent_W ent) == (0b1 : (BitVec 1)))
-  | .ReadWrite _ =>
-    (((_get_Pmpcfg_ent_R ent) == (0b1 : (BitVec 1))) && ((_get_Pmpcfg_ent_W ent) == (0b1 : (BitVec 1))))
-  | .InstructionFetch () => ((_get_Pmpcfg_ent_X ent) == (0b1 : (BitVec 1)))
+  | .Load _ => ((_get_Pmpcfg_ent_R ent) == 1#1)
+  | .Store _ => ((_get_Pmpcfg_ent_W ent) == 1#1)
+  | .LoadStore _ => (((_get_Pmpcfg_ent_R ent) == 1#1) && ((_get_Pmpcfg_ent_W ent) == 1#1))
+  | .InstructionFetch () => ((_get_Pmpcfg_ent_X ent) == 1#1)
 
 def undefined_pmpAddrMatch (_ : Unit) : SailM pmpAddrMatch := do
   (internal_pick [PMP_NoMatch, PMP_PartialMatch, PMP_Match])
@@ -204,59 +221,63 @@ def pmpRangeMatch (begin : Nat) (end_ : Nat) (addr : Nat) (width : Nat) : pmpAdd
 
 def pmpMatchAddr (typ_0 : physaddr) (width : (BitVec 32)) (ent : (BitVec 8)) (pmpaddr : (BitVec 32)) (prev_pmpaddr : (BitVec 32)) : SailM pmpAddrMatch := do
   let .Physaddr addr : physaddr := typ_0
-  let addr := (BitVec.toNat addr)
-  let width := (BitVec.toNat width)
+  let addr := (BitVec.toNatInt addr)
+  let width := (BitVec.toNatInt width)
   match (pmpAddrMatchType_encdec_backwards (_get_Pmpcfg_ent_A ent)) with
   | OFF => (pure PMP_NoMatch)
   | TOR =>
     (if ((zopz0zKzJ_u prev_pmpaddr pmpaddr) : Bool)
     then (pure PMP_NoMatch)
     else
-      (pure (pmpRangeMatch ((BitVec.toNat prev_pmpaddr) *i 4) ((BitVec.toNat pmpaddr) *i 4) addr
-          width)))
+      (pure (pmpRangeMatch ((BitVec.toNatInt prev_pmpaddr) *i 4) ((BitVec.toNatInt pmpaddr) *i 4)
+          addr width)))
   | NA4 =>
     (do
       assert (sys_pmp_grain <b 1) "NA4 cannot be selected when PMP grain G >= 1."
-      let begin := ((BitVec.toNat pmpaddr) *i 4)
+      let begin := ((BitVec.toNatInt pmpaddr) *i 4)
       (pure (pmpRangeMatch begin (begin +i 4) addr width)))
   | NAPOT =>
     (let mask := (pmpaddr ^^^ (BitVec.addInt pmpaddr 1))
-    let begin_words := (BitVec.toNat (pmpaddr &&& (Complement.complement mask)))
-    let end_words := ((begin_words +i (BitVec.toNat mask)) +i 1)
+    let begin_words := (BitVec.toNatInt (pmpaddr &&& (Complement.complement mask)))
+    let end_words := ((begin_words +i (BitVec.toNatInt mask)) +i 1)
     (pure (pmpRangeMatch (begin_words *i 4) (end_words *i 4) addr width)))
 
-def accessToFault (acc : (AccessType Unit)) : ExceptionType :=
+def accessToFault (acc : (MemoryAccessType Unit)) : ExceptionType :=
   match acc with
-  | .Read _ => (E_Load_Access_Fault ())
-  | .Write _ => (E_SAMO_Access_Fault ())
-  | .ReadWrite _ => (E_SAMO_Access_Fault ())
+  | .Load _ => (E_Load_Access_Fault ())
+  | .Store _ => (E_SAMO_Access_Fault ())
+  | .LoadStore _ => (E_SAMO_Access_Fault ())
   | .InstructionFetch () => (E_Fetch_Access_Fault ())
 
 /-- Type quantifiers: width : Nat, 0 < width ∧ width ≤ max_mem_access -/
-def pmpCheck (addr : physaddr) (width : Nat) (acc : (AccessType Unit)) (priv : Privilege) : SailM (Option ExceptionType) := SailME.run do
-  let width : xlenbits := (to_bits (l := 32) width)
-  let loop_i_lower := 0
-  let loop_i_upper := 63
-  let mut loop_vars := ()
-  for i in [loop_i_lower:loop_i_upper:1]i do
-    let () := loop_vars
-    loop_vars ← do
-      let prev_pmpaddr ← do
-        if ((i >b 0) : Bool)
-        then (pmpReadAddrReg (i -i 1))
-        else (pure (zeros (n := 32)))
-      let cfg ← do (pure (GetElem?.getElem! (← readReg pmpcfg_n) i))
-      match (← (pmpMatchAddr addr width cfg (← (pmpReadAddrReg i)) prev_pmpaddr)) with
-      | PMP_NoMatch => (pure ())
-      | PMP_PartialMatch => SailME.throw ((some (accessToFault acc)) : (Option ExceptionType))
-      | PMP_Match =>
-        SailME.throw (if (((pmpCheckRWX cfg acc) || ((priv == Machine) && (not (pmpLocked cfg)))) : Bool)
-          then none
-          else (some (accessToFault acc)) : (Option ExceptionType))
-  (pure loop_vars)
-  if ((priv == Machine) : Bool)
+def pmpCheck (addr : physaddr) (width : Nat) (acc : (MemoryAccessType Unit)) (priv : Privilege) : SailM (Option ExceptionType) := SailME.run do
+  if ((sys_pmp_count == 0) : Bool)
   then (pure none)
-  else (pure (some (accessToFault acc)))
+  else
+    (do
+      let width : xlenbits := (to_bits (l := 32) width)
+      let loop_i_lower := 0
+      let loop_i_upper := (sys_pmp_count -i 1)
+      let mut loop_vars := ()
+      for i in [loop_i_lower:loop_i_upper:1]i do
+        let () := loop_vars
+        loop_vars ← do
+          let prev_pmpaddr ← do
+            if ((i >b 0) : Bool)
+            then (pmpReadAddrReg (i -i 1))
+            else (pure (zeros (n := 32)))
+          let cfg ← do (pure (GetElem?.getElem! (← readReg pmpcfg_n) i))
+          match (← (pmpMatchAddr addr width cfg (← (pmpReadAddrReg i)) prev_pmpaddr)) with
+          | PMP_NoMatch => (pure ())
+          | PMP_PartialMatch => SailME.throw ((some (accessToFault acc)) : (Option ExceptionType))
+          | PMP_Match =>
+            SailME.throw (if (((pmpCheckRWX cfg acc) || ((priv == Machine) && (not (pmpLocked cfg)))) : Bool)
+              then none
+              else (some (accessToFault acc)) : (Option ExceptionType))
+      (pure loop_vars)
+      if ((priv == Machine) : Bool)
+      then (pure none)
+      else (pure (some (accessToFault acc))))
 
 def reset_pmp (_ : Unit) : SailM Unit := do
   let loop_i_lower := 0
@@ -268,6 +289,6 @@ def reset_pmp (_ : Unit) : SailM Unit := do
       writeReg pmpcfg_n (vectorUpdate (← readReg pmpcfg_n) i
         (_update_Pmpcfg_ent_L
           (_update_Pmpcfg_ent_A (GetElem?.getElem! (← readReg pmpcfg_n) i)
-            (pmpAddrMatchType_encdec_forwards OFF)) (0b0 : (BitVec 1))))
+            (pmpAddrMatchType_encdec_forwards OFF)) 0#1))
   (pure loop_vars)
 

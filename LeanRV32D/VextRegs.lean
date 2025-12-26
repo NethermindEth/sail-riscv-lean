@@ -10,6 +10,7 @@ set_option linter.unusedVariables false
 set_option match.ignoreUnusedAlts true
 
 open Sail
+open ConcurrencyInterfaceV1
 
 noncomputable section
 
@@ -22,6 +23,7 @@ open zvk_vaesef_funct6
 open zvk_vaesdm_funct6
 open zvk_vaesdf_funct6
 open zicondop
+open xRET_type
 open wxfunct6
 open wvxfunct6
 open wvvfunct6
@@ -57,6 +59,7 @@ open vfunary1
 open vfunary0
 open vfnunary0
 open vextfunct6
+open vector_support
 open uop
 open sopw
 open sop
@@ -66,10 +69,12 @@ open ropw
 open rop
 open rmvvfunct6
 open rivvfunct6
+open rfwvvfunct6
 open rfvvfunct6
 open regno
 open regidx
 open read_kind
+open pte_check_failure
 open pmpAddrMatch
 open physaddr
 open option
@@ -85,9 +90,12 @@ open mvxfunct6
 open mvvmafunct6
 open mvvfunct6
 open mmfunct6
+open misaligned_fault
 open maskfunct3
+open landing_pad_expectation
 open iop
 open instruction
+open indexed_mop
 open fwvvmafunct6
 open fwvvfunct6
 open fwvfunct6
@@ -102,6 +110,7 @@ open fvfmafunct6
 open fvffunct6
 open fregno
 open fregidx
+open float_class
 open f_un_x_op_H
 open f_un_x_op_D
 open f_un_rm_xf_op_S
@@ -144,20 +153,28 @@ open bropw_zbb
 open brop_zbs
 open brop_zbkb
 open brop_zbb
+open breakpoint_cause
 open bop
 open biop_zbs
 open barrier_kind
 open amoop
 open agtype
 open WaitReason
+open VectorHalf
 open TrapVectorMode
+open TrapCause
 open Step
+open Software_Check_Code
+open Signedness
+open SWCheckCodes
 open SATPMode
+open Reservability
 open Register
 open Privilege
 open PmpAddrMatchType
 open PTW_Error
 open PTE_Check
+open MemoryAccessType
 open InterruptType
 open ISA_Format
 open HartState
@@ -166,24 +183,17 @@ open Ext_DataAddr_Check
 open ExtStatus
 open ExecutionResult
 open ExceptionType
+open CSRAccessType
+open AtomicSupport
 open Architecture
-open AccessType
 
 def vregidx_to_vregno (app_0 : vregidx) : vregno :=
   let .Vregidx b := app_0
-  (Vregno (BitVec.toNat b))
+  (Vregno (BitVec.toNatInt b))
 
 def vregno_to_vregidx (app_0 : vregno) : vregidx :=
   let .Vregno b := app_0
   (Vregidx (to_bits (l := 5) b))
-
-def vregidx_bits (app_0 : vregidx) : (BitVec 5) :=
-  let .Vregidx b := app_0
-  b
-
-def encdec_vreg_forwards (arg_ : vregidx) : (BitVec 5) :=
-  match arg_ with
-  | .Vregidx r => r
 
 def encdec_vreg_backwards (arg_ : (BitVec 5)) : vregidx :=
   match arg_ with
@@ -200,145 +210,82 @@ def encdec_vreg_backwards_matches (arg_ : (BitVec 5)) : Bool :=
 def vreg_write_callback (x_0 : vregidx) (x_1 : (BitVec (2 ^ 8))) : Unit :=
   ()
 
-def zvreg : vregidx := (Vregidx (0b00000 : (BitVec 5)))
+def zvreg : vregidx := (Vregidx 0b00000#5)
 
 def vreg_name_raw_backwards (arg_ : String) : SailM (BitVec 5) := do
   match arg_ with
-  | "v0" => (pure (0b00000 : (BitVec 5)))
-  | "v1" => (pure (0b00001 : (BitVec 5)))
-  | "v2" => (pure (0b00010 : (BitVec 5)))
-  | "v3" => (pure (0b00011 : (BitVec 5)))
-  | "v4" => (pure (0b00100 : (BitVec 5)))
-  | "v5" => (pure (0b00101 : (BitVec 5)))
-  | "v6" => (pure (0b00110 : (BitVec 5)))
-  | "v7" => (pure (0b00111 : (BitVec 5)))
-  | "v8" => (pure (0b01000 : (BitVec 5)))
-  | "v9" => (pure (0b01001 : (BitVec 5)))
-  | "v10" => (pure (0b01010 : (BitVec 5)))
-  | "v11" => (pure (0b01011 : (BitVec 5)))
-  | "v12" => (pure (0b01100 : (BitVec 5)))
-  | "v13" => (pure (0b01101 : (BitVec 5)))
-  | "v14" => (pure (0b01110 : (BitVec 5)))
-  | "v15" => (pure (0b01111 : (BitVec 5)))
-  | "v16" => (pure (0b10000 : (BitVec 5)))
-  | "v17" => (pure (0b10001 : (BitVec 5)))
-  | "v18" => (pure (0b10010 : (BitVec 5)))
-  | "v19" => (pure (0b10011 : (BitVec 5)))
-  | "v20" => (pure (0b10100 : (BitVec 5)))
-  | "v21" => (pure (0b10101 : (BitVec 5)))
-  | "v22" => (pure (0b10110 : (BitVec 5)))
-  | "v23" => (pure (0b10111 : (BitVec 5)))
-  | "v24" => (pure (0b11000 : (BitVec 5)))
-  | "v25" => (pure (0b11001 : (BitVec 5)))
-  | "v26" => (pure (0b11010 : (BitVec 5)))
-  | "v27" => (pure (0b11011 : (BitVec 5)))
-  | "v28" => (pure (0b11100 : (BitVec 5)))
-  | "v29" => (pure (0b11101 : (BitVec 5)))
-  | "v30" => (pure (0b11110 : (BitVec 5)))
-  | "v31" => (pure (0b11111 : (BitVec 5)))
+  | "v0" => (pure 0b00000#5)
+  | "v1" => (pure 0b00001#5)
+  | "v2" => (pure 0b00010#5)
+  | "v3" => (pure 0b00011#5)
+  | "v4" => (pure 0b00100#5)
+  | "v5" => (pure 0b00101#5)
+  | "v6" => (pure 0b00110#5)
+  | "v7" => (pure 0b00111#5)
+  | "v8" => (pure 0b01000#5)
+  | "v9" => (pure 0b01001#5)
+  | "v10" => (pure 0b01010#5)
+  | "v11" => (pure 0b01011#5)
+  | "v12" => (pure 0b01100#5)
+  | "v13" => (pure 0b01101#5)
+  | "v14" => (pure 0b01110#5)
+  | "v15" => (pure 0b01111#5)
+  | "v16" => (pure 0b10000#5)
+  | "v17" => (pure 0b10001#5)
+  | "v18" => (pure 0b10010#5)
+  | "v19" => (pure 0b10011#5)
+  | "v20" => (pure 0b10100#5)
+  | "v21" => (pure 0b10101#5)
+  | "v22" => (pure 0b10110#5)
+  | "v23" => (pure 0b10111#5)
+  | "v24" => (pure 0b11000#5)
+  | "v25" => (pure 0b11001#5)
+  | "v26" => (pure 0b11010#5)
+  | "v27" => (pure 0b11011#5)
+  | "v28" => (pure 0b11100#5)
+  | "v29" => (pure 0b11101#5)
+  | "v30" => (pure 0b11110#5)
+  | "v31" => (pure 0b11111#5)
   | _ =>
     (do
       assert false "Pattern match failure at unknown location"
       throw Error.Exit)
 
 def vreg_name_raw_forwards_matches (arg_ : (BitVec 5)) : Bool :=
-  let b__0 := arg_
-  if ((b__0 == (0b00000 : (BitVec 5))) : Bool)
-  then true
-  else
-    (if ((b__0 == (0b00001 : (BitVec 5))) : Bool)
-    then true
-    else
-      (if ((b__0 == (0b00010 : (BitVec 5))) : Bool)
-      then true
-      else
-        (if ((b__0 == (0b00011 : (BitVec 5))) : Bool)
-        then true
-        else
-          (if ((b__0 == (0b00100 : (BitVec 5))) : Bool)
-          then true
-          else
-            (if ((b__0 == (0b00101 : (BitVec 5))) : Bool)
-            then true
-            else
-              (if ((b__0 == (0b00110 : (BitVec 5))) : Bool)
-              then true
-              else
-                (if ((b__0 == (0b00111 : (BitVec 5))) : Bool)
-                then true
-                else
-                  (if ((b__0 == (0b01000 : (BitVec 5))) : Bool)
-                  then true
-                  else
-                    (if ((b__0 == (0b01001 : (BitVec 5))) : Bool)
-                    then true
-                    else
-                      (if ((b__0 == (0b01010 : (BitVec 5))) : Bool)
-                      then true
-                      else
-                        (if ((b__0 == (0b01011 : (BitVec 5))) : Bool)
-                        then true
-                        else
-                          (if ((b__0 == (0b01100 : (BitVec 5))) : Bool)
-                          then true
-                          else
-                            (if ((b__0 == (0b01101 : (BitVec 5))) : Bool)
-                            then true
-                            else
-                              (if ((b__0 == (0b01110 : (BitVec 5))) : Bool)
-                              then true
-                              else
-                                (if ((b__0 == (0b01111 : (BitVec 5))) : Bool)
-                                then true
-                                else
-                                  (if ((b__0 == (0b10000 : (BitVec 5))) : Bool)
-                                  then true
-                                  else
-                                    (if ((b__0 == (0b10001 : (BitVec 5))) : Bool)
-                                    then true
-                                    else
-                                      (if ((b__0 == (0b10010 : (BitVec 5))) : Bool)
-                                      then true
-                                      else
-                                        (if ((b__0 == (0b10011 : (BitVec 5))) : Bool)
-                                        then true
-                                        else
-                                          (if ((b__0 == (0b10100 : (BitVec 5))) : Bool)
-                                          then true
-                                          else
-                                            (if ((b__0 == (0b10101 : (BitVec 5))) : Bool)
-                                            then true
-                                            else
-                                              (if ((b__0 == (0b10110 : (BitVec 5))) : Bool)
-                                              then true
-                                              else
-                                                (if ((b__0 == (0b10111 : (BitVec 5))) : Bool)
-                                                then true
-                                                else
-                                                  (if ((b__0 == (0b11000 : (BitVec 5))) : Bool)
-                                                  then true
-                                                  else
-                                                    (if ((b__0 == (0b11001 : (BitVec 5))) : Bool)
-                                                    then true
-                                                    else
-                                                      (if ((b__0 == (0b11010 : (BitVec 5))) : Bool)
-                                                      then true
-                                                      else
-                                                        (if ((b__0 == (0b11011 : (BitVec 5))) : Bool)
-                                                        then true
-                                                        else
-                                                          (if ((b__0 == (0b11100 : (BitVec 5))) : Bool)
-                                                          then true
-                                                          else
-                                                            (if ((b__0 == (0b11101 : (BitVec 5))) : Bool)
-                                                            then true
-                                                            else
-                                                              (if ((b__0 == (0b11110 : (BitVec 5))) : Bool)
-                                                              then true
-                                                              else
-                                                                (if ((b__0 == (0b11111 : (BitVec 5))) : Bool)
-                                                                then true
-                                                                else false)))))))))))))))))))))))))))))))
+  match arg_ with
+  | 0b00000 => true
+  | 0b00001 => true
+  | 0b00010 => true
+  | 0b00011 => true
+  | 0b00100 => true
+  | 0b00101 => true
+  | 0b00110 => true
+  | 0b00111 => true
+  | 0b01000 => true
+  | 0b01001 => true
+  | 0b01010 => true
+  | 0b01011 => true
+  | 0b01100 => true
+  | 0b01101 => true
+  | 0b01110 => true
+  | 0b01111 => true
+  | 0b10000 => true
+  | 0b10001 => true
+  | 0b10010 => true
+  | 0b10011 => true
+  | 0b10100 => true
+  | 0b10101 => true
+  | 0b10110 => true
+  | 0b10111 => true
+  | 0b11000 => true
+  | 0b11001 => true
+  | 0b11010 => true
+  | 0b11011 => true
+  | 0b11100 => true
+  | 0b11101 => true
+  | 0b11110 => true
+  | 0b11111 => true
+  | _ => false
 
 def vreg_name_raw_backwards_matches (arg_ : String) : Bool :=
   match arg_ with
@@ -448,10 +395,9 @@ def rV (app_0 : vregno) : SailM (BitVec (2 ^ 8)) := do
   | _ => readReg vr31
 
 def dirty_v_context (_ : Unit) : SailM Unit := do
-  assert (hartSupports Ext_V) "extensions/V/vext_regs.sail:138.28-138.29"
+  assert (hartSupports Ext_Zve32x) "extensions/V/vext_regs.sail:138.33-138.34"
   writeReg mstatus (Sail.BitVec.updateSubrange (← readReg mstatus) 10 9 (extStatus_to_bits Dirty))
-  writeReg mstatus (Sail.BitVec.updateSubrange (← readReg mstatus) (32 -i 1) (32 -i 1)
-    (0b1 : (BitVec 1)))
+  writeReg mstatus (Sail.BitVec.updateSubrange (← readReg mstatus) (32 -i 1) (32 -i 1) 1#1)
   (long_csr_write_callback "mstatus" "mstatush" (← readReg mstatus))
 
 def wV (typ_0 : vregno) (v : (BitVec (2 ^ 8))) : SailM Unit := do
@@ -571,9 +517,6 @@ def _set_Vtype_vill (r_ref : (RegisterRef (BitVec 32))) (v : (BitVec (32 - 1 - (
   let r ← do (reg_deref r_ref)
   writeRegRef r_ref (_update_Vtype_vill r v)
 
-def _get_Vtype_vlmul (v : (BitVec 32)) : (BitVec 3) :=
-  (Sail.BitVec.extractLsb v 2 0)
-
 def _update_Vtype_vlmul (v : (BitVec 32)) (x : (BitVec 3)) : (BitVec 32) :=
   (Sail.BitVec.updateSubrange v 2 0 x)
 
@@ -590,9 +533,6 @@ def _update_Vtype_vma (v : (BitVec 32)) (x : (BitVec 1)) : (BitVec 32) :=
 def _set_Vtype_vma (r_ref : (RegisterRef (BitVec 32))) (v : (BitVec 1)) : SailM Unit := do
   let r ← do (reg_deref r_ref)
   writeRegRef r_ref (_update_Vtype_vma r v)
-
-def _get_Vtype_vsew (v : (BitVec 32)) : (BitVec 3) :=
-  (Sail.BitVec.extractLsb v 5 3)
 
 def _update_Vtype_vsew (v : (BitVec 32)) (x : (BitVec 3)) : (BitVec 32) :=
   (Sail.BitVec.updateSubrange v 5 3 x)
@@ -611,158 +551,14 @@ def _set_Vtype_vta (r_ref : (RegisterRef (BitVec 32))) (v : (BitVec 1)) : SailM 
   let r ← do (reg_deref r_ref)
   writeRegRef r_ref (_update_Vtype_vta r v)
 
-def sew_pow_val_forwards (arg_ : (BitVec 3)) : SailM Nat := do
-  let b__0 := arg_
-  if ((b__0 == (0b000 : (BitVec 3))) : Bool)
-  then (pure 3)
-  else
-    (do
-      if ((b__0 == (0b001 : (BitVec 3))) : Bool)
-      then (pure 4)
-      else
-        (do
-          if ((b__0 == (0b010 : (BitVec 3))) : Bool)
-          then (pure 5)
-          else
-            (do
-              if ((b__0 == (0b011 : (BitVec 3))) : Bool)
-              then (pure 6)
-              else
-                (do
-                  assert false "Pattern match failure at unknown location"
-                  throw Error.Exit))))
-
-/-- Type quantifiers: arg_ : Nat, 3 ≤ arg_ ∧ arg_ ≤ 6 -/
-def sew_pow_val_backwards (arg_ : Nat) : (BitVec 3) :=
-  match arg_ with
-  | 3 => (0b000 : (BitVec 3))
-  | 4 => (0b001 : (BitVec 3))
-  | 5 => (0b010 : (BitVec 3))
-  | _ => (0b011 : (BitVec 3))
-
-def sew_pow_val_forwards_matches (arg_ : (BitVec 3)) : Bool :=
-  let b__0 := arg_
-  if ((b__0 == (0b000 : (BitVec 3))) : Bool)
-  then true
-  else
-    (if ((b__0 == (0b001 : (BitVec 3))) : Bool)
-    then true
-    else
-      (if ((b__0 == (0b010 : (BitVec 3))) : Bool)
-      then true
-      else
-        (if ((b__0 == (0b011 : (BitVec 3))) : Bool)
-        then true
-        else false)))
-
-/-- Type quantifiers: arg_ : Nat, 3 ≤ arg_ ∧ arg_ ≤ 6 -/
-def sew_pow_val_backwards_matches (arg_ : Nat) : Bool :=
-  match arg_ with
-  | 3 => true
-  | 4 => true
-  | 5 => true
-  | 6 => true
-  | _ => false
-
-def lmul_pow_val_forwards (arg_ : (BitVec 3)) : SailM Int := do
-  let b__0 := arg_
-  if ((b__0 == (0b101 : (BitVec 3))) : Bool)
-  then (pure (-3))
-  else
-    (do
-      if ((b__0 == (0b110 : (BitVec 3))) : Bool)
-      then (pure (-2))
-      else
-        (do
-          if ((b__0 == (0b111 : (BitVec 3))) : Bool)
-          then (pure (-1))
-          else
-            (do
-              if ((b__0 == (0b000 : (BitVec 3))) : Bool)
-              then (pure 0)
-              else
-                (do
-                  if ((b__0 == (0b001 : (BitVec 3))) : Bool)
-                  then (pure 1)
-                  else
-                    (do
-                      if ((b__0 == (0b010 : (BitVec 3))) : Bool)
-                      then (pure 2)
-                      else
-                        (do
-                          if ((b__0 == (0b011 : (BitVec 3))) : Bool)
-                          then (pure 3)
-                          else
-                            (do
-                              assert false "Pattern match failure at unknown location"
-                              throw Error.Exit)))))))
-
-/-- Type quantifiers: arg_ : Int, (-3) ≤ arg_ ∧ arg_ ≤ 3 -/
-def lmul_pow_val_backwards (arg_ : Int) : (BitVec 3) :=
-  match arg_ with
-  | (-3) => (0b101 : (BitVec 3))
-  | (-2) => (0b110 : (BitVec 3))
-  | (-1) => (0b111 : (BitVec 3))
-  | 0 => (0b000 : (BitVec 3))
-  | 1 => (0b001 : (BitVec 3))
-  | 2 => (0b010 : (BitVec 3))
-  | _ => (0b011 : (BitVec 3))
-
-def lmul_pow_val_forwards_matches (arg_ : (BitVec 3)) : Bool :=
-  let b__0 := arg_
-  if ((b__0 == (0b101 : (BitVec 3))) : Bool)
-  then true
-  else
-    (if ((b__0 == (0b110 : (BitVec 3))) : Bool)
-    then true
-    else
-      (if ((b__0 == (0b111 : (BitVec 3))) : Bool)
-      then true
-      else
-        (if ((b__0 == (0b000 : (BitVec 3))) : Bool)
-        then true
-        else
-          (if ((b__0 == (0b001 : (BitVec 3))) : Bool)
-          then true
-          else
-            (if ((b__0 == (0b010 : (BitVec 3))) : Bool)
-            then true
-            else
-              (if ((b__0 == (0b011 : (BitVec 3))) : Bool)
-              then true
-              else false))))))
-
-/-- Type quantifiers: arg_ : Int, (-3) ≤ arg_ ∧ arg_ ≤ 3 -/
-def lmul_pow_val_backwards_matches (arg_ : Int) : Bool :=
-  match arg_ with
-  | (-3) => true
-  | (-2) => true
-  | (-1) => true
-  | 0 => true
-  | 1 => true
-  | 2 => true
-  | 3 => true
-  | _ => false
-
 def is_invalid_sew_pow (v : (BitVec 3)) : Bool :=
-  (zopz0zK_u v (0b011 : (BitVec 3)))
+  (zopz0zK_u v 0b011#3)
 
 def is_invalid_lmul_pow (v : (BitVec 3)) : Bool :=
-  (v == (0b100 : (BitVec 3)))
-
-def get_sew_pow (_ : Unit) : SailM Nat := do
-  let sew_pow ← do (pure (_get_Vtype_vsew (← readReg vtype)))
-  (sew_pow_val_forwards sew_pow)
-
-def get_sew (_ : Unit) : SailM Int := do
-  (pure (2 ^i (← (get_sew_pow ()))))
+  (v == 0b100#3)
 
 def get_sew_bytes (_ : Unit) : SailM Int := do
   (pure (Int.tdiv (← (get_sew ())) 8))
-
-def get_lmul_pow (_ : Unit) : SailM Int := do
-  let lmul_pow ← do (pure (_get_Vtype_vlmul (← readReg vtype)))
-  (lmul_pow_val_forwards lmul_pow)
 
 def undefined_agtype (_ : Unit) : SailM agtype := do
   (internal_pick [UNDISTURBED, AGNOSTIC])
@@ -779,10 +575,9 @@ def num_of_agtype (arg_ : agtype) : Int :=
   | AGNOSTIC => 1
 
 def decode_agtype (ag : (BitVec 1)) : agtype :=
-  let b__0 := ag
-  if ((b__0 == (0b0 : (BitVec 1))) : Bool)
-  then UNDISTURBED
-  else AGNOSTIC
+  match ag with
+  | 0 => UNDISTURBED
+  | _ => AGNOSTIC
 
 def get_vtype_vma (_ : Unit) : SailM agtype := do
   (pure (decode_agtype (_get_Vtype_vma (← readReg vtype))))
@@ -821,7 +616,7 @@ def set_vstart (value : (BitVec 16)) : SailM Unit := do
   writeReg vstart (zero_extend (m := 32) (Sail.BitVec.extractLsb value (vlen_exp -i 1) 0))
   (csr_name_write_callback "vstart" (← readReg vstart))
 
-def ext_write_vcsr (vxrm_val : (BitVec 2)) (vxsat_val : (BitVec 1)) : SailM Unit := do
+def write_vcsr (vxrm_val : (BitVec 2)) (vxsat_val : (BitVec 1)) : SailM Unit := do
   writeReg vcsr (Sail.BitVec.updateSubrange (← readReg vcsr) 2 1 vxrm_val)
   writeReg vcsr (Sail.BitVec.updateSubrange (← readReg vcsr) 0 0 vxsat_val)
   (dirty_v_context ())

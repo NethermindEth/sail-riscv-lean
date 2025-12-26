@@ -12,6 +12,7 @@ set_option linter.unusedVariables false
 set_option match.ignoreUnusedAlts true
 
 open Sail
+open ConcurrencyInterfaceV1
 
 noncomputable section
 
@@ -24,6 +25,7 @@ open zvk_vaesef_funct6
 open zvk_vaesdm_funct6
 open zvk_vaesdf_funct6
 open zicondop
+open xRET_type
 open wxfunct6
 open wvxfunct6
 open wvvfunct6
@@ -59,6 +61,7 @@ open vfunary1
 open vfunary0
 open vfnunary0
 open vextfunct6
+open vector_support
 open uop
 open sopw
 open sop
@@ -68,10 +71,12 @@ open ropw
 open rop
 open rmvvfunct6
 open rivvfunct6
+open rfwvvfunct6
 open rfvvfunct6
 open regno
 open regidx
 open read_kind
+open pte_check_failure
 open pmpAddrMatch
 open physaddr
 open option
@@ -87,9 +92,12 @@ open mvxfunct6
 open mvvmafunct6
 open mvvfunct6
 open mmfunct6
+open misaligned_fault
 open maskfunct3
+open landing_pad_expectation
 open iop
 open instruction
+open indexed_mop
 open fwvvmafunct6
 open fwvvfunct6
 open fwvfunct6
@@ -104,6 +112,7 @@ open fvfmafunct6
 open fvffunct6
 open fregno
 open fregidx
+open float_class
 open f_un_x_op_H
 open f_un_x_op_D
 open f_un_rm_xf_op_S
@@ -146,20 +155,28 @@ open bropw_zbb
 open brop_zbs
 open brop_zbkb
 open brop_zbb
+open breakpoint_cause
 open bop
 open biop_zbs
 open barrier_kind
 open amoop
 open agtype
 open WaitReason
+open VectorHalf
 open TrapVectorMode
+open TrapCause
 open Step
+open Software_Check_Code
+open Signedness
+open SWCheckCodes
 open SATPMode
+open Reservability
 open Register
 open Privilege
 open PmpAddrMatchType
 open PTW_Error
 open PTE_Check
+open MemoryAccessType
 open InterruptType
 open ISA_Format
 open HartState
@@ -168,8 +185,9 @@ open Ext_DataAddr_Check
 open ExtStatus
 open ExecutionResult
 open ExceptionType
+open CSRAccessType
+open AtomicSupport
 open Architecture
-open AccessType
 
 def undefined_vvfunct6 (_ : Unit) : SailM vvfunct6 := do
   (internal_pick
@@ -844,18 +862,15 @@ def num_of_rivvfunct6 (arg_ : rivvfunct6) : Int :=
   | IVV_VWREDSUM => 1
 
 def undefined_rfvvfunct6 (_ : Unit) : SailM rfvvfunct6 := do
-  (internal_pick
-    [FVV_VFREDOSUM, FVV_VFREDUSUM, FVV_VFREDMAX, FVV_VFREDMIN, FVV_VFWREDOSUM, FVV_VFWREDUSUM])
+  (internal_pick [FVV_VFREDOSUM, FVV_VFREDUSUM, FVV_VFREDMAX, FVV_VFREDMIN])
 
-/-- Type quantifiers: arg_ : Nat, 0 ≤ arg_ ∧ arg_ ≤ 5 -/
+/-- Type quantifiers: arg_ : Nat, 0 ≤ arg_ ∧ arg_ ≤ 3 -/
 def rfvvfunct6_of_num (arg_ : Nat) : rfvvfunct6 :=
   match arg_ with
   | 0 => FVV_VFREDOSUM
   | 1 => FVV_VFREDUSUM
   | 2 => FVV_VFREDMAX
-  | 3 => FVV_VFREDMIN
-  | 4 => FVV_VFWREDOSUM
-  | _ => FVV_VFWREDUSUM
+  | _ => FVV_VFREDMIN
 
 def num_of_rfvvfunct6 (arg_ : rfvvfunct6) : Int :=
   match arg_ with
@@ -863,8 +878,20 @@ def num_of_rfvvfunct6 (arg_ : rfvvfunct6) : Int :=
   | FVV_VFREDUSUM => 1
   | FVV_VFREDMAX => 2
   | FVV_VFREDMIN => 3
-  | FVV_VFWREDOSUM => 4
-  | FVV_VFWREDUSUM => 5
+
+def undefined_rfwvvfunct6 (_ : Unit) : SailM rfwvvfunct6 := do
+  (internal_pick [FVV_VFWREDOSUM, FVV_VFWREDUSUM])
+
+/-- Type quantifiers: arg_ : Nat, 0 ≤ arg_ ∧ arg_ ≤ 1 -/
+def rfwvvfunct6_of_num (arg_ : Nat) : rfwvvfunct6 :=
+  match arg_ with
+  | 0 => FVV_VFWREDOSUM
+  | _ => FVV_VFWREDUSUM
+
+def num_of_rfwvvfunct6 (arg_ : rfwvvfunct6) : Int :=
+  match arg_ with
+  | FVV_VFWREDOSUM => 0
+  | FVV_VFWREDUSUM => 1
 
 def undefined_wmvvfunct6 (_ : Unit) : SailM wmvvfunct6 := do
   (internal_pick [WMVV_VWMACCU, WMVV_VWMACC, WMVV_VWMACCSU])
@@ -1352,4 +1379,18 @@ def num_of_vmlsop (arg_ : vmlsop) : Int :=
   match arg_ with
   | VLM => 0
   | VSM => 1
+
+def undefined_indexed_mop (_ : Unit) : SailM indexed_mop := do
+  (internal_pick [INDEXED_UNORDERED, INDEXED_ORDERED])
+
+/-- Type quantifiers: arg_ : Nat, 0 ≤ arg_ ∧ arg_ ≤ 1 -/
+def indexed_mop_of_num (arg_ : Nat) : indexed_mop :=
+  match arg_ with
+  | 0 => INDEXED_UNORDERED
+  | _ => INDEXED_ORDERED
+
+def num_of_indexed_mop (arg_ : indexed_mop) : Int :=
+  match arg_ with
+  | INDEXED_UNORDERED => 0
+  | INDEXED_ORDERED => 1
 

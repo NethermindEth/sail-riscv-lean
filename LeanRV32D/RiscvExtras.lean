@@ -10,6 +10,7 @@ import LeanRV32D.Sail.Sail
 import LeanRV32D.Defs
 
 open Sail
+open ConcurrencyInterfaceV1
 
 def print_bits (_ : String) (_ : BitVec n) : Unit := ()
 def print_string (_ : String) (_ : String) : Unit := ()
@@ -30,7 +31,7 @@ axiom plat_term_write {α} : α → SailM Unit
 axiom plat_term_read : Unit → SailM String
 
 -- Reservations
-axiom load_reservation : Arch.pa → SailM Unit
+axiom load_reservation : Arch.pa → Nat → SailM Unit
 axiom match_reservation : Arch.pa → Bool
 axiom cancel_reservation : Unit → SailM Unit
 axiom valid_reservation : Unit → Bool

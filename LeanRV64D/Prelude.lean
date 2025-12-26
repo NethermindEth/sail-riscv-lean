@@ -7,6 +7,7 @@ set_option linter.unusedVariables false
 set_option match.ignoreUnusedAlts true
 
 open Sail
+open ConcurrencyInterfaceV1
 
 noncomputable section
 
@@ -19,6 +20,7 @@ open zvk_vaesef_funct6
 open zvk_vaesdm_funct6
 open zvk_vaesdf_funct6
 open zicondop
+open xRET_type
 open wxfunct6
 open wvxfunct6
 open wvvfunct6
@@ -54,6 +56,7 @@ open vfunary1
 open vfunary0
 open vfnunary0
 open vextfunct6
+open vector_support
 open uop
 open sopw
 open sop
@@ -63,10 +66,12 @@ open ropw
 open rop
 open rmvvfunct6
 open rivvfunct6
+open rfwvvfunct6
 open rfvvfunct6
 open regno
 open regidx
 open read_kind
+open pte_check_failure
 open pmpAddrMatch
 open physaddr
 open option
@@ -82,9 +87,12 @@ open mvxfunct6
 open mvvmafunct6
 open mvvfunct6
 open mmfunct6
+open misaligned_fault
 open maskfunct3
+open landing_pad_expectation
 open iop
 open instruction
+open indexed_mop
 open fwvvmafunct6
 open fwvvfunct6
 open fwvfunct6
@@ -99,6 +107,7 @@ open fvfmafunct6
 open fvffunct6
 open fregno
 open fregidx
+open float_class
 open f_un_x_op_H
 open f_un_x_op_D
 open f_un_rm_xf_op_S
@@ -134,37 +143,46 @@ open csrop
 open cregidx
 open checked_cbop
 open cfregidx
+open cbop_zicbop
 open cbop_zicbom
 open cbie
 open bropw_zbb
 open brop_zbs
 open brop_zbkb
 open brop_zbb
+open breakpoint_cause
 open bop
 open biop_zbs
 open barrier_kind
 open amoop
 open agtype
 open WaitReason
+open VectorHalf
 open TrapVectorMode
+open TrapCause
 open Step
+open Software_Check_Code
+open Signedness
+open SWCheckCodes
 open SATPMode
+open Reservability
 open Register
 open Privilege
 open PmpAddrMatchType
 open PTW_Error
 open PTE_Check
+open MemoryAccessType
 open InterruptType
 open ISA_Format
 open HartState
 open FetchResult
 open Ext_DataAddr_Check
-open Ext_ControlAddr_Check
 open ExtStatus
 open ExecutionResult
 open ExceptionType
+open CSRAccessType
+open AtomicSupport
 open Architecture
-open AccessType
 
 def not_bit (b : (BitVec 1)) : (BitVec 1) :=
   if ((b == 1#1) : Bool)
@@ -175,7 +193,7 @@ def not_bit (b : (BitVec 1)) : (BitVec 1) :=
 def not (b : Bool) : Bool :=
   (! b)
 
-def print_log_instr (message : String) (pc : (BitVec 64)) : Unit :=
+def print_log_instr (message : String) (_pc : (BitVec 64)) : Unit :=
   (print_endline message)
 
 def print_step (_ : Unit) : Unit :=
@@ -184,7 +202,19 @@ def print_step (_ : Unit) : Unit :=
 def get_config_print_instr (_ : Unit) : Bool :=
   false
 
-def get_config_print_platform (_ : Unit) : Bool :=
+def get_config_print_clint (_ : Unit) : Bool :=
+  false
+
+def get_config_print_exception (_ : Unit) : Bool :=
+  false
+
+def get_config_print_interrupt (_ : Unit) : Bool :=
+  false
+
+def get_config_print_htif (_ : Unit) : Bool :=
+  false
+
+def get_config_print_pma (_ : Unit) : Bool :=
   false
 
 def get_config_rvfi (_ : Unit) : Bool :=
@@ -196,10 +226,6 @@ def get_config_use_abi_names (_ : Unit) : Bool :=
 /-- Type quantifiers: k_n : Nat, k_n ≥ 0, m : Nat, m ≥ 0, m ≥ k_n -/
 def sign_extend {m : _} (v : (BitVec k_n)) : (BitVec m) :=
   (Sail.BitVec.signExtend v m)
-
-/-- Type quantifiers: k_n : Nat, k_n ≥ 0, m : Nat, m ≥ 0, m ≥ k_n -/
-def zero_extend {m : _} (v : (BitVec k_n)) : (BitVec m) :=
-  (Sail.BitVec.zeroExtend v m)
 
 /-- Type quantifiers: n : Nat, n ≥ 0, n ≥ 0 -/
 def zeros {n : _} : (BitVec n) :=
@@ -213,22 +239,18 @@ def ones {n : _} : (BitVec n) :=
 def trunc {m : _} (v : (BitVec k_n)) : (BitVec m) :=
   (Sail.BitVec.truncate v m)
 
-/-- Type quantifiers: k_ex369025# : Bool -/
+/-- Type quantifiers: k_ex646733_ : Bool -/
 def bool_bit_forwards (arg_ : Bool) : (BitVec 1) :=
   match arg_ with
   | true => 1#1
   | false => 0#1
 
-def bool_bit_backwards (arg_ : (BitVec 1)) : SailM Bool := do
+def bool_bit_backwards (arg_ : (BitVec 1)) : Bool :=
   match arg_ with
-  | 1#1 => (pure true)
-  | 0#1 => (pure false)
-  | _ =>
-    (do
-      assert false "Pattern match failure at unknown location"
-      throw Error.Exit)
+  | 1 => true
+  | _ => false
 
-/-- Type quantifiers: k_ex369026# : Bool -/
+/-- Type quantifiers: k_ex646734_ : Bool -/
 def bool_bit_forwards_matches (arg_ : Bool) : Bool :=
   match arg_ with
   | true => true
@@ -236,53 +258,74 @@ def bool_bit_forwards_matches (arg_ : Bool) : Bool :=
 
 def bool_bit_backwards_matches (arg_ : (BitVec 1)) : Bool :=
   match arg_ with
-  | 1#1 => true
-  | 0#1 => true
-  | g__10 => false
+  | 1 => true
+  | 0 => true
+  | _ => false
 
-/-- Type quantifiers: k_ex369027# : Bool -/
+/-- Type quantifiers: k_ex646735_ : Bool -/
 def bool_bits_forwards (arg_ : Bool) : (BitVec 1) :=
   match arg_ with
-  | true => (0b1 : (BitVec 1))
-  | false => (0b0 : (BitVec 1))
+  | true => 1#1
+  | false => 0#1
 
 def bool_bits_backwards (arg_ : (BitVec 1)) : Bool :=
-  let b__0 := arg_
-  if ((b__0 == (0b1 : (BitVec 1))) : Bool)
-  then true
-  else false
+  match arg_ with
+  | 1 => true
+  | _ => false
 
-/-- Type quantifiers: k_ex369029# : Bool -/
+/-- Type quantifiers: k_ex646736_ : Bool -/
 def bool_bits_forwards_matches (arg_ : Bool) : Bool :=
   match arg_ with
   | true => true
   | false => true
 
 def bool_bits_backwards_matches (arg_ : (BitVec 1)) : Bool :=
-  let b__0 := arg_
-  if ((b__0 == (0b1 : (BitVec 1))) : Bool)
-  then true
-  else
-    (if ((b__0 == (0b0 : (BitVec 1))) : Bool)
-    then true
-    else false)
+  match arg_ with
+  | 1 => true
+  | 0 => true
+  | _ => false
 
-/-- Type quantifiers: k_ex369032# : Bool -/
+/-- Type quantifiers: k_ex646737_ : Bool -/
+def bool_int_forwards (arg_ : Bool) : Int :=
+  match arg_ with
+  | false => 0
+  | true => 1
+
+/-- Type quantifiers: arg_ : Nat, arg_ ∈ {0, 1} -/
+def bool_int_backwards (arg_ : Nat) : Bool :=
+  match arg_ with
+  | 0 => false
+  | _ => true
+
+/-- Type quantifiers: k_ex646741_ : Bool -/
+def bool_int_forwards_matches (arg_ : Bool) : Bool :=
+  match arg_ with
+  | false => true
+  | true => true
+
+/-- Type quantifiers: arg_ : Nat, arg_ ∈ {0, 1} -/
+def bool_int_backwards_matches (arg_ : Nat) : Bool :=
+  match arg_ with
+  | 0 => true
+  | 1 => true
+  | _ => false
+
+/-- Type quantifiers: k_ex646743_ : Bool -/
 def bool_to_bit (x : Bool) : (BitVec 1) :=
   (bool_bit_forwards x)
 
-def bit_to_bool (x : (BitVec 1)) : SailM Bool := do
+def bit_to_bool (x : (BitVec 1)) : Bool :=
   (bool_bit_backwards x)
 
-/-- Type quantifiers: k_ex369034# : Bool -/
+/-- Type quantifiers: k_ex646745_ : Bool -/
 def bool_to_bits (x : Bool) : (BitVec 1) :=
   (bool_bits_forwards x)
 
 def bits_to_bool (x : (BitVec 1)) : Bool :=
   (bool_bits_backwards x)
 
-def bit_to_bits (x : (BitVec 1)) : SailM (BitVec 1) := do
-  (pure (bool_bits_forwards (← (bit_to_bool x))))
+def bit_to_bits (x : (BitVec 1)) : (BitVec 1) :=
+  (bool_bits_forwards (bit_to_bool x))
 
 def bits_to_bit (x : (BitVec 1)) : (BitVec 1) :=
   (bool_to_bit (bits_to_bool x))
@@ -294,7 +337,7 @@ def to_bits {l : _} (n : Nat) : (BitVec l) :=
 /-- Type quantifiers: n : Int, l : Nat, l ≥ 0, l ≥ 0 -/
 def to_bits_checked {l : _} (n : Int) : SailM (BitVec l) := do
   let bv := (get_slice_int l n 0)
-  assert ((BitVec.toNat bv) == n) (HAppend.hAppend "Couldn't convert integer "
+  assert ((BitVec.toNatInt bv) == n) (HAppend.hAppend "Couldn't convert integer "
     (HAppend.hAppend (Int.repr n)
       (HAppend.hAppend " to " (HAppend.hAppend (Int.repr l) " bits without overflow."))))
   (pure bv)
@@ -306,6 +349,34 @@ def to_bits_truncate {l : _} (n : Int) : (BitVec l) :=
 /-- Type quantifiers: n : Int, l : Nat, l ≥ 0, l ≥ 0 -/
 def to_bits_unsafe {l : _} (n : Int) : (BitVec l) :=
   (get_slice_int l n 0)
+
+def undefined_Signedness (_ : Unit) : SailM Signedness := do
+  (internal_pick [Signed, Unsigned])
+
+/-- Type quantifiers: arg_ : Nat, 0 ≤ arg_ ∧ arg_ ≤ 1 -/
+def Signedness_of_num (arg_ : Nat) : Signedness :=
+  match arg_ with
+  | 0 => Signed
+  | _ => Unsigned
+
+def num_of_Signedness (arg_ : Signedness) : Int :=
+  match arg_ with
+  | Signed => 0
+  | Unsigned => 1
+
+def undefined_VectorHalf (_ : Unit) : SailM VectorHalf := do
+  (internal_pick [High, Low])
+
+/-- Type quantifiers: arg_ : Nat, 0 ≤ arg_ ∧ arg_ ≤ 1 -/
+def VectorHalf_of_num (arg_ : Nat) : VectorHalf :=
+  match arg_ with
+  | 0 => High
+  | _ => Low
+
+def num_of_VectorHalf (arg_ : VectorHalf) : Int :=
+  match arg_ with
+  | High => 0
+  | Low => 1
 
 /-- Type quantifiers: k_n : Nat, k_n ≥ 0, k_n > 0 -/
 def zopz0zI_s (x : (BitVec k_n)) (y : (BitVec k_n)) : Bool :=
@@ -325,19 +396,23 @@ def zopz0zKzJ_s (x : (BitVec k_n)) (y : (BitVec k_n)) : Bool :=
 
 /-- Type quantifiers: k_n : Nat, k_n ≥ 0 -/
 def zopz0zI_u (x : (BitVec k_n)) (y : (BitVec k_n)) : Bool :=
-  ((BitVec.toNat x) <b (BitVec.toNat y))
+  ((BitVec.toNatInt x) <b (BitVec.toNatInt y))
 
 /-- Type quantifiers: k_n : Nat, k_n ≥ 0 -/
 def zopz0zK_u (x : (BitVec k_n)) (y : (BitVec k_n)) : Bool :=
-  ((BitVec.toNat x) >b (BitVec.toNat y))
+  ((BitVec.toNatInt x) >b (BitVec.toNatInt y))
 
 /-- Type quantifiers: k_n : Nat, k_n ≥ 0 -/
 def zopz0zIzJ_u (x : (BitVec k_n)) (y : (BitVec k_n)) : Bool :=
-  ((BitVec.toNat x) ≤b (BitVec.toNat y))
+  ((BitVec.toNatInt x) ≤b (BitVec.toNatInt y))
 
 /-- Type quantifiers: k_n : Nat, k_n ≥ 0 -/
 def zopz0zKzJ_u (x : (BitVec k_n)) (y : (BitVec k_n)) : Bool :=
-  ((BitVec.toNat x) ≥b (BitVec.toNat y))
+  ((BitVec.toNatInt x) ≥b (BitVec.toNatInt y))
+
+/-- Type quantifiers: k_ex646825_ : Bool, k_ex646824_ : Bool -/
+def zopz0zJzJzK (x : Bool) (y : Bool) : Bool :=
+  ((not x) || y)
 
 /-- Type quantifiers: shift : Nat, k_n : Nat, k_n ≥ 0, k_n ≥ 1 ∧ shift ≥ 0 -/
 def shift_right_arith (value : (BitVec k_n)) (shift : Nat) : (BitVec k_n) :=
@@ -346,7 +421,7 @@ def shift_right_arith (value : (BitVec k_n)) (shift : Nat) : (BitVec k_n) :=
 
 /-- Type quantifiers: k_m : Nat, k_m ≥ 0, k_n : Nat, k_n ≥ 0, k_n ≥ 1 -/
 def shift_bits_right_arith (value : (BitVec k_n)) (shift : (BitVec k_m)) : (BitVec k_n) :=
-  (shift_right_arith value (BitVec.toNat shift))
+  (shift_right_arith value (BitVec.toNatInt shift))
 
 /-- Type quantifiers: k_m : Nat, k_m ≥ 0, shift : Nat, k_m ≥ shift ∧ shift ≥ 0 -/
 def rotater (value : (BitVec k_m)) (shift : Nat) : (BitVec k_m) :=
@@ -358,11 +433,11 @@ def rotatel (value : (BitVec k_m)) (shift : Nat) : (BitVec k_m) :=
 
 /-- Type quantifiers: k_m : Nat, k_m ≥ 0, k_n : Nat, k_n ≥ 0, k_n ≥ 0 ∧ k_m ≥ (2 ^ k_n) -/
 def rotate_bits_right (value : (BitVec k_m)) (shift : (BitVec k_n)) : (BitVec k_m) :=
-  (rotater value (BitVec.toNat shift))
+  (rotater value (BitVec.toNatInt shift))
 
 /-- Type quantifiers: k_m : Nat, k_m ≥ 0, k_n : Nat, k_n ≥ 0, k_n ≥ 0 ∧ k_m ≥ (2 ^ k_n) -/
 def rotate_bits_left (value : (BitVec k_m)) (shift : (BitVec k_n)) : (BitVec k_m) :=
-  (rotatel value (BitVec.toNat shift))
+  (rotatel value (BitVec.toNatInt shift))
 
 /-- Type quantifiers: k_n : Nat, k_n ≥ 0, k_n > 0 -/
 def reverse_bits (xs : (BitVec k_n)) : (BitVec k_n) := Id.run do
@@ -375,20 +450,13 @@ def reverse_bits (xs : (BitVec k_n)) : (BitVec k_n) := Id.run do
     loop_vars := (BitVec.update ys i (BitVec.access xs (((Sail.BitVec.length ys) -i 1) -i i)))
   (pure loop_vars)
 
-/-- Type quantifiers: n : Nat, n ∈ {1, 2, 4, 8, 16, 32, 64} -/
-def log2 (n : Nat) : Int :=
-  match n with
-  | 1 => 0
-  | 2 => 1
-  | 4 => 2
-  | 8 => 3
-  | 16 => 4
-  | 32 => 5
-  | _ => 6
-
 /-- Type quantifiers: k_n : Nat, k_n ≥ 0, k_n ≥ 0 -/
 def hex_bits_str (x : (BitVec k_n)) : String :=
   (BitVec.toFormatted
     (zero_extend
       (m := ((3 -i (Int.tmod ((Sail.BitVec.length x) +i 3) 4)) +i (Sail.BitVec.length x))) x))
+
+/-- Type quantifiers: k_b : Bool, k_b -/
+def static_assert (x_0 : Bool) : Unit :=
+  ()
 

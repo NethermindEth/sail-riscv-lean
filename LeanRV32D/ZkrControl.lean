@@ -6,6 +6,7 @@ set_option linter.unusedVariables false
 set_option match.ignoreUnusedAlts true
 
 open Sail
+open ConcurrencyInterfaceV1
 
 noncomputable section
 
@@ -18,6 +19,7 @@ open zvk_vaesef_funct6
 open zvk_vaesdm_funct6
 open zvk_vaesdf_funct6
 open zicondop
+open xRET_type
 open wxfunct6
 open wvxfunct6
 open wvvfunct6
@@ -53,6 +55,7 @@ open vfunary1
 open vfunary0
 open vfnunary0
 open vextfunct6
+open vector_support
 open uop
 open sopw
 open sop
@@ -62,10 +65,12 @@ open ropw
 open rop
 open rmvvfunct6
 open rivvfunct6
+open rfwvvfunct6
 open rfvvfunct6
 open regno
 open regidx
 open read_kind
+open pte_check_failure
 open pmpAddrMatch
 open physaddr
 open option
@@ -81,9 +86,12 @@ open mvxfunct6
 open mvvmafunct6
 open mvvfunct6
 open mmfunct6
+open misaligned_fault
 open maskfunct3
+open landing_pad_expectation
 open iop
 open instruction
+open indexed_mop
 open fwvvmafunct6
 open fwvvfunct6
 open fwvfunct6
@@ -98,6 +106,7 @@ open fvfmafunct6
 open fvffunct6
 open fregno
 open fregidx
+open float_class
 open f_un_x_op_H
 open f_un_x_op_D
 open f_un_rm_xf_op_S
@@ -140,20 +149,28 @@ open bropw_zbb
 open brop_zbs
 open brop_zbkb
 open brop_zbb
+open breakpoint_cause
 open bop
 open biop_zbs
 open barrier_kind
 open amoop
 open agtype
 open WaitReason
+open VectorHalf
 open TrapVectorMode
+open TrapCause
 open Step
+open Software_Check_Code
+open Signedness
+open SWCheckCodes
 open SATPMode
+open Reservability
 open Register
 open Privilege
 open PmpAddrMatchType
 open PTW_Error
 open PTE_Check
+open MemoryAccessType
 open InterruptType
 open ISA_Format
 open HartState
@@ -162,8 +179,9 @@ open Ext_DataAddr_Check
 open ExtStatus
 open ExecutionResult
 open ExceptionType
+open CSRAccessType
+open AtomicSupport
 open Architecture
-open AccessType
 
 def undefined_seed_opst (_ : Unit) : SailM seed_opst := do
   (internal_pick [BIST, ES16, WAIT, DEAD])
@@ -185,22 +203,17 @@ def num_of_seed_opst (arg_ : seed_opst) : Int :=
 
 def opst_code_forwards (arg_ : seed_opst) : (BitVec 2) :=
   match arg_ with
-  | BIST => (0b00 : (BitVec 2))
-  | WAIT => (0b01 : (BitVec 2))
-  | ES16 => (0b10 : (BitVec 2))
-  | DEAD => (0b11 : (BitVec 2))
+  | BIST => 0b00#2
+  | WAIT => 0b01#2
+  | ES16 => 0b10#2
+  | DEAD => 0b11#2
 
 def opst_code_backwards (arg_ : (BitVec 2)) : seed_opst :=
-  let b__0 := arg_
-  if ((b__0 == (0b00 : (BitVec 2))) : Bool)
-  then BIST
-  else
-    (if ((b__0 == (0b01 : (BitVec 2))) : Bool)
-    then WAIT
-    else
-      (if ((b__0 == (0b10 : (BitVec 2))) : Bool)
-      then ES16
-      else DEAD))
+  match arg_ with
+  | 0b00 => BIST
+  | 0b01 => WAIT
+  | 0b10 => ES16
+  | _ => DEAD
 
 def opst_code_forwards_matches (arg_ : seed_opst) : Bool :=
   match arg_ with
@@ -210,23 +223,16 @@ def opst_code_forwards_matches (arg_ : seed_opst) : Bool :=
   | DEAD => true
 
 def opst_code_backwards_matches (arg_ : (BitVec 2)) : Bool :=
-  let b__0 := arg_
-  if ((b__0 == (0b00 : (BitVec 2))) : Bool)
-  then true
-  else
-    (if ((b__0 == (0b01 : (BitVec 2))) : Bool)
-    then true
-    else
-      (if ((b__0 == (0b10 : (BitVec 2))) : Bool)
-      then true
-      else
-        (if ((b__0 == (0b11 : (BitVec 2))) : Bool)
-        then true
-        else false)))
+  match arg_ with
+  | 0b00 => true
+  | 0b01 => true
+  | 0b10 => true
+  | 0b11 => true
+  | _ => false
 
 def read_seed_csr (_ : Unit) : SailM (BitVec 32) := do
-  let reserved_bits : (BitVec 6) := (0b000000 : (BitVec 6))
-  let custom_bits : (BitVec 8) := (0x00 : (BitVec 8))
+  let reserved_bits : (BitVec 6) := 0b000000#6
+  let custom_bits : (BitVec 8) := 0x00#8
   let seed ← (( do (get_16_random_bits ()) ) : SailM (BitVec 16) )
   (pure (zero_extend (m := 32)
       ((opst_code_forwards ES16) ++ (reserved_bits ++ (custom_bits ++ seed)))))
