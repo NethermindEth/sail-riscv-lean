@@ -191,9 +191,9 @@ def plat_enable_dirty_update : Bool := false
 
 def plat_enable_misaligned_access : Bool := true
 
-def plat_clint_base : physaddrbits := unwrapValue ((to_bits_checked (l := 34) (33554432 : Int)))
+def plat_clint_base : physaddrbits := unwrapValue ((to_bits_checked (l := 34) (0 : Int)))
 
-def plat_clint_size : physaddrbits := unwrapValue ((to_bits_checked (l := 34) (786432 : Int)))
+def plat_clint_size : physaddrbits := unwrapValue ((to_bits_checked (l := 34) (0 : Int)))
 
 def plat_insns_per_tick : nat1 := 2
 
@@ -224,4 +224,3 @@ def fetch_page_fault_writes_xtval : Bool := true
 def software_check_fault_writes_xtval : Bool := true
 
 def reserved_exceptions_write_xtval : Bool := false
-
