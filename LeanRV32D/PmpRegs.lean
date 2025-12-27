@@ -186,7 +186,7 @@ open CSRAccessType
 open AtomicSupport
 open Architecture
 
-def sys_pmp_count : Int := 16
+def sys_pmp_count : Int := 0
 
 def sys_pmp_usable_count : Nat := 16
 
@@ -330,4 +330,3 @@ def pmpWriteAddrReg (n : Nat) (v : (BitVec 32)) : SailM Unit := do
           then (pure (pmpTORLocked (GetElem?.getElem! (← readReg pmpcfg_n) (n +i 1))))
           else (pure false)) (GetElem?.getElem! (← readReg pmpaddr_n) n) v))
   else (pure ())
-
