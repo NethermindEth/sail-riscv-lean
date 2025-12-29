@@ -672,7 +672,7 @@ def hartSupports (merge_var : extension) : Bool :=
   | Ext_Zfhmin => true
   | Ext_Zfinx => false
   | Ext_Zdinx => false
-  | Ext_Zca => true
+  | Ext_Zca => false
   | Ext_Zcb => true
   | Ext_Zcd => true
   | Ext_Zcf => ((true : Bool) && (xlen == 32))
