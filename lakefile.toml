@@ -2,6 +2,11 @@ name = "LeanRV"
 defaultTargets = ["LeanRV32D", "LeanRV64D"]
 moreLeanArgs = ["--tstack=400000"]
 
+[[require]]
+name = "mathlib"
+scope = "leanprover-community"
+rev = "v4.26.0"
+
 [[lean_lib]]
 name = "LeanRV32D"
 leanOptions.weak.linter.style.nameCheck = false

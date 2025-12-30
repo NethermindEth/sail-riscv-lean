@@ -1,3 +1,5 @@
+import Mathlib
+
 import LeanRV32D.Sail.Attr
 
 import Std.Data.ExtDHashMap
@@ -129,7 +131,7 @@ def parse_hex_bits_digits (n : Nat) (str : String) : BitVec n :=
     let bv := parse_hex_bits_digits (n-4) (str.take (len-1))
     let c := String.Pos.Raw.get! str ⟨len-1⟩ |> charToHex
     BitVec.append bv c |>.cast (by simp_all)
-decreasing_by simp_all <;> omega
+decreasing_by simp_all; omega
 
 def parse_dec_bits (n : Nat) (str : String) : BitVec n :=
   go str.length str
@@ -450,10 +452,13 @@ open Sail
 
 section Regs
 
-variable {Register : Type} {RegisterType : Register → Type} [DecidableEq Register] [Hashable Register]
+variable
+  {Register : Type}
+  {RegisterType : Register → Type}
+  [DecidableEq Register]
 
 structure SequentialState (RegisterType : Register → Type) (c : ChoiceSource) where
-  regs : Std.ExtDHashMap Register RegisterType
+  regs : (reg : Register) -> RegisterType reg
   choiceState : c.α
   mem : Std.ExtHashMap Nat (BitVec 8)
   tags : Unit
@@ -516,13 +521,11 @@ def internal_pick {α : Type} : List α → PreSailM RegisterType c ue α
 
 @[simp_sail]
 def writeReg (r : Register) (v : RegisterType r) : PreSailM RegisterType c ue PUnit :=
-  modify fun s => { s with regs := s.regs.insert r v }
+  modify fun s => { s with regs := Function.update s.regs r v }
 
 @[simp_sail]
 def readReg (r : Register) : PreSailM RegisterType c ue (RegisterType r) := do
-  let .some s := (← get).regs.get? r
-    | throw .Unreachable
-  pure s
+  pure ((← get).regs r)
 
 @[simp_sail]
 def readRegRef (reg_ref : @RegisterRef Register RegisterType α) : PreSailM RegisterType c ue α := do
@@ -724,7 +727,11 @@ end Regs
 
 section SailME
 
-variable {Register : Type} {RT : Register → Type} [DecidableEq Register] [Hashable Register]
+variable
+  {Register : Type}
+  [DecidableEq Register]
+  {RT : Register → Type}
+  [Inhabited ((reg : Register) → RT reg)]
 
 variable (RT) in
 abbrev PreSailME c ue α := ExceptT (Error ue ⊕ α) (PreSailM RT c ue)
@@ -770,7 +777,10 @@ namespace Sail
 
 open PreSail
 
-variable {Register : Type} {RegisterType : Register → Type} [DecidableEq Register] [Hashable Register]
+variable
+  {Register : Type}
+  {RegisterType : Register → Type}
+  [DecidableEq Register]
 
 def main_of_sail_main (initialState : SequentialState RegisterType c) (main : Unit → PreSailM RegisterType c ue Unit) : IO UInt32 := do
   let res := main () |>.run initialState
@@ -803,7 +813,6 @@ def untilFuelM {α} [Monad m] (fuel : Nat) (cond : α → m Bool) (init : α) (f
       let x ← f x
       if ←cond x then pure x else go x n
   go init fuel
-
 
 instance : CoeT Int x Nat where
   coe := x.toNat
@@ -842,8 +851,8 @@ instance (priority := low) : HXor (BitVec n) (BitVec m) (BitVec n) where
   hXor x y := x ^^^ y
 
 instance [GetElem? coll Nat elem valid] : GetElem? coll Int elem (λ c i ↦ valid c i.toNat) where
-  getElem c i h := c[i.toNat]'h
-  getElem? c i := c[i.toNat]?
+  getElem x i h := x[i.toNat]'h
+  getElem? x i := x[i.toNat]?
 
 instance : HPow Int Int Int where
   hPow x n := x ^ n.toNat
